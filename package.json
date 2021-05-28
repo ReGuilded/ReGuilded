@@ -1,0 +1,25 @@
+{
+  "name": "reguilded",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "electron electron/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ReGuilded/ReGuilded.git"
+  },
+  "author": "ReGuilded",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ReGuilded/ReGuilded/issues"
+  },
+  "homepage": "https://github.com/ReGuilded/ReGuilded#readme",
+  "dependencies": {
+    "asar": "^3.0.3",
+    "child_process": "^1.0.2",
+    "electron": "^13.0.1",
+    "fs": "0.0.1-security",
+    "path": "^0.12.7"
+  }
+}

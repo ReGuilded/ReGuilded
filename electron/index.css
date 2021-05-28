@@ -1,0 +1,82 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+html,body {
+    width: 100%;
+    height: 100%;
+    font-family: sans-serif;
+    background-color: #202020;
+}
+
+body {
+    overflow: hidden;
+}
+
+.draggable {
+    height: 25px;
+    width: 100%;
+
+    background-color: #313131;
+
+    position: absolute;
+    -webkit-app-region: drag;    
+}
+
+main {
+    width: 100%;
+    min-height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.logo {
+    width: 302px;
+    height: auto;
+
+    fill: #CC3333;
+}
+
+h1 {
+    color: #FFFFFF;
+
+    margin: 10px;
+}
+
+h1 > span {
+    color: #CC3333;
+}
+
+hr {
+    width: 302px;
+
+    border-color: #313131;
+    border-radius: 15px;
+
+    margin: 5px;
+}
+
+.hidden {
+    display: none;
+}
+
+.controlBtns {
+    width: 228px;
+    height: 25px;
+
+    margin: 10px;
+}
+
+.controlBtns > button {
+    width: 100%;
+    height: 100%;
+}
+
+.controlBtns > button:hover {
+    cursor: pointer;
+}

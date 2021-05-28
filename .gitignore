@@ -1,3 +1,7 @@
+# Guilded files
+temp
+app.asar
+
 # Logs
 logs
 *.log
@@ -102,3 +106,8 @@ dist
 
 # TernJS port file
 .tern-port
+
+#Custom
+_dev_scripts/
+tests/
+patcher-files/
