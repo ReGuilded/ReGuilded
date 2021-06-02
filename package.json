@@ -1,9 +1,12 @@
 {
   "name": "reguilded",
-  "version": "1.0.0",
+  "version": "0.0.1-alpha",
   "description": "",
+  "main": "",
   "scripts": {
-    "test": "electron electron/main.js"
+    "electronTest": "electron ElectronApp/main.js",
+    "inject": "node ReGuilded/inject/index.js inject",
+    "uninject": "node reguilded/inject/index.js uninject"
   },
   "repository": {
     "type": "git",
