@@ -1,5 +1,4 @@
 const { app, BrowserWindow } = require("electron");
-const { join } = require("path");
 
 function createWindow() {
     const injectWindow = new BrowserWindow({
@@ -12,7 +11,7 @@ function createWindow() {
         titleBarStyle: 'customButtonsOnHover',
         frame: false,
         webPreferences: {
-            nodeIntegration: true,
+            nodeIntegration: true
         }
     })
 
