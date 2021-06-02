@@ -1,5 +1,5 @@
 const { join } = require("path");
 
-exports.getAppDir = async() => join(process.env.LOCALAPPDATA, "Programs/Guilded/resources/app");
+exports.getAppDir = () => join(process.env.LOCALAPPDATA, "Programs/Guilded/resources/app");
 
-exports.closeGuilded = async() => "taskkill /f /IM Guilded.exe >nul";
+exports.closeGuilded = "taskkill /f /IM Guilded.exe >nul";
