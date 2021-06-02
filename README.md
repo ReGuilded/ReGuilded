@@ -10,7 +10,7 @@
   </a>
 </p>
 
-**ReGuilded** is like **BetterDiscord** for [Guilded](https://guilded.gg).  We make it easy to inject CSS (Themes) and JS (Plugins) into your desktop Guilded client, and provide a repository of Themes and Plugins to choose from.
+**ReGuilded** is like **BetterDiscord** for [Guilded](https://guilded.gg).  We make it easy to inject CSS (Themes) and JS (Addons) into your desktop Guilded client, and provide a repository of Themes and Addons to choose from.
 
 ## Installation
 
