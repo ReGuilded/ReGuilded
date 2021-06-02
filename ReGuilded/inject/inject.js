@@ -6,7 +6,7 @@ exports.inject = async(appDir) => {
         try {
             mkdirSync(appDir);
 
-            writeFileSync(join(appDir, "index.js"), `require(\`${__dirname.replace(RegExp(sep.repeat(2), 'g'), '/')}/../src/reguildedPatcher.js\`)`);
+            writeFileSync(join(appDir, "index.js"), `require(\`${__dirname.replace(RegExp(sep.repeat(2), 'g'), '/')}/../src/patch.js\`)`);
             writeFileSync(join(appDir, "package.json"), JSON.stringify({ name: "guilded", main: "index.js", version: "0.0.0" }));
 
             return;
