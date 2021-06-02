@@ -6,7 +6,7 @@
   "scripts": {
     "electronTest": "electron ElectronApp/main.js",
     "inject": "node ReGuilded/inject/index.js inject",
-    "uninject": "node reguilded/inject/index.js uninject"
+    "uninject": "node ReGuilded/inject/index.js uninject"
   },
   "repository": {
     "type": "git",
