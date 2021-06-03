@@ -20,9 +20,9 @@
 html,body {
     width: 100%;
     height: 100%;
-    
-    font-family: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans", "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
+
     background-color: var(--background-level-1);
+    font-family: sans-serif;
     color: white;
 }
 
@@ -91,31 +91,29 @@ hr {
 
 .controlBtns button {
     border: none;
-    margin: 1rem;
-    padding: 0.5rem;
     border-radius: 0.5rem;
     
-    width: 100%;
-    height: 150%;
+    padding: 0.5rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
     
     outline: none;
     cursor: pointer;
+    transition: 200ms ease;
     
     color: white;
     background-color: var(--background-level-2);
-
-    transition: 200ms ease;
-    transform: scale(1.15);
 }
 .controlBtns > button:hover {
+    border-radius: 1.5rem;
+
+    transform: scale(1.15);
+
     font-weight: bold;
     background-color: var(--background-level-3);
 }
 .controlBtns > button:active {
     background-color: var(--background-level-0);
-}
-.patch {
-    background-color: #00FF7F;
 }
 .inject {
     background-color: #cc3333;
@@ -123,7 +121,7 @@ hr {
 }
 .inject:hover {
     background-color: rgb(238, 76, 76);
-    box-shadow: 0 0 20px #cc3333;
+    box-shadow: 0 0 0.7rem #cc3333;
 }
 .uninject {
     background-color: #f5c400;
@@ -131,5 +129,5 @@ hr {
 }
 .uninject:hover {
     background-color: #f8d547;
-    box-shadow: 0 0 20px #f5c400;
+    box-shadow: 0 0 0.7rem #f5c400;
 }
