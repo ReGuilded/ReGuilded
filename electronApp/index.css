@@ -5,6 +5,7 @@
     --background-level-3: #424242;
     --reguilded-theme: #CC3333;
 }
+
 /**
  * Body
  */
@@ -32,13 +33,6 @@ body {
 }
 
 /* App body */
-.draggable {
-    height: 1.5rem;
-    width: 100%;
-    position: absolute;
-
-    /* background-color: #313131; */
-}
 .main {
     width: 100%;
     min-height: 100%;
