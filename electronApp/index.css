@@ -1,0 +1,111 @@
+:root {
+    --background-level-0: #171717;
+    --background-level-1: #202020;
+    --background-level-2: #313131;
+    --background-level-3: #424242;
+    --reguilded-theme: #CC3333;
+}
+/**
+ * Body
+ */
+
+/* HTML */
+* {
+    padding: 0;
+    margin: 0;
+
+    box-sizing: border-box;
+}
+
+html,body {
+    width: 100%;
+    height: 100%;
+
+    background-color: var(--background-level-1);
+    font-family: sans-serif;
+    color: white;
+}
+
+body {
+    overflow: hidden;
+    -webkit-app-region: drag;
+}
+
+/* App body */
+.draggable {
+    height: 1.5rem;
+    width: 100%;
+    position: absolute;
+
+    /* background-color: #313131; */
+}
+.main {
+    width: 100%;
+    min-height: 100%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+/**
+ * Content
+ */
+
+/* Header */
+.logo {
+    width: 15rem;
+    height: auto;
+
+    fill: var(--reguilded-theme);
+}
+.welcomePanel {
+    padding: 1rem;
+
+    user-select: none;
+}
+.reGuildedMark {
+    color: var(--reguilded-theme);
+}
+hr {
+    width: 75%;
+
+    border-style: solid;
+    border-radius: 0.5rem;
+    border-color: var(--background-level-2);
+
+    margin: 0.7rem;
+}
+
+/* Buttons */
+.controlArea {
+    padding: 1rem;
+
+    -webkit-app-region: no-drag;
+}
+.hidden {
+    display: none;
+}
+
+.controlBtns button {
+    border: none;
+    border-radius: 0.5rem;
+    
+    padding: 0.5rem;
+    padding-left: 3rem;
+    padding-right: 3rem;
+    
+    outline: none;
+    cursor: pointer;
+    
+    color: white;
+    background-color: var(--background-level-2);
+}
+.controlBtns > button:hover {
+    background-color: var(--background-level-3);
+}
+.controlBtns > button:active {
+    background-color: var(--background-level-0);
+}
