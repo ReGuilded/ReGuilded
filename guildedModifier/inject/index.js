@@ -13,6 +13,7 @@ try {
     if (err.code === "MODULE_NOT_FOUND")
         logger.error("Unsupported platform", process.platform, ". Please submit a new issue");
 }
+
 /**
  * Performs a given task
  */

@@ -1,4 +1,5 @@
 const { app, BrowserWindow } = require("electron");
+const { join } = require("path");
 
 function createWindow() {
     const injectWindow = new BrowserWindow({
@@ -12,8 +13,9 @@ function createWindow() {
         frame: false,
         webPreferences: {
             nodeIntegration: true,
+            enableRemoteModule: true,
             contextIsolation: false,
-            enableRemoteModule: true
+            preload: join(__dirname, "preload.js")
         }
     })
 

@@ -8,8 +8,12 @@
         <link rel="stylesheet" href="index.css" />
     </head>
     
-    <body> 
+    <body>
         <div class="main">
+            <div id="processingModal" class="processing hidden">
+                <h1 id="processingText">Processing...</h1>
+            </div>
+
             <div class="logoArea">
                 <svg class="logo" viewBox="0 0 152 152" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M135.5 46L116.5 64V56H108V36H116.5V28L135.5 46Z" />
@@ -18,15 +22,19 @@
                 </svg>
             </div>
             <div class="welcomePanel">
-                <h1 class="welcomeMessage">Welcome to <span class="reGuildedMark">ReGuilded</span></h1>
+                <h1 id="welcomeMessage" class="welcomeMessage">Welcome to <span class="reGuildedMark">ReGuilded</span></h1>
             </div>
             <hr>
             <div class="controlArea">
                 <div class="controlBtns">
-                    <button id="injectBtn" class="inject hidden">💉 Inject</button>
-                    <button id="uninjectBtn" class="uninject hidden">👋 Uninject</button>
+                    <button id="injectBtn" onclick="inject()" class="inject hidden">💉 Inject</button>
+                    <button id="uninjectBtn" onclick="uninject()" class="uninject hidden">👋 Uninject</button>
                 </div>
+
+                <p id="error" class="error hidden">There was an error.</p>
             </div>
         </div>
+
+        <script src="./index.js"></script>
     </body>
 </html>
