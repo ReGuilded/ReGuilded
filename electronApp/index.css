@@ -109,6 +109,7 @@ hr {
     
     color: white;
     background-color: var(--background-level-2);
+    user-select: none;
 }
 .controlBtns > button:hover {
     border-radius: 1.5rem;
