@@ -8,8 +8,8 @@ exports.inject = async(appDir) => {
             mkdirSync(appDir);
 
             // Creates a path for patcher for require statement
-            const patcherPath = join(__dirname.replace(RegExp(sep.repeat(2), 'g'), '/'), "../src/reguildedPatcher.js");
-
+            const patcherPath = join(__dirname, "../src/reguildedPatcher.js").replace(RegExp(sep.repeat(2), "g"), "/");
+            
             // Creates require statement in `index.js`
             writeFileSync(join(appDir, "index.js"), `require("${patcherPath}");`);
             writeFileSync(join(appDir, "package.json"), JSON.stringify({ name: "guilded", main: "index.js", version: "0.0.0" }));

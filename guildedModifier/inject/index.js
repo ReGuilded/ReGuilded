@@ -36,4 +36,4 @@ async function injectAsync() {
 };
 
 // If platform module was found, execute injectAsync
-if (platformModule !== void 0) injectAsync()
+if (platformModule !== void 0) injectAsync();

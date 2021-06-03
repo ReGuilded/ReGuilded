@@ -4,9 +4,9 @@
   "description": "",
   "main": "",
   "scripts": {
-    "electronTest": "electron ElectronApp/main.js",
-    "inject": "node ReGuilded/inject/index.js inject",
-    "uninject": "node ReGuilded/inject/index.js uninject"
+    "electronTest": "electron electronApp/main.js",
+    "inject": "node guildedModifier/inject/index.js inject",
+    "uninject": "node guildedModifier/inject/index.js uninject"
   },
   "repository": {
     "type": "git",
