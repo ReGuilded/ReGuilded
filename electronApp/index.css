@@ -1,0 +1,135 @@
+:root {
+    --background-level-0: #171717;
+    --background-level-1: #202020;
+    --background-level-2: #313131;
+    --background-level-3: #424242;
+    --reguilded-theme: #CC3333;
+}
+/**
+ * Body
+ */
+
+/* HTML */
+* {
+    padding: 0;
+    margin: 0;
+
+    box-sizing: border-box;
+}
+
+html,body {
+    width: 100%;
+    height: 100%;
+    
+    font-family: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans", "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
+    background-color: var(--background-level-1);
+    color: white;
+}
+
+body {
+    overflow: hidden;
+    -webkit-app-region: drag;
+}
+
+/* App body */
+.draggable {
+    height: 1.5rem;
+    width: 100%;
+    position: absolute;
+
+    /* background-color: #313131; */
+}
+.main {
+    width: 100%;
+    min-height: 100%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+/**
+ * Content
+ */
+
+/* Header */
+.logo {
+    width: 15rem;
+    height: auto;
+
+    fill: var(--reguilded-theme);
+}
+.welcomePanel {
+    padding: 1rem;
+
+    user-select: none;
+}
+.reGuildedMark {
+    color: var(--reguilded-theme);
+}
+hr {
+    width: 75%;
+
+    border-style: solid;
+    border-radius: 0.5rem;
+    border-color: var(--background-level-2);
+
+    margin: 0.7rem;
+}
+
+/* Buttons */
+.controlArea {
+    padding: 1rem;
+
+    -webkit-app-region: no-drag;
+}
+.hidden {
+    display: none;
+}
+
+.controlBtns button {
+    border: none;
+    margin: 1rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    
+    width: 100%;
+    height: 150%;
+    
+    outline: none;
+    cursor: pointer;
+    
+    color: white;
+    background-color: var(--background-level-2);
+
+    transition: 200ms ease;
+    transform: scale(1.15);
+}
+.controlBtns > button:hover {
+    font-weight: bold;
+    background-color: var(--background-level-3);
+}
+.controlBtns > button:active {
+    background-color: var(--background-level-0);
+}
+.patch {
+    background-color: #00FF7F;
+}
+.inject {
+    background-color: #cc3333;
+    color: white;
+}
+.inject:hover {
+    background-color: rgb(238, 76, 76);
+    box-shadow: 0 0 20px #cc3333;
+}
+.uninject {
+    background-color: #f5c400;
+    color: #111820;
+}
+.uninject:hover {
+    background-color: #f8d547;
+    box-shadow: 0 0 20px #f5c400;
+}
