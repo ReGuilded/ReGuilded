@@ -5,7 +5,6 @@ const log4js = require("log4js")
 const logger = log4js.getLogger("ReGuilded")
 logger.level = "debug"
 
-// TODO: Figure out what directory Guilded is in on derwin and what the command is to force close it.
 let platformModule;
 try {
     platformModule = require(`./platforms/${process.platform}.js`);
