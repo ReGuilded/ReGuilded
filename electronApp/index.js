@@ -1,4 +1,5 @@
-const { exec } = require("child_process");
+const { getPlatformModule } = require("../guildedModifier/inject/injectUtil");
+const { inject, uninject } = require("../guildedModifier/inject/main")
 
 const processingModal = document.getElementById("processingModal");
 const processingText = document.getElementById("processingText");
@@ -7,9 +8,7 @@ const uninjectButton = document.getElementById("uninjectBtn");
 const errorElement = document.getElementById("error");
 let _debounce = false;
 
-// TODO: Add a processing modal, when injecting or uninjecting...
-
-function inject() {
+async function onclickInject() {
     if (!_debounce) {
         _debounce = true;
 
@@ -18,21 +17,21 @@ function inject() {
 
         injectButton.classList.add("hidden");
 
-        exec("npm run inject", (error) => {
-            processingModal.classList.add("hidden");
+        let injectReguilded = false;
+        injectReguilded = await inject(getPlatformModule());
 
-            if (error) {
-                errorElement.classList.remove("hidden");
-            } else {
-                uninjectButton.classList.remove("hidden");
-            }
+        processingModal.classList.add("hidden");
+        if (injectReguilded) {
+            uninjectButton.classList.remove("hidden");
+        } else {
+            errorElement.classList.remove("hidden");
+        }
 
-            _debounce = false;
-        });
+        _debounce = false;
     }
 }
 
-function uninject() {
+async function onclickUninject() {
     if (!_debounce) {
         _debounce = true;
 
@@ -41,16 +40,16 @@ function uninject() {
 
         uninjectButton.classList.add("hidden");
         
-        exec("npm run uninject", (error) => {
-            processingModal.classList.add("hidden");
+        let uninjectReguilded = false;
+        uninjectReguilded = await uninject(getPlatformModule());
 
-            if (error) {
-                errorElement.classList.remove("hidden");
-            } else {
-                injectButton.classList.remove("hidden");
-            }
+        processingModal.classList.add("hidden");
+        if (uninjectReguilded) {
+            injectButton.classList.remove("hidden");
+        } else {
+            errorElement.classList.remove("hidden");
+        }
 
-            _debounce = false;
-        });
+        _debounce = false;
     }
 }

@@ -1,33 +1,28 @@
 const { exec } = require("child_process");
-const inject = require("./inject.js");
-const log4js = require("log4js")
+const { getPlatformModule } = require("./injectUtil");
+const main = require("./main.js");
+const log4js = require("log4js");
 
-const logger = log4js.getLogger("ReGuilded")
-logger.level = "debug"
+const logger = log4js.getLogger("ReGuilded");
+logger.level = "debug";
 
-let platformModule;
-try {
-    platformModule = require(`./platforms/${process.platform}.js`);
-} catch (err) {
-    if (err.code === "MODULE_NOT_FOUND")
-        logger.error("Unsupported platform", process.platform, ". Please submit a new issue");
-}
+let platformModule = getPlatformModule();
 
 /**
  * Performs a given task
  */
-async function injectAsync() {
+async function mainAsync() {
     const taskArg = process.argv[2];
-    logger.info("Performing task", taskArg)
+    logger.info("Performing task", taskArg);
+
     if (["inject", "uninject"].includes(taskArg)) {        
-        logger.info("Force closing Guilded")
-        // Kills Guilded's process
-        exec(platformModule.closeGuilded);
+        logger.info("Force closing Guilded");
 
         try {
-            await inject[taskArg](platformModule.getAppDir());
-            // Tells us that it succeeded
-            logger.info("Task", taskArg, "has been successful");
+            if (await main[taskArg](platformModule)) {
+                // Tells us that it succeeded
+                logger.info("Task", taskArg, "has been successful");
+            }
         } catch(err) {
             logger.error("Failed to do task", taskArg);
             logger.fatal(err);
@@ -35,5 +30,5 @@ async function injectAsync() {
     } else logger.error("Unknown task", taskArg);
 };
 
-// If platform module was found, execute injectAsync
-if (platformModule !== void 0) injectAsync();
+// If platform module was found, execute mainAsync
+if (platformModule !== null) mainAsync();

@@ -1,13 +1,8 @@
 const { existsSync } = require("fs");
+const getPlatformModule = require("./getPlatformModule");
 
 module.exports = () => {
-    let platformModule;
-    try {
-        platformModule = require(`../platforms/${process.platform}.js`);
-    } catch (err) {
-        if (err.code === "MODULE_NOT_FOUND")
-            console.error("Unsupported platform", process.platform, ". Please submit a new issue");
-    }
+    let platformModule = getPlatformModule();
 
     if (platformModule !== void 0) {
         if (existsSync(platformModule.getAppDir())) {

@@ -1,3 +1,4 @@
 module.exports = {
-    isInjected: require("./isInjected")
+    isInjected: require("./isInjected"),
+    getPlatformModule: require("./getPlatformModule")
 }
