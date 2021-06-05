@@ -22,7 +22,7 @@ exports.inject = async(platformModule) => {
 
             return true;
         } catch (err) {
-            await exports.uninject(platformModule);
+            exports.uninject(platformModule);
 
             throw new Error(err);
         }
