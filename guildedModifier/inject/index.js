@@ -1,4 +1,3 @@
-const { exec } = require("child_process");
 const { getPlatformModule } = require("./injectUtil");
 const main = require("./main.js");
 const log4js = require("log4js");

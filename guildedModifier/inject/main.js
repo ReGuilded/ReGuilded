@@ -1,6 +1,5 @@
 const { writeFileSync, existsSync, mkdirSync, rmSync } = require("fs");
 const { join, sep } = require("path");
-const { uninject } = require(".");
 const { exec } = require("child_process");
 
 exports.inject = async(platformModule) => {
@@ -13,8 +12,6 @@ exports.inject = async(platformModule) => {
 
             // Creates a path for patcher for require statement
             const patcherPath = join(__dirname, "../src/reguildedPatcher.js").replace(RegExp(sep.repeat(2), "g"), "/");
-            
-            // TODO: Fix awaiting here, so the electronApp actually waits for injection to be finished.
 
             // Creates require statement in `index.js`
             writeFileSync(join(appDir, "index.js"), `require("${patcherPath}");`);
@@ -25,7 +22,7 @@ exports.inject = async(platformModule) => {
 
             return true;
         } catch (err) {
-            uninject(platformModule);
+            await exports.uninject(platformModule);
 
             throw new Error(err);
         }
@@ -38,9 +35,7 @@ exports.uninject = async(platformModule) => {
     const appDir = platformModule.getAppDir();
 
     if (existsSync(appDir)) {
-        try {
-            // TODO: Fix awaiting here, so the electronApp actually waits for uninjection to be finished.
-
+        try{
             // Deletes "app" directory in Guilded's "resources" directory.
             rmSync(appDir, { recursive: true, force: true});
 
