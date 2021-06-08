@@ -27,7 +27,7 @@ async function mainAsync() {
             logger.fatal(err);
         }
     } else logger.error("Unknown task", taskArg);
-};
+}
 
 // If platform module was found, execute mainAsync
 if (platformModule !== null) mainAsync();
