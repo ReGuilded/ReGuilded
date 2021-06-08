@@ -1,18 +1,17 @@
 // Modules
-const { mimicGuilded, patchBrowserWindow, fixMismatchVersion, fixDevTools } = require("./patcherUtils");
+const { mimicGuilded, PatchedBrowserWindow, fixMismatchVersion, fixDevTools } = require("./patcherUtils");
 const { join, dirname } = require("path");
 const { _load } = require("module");
 
 // Electron
 const electron = require("electron");
 const electronPath = require.resolve("electron");
-const electronPathExports = require.cache[electronPath].exports;
 
 // Guilded's app.asar & package.json
 const guildedPath = join(dirname(require.main.filename), "..", "app.asar");
 const guildedPackage = require(join(guildedPath, "package.json"));
 
-// Reguilded's package.json
+// ReGuilded's package.json
 const reguildedPackage = join(dirname(guildedPath), "../resources", "app/package.json");
 require.main.filename = join(guildedPath, "main.js");
 
@@ -25,8 +24,17 @@ require("./ipc/main");
 // Set App User Model IDs
 mimicGuilded(electron);
 
-// Replace Exports with PatchedBrowserWindow
-patchBrowserWindow(electron, electronPathExports);
+const electronExports = new Proxy(electron, {
+    get(target, prop) {
+        switch(prop) {
+            case 'BrowserWindow': return PatchedBrowserWindow;
+            default: return target[prop];
+        }
+    }
+});
+
+delete require.cache[electronPath].exports;
+require.cache[electronPath].exports = electronExports;
 
 // Fix DevTools
 fixDevTools(electron);

@@ -1,3 +1,6 @@
+const { existsSync, unlinkSync} = require("fs");
+const { join } = require("path");
+
 module.exports = (electron) => {
     if (process.platform === 'win32') {
         setImmediate(() => {

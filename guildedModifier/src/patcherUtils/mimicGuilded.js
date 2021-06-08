@@ -9,6 +9,4 @@ module.exports = (electron) => {
     }
 
     electron.app.setAppUserModelId = setAppUserModelId;
-
-    return;
 }

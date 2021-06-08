@@ -4,7 +4,7 @@ module.exports = (guildedPackage, reguildedPackage) => {
     const reguildedPackageSource = readFileSync(reguildedPackage);
     var reguildedPackageJSON = JSON.parse(reguildedPackageSource);
 
-    if (reguildedPackageJSON.version != guildedPackage.version) {
+    if (reguildedPackageJSON.version !== guildedPackage.version) {
         reguildedPackageJSON.version = guildedPackage.version;
 
         writeFileSync(reguildedPackage, JSON.stringify(reguildedPackageJSON, null, 2));
