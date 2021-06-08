@@ -62,7 +62,7 @@ body {
 
 /* Header */
 .logo {
-    width: 15rem;
+    width: 12rem;
     height: auto;
 
     fill: var(--reguilded-theme);

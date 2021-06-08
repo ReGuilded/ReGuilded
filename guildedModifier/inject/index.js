@@ -18,10 +18,9 @@ async function mainAsync() {
         logger.info("Force closing Guilded");
 
         try {
-            if (await main[taskArg](platformModule)) {
-                // Tells us that it succeeded
-                logger.info("Task", taskArg, "has been successful");
-            }
+            await main[taskArg](platformModule)
+            // Tells us that it succeeded
+            logger.info("Task", taskArg, "has been successful");
         } catch(err) {
             logger.error("Failed to do task", taskArg);
             logger.fatal(err);

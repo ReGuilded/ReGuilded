@@ -1,5 +1,5 @@
 const { join } = require("path");
 
-exports.getAppDir = () => join("/Applications/Guilded.app/Contents/Resources/app");
+exports.getAppDir = () => "/Applications/Guilded.app/Contents/Resources/app";
 
 exports.closeGuilded = "killall Guilded";

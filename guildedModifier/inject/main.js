@@ -19,9 +19,8 @@ exports.inject = async(platformModule) => {
 
             // Kills Guilded's process
             exec(platformModule.closeGuilded);
-
-            return true;
         } catch (err) {
+            // If there was an error, try uninjecting ReGuilded
             await exports.uninject(platformModule);
 
             throw new Error(err);
@@ -35,14 +34,12 @@ exports.uninject = async(platformModule) => {
     const appDir = platformModule.getAppDir();
 
     if (existsSync(appDir)) {
-        try{
+        try {
             // Deletes "app" directory in Guilded's "resources" directory.
             rmSync(appDir, { recursive: true, force: true});
 
             // Kills Guilded's process
             exec(platformModule.closeGuilded);
-
-            return true;
         } catch (err) {
             throw new Error(err);
         }
