@@ -35,7 +35,7 @@ async function onclickUninject() {
     if (!_debounce) {
         _debounce = true;
 
-        processingText.innerText = "Uninjecting\nReGuilded...";
+        processingText.innerText = "Removing\nReGuilded...";
         processingModal.classList.remove("hidden");
 
         uninjectButton.classList.add("hidden");
