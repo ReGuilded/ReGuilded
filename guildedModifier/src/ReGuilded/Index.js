@@ -15,7 +15,8 @@ module.exports = class ReGuilded {
 
     init() {
         // If themes are enabled, load themes
-        if (this.settingsManager.getValue("themes").useThemes) this.themesManager.loadThemes();
+        if (this.settingsManager.getValue("themes")?.useThemes)
+            this.themesManager.init();
     }
     
     uninit() {
