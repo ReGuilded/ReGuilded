@@ -16,7 +16,6 @@ module.exports = class PatchedBrowserWindow extends BrowserWindow {
             origPreload = options.webPreferences.preload;
 
             if (options.webPreferences.nativeWindowOpen) {
-                console.log("Preload");
                 options.webPreferences.preload = preload;
             } else {
                 options.webPreferences.preload = preloadSplash;
