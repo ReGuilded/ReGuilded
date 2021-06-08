@@ -8,6 +8,9 @@
   <a href="https://github.com/ReGuilded/ReGuilded/issues">
     <img alt="Open Issues" src="https://img.shields.io/github/issues-raw/ReGuilded/ReGuilded">
   </a>
+  <a href="https://wakatime.com/badge/github/ReGuilded/ReGuilded">
+    <img alt="WakaTime" src="https://wakatime.com/badge/github/ReGuilded/ReGuilded.svg">
+  </a>
 </p>
 
 **ReGuilded** is like **BetterDiscord** for [Guilded](https://guilded.gg).  We make it easy to inject CSS (Themes) and JS (Addons) into your desktop Guilded client, and provide a repository of Themes and Addons to choose from.
