@@ -2,8 +2,9 @@ const { getPlatformModule } = require("./injectUtil");
 const main = require("./main.js");
 const log4js = require("log4js");
 
-const logger = log4js.getLogger("ReGuilded");
-logger.level = "debug";
+global.logger = log4js.getLogger("ReGuilded");
+global.logger.level = "debug";
+const { logger } = global
 
 let platformModule = getPlatformModule();
 
