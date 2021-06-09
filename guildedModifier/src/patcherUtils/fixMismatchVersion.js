@@ -5,6 +5,9 @@ module.exports = (guildedPackage, reguildedPackage) => {
     var reguildedPackageJSON = JSON.parse(reguildedPackageSource);
 
     if (reguildedPackageJSON.version !== guildedPackage.version) {
+        // If this is on Linux, throw an error
+        if (process.platform === 'linux' && process.getuid() !== 0)
+            throw new Error(`Version mismatch between ReGuilded and Guilded. ReGuilded: ${reguildedPackageJSON.version} vs Guilded: ${guildedPackage.version}. Linux version of ReGuilded requires manual editing.`)
         reguildedPackageJSON.version = guildedPackage.version;
 
         writeFileSync(reguildedPackage, JSON.stringify(reguildedPackageJSON, null, 2));

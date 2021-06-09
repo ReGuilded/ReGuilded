@@ -3,9 +3,9 @@ const { join, sep } = require("path");
 const { exec } = require("child_process");
 const { spawnSync } = require('child_process');
 
-function goSudo() {
+function rootPerms(path) {
     // Warns us about this
-    global.logger.warn('Linux version of ReGuilded requires root permissions to modify /opt/Guilded')
+    global.logger.warn(`ReGuilded Linux requires root permissions to create, modify or delete '${path}'`)
     // Goes into sudo mode
     // FIXME Won't work for doas
     spawnSync('sudo', process.argv, { stdio: 'inherit' })
@@ -18,7 +18,7 @@ exports.inject = async(platformModule) => {
         try {
             // If this is on Linux, do it in sudo perms
             if (process.platform === 'linux' && process.getuid() !== 0)
-                goSudo();
+                rootPerms(appDir);
             // Creates the "app" directory in Guilded's "resources" directory.
             mkdirSync(appDir);
 
@@ -49,7 +49,7 @@ exports.uninject = async(platformModule) => {
         try {
             // If this is on Linux, do it in sudo perms
             if (process.platform === 'linux' && process.getuid() !== 0)
-                goSudo();
+                rootPerms(appDir);
             // Deletes "app" directory in Guilded's "resources" directory.
             rmSync(appDir, { recursive: true, force: true});
 
