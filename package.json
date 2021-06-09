@@ -20,6 +20,8 @@
   "homepage": "https://github.com/ReGuilded/ReGuilded#readme",
   "dependencies": {
     "electron": "^13.0.1",
-    "log4js": "^6.3.0"
+    "fs-extra": "^8.1.0",
+    "log4js": "^6.3.0",
+    "minimist": "^1.2.5"
   }
 }
