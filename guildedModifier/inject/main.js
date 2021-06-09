@@ -50,9 +50,9 @@ exports.inject = async(guildedDir, reguildedDir) => {
 /**
  * Removes any injections present in Guilded.
  * @param {String} guildedDir Path to Guilded's resource/app directory
- * @param {String} _ Path to ReGuilded's configuration directory
+ * @param {String} reguildedDir Path to ReGuilded's configuration directory
  */
-exports.uninject = async(guildedDir, _) => {
+exports.uninject = async(guildedDir, reguildedDir) => {
     // If there is an injection, then remove the injection
     if (existsSync(guildedDir)) {
         try {
