@@ -22,7 +22,7 @@ module.exports = class ThemesManager {
             // Removes correct parts of the ID
             .replaceAll(module.exports.idRegex, "")
             // Checks if it's empty
-            .length == 0
+            .length === 0
     }
 
     /**
@@ -130,4 +130,4 @@ module.exports = class ThemesManager {
 /**
  * A Regex pattern for determining whether given theme's ID is correct.
  */
-module.exports.idRegex = /^[A-Za-z_-0-9]+$/g
+module.exports.idRegex = /^[A-Za-z0-9]+$/g
