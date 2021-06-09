@@ -9,20 +9,17 @@ module.exports = class SettingsManager {
      * A manager that manages ReGuilded's settings and configuration.
      */
     constructor() {
-        // Sets settings directory
-        this._SettingsDirectory = join(__dirname, "../../../", "_Settings");
-        // Checks if settings file directory exists
-        if (!existsSync(this._SettingsDirectory))
-            throw new Error(`Settings Directory not detected.\n${this._SettingsDirectory}`);
+        // Sets settings directory as `.reguilded`
+        this.directory = join(__dirname, "../../");
         // Set its configuration
-        this.config = require(join(this._SettingsDirectory, "Config.json"));
+        this.config = require(join(this.directory, "settings.json"));
     }
     /**
      * Gets a path to ReGuilded's theme directory.
      * @returns Theme directory path
      */
     getThemesDir() {
-        return join(this._SettingsDirectory, "Themes");
+        return join(this.directory, "themes");
     }
     /**
      * Gets configuration property if it exists.

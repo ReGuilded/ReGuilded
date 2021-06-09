@@ -1,4 +1,4 @@
-const { SettingsManager, ThemesManager } = require("./Managers");
+const { SettingsManager, ThemesManager } = require("./managers");
 
 /**
  * ReGuilded's full manager's class.
