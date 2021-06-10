@@ -1,4 +1,3 @@
-const { existsSync } = require("fs");
 const { join } = require("path");
 
 /**
@@ -9,11 +8,12 @@ module.exports = class SettingsManager {
      * A manager that manages ReGuilded's settings and configuration.
      */
     constructor() {
-        // Sets settings directory as `.reguilded`
-        this.directory = join(__dirname, "../../");
+        // Sets settings directory as `.reguilded/_Settings`
+        this.directory = join(__dirname, "../../_Settings");
         // Set its configuration
         this.config = require(join(this.directory, "settings.json"));
     }
+
     /**
      * Gets a path to ReGuilded's theme directory.
      * @returns Theme directory path
@@ -21,6 +21,7 @@ module.exports = class SettingsManager {
     getThemesDir() {
         return join(this.directory, "themes");
     }
+
     /**
      * Gets configuration property if it exists.
      * @param prop Property's name
@@ -29,6 +30,7 @@ module.exports = class SettingsManager {
     getValue(prop) {
         return this.config[prop]
     }
+
     /**
      * Gets configuration property if it exists and type is correct.
      * @param prop Property's name to get

@@ -12,6 +12,7 @@ module.exports = class ThemesManager {
     constructor(themesDir) {
         this.themesDir = themesDir;
     }
+
     /**
      * Checks if the identifier of the theme is correct or not.
      * @param {String} id The identifier of a theme

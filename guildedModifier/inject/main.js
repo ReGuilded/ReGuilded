@@ -11,6 +11,7 @@ function rootPerms(path, reguildedDir) {
     spawnSync('sudo', process.argv.slice(0, 3).concat(['-r', reguildedDir]), { stdio: 'inherit' })
     process.exit(0)
 }
+
 /**
  * Injects ReGuilded into Guilded.
  * @param {String} guildedDir Path to Guilded's resource/app directory
@@ -28,6 +29,7 @@ exports.inject = async(guildedDir, reguildedDir) => {
             // If this is on Linux, do it in sudo perms
             if (process.platform === 'linux' && process.getuid() !== 0)
                 rootPerms(guildedDir, reguildedDir);
+
             // Creates the "app" directory in Guilded's "resources" directory.
             mkdirSync(guildedDir);
 

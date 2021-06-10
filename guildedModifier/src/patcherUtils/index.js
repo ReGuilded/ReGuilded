@@ -1,6 +1,6 @@
 module.exports = {
     fixMismatchVersion: require("./fixMismatchVersion"),
     mimicGuilded: require("./mimicGuilded"),
-    PatchedBrowserWindow: require("./PatchedBrowserWindow"),
+    PatchedBrowserWindow: require("./patchedBrowserWindow"),
     fixDevTools: require("./fixDevTools")
 }

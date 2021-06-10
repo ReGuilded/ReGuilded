@@ -23,10 +23,10 @@ async function mainAsync() {
     // Gets task to do
     const [taskArg] = argv._;
     // If task argument is null, return error
-    if(taskArg === undefined) throw new Error("First argument expected")
+    if (taskArg === undefined) throw new Error("First argument expected")
     logger.info("Performing task", taskArg)
     // Checks types of those arguments
-    if(reguilded !== undefined && typeof reguilded !== 'string')
+    if (reguilded !== undefined && typeof reguilded !== 'string')
         throw new TypeError('Argument -r or --reguilded must be a string')
     // If there is given task, then run it
     if (main[taskArg] !== null) {        

@@ -5,6 +5,7 @@ const preload = join(__dirname, "../preload/preload.js");
 const preloadSplash = join(__dirname, "../preload/preloadSplash.js");
 
 module.exports = class PatchedBrowserWindow extends BrowserWindow {
+    // noinspection JSAnnotator
     constructor(options) {
         let origPreload;
 
