@@ -10,14 +10,13 @@ module.exports = class ReGuilded {
     constructor() {
         // Creates settings manager for configuration
         this.settingsManager = new SettingsManager();
-        // TODO: Make ReGuilded global instead
 
         // Creates theme manager to handle themes
         this.themesManager = new ThemesManager(this.settingsManager.getThemesDir());
 
-        if (document.readyState === 'loading') {
+        if (document.readyState === "loading") {
             // Once DOM loads, initiate ReGuilded
-            document.addEventListener('DOMContentLoaded', () => this.init());
+            document.addEventListener("DOMContentLoaded", () => this.init());
         } else {
             this.init();
         }
@@ -27,14 +26,16 @@ module.exports = class ReGuilded {
      */
     init() {
         // Gets theme configurations
-        const themeConfig = this.settingsManager.getValueTyped("themes", "object")
+        const themeConfig = this.settingsManager.getValueTyped("themes", "Object")
         // Gets a list of enabled themes
         const enabledThemes = themeConfig.enabled
+
+        // TODO: Fix check that's broken.
         // Checks if it's an array
-        if(!(enabledThemes instanceof Array)) throw new TypeError("Expected property themes.enabled to be an array in configuration")
+        //if (!(enabledThemes instanceof Array)) throw new TypeError("Expected property themes.enabled to be an array in configuration")
+
         // If themes are enabled, load themes
-        if (themeConfig.useThemes)
-            this.themesManager.init(enabledThemes);
+        if (themeConfig.useThemes) this.themesManager.init(enabledThemes)
     }
     
     /**

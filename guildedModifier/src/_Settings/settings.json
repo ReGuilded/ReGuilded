@@ -1,6 +1,8 @@
 {
     "themes": {
         "useThemes": true,
-        "enabledThemes": []
+        "enabled": [
+            "dreamFrame"
+        ]
     }
 }

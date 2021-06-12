@@ -38,10 +38,14 @@ module.exports = class ThemesManager {
         const themes = fs
             .readdirSync(this.themesDir, { withFileTypes: true })
             .filter(x => x.isDirectory())
+
         // Gets every theme directory
         for(let theme of themes) {
+            // Creates path to the Theme Directory
+            const themePath = path.join(this.themesDir, theme.name);
+
             // Creates path of theme.json
-            const jsonPath = path.join(theme.name, "theme.json")
+            const jsonPath = path.join(themePath, "theme.json")
             // If json doesn't exist, ignore this directory
             if(!fs.existsSync(jsonPath)) continue
             // Get that json
@@ -62,13 +66,19 @@ module.exports = class ThemesManager {
             // Checks if it's a string
             if(typeof propCss !== "string") throw new TypeError(`Expected property 'css' to be string, found ${typeof propCss} instead in ${jsonPath}`)
             // Gets full CSS path
-            const cssPath = path.isAbsolute(propCss) ? propCss : path.join(theme.name, propCss)
+            const cssPath = path.isAbsolute(propCss) ? propCss : path.join(themePath, propCss)
             // Checks if CSS file exists
             if(!fs.existsSync(cssPath)) throw new Error(`Could not find CSS file in path ${cssPath}`)
 
             // Adds it to themes array instead
             this.themes.push(json)
         }
+
+        // Wait 3 seconds to let Guilded's Styles load.
+        setTimeout(function() {
+            this.loadThemes();
+        }.bind(this), 3000)
+
     }
 
     /**
@@ -76,25 +86,36 @@ module.exports = class ThemesManager {
      */
     loadThemes() {
         console.log("Loading Reguilded themes...");
+
         // Loads all found enabled themes
-        for(let theme of this.enabled)
-            // Loads enabled theme
-            this.loadTheme(theme)
+        for (let theme of this.themes) {
+            if (this.enabled.includes(theme.id) != null) {
+                this.loadTheme(theme);
+            }
+        }
     }
+
     /**
      * Loads ReGuilded theme
      * @param {{id: String, name: String, css: String}} theme ReGuilded theme to load
      */
     loadTheme(theme) {
+        // Creates path to the Theme Directory
+        const themePath = path.join(this.themesDir, theme.name);
+        const themeCss = path.join(themePath, theme.css);
+
         console.log(`Loading theme by ID '${theme.id}'`)
-        // Creates a new link element for that theme
-        const link = document.createElement("link")
-        // Sets attributes for the link element
-        link.id = `reGl-theme-${theme.id}`
-        link.rel = "stylesheet"
-        link.href = theme.css
-        // Adds link element to head element
-        document.head.appendChild(link)
+
+        // Creates a new style element for that theme
+        const style = document.createElement("style")
+        style.id = `reGl-theme-${theme.id}`
+        style.classList.add("ReGuilded-Theme")
+
+        // Sets the innerText of the style element to the themeCss file.
+        style.innerHTML = fs.readFileSync(themeCss).toString();
+
+        // Adds style element to head element
+        document.head.appendChild(style)
     }
     
     /**
@@ -110,7 +131,7 @@ module.exports = class ThemesManager {
     /**
      * Unloads a ReGuilded theme.
      * @param {String} theme ID of the theme to unload from Guilded.
-     */
+     */S
     unloadTheme(theme) {
         console.log(`Unloading theme by ID '${theme}'`)
         // Selects the theme's link element by name that is in head element

@@ -40,8 +40,11 @@ module.exports = class SettingsManager {
     getValueTyped(prop, type) {
         // Gets property's value
         const value = this.getValue(prop)
+
+        // Todo: Fix Broken Check
         // Check if it's instance of type or type of value is given type
-        if(!(value instanceof type) && typeof value !== type) throw new TypeError(`Expected property '${prop}' to be instance of '${type}' in configuration`)
+        //if (!(value instanceof type)) throw new TypeError(`Expected property '${prop}' to be instance of '${type}' in configuration`)
+
         // Returns the value of the property
         return value
     }
