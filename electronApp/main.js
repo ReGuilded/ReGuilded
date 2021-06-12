@@ -3,12 +3,9 @@ const { join } = require("path");
 
 function createWindow() {
     const injectWindow = new BrowserWindow({
-        minWidth: 300,
-        minHeight: 420,
+        resizable: false,
         width: 300,
         height: 420,
-        maxWidth: 300,
-        maxHeight: 420,
         titleBarStyle: 'customButtonsOnHover',
         frame: false,
         webPreferences: {
