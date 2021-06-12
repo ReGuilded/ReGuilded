@@ -4,7 +4,7 @@
   <img src="https://raw.githubusercontent.com/ReGuilded/ReGuilded/main/logo/banner.png" alt="ReGuilded Logo" />
 </p>
 
-### This is the alpha Theme Support this process will be easier in the future.
+### This is the Alpha Theme Support this process will be easier in the future.
 
 # User Settings
 Depending on your OS you can find the User Settings in your `home file` or your `roaming appdata`.<br>
