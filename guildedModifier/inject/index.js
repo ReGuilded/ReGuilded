@@ -20,14 +20,18 @@ let platformModule = getPlatformModule();
 async function mainAsync() {
     // Gets command-line arguments
     const reguilded = argv.r ?? argv.reguilded
+
     // Gets task to do
     const [taskArg] = argv._;
+
     // If task argument is null, return error
     if (taskArg === undefined) throw new Error("First argument expected")
     logger.info("Performing task", taskArg)
+
     // Checks types of those arguments
     if (reguilded !== undefined && typeof reguilded !== 'string')
         throw new TypeError('Argument -r or --reguilded must be a string')
+
     // If there is given task, then run it
     if (main[taskArg] !== null) {        
         logger.info("Force closing Guilded");
@@ -37,6 +41,7 @@ async function mainAsync() {
             // if variable `reguilded` is empty, get default path instead
             path.join(process.env.APPDATA ?? process.env.HOME, ".reguilded")
         )
+
         try {
             // Kills Guilded's process
             exec(platformModule.closeGuilded);
