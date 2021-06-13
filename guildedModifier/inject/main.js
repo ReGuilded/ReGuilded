@@ -38,7 +38,7 @@ exports.inject = async(guildedDir, reguildedDir) => {
 
             // Creates require statement in `index.js`
             writeFileSync(join(guildedDir, "index.js"), `require("${patcherPath}");`);
-            writeFileSync(join(guildedDir, "package.json"), JSON.stringify({ name: "guilded", main: "index.js", version: "0.0.0" }));
+            writeFileSync(join(guildedDir, "package.json"), JSON.stringify({ name: "Guilded", main: "index.js", version: "0.0.0" }));
         } catch (err) {
             // If there was an error, try uninjecting ReGuilded
             await exports.uninject(guildedDir, reguildedDir);

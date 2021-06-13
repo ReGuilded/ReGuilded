@@ -90,7 +90,7 @@ module.exports = class ThemesManager {
 
         // Loads all found enabled themes
         for (let theme of this.themes) {
-            if (this.enabled.includes(theme.id) != null) {
+            if (this.enabled.includes(theme.id)) {
                 this.loadTheme(theme);
             }
         }
