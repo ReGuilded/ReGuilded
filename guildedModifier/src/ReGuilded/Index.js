@@ -1,4 +1,5 @@
 const { SettingsManager, ThemesManager } = require("./managers");
+const { FileWatcher } = require("./Utils");
 
 /**
  * ReGuilded's full manager's class.
@@ -21,6 +22,7 @@ module.exports = class ReGuilded {
             this.init();
         }
     }
+
     /**
      * Initiates ReGuilded
      */

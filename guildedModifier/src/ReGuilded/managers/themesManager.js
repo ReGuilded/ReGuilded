@@ -1,5 +1,6 @@
 const fs = require("fs")
 const path = require("path")
+const { FileWatcher } = require("../Utils");
 
 /**
  * Manager that manages ReGuilded's themes
@@ -104,6 +105,8 @@ module.exports = class ThemesManager {
         const themePath = path.join(this.themesDir, theme.name);
         const themeCss = path.join(themePath, theme.css);
 
+        new FileWatcher(themeCss, this, theme.id);
+
         console.log(`Loading theme by ID '${theme.id}'`)
 
         // Creates a new style element for that theme
@@ -128,6 +131,7 @@ module.exports = class ThemesManager {
             // Unloads a theme
             this.unloadTheme(id)
     }
+
     /**
      * Unloads a ReGuilded theme.
      * @param {String} theme ID of the theme to unload from Guilded.
@@ -138,6 +142,25 @@ module.exports = class ThemesManager {
         const linkRef = document.querySelector(`head link#reGl-theme-${theme}`)
         // Removes it
         linkRef.remove()
+    }
+
+    /**
+     * Reloads a ReGuilded theme.
+     * @param {String} id The identifier of the theme
+     */
+    reload(id) {
+        console.log(`Reloading theme by ID '${id}`);
+
+        // Gets the Theme, Theme Path, and Theme Css.
+        const theme = this.themes.find(object => object.id === id);
+        const themePath = path.join(this.themesDir, theme.name);
+        const themeCss = path.join(themePath, theme.css);
+
+        // Gets the Style within Guilded.
+        const style = document.getElementById(`reGl-theme-${theme.id}`);
+
+        // Sets the innerText of the style element to the themeCss file.
+        style.innerHTML = fs.readFileSync(themeCss).toString();
     }
 
     /**
