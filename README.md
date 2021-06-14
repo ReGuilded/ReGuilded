@@ -29,8 +29,7 @@ We have contacted Guilded asking if a modified client would be grounds for an ac
 
 It seems that Guilded is reserving the right to ban users for using altered clients, but they are only planning to do so when an altered client is used in bad faith.  Therefore, ReGuilded seems to be in the clear regarding account bans.
 
-**PLEASE READ [OUR LICENSE](https://github.com/ReGuilded/ReGuilded/blob/main/LICENSE) BEFORE USING THIS SOFTWARE.**
-<!--**However, please read the above quote and make your own decision before using ReGuilded.  We are not responsible for account bans or other actions taken by Guilded for the use of ReGuilded.**-->
+**However, please read the above quote and make your own decision before using ReGuilded. Be sure to also read [our license](https://github.com/ReGuilded/ReGuilded/blob/main/LICENSE).**
 
 ## Contributing
 
