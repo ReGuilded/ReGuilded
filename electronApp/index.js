@@ -1,5 +1,6 @@
 const { join } = require("path");
 const { exec } = require("child_process");
+const { BrowserWindow } = require("electron").remote;
 const { inject, uninject } = require("../guildedModifier/inject/main");
 
 const processingModal = document.getElementById("processingModal");
@@ -11,6 +12,7 @@ let _debounce = false;
 
 const reguildedDir = join(process.env.APPDATA ?? process.env.HOME, ".reguilded");
 const platformModule = require("../guildedModifier/inject/injectUtil").getPlatformModule();
+const win = BrowserWindow.getFocusedWindow();
 
 async function onclickInject() {
     if (!_debounce) {
@@ -63,5 +65,11 @@ async function onclickUninject() {
         }
 
         _debounce = false;
+    }
+}
+
+function headerBtn(task) {
+    if (!_debounce) {
+        win[task]();
     }
 }
