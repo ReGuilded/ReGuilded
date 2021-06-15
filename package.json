@@ -4,7 +4,6 @@
   "description": "",
   "main": "",
   "scripts": {
-    "electronTest": "electron electronApp/main.js",
     "inject": "node guildedModifier/inject/index.js inject",
     "uninject": "node guildedModifier/inject/index.js uninject"
   },
