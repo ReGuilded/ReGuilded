@@ -1,0 +1,5 @@
+{
+    "id": "addFlairs",
+    "name": "Additional Flairs",
+    "js": "flairs.js"
+}
