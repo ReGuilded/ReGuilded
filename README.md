@@ -1,5 +1,3 @@
-**ReGuilded is currently under active development and is not ready for use.  We are looking for contributors.  See the 'Project Status' section for more information.**
-
 <p align="center">
   <img src="https://raw.githubusercontent.com/ReGuilded/ReGuilded/main/logo/banner.png" alt="ReGuilded Logo" />
   <a href="https://guilded.gg/ReGuilded">
@@ -12,11 +10,13 @@
     <img alt="WakaTime" src="https://wakatime.com/badge/github/ReGuilded/ReGuilded.svg">
   </a>
   <a href="https://guilded.gg/ReGuilded">
-    <img src="https://img.shields.io/static/v1?label=Looking%20for&message=Contributors&?style=flat-square&color=orange" alt="Chat on Guilded" />
+    <img src="https://img.shields.io/static/v1?label=Looking%20for&message=Contributors&style=flat-square&color=orange" alt="Chat on Guilded" />
   </a>
 </p>
 
 **ReGuilded** is an app injector that injects new code to your Guilded client. It extends Guilded by providing theme and add-on system, through which people can shape client-sided part of Guilded in whatever way they want.
+
+> **NOTE:** ReGuilded is currently under active development and is not ready for use.  We are looking for contributors.  See the 'Project Status' section for more information.
 
 ## Installation
 
