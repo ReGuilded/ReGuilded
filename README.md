@@ -3,16 +3,16 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/ReGuilded/ReGuilded/main/logo/banner.png" alt="ReGuilded Logo" />
   <a href="https://guilded.gg/ReGuilded">
-    <img src="https://img.shields.io/static/v1?label=Chat%20on&message=Guilded&style=for-the-badge&color=F5C400" alt="Chat on Guilded" />
+    <img src="https://img.shields.io/static/v1?label=Chat%20on&message=Guilded&style=flat-square&color=F5C400" alt="Chat on Guilded" />
   </a>
   <a href="https://github.com/ReGuilded/ReGuilded/issues">
-    <img alt="Open Issues" src="https://img.shields.io/github/issues-raw/ReGuilded/ReGuilded">
+    <img alt="Open Issues" src="https://img.shields.io/github/issues-raw/ReGuilded/ReGuilded?style=flat-square">
   </a>
   <a href="https://wakatime.com/badge/github/ReGuilded/ReGuilded">
     <img alt="WakaTime" src="https://wakatime.com/badge/github/ReGuilded/ReGuilded.svg">
   </a>
   <a href="https://guilded.gg/ReGuilded">
-    <img src="https://img.shields.io/static/v1?label=Looking%20for&message=Contributors&style=for-the-badge&color=orange" alt="Chat on Guilded" />
+    <img src="https://img.shields.io/static/v1?label=Looking%20for&message=Contributors&?style=flat-square&color=orange" alt="Chat on Guilded" />
   </a>
 </p>
 
