@@ -20,7 +20,7 @@ module.exports = class ExtensionManager {
     static checkId(id) {
         return id
             // Removes correct parts of the ID
-            .replaceAll(module.exports.idRegex, "")
+            .replace(module.exports.idRegex, "")
             // Checks if it's empty
             .length === 0
     }
