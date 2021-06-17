@@ -1,61 +1,47 @@
-const fs = require("fs")
+const ExtensionManager = require("./extensionManager.js")
+const { FileWatcher } = require("../Utils")
 const path = require("path")
-const { FileWatcher } = require("../Utils");
+const fs = require("fs")
 
 /**
  * Manager that manages ReGuilded's themes
  */
-module.exports = class ThemesManager {
+module.exports = class ThemesManager extends ExtensionManager {
     /**
      * Manager that manages ReGuilded's themes
      * @param {String} themesDir The directory of the ReGuilded themes
      */
     constructor(themesDir) {
-        this.themesDir = themesDir;
+        super(themesDir)
     }
 
     /**
-     * Checks if the identifier of the theme is correct or not.
-     * @param {String} id The identifier of a theme
-     * @returns Whether the identifier is correct or not
-     */
-    static checkThemeId(id) {
-        return id
-            // Removes correct parts of the ID
-            .replaceAll(module.exports.idRegex, "")
-            // Checks if it's empty
-            .length === 0
-    }
-
-    /**
-     * Initiates theme manager
+     * Initiates themes and theme manager
+     * @param {String[]} enabled An array of enabled themes
      */
     init(enabled = []) {
-        // Create themes array
-        this.themes = []
-        // Sets enabled themes
-        this.enabled = enabled
-        // Gets all files in theme directory
-        const themes = fs
-            .readdirSync(this.themesDir, { withFileTypes: true })
-            .filter(x => x.isDirectory())
+        // Gets a list of theme directories
+        const themes = super.getDirs(enabled)
 
         // Gets every theme directory
         for(let theme of themes) {
             // Creates path to the Theme Directory
-            const themePath = path.join(this.themesDir, theme.name);
-
+            const themePath = super.getPath(theme.name);
             // Creates path of theme.json
             const jsonPath = path.join(themePath, "theme.json")
             // If json doesn't exist, ignore this directory
             if(!fs.existsSync(jsonPath)) continue
             // Get that json
             const json = require(jsonPath)
+            // Sets directory's name
+            json.dirname = theme.name
 
             // Gets ID property
             const propId = json.id
             // Checks if it's a string
             if(typeof propId !== "string") throw new TypeError(`Expected 'id' to be string, found ${typeof propId} instead in ${jsonPath}`)
+            // Checks if ID is correct
+            if(!ExtensionManager.checkId(propId)) throw new Error(`Incorrect syntax of the property 'id'.`);
 
             // Gets name of it or id
             const propName = json.name ?? propId
@@ -72,37 +58,23 @@ module.exports = class ThemesManager {
             if(!fs.existsSync(cssPath)) throw new Error(`Could not find CSS file in path ${cssPath}`)
 
             // Adds it to themes array instead
-            this.themes.push(json)
+            this.all.push(json)
         }
 
         // Wait 3 seconds to let Guilded's Styles load.
         setTimeout(function() {
-            this.loadThemes();
+            this.loadAll();
         }.bind(this), 3000)
 
     }
 
     /**
-     * Loads ReGuilded themes onto Guilded.
+     * Loads a ReGuilded theme
+     * @param {{id: String, name: String, dirname: String, css: String}} theme ReGuilded theme to load
      */
-    loadThemes() {
-        console.log("Loading Reguilded themes...");
-
-        // Loads all found enabled themes
-        for (let theme of this.themes) {
-            if (this.enabled.includes(theme.id)) {
-                this.loadTheme(theme);
-            }
-        }
-    }
-
-    /**
-     * Loads ReGuilded theme
-     * @param {{id: String, name: String, css: String}} theme ReGuilded theme to load
-     */
-    loadTheme(theme) {
+    load(theme) {
         // Creates path to the Theme Directory
-        const themePath = path.join(this.themesDir, theme.name);
+        const themePath = super.getPath(theme.dirname);
         const themeCss = path.join(themePath, theme.css);
 
         new FileWatcher(themeCss, this, theme.id);
@@ -120,23 +92,12 @@ module.exports = class ThemesManager {
         // Adds style element to head element
         document.head.appendChild(style)
     }
-    
-    /**
-     * Removes ReGuilded themes from Guilded.
-     */
-    unloadThemes() {
-        console.log("Unloading ReGuilded themes...");
-        // Gets all enabled themes
-        for(let id of this.enabled)
-            // Unloads a theme
-            this.unloadTheme(id)
-    }
 
     /**
      * Unloads a ReGuilded theme.
      * @param {String} theme ID of the theme to unload from Guilded.
-     */S
-    unloadTheme(theme) {
+     */
+    unload(theme) {
         console.log(`Unloading theme by ID '${theme}'`)
         // Selects the theme's link element by name that is in head element
         const linkRef = document.querySelector(`head link#reGl-theme-${theme}`)
@@ -152,8 +113,8 @@ module.exports = class ThemesManager {
         console.log(`Reloading theme by ID '${id}`);
 
         // Gets the Theme, Theme Path, and Theme Css.
-        const theme = this.themes.find(object => object.id === id);
-        const themePath = path.join(this.themesDir, theme.name);
+        const theme = this.all.find(object => object.id === id);
+        const themePath = super.getPath(theme.dirname);
         const themeCss = path.join(themePath, theme.css);
 
         // Gets the Style within Guilded.
