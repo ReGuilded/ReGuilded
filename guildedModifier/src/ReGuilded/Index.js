@@ -14,13 +14,6 @@ module.exports = class ReGuilded {
 
         // Creates theme manager to handle themes
         this.themesManager = new ThemesManager(this.settingsManager.getThemesDir());
-
-        if (document.readyState === "loading") {
-            // Once DOM loads, initiate ReGuilded
-            document.addEventListener("DOMContentLoaded", () => this.init());
-        } else {
-            this.init();
-        }
     }
 
     /**
