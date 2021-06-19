@@ -20,14 +20,14 @@ document.addEventListener('readystatechange', () => {
         global.bundle.addEventListener('load', () => {
             // FIXME: NO SVGS ANYMORE BECAUSE OF THIS
             // Push a new module to it
-            global.webpackJsonp.push([ [151], { 1390:
-                (a, b, c) => {
+            global.webpackJsonp.push([ [151], { 1393:
+                (module, exports, webpackRequire) => {
                     // Start loading it
                     console.log('Loading')
                     // Makes `c` globally available
-                    global.bundleGet = c
+                    global.bundleGet = webpackRequire
                     // Gets the User class
-                    const {UserModel} = c(114)
+                    const {UserModel} = webpackRequire(115)
                     // Generates function for getting badges
                     const badgeGetter = badges.genBadgeGetter(UserModel.prototype.__lookupGetter__('badges'))
                     // Adds ReGuilded staff badges

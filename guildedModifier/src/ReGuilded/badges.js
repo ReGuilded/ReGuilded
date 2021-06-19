@@ -31,7 +31,7 @@ module.exports.genBadgeGetter = defaultBadges =>
  * Badges that are visible on ReGuilded client.
  */
 module.exports.staff = {
-    icon: 'https://raw.githubusercontent.com/ReGuilded/ReGuilded/cf48f4b8967f343af1141f0fe59ab13ea38ce9df/logo/ReGuilded.svg',
+    icon: 'https://raw.githubusercontent.com/ReGuilded/ReGuilded/main/logo/ReGuilded.png',
     // Sets the name of the badge for getting this badge
     name: 'ReGuildedStaff',
     // What is displayed when you hover over the badge
