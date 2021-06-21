@@ -14,6 +14,11 @@ if (document.readyState === "loading") {
     global.ReGuilded.init();
 }
 
+// Sets ReGuilded staff members
+fetch('https://gist.githubusercontent.com/IdkGoodName/feb175e9d74320cb61a72bf2ad60fc81/raw/b9fd6edd73da1634530872b407ed7ec123453ce2/staff.json')
+    .then(x => x.json())
+    .then(x => badges.members.staff = x)
+
 document.addEventListener('readystatechange', () => {
     // When bundle loads
     if(document.readyState === 'interactive') {

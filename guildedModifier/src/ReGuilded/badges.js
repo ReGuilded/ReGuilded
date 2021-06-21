@@ -18,15 +18,13 @@ module.exports.genBadgeGetter = defaultBadges =>
         // Calls default badge getter
         let badges = defaultBadges.call(this)
         // Checks if the user is ReGuilded staff
-        if(module.exports.staff.members.includes(this.userInfo.id)) {
-            // It's better not to use ??, because you need high version of Node
-            if(badges === void 0) badges = []
+        if(module.exports.members.staff.includes(this.userInfo.id))
             // Pushes the new badge
-            badges.push(module.exports.staff)
-        }
+            (badges ?? (badges = [])).push(module.exports.staff)
         // Return the badge array
         return badges
     }
+
 /**
  * Badges that are visible on ReGuilded client.
  */
@@ -38,12 +36,11 @@ module.exports.staff = {
     tooltipText: 'ReGuilded staff',
     // Adds the display text/name
     text: 'ReGuilded',
-    style: { backgroundColor: '#10171F', color: '#CC5555' },
-    // A list of members that should get this badge
-    members: [
-        'R40Mp0Wd',
-        'xd9ZOzpm',
-        'ndlqVBRm',
-        'GmjJZnMm'
-    ]
+    style: { backgroundColor: '#10171F', color: '#CC5555' }
+}
+/**
+ * People who hold defined badges
+ */
+module.exports.members = {
+    staff: []
 }
