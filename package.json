@@ -4,8 +4,8 @@
   "description": "",
   "main": "",
   "scripts": {
-    "inject": "node guildedModifier/inject/index.js inject",
-    "uninject": "node guildedModifier/inject/index.js uninject"
+    "inject": "node inject/index.js inject",
+    "uninject": "node inject/index.js uninject"
   },
   "repository": {
     "type": "git",

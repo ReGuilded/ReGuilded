@@ -22,7 +22,7 @@ exports.inject = async(guildedDir, reguildedDir) => {
     if (!existsSync(guildedDir)) {
         try {
             // Creates path for 'src' directory
-            const src = join(__dirname, '../src')
+            const src = join(__dirname, "../")
             // Copies src stuff to ~/.reguilded
             copySync(src, reguildedDir, { recursive: true, errorOnExist: false, overwrite: true })
 
@@ -34,7 +34,7 @@ exports.inject = async(guildedDir, reguildedDir) => {
             mkdirSync(guildedDir);
 
             // Creates a path for patcher for require statement
-            const patcherPath = join(reguildedDir, "reguildedPatcher.js").replace(RegExp(sep.repeat(2), "g"), "/");
+            const patcherPath = join(reguildedDir, "scripts/reguildedPatcher.js").replace(RegExp(sep.repeat(2), "g"), "/");
 
             // Creates require statement in `index.js`
             writeFileSync(join(guildedDir, "index.js"), `require("${patcherPath}");`);

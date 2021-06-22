@@ -1,7 +1,7 @@
 const { ipcRenderer } = require("electron");
 
-const ReGuilded = require("../ReGuilded/Index.js");
-const badges = require("../ReGuilded/badges.js");
+const ReGuilded = require("../../ReGuilded");
+const badges = require("../../ReGuilded/badges.js");
 
 global.ReGuilded = new ReGuilded();
 
