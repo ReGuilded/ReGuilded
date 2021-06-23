@@ -1,5 +1,5 @@
-const { writeFileSync, existsSync, mkdirSync, rmSync } = require("fs");
-const { copySync } = require("fs-extra");
+const { writeFileSync, existsSync, mkdirSync, rmSync, readdir } = require("fs");
+const { copySync, copy } = require("fs-extra");
 const { spawnSync } = require("child_process");
 const { join, sep } = require("path");
 
@@ -12,6 +12,8 @@ function rootPerms(path, reguildedDir) {
     process.exit(0)
 }
 
+const ignored = ['logo', 'node_modules', 'inject']
+
 /**
  * Injects ReGuilded into Guilded.
  * @param {String} guildedDir Path to Guilded's resource/app directory
@@ -23,9 +25,18 @@ exports.inject = async(guildedDir, reguildedDir) => {
         try {
             // Creates path for 'src' directory
             const src = join(__dirname, "../")
-            // Copies src stuff to ~/.reguilded
-            copySync(src, reguildedDir, { recursive: true, errorOnExist: false, overwrite: true })
-
+            // Gets all files and directories in the path
+            readdir(src, {withFileTypes: true}, (e, f) => {
+                if(e) throw e;
+                // Gets all directories that shouldn't be ignored
+                const dirs = f.filter(x => x.isDirectory() && !ignored.includes(x.name))
+                // Copy all of them
+                for(let dir of dirs)
+                    // Copies src stuff to ~/.reguilded/:name
+                    copy(join(src, dir.name), join(reguildedDir, dir.name), { recursive: true, errorOnExist: false, overwrite: true }, e => {
+                        if(e) throw e
+                    })
+            })
             // If this is on Linux, do it in sudo perms
             if (process.platform === 'linux' && process.getuid() !== 0)
                 rootPerms(guildedDir, reguildedDir);
@@ -41,9 +52,9 @@ exports.inject = async(guildedDir, reguildedDir) => {
             writeFileSync(join(guildedDir, "package.json"), JSON.stringify({ name: "Guilded", main: "index.js", version: "0.0.0" }));
         } catch (err) {
             // If there was an error, try uninjecting ReGuilded
-            await exports.uninject(guildedDir, reguildedDir);
+            if(existsSync(guildedDir)) await exports.uninject(guildedDir, reguildedDir);
 
-            throw new Error(err);
+            throw err;
         }
     // Otherwise, throw an error
     } else throw new Error("There is already an injection.");
@@ -57,15 +68,11 @@ exports.inject = async(guildedDir, reguildedDir) => {
 exports.uninject = async(guildedDir, reguildedDir) => {
     // If there is an injection, then remove the injection
     if (existsSync(guildedDir)) {
-        try {
-            // If this is on Linux, do it in sudo perms
-            if (process.platform === 'linux' && process.getuid() !== 0)
-                rootPerms(guildedDir, reguildedDir);
-            // Removes JS file
-            rmSync(guildedDir, { force: true, recursive: true });
-        } catch (err) {
-            throw new Error(err);
-        }
+        // If this is on Linux, do it in sudo perms
+        if (process.platform === 'linux' && process.getuid() !== 0)
+            rootPerms(guildedDir, reguildedDir);
+        // Removes JS file
+        rmSync(guildedDir, { force: true, recursive: true });
     // Otherwise, throw
     } else throw new Error("There is no injection.");
 }
