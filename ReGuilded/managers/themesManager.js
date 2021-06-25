@@ -21,6 +21,7 @@ module.exports = class ThemesManager extends ExtensionManager {
      */
     init(enabled = []) {
         // Gets a list of theme directories
+        const themeDevelopers = [];
         const themes = super.getDirs(enabled)
 
         // Gets every theme directory
@@ -35,6 +36,23 @@ module.exports = class ThemesManager extends ExtensionManager {
             const json = require(jsonPath)
             // Sets directory's name
             json.dirname = theme.name
+
+            // Check theme developers variable. This is used later on to give theme developers badges.
+            switch (typeof json.developers) {
+                case "string":
+                    themeDevelopers.push(json.developers);
+                    break;
+                case "object":
+                    if (Array.isArray(json.developers)) {
+                        themeDevelopers.concat(json.developers);
+                    } else {
+                        console.log(`Could not set badges on '${json.name}', because 'developers' is an object, but not an array.`)
+                    }
+                    break;
+                default:
+                    console.log(`Could not set badges on '${json.name}', because 'developers' is neither a string or object.`)
+                    break;
+            }
 
             // Gets ID property
             const propId = json.id
@@ -61,11 +79,30 @@ module.exports = class ThemesManager extends ExtensionManager {
             this.all.push(json)
         }
 
+        // Pushes themeDevelopers variable after removing duplicated IDs.
+        const noDuplicatedThemeDevelopers = [];
+
+        for (let developer of themeDevelopers) {
+            if (!noDuplicatedThemeDevelopers.includes(developer)) 
+                noDuplicatedThemeDevelopers.push(developer)
+        }
+        
+        this.themeDevelopers = noDuplicatedThemeDevelopers;
+
         // Wait 3 seconds to let Guilded's Styles load.
         setTimeout(function() {
             this.loadAll();
         }.bind(this), 3000)
 
+    }
+    
+    /**
+     * Sends theme developers variable.
+     * @returns 
+     */
+
+    getThemeDevelopers() {
+        return this.themeDevelopers
     }
 
     /**
