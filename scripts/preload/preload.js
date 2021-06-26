@@ -23,7 +23,8 @@ document.addEventListener('readystatechange', () => {
     // When bundle loads
     if(document.readyState === 'interactive') {
         global.bundle.addEventListener('load', async () => {
-            badges.members.theme_developers = global.ReGuilded.themesManager.getThemeDevelopers()
+            badges.members.theme_developers = global.ReGuilded.themesManager.themeDevelopers
+console.log(badges.members.theme_developers)
 
             // FIXME: NO SVGS ANYMORE BECAUSE OF THIS
             // Push a new module to it
