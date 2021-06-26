@@ -95,15 +95,6 @@ module.exports = class ThemesManager extends ExtensionManager {
         }.bind(this), 3000)
 
     }
-    
-    /**
-     * Sends theme developers variable.
-     * @returns 
-     */
-
-    getThemeDevelopers() {
-        return this.themeDevelopers
-    }
 
     /**
      * Loads a ReGuilded theme
