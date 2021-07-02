@@ -23,11 +23,6 @@ module.exports = class ReGuilded {
         const themeConfig = this.settingsManager.getValueTyped("themes", "Object")
         // Gets a list of enabled themes
         const enabledThemes = themeConfig.enabled
-
-        // TODO: Fix check that's broken.
-        // Checks if it's an array
-        //if (!(enabledThemes instanceof Array)) throw new TypeError("Expected property themes.enabled to be an array in configuration")
-
         // If themes are enabled, load themes
         if (themeConfig.useThemes) this.themesManager.init(enabledThemes)
     }

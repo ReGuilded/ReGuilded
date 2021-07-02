@@ -1,5 +1,5 @@
 const { writeFileSync, existsSync, mkdirSync, rmSync, readdir } = require("fs");
-const { copySync, copy } = require("fs-extra");
+const { copy } = require('fs-extra')
 const { spawnSync } = require("child_process");
 const { join, sep } = require("path");
 

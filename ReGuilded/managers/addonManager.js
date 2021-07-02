@@ -31,7 +31,6 @@ module.exports = class AddonManager extends ExtensionManager {
     load(addon) {
         // STUB
         // NOTE: Perhaps use Require? But then how do we unload it?
-        // TODO(?): Perhaps make Extension class that will be for themes and addons?
     }
     /**
      * Unloads/removes a ReGuilded addon.

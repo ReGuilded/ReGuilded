@@ -22,5 +22,14 @@
     "fs-extra": "^8.1.0",
     "log4js": "^6.3.0",
     "minimist": "^1.2.5"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.14.6",
+    "@babel/preset-env": "^7.14.7",
+    "babel": "^6.23.0",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-jshint": "^2.1.0",
+    "jshint": "^2.13.0"
   }
 }
