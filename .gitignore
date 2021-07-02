@@ -1,6 +1,7 @@
 # Project
 src
 scripts/preload/test.js
+package-lock.json
 
 # VSCode
 .vscode
