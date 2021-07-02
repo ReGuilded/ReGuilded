@@ -44,4 +44,4 @@ As mentioned at the top of this document, ReGuilded is currently under active de
 
 ## License
 
-ReGuilded is licensed under the [MIT](https://github.com/ReGuilded/ReGuilded/blob/main/LICENSE) license.
+ReGuilded is licensed under the [BSD 3-Clause](https://github.com/ReGuilded/ReGuilded/blob/main/LICENSE) license.
