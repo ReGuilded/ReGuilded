@@ -19,7 +19,7 @@ let platformModule = getPlatformModule();
  */
 async function mainAsync() {
     // Gets command-line arguments
-    const reguilded = argv.r ?? argv.reguilded
+    const reguilded = argv.r || argv.reguilded
 
     // Gets task to do
     const [taskArg] = argv._;
@@ -37,9 +37,9 @@ async function mainAsync() {
         logger.info("Force closing Guilded");
         // Creates path for ReGuilded
         const reguildedPath = path.resolve(
-            reguilded ??
+            reguilded ||
             // if variable `reguilded` is empty, get default path instead
-            path.join(process.env.APPDATA ?? process.env.HOME, ".reguilded")
+            path.join(process.env.APPDATA || process.env.HOME, ".reguilded")
         )
 
         try {

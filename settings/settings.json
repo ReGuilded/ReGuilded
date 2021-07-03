@@ -1,8 +1,12 @@
 {
     "themes": {
-        "useThemes": true,
         "enabled": [
             "dreamFrame"
+        ]
+    },
+    "addons": {
+        "enabled": [
+            
         ]
     }
 }

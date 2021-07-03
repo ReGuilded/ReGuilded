@@ -1,3 +1,3 @@
 module.exports = {
-    FileWatcher: require('./FileWatcher')
-}
+    FileWatcher: require("./FileWatcher"),
+};

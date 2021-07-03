@@ -1,5 +1,5 @@
-const { SettingsManager, ThemesManager } = require("./managers");
-const badges = require('./badges.js')
+const { SettingsManager, ThemesManager, AddonManager } = require("./managers");
+const badges = require("./badges.js");
 
 /**
  * ReGuilded's full manager's class.
@@ -14,6 +14,8 @@ module.exports = class ReGuilded {
 
         // Creates theme manager to handle themes
         this.themesManager = new ThemesManager(this.settingsManager.getThemesDir());
+        // Creates addon manager to handle addons
+        this.addonManager = new AddonManager(this.settingsManager.getAddonsDir(), this);
     }
 
     /**
@@ -21,13 +23,17 @@ module.exports = class ReGuilded {
      */
     init() {
         // Gets theme configurations
-        const themeConfig = this.settingsManager.getValueTyped("themes", "Object")
+        const themeConfig = this.settingsManager.getValueTyped("themes", "object"),
+            addonConfig = this.settingsManager.getValueTyped("addons", "object");
         // Gets a list of enabled themes
-        const enabledThemes = themeConfig.enabled
+        const enabledThemes = themeConfig.enabled,
+            enabledAddons = addonConfig.enabled;
         // If themes are enabled, load themes
-        if (themeConfig.useThemes) this.themesManager.init(enabledThemes)
+        if (enabledThemes.length !== 0) this.themesManager.init(enabledThemes);
+        // Initiates addon manager
+        this.addonManager.init(enabledAddons);
     }
-    
+
     /**
      * Uninitiates ReGuilded
      */
@@ -37,20 +43,23 @@ module.exports = class ReGuilded {
 
     /**
      * Gets called when global.webpackRequire gets initialized. Loads addons.
+     * @param {Function} webpackRequire A function that gets Guilded modules.
      */
-    loadAddons() {
+    loadAddons(webpackRequire) {
         // Start loading it
-        console.log('Starting addons')
+        console.log("Starting addons");
+        // Set webpackRequire in AddonManager
+        this.addonManager.webpackRequire = webpackRequire;
         // TODO: Don't make 115 constant, make a helper for addons
         // Creates a list of badge owners
-        fetch('https://gist.githubusercontent.com/IdkGoodName/feb175e9d74320cb61a72bf2ad60fc81/raw/b9fd6edd73da1634530872b407ed7ec123453ce2/staff.json')
-            .then(x => x.json())
-            .then(x => badges.members.staff = x)
-        // Gets the User class
-        const {UserModel} = webpackRequire(115)
-        // Generates function for getting badges
-        const badgeGetter = badges.genBadgeGetter(UserModel.prototype.__lookupGetter__('badges'))
-        // Adds ReGuilded staff badges
-        badges.injectBadgeGetter(UserModel.prototype, badgeGetter)
+        // fetch('https://gist.githubusercontent.com/IdkGoodName/feb175e9d74320cb61a72bf2ad60fc81/raw/b9fd6edd73da1634530872b407ed7ec123453ce2/staff.json')
+        //     .then(x => x.json())
+        //     .then(x => badges.members.staff = x)
+        // // Gets the User class
+        // const {UserModel} = webpackRequire(115)
+        // // Generates function for getting badges
+        // const badgeGetter = badges.genBadgeGetter(UserModel.prototype.__lookupGetter__('badges'))
+        // // Adds ReGuilded staff badges
+        // badges.injectBadgeGetter(UserModel.prototype, badgeGetter)
     }
 };

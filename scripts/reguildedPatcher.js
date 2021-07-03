@@ -26,11 +26,13 @@ mimicGuilded(electron);
 
 const electronExports = new Proxy(electron, {
     get(target, prop) {
-        switch(prop) {
-            case 'BrowserWindow': return PatchedBrowserWindow;
-            default: return target[prop];
+        switch (prop) {
+            case "BrowserWindow":
+                return PatchedBrowserWindow;
+            default:
+                return target[prop];
         }
-    }
+    },
 });
 
 delete require.cache[electronPath].exports;

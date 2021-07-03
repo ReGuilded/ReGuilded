@@ -1,11 +1,11 @@
 const { watch } = require("fs");
 
 module.exports = class FileWatcher {
-   constructor(File, Class, ID) {
-       watch(File, (event, filename) => {
-           if (filename && event === "change") {
-               Class.reload(ID);
-           }
-       })
-   }
-}
+    constructor(file, reload, id) {
+        watch(file, (event, filename) => {
+            if (filename && event === "change") {
+                reload(id);
+            }
+        });
+    }
+};

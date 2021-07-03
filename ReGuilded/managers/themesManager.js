@@ -1,7 +1,7 @@
-const ExtensionManager = require("./extensionManager.js")
-const { FileWatcher } = require("../Utils")
-const path = require("path")
-const fs = require("fs")
+const ExtensionManager = require("./extensionManager.js");
+const { FileWatcher } = require("../Utils");
+const path = require("path");
+const { existsSync, readFileSync, stat } = require("fs");
 
 /**
  * Manager that manages ReGuilded's themes
@@ -12,7 +12,7 @@ module.exports = class ThemesManager extends ExtensionManager {
      * @param {String} themesDir The directory of the ReGuilded themes
      */
     constructor(themesDir) {
-        super(themesDir)
+        super(themesDir);
     }
 
     /**
@@ -21,51 +21,56 @@ module.exports = class ThemesManager extends ExtensionManager {
      */
     init(enabled = []) {
         // Gets a list of theme directories
-        const themes = super.getDirs(enabled)
+        const themes = super.getDirs(enabled);
 
         // Gets every theme directory
-        for(let theme of themes) {
+        for (let theme of themes) {
             // Creates path to the Theme Directory
             const themePath = super.getPath(theme.name);
-            // Creates path of theme.json
-            const jsonPath = path.join(themePath, "theme.json")
+            // Gets path of the JSON
+            const jsonPath = path.join(themePath, "theme.json");
+
             // If json doesn't exist, ignore this directory
-            if(!fs.existsSync(jsonPath)) continue
-            // Get that json
-            const json = require(jsonPath)
-            // Sets directory's name
-            json.dirname = theme.name
-
-            // Gets ID property
-            const propId = json.id
-            // Checks if it's a string
-            if(typeof propId !== "string") throw new TypeError(`Expected 'id' to be string, found ${typeof propId} instead in ${jsonPath}`)
-            // Checks if ID is correct
-            if(!ExtensionManager.checkId(propId)) throw new Error(`Incorrect syntax of the property 'id'.`);
-
-            // Gets name of it or id
-            const propName = json.name ?? propId
-            // Checks if it's a string
-            if(typeof propName !== "string") throw new TypeError(`Expected 'name' to be string, found ${typeof propName} instead in ${jsonPath}`)
-
-            // Gets CSS path
-            const propCss = json.css
-            // Checks if it's a string
-            if(typeof propCss !== "string") throw new TypeError(`Expected property 'css' to be string, found ${typeof propCss} instead in ${jsonPath}`)
-            // Gets full CSS path
-            const cssPath = path.isAbsolute(propCss) ? propCss : path.join(themePath, propCss)
-            // Checks if CSS file exists
-            if(!fs.existsSync(cssPath)) throw new Error(`Could not find CSS file in path ${cssPath}`)
-
-            // Adds it to themes array instead
-            this.all.push(json)
+            stat(jsonPath, (e, _) => {
+                if(e) {
+                    // If it doesn't exist ignore it
+                    if(e.code === 'ENOENT') return;
+                    // If there is other kind of an error, throw it
+                    else throw e;
+                }
+                // Get that json
+                const json = require(jsonPath);
+                // Sets directory's name
+                json.dirname = themePath;
+    
+                // TODO: Use JSON schema
+    
+                // Gets ID property
+                const propId = json.id;
+                // Checks if ID is correct
+                if (!ExtensionManager.checkId(propId)) throw new Error(`Incorrect syntax of the property 'id'.`);
+    
+                // Gets CSS path
+                const propCss = json.css;
+                // Checks if it's a string
+                ExtensionManager.checkProperty("css", propCss, "string", jsonPath);
+                // Gets full CSS path
+                const cssPath = path.isAbsolute(propCss) ? propCss : path.join(themePath, propCss);
+                // Checks if CSS file exists
+                if (!existsSync(cssPath)) throw new Error(`Could not find CSS file in path ${cssPath}`);
+    
+                // Adds it to themes array instead
+                this.all.push(json);
+            })
         }
 
         // Wait 3 seconds to let Guilded's Styles load.
-        setTimeout(function() {
-            this.loadAll();
-        }.bind(this), 3000)
-
+        setTimeout(
+            function () {
+                this.loadAll();
+            }.bind(this),
+            3000
+        );
     }
 
     /**
@@ -74,23 +79,22 @@ module.exports = class ThemesManager extends ExtensionManager {
      */
     load(theme) {
         // Creates path to the Theme Directory
-        const themePath = super.getPath(theme.dirname);
-        const themeCss = path.join(themePath, theme.css);
+        const themeCss = path.join(theme.dirname, theme.css);
 
-        new FileWatcher(themeCss, this, theme.id);
+        theme.watcher = new FileWatcher(themeCss, this.reload, theme.id);
 
-        console.log(`Loading theme by ID '${theme.id}'`)
+        console.log(`Loading theme by ID '${theme.id}'`);
 
         // Creates a new style element for that theme
-        const style = document.createElement("style")
-        style.id = `reGl-theme-${theme.id}`
-        style.classList.add("ReGuilded-Theme")
+        const style = document.createElement("style");
+        style.id = `reGl-theme-${theme.id}`;
+        style.classList.add("ReGuilded-Theme");
 
         // Sets the innerText of the style element to the themeCss file.
-        style.innerHTML = fs.readFileSync(themeCss).toString();
+        style.innerHTML = readFileSync(themeCss).toString();
 
         // Adds style element to head element
-        document.head.appendChild(style)
+        document.head.appendChild(style);
     }
 
     /**
@@ -98,11 +102,11 @@ module.exports = class ThemesManager extends ExtensionManager {
      * @param {String} theme ID of the theme to unload from Guilded.
      */
     unload(theme) {
-        console.log(`Unloading theme by ID '${theme}'`)
+        console.log(`Unloading theme by ID '${theme}'`);
         // Selects the theme's link element by name that is in head element
-        const linkRef = document.querySelector(`head link#reGl-theme-${theme}`)
+        const linkRef = document.querySelector(`head style#reGl-theme-${theme}`);
         // Removes it
-        linkRef.remove()
+        linkRef.remove();
     }
 
     /**
@@ -113,15 +117,14 @@ module.exports = class ThemesManager extends ExtensionManager {
         console.log(`Reloading theme by ID '${id}`);
 
         // Gets the Theme, Theme Path, and Theme Css.
-        const theme = this.all.find(object => object.id === id);
-        const themePath = super.getPath(theme.dirname);
-        const themeCss = path.join(themePath, theme.css);
+        const theme = this.all.find((object) => object.id === id);
+        const themeCss = path.join(theme.dirname, theme.css);
 
         // Gets the Style within Guilded.
         const style = document.getElementById(`reGl-theme-${theme.id}`);
 
         // Sets the innerText of the style element to the themeCss file.
-        style.innerHTML = fs.readFileSync(themeCss).toString();
+        style.innerHTML = readFileSync(themeCss).toString();
     }
 
     /**
@@ -130,10 +133,10 @@ module.exports = class ThemesManager extends ExtensionManager {
      * @returns Theme is loaded
      */
     isLoaded(id) {
-        return this.enabled.includes(id)
+        return this.enabled.includes(id);
     }
-}
+};
 /**
  * A Regex pattern for determining whether given theme's ID is correct.
  */
-module.exports.idRegex = /^[A-Za-z0-9]+$/g
+module.exports.idRegex = /^[A-Za-z0-9]+$/g;

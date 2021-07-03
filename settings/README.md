@@ -7,17 +7,17 @@
 ### This is the Alpha Theme Support this process will be easier in the future.
 
 # User Settings
-Depending on your OS you can find the User Settings in your `home file` or your `roaming appdata`.<br>
-Quick links for getting there:<br>
-- Windows: `WindowsKey-R`, then enter: `%appdata%\.reguilded`<br>
-- Mac: Open Finder, then click `Command-Shift-H`<br>
-- Linux: Open Terminal, then enter: `cd ~`
+Depending on your OS you can find the User Settings in your `home file` or your `roaming appdata`.
+Quick links for getting there:
+- Windows: `WindowsKey-R`, then enter: `%appdata%\.reguilded`
+- Mac: Open Finder, then click `Command-Shift-H`
+- Linux: Open Terminal, then enter: `cd ~`.
 
-Then users settings can be found in `_Settings`<br>
+Then users settings can be found in `settings`(directory in which this file is in)
 *Any changes made currently requires you to click, `Ctrl + R` or `Command + R`, to refresh Guilded*
 
 # Theme File Structure
-Each theme should have it's own dedicated folder inside the `themes` directory. 
+Each theme should have its own dedicated folder inside the `themes` directory. 
 It should also contain a `theme.json` and a CSS file, which is where the styling will go.
 
 Here's an example of the File Structure:
@@ -28,10 +28,10 @@ themes:
     theme.json
 ```
 
-# Theme.json
-`name` - Must be equal to the Folder Name, will be used for Display within Guilded.<br>
-`id` - Must be Alphanumeric (A-Z, a-z, 0-9)<br>
-`css` - Must be equal to the CSS File.
+# `theme.json`
+`name` — Must be equal to the Folder Name, will be used for Display within Guilded.
+`id` — Must be Alphanumeric (A-Z, a-z, 0-9)
+`css` — Must be equal to the CSS File.
 ```json
 {
     "name": "Dream Frame",
@@ -41,11 +41,10 @@ themes:
 ```
 
 # Settings & Enabling Themes
-To enable a theme, in settings.json, make sure `useThemes` is `true` and the Theme's ID, listed in `theme.json`, is in the `enabledArray`
+To enable a theme, add its ID (`dreamFrame`) in `enabled` under `themes` in quotation marks.
 ```json
 {
   "themes": {
-    "useThemes": true,
     "enabled": [
       "dreamFrame"
     ]
