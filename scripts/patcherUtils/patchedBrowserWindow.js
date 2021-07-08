@@ -10,7 +10,7 @@ module.exports = class PatchedBrowserWindow extends BrowserWindow {
         // FIXME: Not broken, but this is weird
         let origPreload;
 
-        // REVIEW: What is this supposed to fix/do? What
+        // REVIEW: What is this supposed to fix/do?
         if (options.webPreferences && options.webPreferences.nodeIntegration) {
             options.webPreferences.preload = preloadSplash;
         } else if (options.webPreferences && options.webPreferences.offscreen) {

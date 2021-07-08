@@ -1,5 +1,5 @@
 // ID of the SVG module
-const svgId = 151, svgMain = 1393;
+const svgId = 151;
 
 /**
  * Returns fake SVG module that exposes Webpack's require and calls original SVG module.
@@ -8,6 +8,9 @@ const svgId = 151, svgMain = 1393;
  * @returns Webpack Module
  */
 function webpackModule(index, svgModule) {
+    // Get the SVG module's main method's ID
+    const svgMain = Object.keys(svgModule[1])[0];
+    // Returns the new module
     return [
         [svgId],
         {
@@ -37,6 +40,8 @@ function push(mod) {
     const [[id]] = mod;
     // Checks if its ID is 151, SVG module's id
     if (id === svgId) {
+        console.log(mod);
+        console.log(Object.keys(mod[1]));
         // Sets SVG module locally
         svgModule = mod;
         // Pushes ReGuilded's module instead
