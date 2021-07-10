@@ -1,5 +1,5 @@
 const { stat } = require("fs");
-const ExtensionManager = require("./extensionManager.js");
+const ExtensionManager = require("./extension.js");
 
 /**
  * Manager that manages ReGuilded's addons

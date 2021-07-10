@@ -1,5 +1,5 @@
 module.exports = {
-    SettingsManager: require("./settingsManager"),
-    ThemesManager: require("./themesManager"),
-    AddonManager: require("./addonManager")
+    SettingsManager: require("./settings"),
+    ThemesManager: require("./themes"),
+    AddonManager: require("./addon")
 }

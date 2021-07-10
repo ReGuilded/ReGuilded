@@ -23,8 +23,8 @@ function webpackModule(index, svgModule) {
                 global.webpackJsonp._push(svgModule);
                 // Calls SVG module to export to this module's exports
                 svgModule[1][svgMain](module, exports, webpackRequire);
-                // Starts addons
-                global.ReGuilded.loadAddons(webpackRequire);
+                // Initiates ReGuilded with webpackRequire
+                global.ReGuilded.init(webpackRequire);
             },
         },
     ];
@@ -40,8 +40,6 @@ function push(mod) {
     const [[id]] = mod;
     // Checks if its ID is 151, SVG module's id
     if (id === svgId) {
-        console.log(mod);
-        console.log(Object.keys(mod[1]));
         // Sets SVG module locally
         svgModule = mod;
         // Pushes ReGuilded's module instead

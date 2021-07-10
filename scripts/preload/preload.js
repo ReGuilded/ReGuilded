@@ -18,8 +18,7 @@ document.addEventListener("readystatechange", () => {
                 get: () => webpackPush,
             });
         });
-        // Once DOM is done loading, initiate ReGuilded
-    } else if (document.readyState === "complete") global.ReGuilded.init();
+    }
 });
 
 const preload = ipcRenderer.sendSync("REGUILDED_GET_PRELOAD");

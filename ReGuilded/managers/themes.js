@@ -1,5 +1,5 @@
-const ExtensionManager = require("./extensionManager.js");
-const { FileWatcher } = require("../Utils");
+const ExtensionManager = require("./extension.js");
+const { FileWatcher } = require("../utils");
 const path = require("path");
 const { existsSync, readFileSync, stat } = require("fs");
 

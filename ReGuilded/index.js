@@ -20,8 +20,13 @@ module.exports = class ReGuilded {
 
     /**
      * Initiates ReGuilded
+     * @param {Function} webpackRequire A function that gets Guilded modules.
      */
-    init() {
+    init(webpackRequire) {
+        // Adds Webpack stuff to addon manager
+        this.addonManager.webpackRequire = webpackRequire
+        this.addonManager.webpackModules = webpackRequire.c
+        this.addonManager.webpackFunctions = webpackRequire.m
         // Gets theme configurations
         const themeConfig = this.settingsManager.getValueTyped("themes", "object"),
             addonConfig = this.settingsManager.getValueTyped("addons", "object");
@@ -32,6 +37,7 @@ module.exports = class ReGuilded {
         if (enabledThemes.length !== 0) this.themesManager.init(enabledThemes);
         // Initiates addon manager
         this.addonManager.init(enabledAddons);
+        console.log('Addon require', this.addonManager.webpackRequire)
     }
 
     /**
@@ -41,25 +47,17 @@ module.exports = class ReGuilded {
         this.themesManager.unloadThemes();
     }
 
-    /**
-     * Gets called when global.webpackRequire gets initialized. Loads addons.
-     * @param {Function} webpackRequire A function that gets Guilded modules.
-     */
-    loadAddons(webpackRequire) {
-        // Start loading it
-        console.log("Starting addons");
-        // Set webpackRequire in AddonManager
-        this.addonManager.webpackRequire = webpackRequire;
-        // TODO: Don't make 115 constant, make a helper for addons
-        // Creates a list of badge owners
-        // fetch('https://gist.githubusercontent.com/IdkGoodName/feb175e9d74320cb61a72bf2ad60fc81/raw/b9fd6edd73da1634530872b407ed7ec123453ce2/staff.json')
-        //     .then(x => x.json())
-        //     .then(x => badges.members.staff = x)
-        // // Gets the User class
-        // const {UserModel} = webpackRequire(115)
-        // // Generates function for getting badges
-        // const badgeGetter = badges.genBadgeGetter(UserModel.prototype.__lookupGetter__('badges'))
-        // // Adds ReGuilded staff badges
-        // badges.injectBadgeGetter(UserModel.prototype, badgeGetter)
-    }
+    // loadAddons(webpackRequire) {
+    //     // TODO: Don't make 115 constant, make a helper for addons
+    //     // Creates a list of badge owners
+    //     // fetch('https://gist.githubusercontent.com/IdkGoodName/feb175e9d74320cb61a72bf2ad60fc81/raw/b9fd6edd73da1634530872b407ed7ec123453ce2/staff.json')
+    //     //     .then(x => x.json())
+    //     //     .then(x => badges.members.staff = x)
+    //     // // Gets the User class
+    //     // const {UserModel} = webpackRequire(115)
+    //     // // Generates function for getting badges
+    //     // const badgeGetter = badges.genBadgeGetter(UserModel.prototype.__lookupGetter__('badges'))
+    //     // // Adds ReGuilded staff badges
+    //     // badges.injectBadgeGetter(UserModel.prototype, badgeGetter)
+    // }
 };
