@@ -1,4 +1,4 @@
-const { SettingsManager, ThemesManager, AddonManager } = require("./managers");
+const { SettingsManager, ThemesManager, AddonManager, WebpackManager } = require("./managers");
 const badges = require("./badges.js");
 
 /**
@@ -35,9 +35,12 @@ module.exports = class ReGuilded {
             enabledAddons = addonConfig.enabled;
         // If themes are enabled, load themes
         if (enabledThemes.length !== 0) this.themesManager.init(enabledThemes);
+        // Initializes Webpack manager
+        this.webpackManager = new WebpackManager(webpackRequire);
+        
+        this.webpackManager.modules = this.webpackManager.fetch()
         // Initiates addon manager
         this.addonManager.init(enabledAddons);
-        console.log('Addon require', this.addonManager.webpackRequire)
     }
 
     /**
