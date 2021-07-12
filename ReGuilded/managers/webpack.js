@@ -21,7 +21,8 @@ module.exports = class WebpackManager {
     fetch() {
         return {
             messages: this.withClassProperty('chatMessageInfo')[0],
-            channels: this.withProperty('ChannelModel')[0]
+            channels: this.withProperty('ChannelModel')[0],
+            users: this.withProperty('UserModel')[0]
         }
     }
     /**
@@ -34,8 +35,8 @@ module.exports = class WebpackManager {
     }
     /**
      * Gets Webpack module's exports using specific filter
-     * @param {(mod: {exports: {default: any}}) => Boolean} fn Function to filter modules with.
-     * @returns Webpack Module Exports
+     * @param {(mod: {i: number, exports: any}) => Boolean} fn Function to filter modules with.
+     * @returns {[{i: number, exports: any}]} Webpack Module Exports
      */
     withFilter(fn) {
         return this._webpackExportList.filter(fn)
@@ -43,7 +44,7 @@ module.exports = class WebpackManager {
     /**
      * Gets exports of a Webpack module that has specific property.
      * @param {String} name The name of the property that the module should contain.
-     * @returns Webpack Module Exports
+     * @returns {[{i: number, exports: any}]} Webpack Module Exports
      */
     withProperty(name) {
         return this.withFilter(x => x.exports && x.exports[name])
@@ -51,7 +52,7 @@ module.exports = class WebpackManager {
     /**
      * Gets exports of a Webpack module that contains class with the given property.
      * @param {String} name The name of the property that prototype should contain.
-     * @returns Webpack Module Exports
+     * @returns {[{i: number, exports: any}]} Webpack Module Exports
      */
     withClassProperty(name) {
         return this.withFilter(x =>

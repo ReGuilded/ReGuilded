@@ -39,6 +39,8 @@ module.exports = class ReGuilded {
         this.webpackManager = new WebpackManager(webpackRequire);
         
         this.webpackManager.modules = this.webpackManager.fetch()
+        // Loads badges with UserModel class
+        this.loadBadges(this.webpackManager.modules?.users?.exports?.UserModel)
         // Initiates addon manager
         this.addonManager.init(enabledAddons);
     }
@@ -50,17 +52,20 @@ module.exports = class ReGuilded {
         this.themesManager.unloadThemes();
     }
 
-    // loadAddons(webpackRequire) {
-    //     // TODO: Don't make 115 constant, make a helper for addons
-    //     // Creates a list of badge owners
-    //     // fetch('https://gist.githubusercontent.com/IdkGoodName/feb175e9d74320cb61a72bf2ad60fc81/raw/b9fd6edd73da1634530872b407ed7ec123453ce2/staff.json')
-    //     //     .then(x => x.json())
-    //     //     .then(x => badges.members.staff = x)
-    //     // // Gets the User class
-    //     // const {UserModel} = webpackRequire(115)
-    //     // // Generates function for getting badges
-    //     // const badgeGetter = badges.genBadgeGetter(UserModel.prototype.__lookupGetter__('badges'))
-    //     // // Adds ReGuilded staff badges
-    //     // badges.injectBadgeGetter(UserModel.prototype, badgeGetter)
-    // }
+    /**
+     * Loads ReGuilded staff badges.
+     * @param {class} UserModel The class that represents user object.
+     */
+    loadBadges(UserModel) {
+        // If it's null, don't initialize badges
+        if(!UserModel) return
+        // Fetches ReGuilded staff list
+        fetch('https://gist.githubusercontent.com/IdkGoodName/feb175e9d74320cb61a72bf2ad60fc81/raw/b9fd6edd73da1634530872b407ed7ec123453ce2/staff.json')
+            .then(x => x.json())
+            .then(x => badges.members.staff = x)
+        // Generates function for getting badges
+        const badgeGetter = badges.genBadgeGetter(UserModel.prototype.__lookupGetter__('badges'))
+        // Adds ReGuilded staff badges
+        badges.injectBadgeGetter(UserModel.prototype, badgeGetter)
+    }
 };
