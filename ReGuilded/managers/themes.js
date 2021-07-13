@@ -81,7 +81,7 @@ module.exports = class ThemesManager extends ExtensionManager {
         // Creates path to the Theme Directory
         const themeCss = path.join(theme.dirname, theme.css);
 
-        theme.watcher = new FileWatcher(themeCss, this.reload, theme.id);
+        theme.watcher = new FileWatcher(themeCss, this.reload.bind(this), theme.id);
 
         console.log(`Loading theme by ID '${theme.id}'`);
 
