@@ -10,6 +10,7 @@ const svgId = 151;
 function webpackModule(index, svgModule) {
     // Get the SVG module's main method's ID
     const svgMain = Object.keys(svgModule[1])[0];
+    console.log('SVG Module Id:', svgId, '\nSVG Module Function:', svgMain, '\nSVG Module:', svgModule)
     // Returns the new module
     return [
         [svgId],
@@ -23,6 +24,7 @@ function webpackModule(index, svgModule) {
                 global.webpackJsonp._push(svgModule);
                 // Calls SVG module to export to this module's exports
                 svgModule[1][svgMain](module, exports, webpackRequire);
+                console.log('Webpack injection with module:', module)
                 // Initiates ReGuilded with webpackRequire
                 global.ReGuilded.init(webpackRequire);
             },

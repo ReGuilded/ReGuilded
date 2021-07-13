@@ -1,7 +1,8 @@
-const { writeFileSync, existsSync, mkdirSync, rmSync, readdir } = require("fs");
+const { writeFileSync, existsSync, mkdirSync, rmSync, readdir, chmodSync } = require("fs");
 const { copy } = require('fs-extra')
 const { spawnSync } = require("child_process");
 const { join, sep } = require("path");
+const { chdir } = require("process");
 
 function rootPerms(path, reguildedDir) {
     // Warns us about this
@@ -12,7 +13,7 @@ function rootPerms(path, reguildedDir) {
     process.exit(0)
 }
 
-const ignored = ['logo', 'node_modules', 'inject']
+const ignored = ['logo', 'node_modules', 'inject', '.vscode']
 
 /**
  * Injects ReGuilded into Guilded.
@@ -31,11 +32,14 @@ exports.inject = async(guildedDir, reguildedDir) => {
                 // Gets all directories that shouldn't be ignored
                 const dirs = f.filter(x => x.isDirectory() && !ignored.includes(x.name))
                 // Copy all of them
-                for(let dir of dirs)
+                for(let dir of dirs) {
+                    const inReguilded = join(reguildedDir, dir.name)
                     // Copies src stuff to ~/.reguilded/:name
-                    copy(join(src, dir.name), join(reguildedDir, dir.name), { recursive: true, errorOnExist: false, overwrite: true }, e => {
+                    copy(join(src, dir.name), inReguilded, { recursive: true, errorOnExist: false, overwrite: true }, e => {
                         if(e) throw e
+                        chmodSync(inReguilded, 0o775)
                     })
+                }
             })
             // If this is on Linux, do it in sudo perms
             if (process.platform === 'linux' && process.getuid() !== 0)
