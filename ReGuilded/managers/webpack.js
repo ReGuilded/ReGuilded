@@ -11,7 +11,7 @@ module.exports = class WebpackManager {
         this._webpackExports = webpackRequire.c
         this._webpackExportList = Object.values(this._webpackExports)
         this._webpackModules = webpackRequire.m
-        this._asModule = webpackRequire(0)
+        this.asEsModule = webpackRequire(0)
 
         this.modules = {}
     }
@@ -20,9 +20,16 @@ module.exports = class WebpackManager {
      */
     fetch() {
         return {
-            messages: this.withClassProperty('chatMessageInfo')[0],
-            channels: this.withProperty('ChannelModel')[0],
-            users: this.withProperty('UserModel')[0]
+            // Guilded interaction
+            chatContext: this.withProperty('chatContext')[0]?.exports,
+            methods: this.withProperty('getMe')[0]?.exports,
+            // Models
+            channels: this.withProperty('ChannelModel')[0]?.exports,
+            users: this.withProperty('UserModel')[0]?.exports,
+            messages: this.withClassProperty('chatMessageInfo')[0]?.exports,
+            // Slate editor
+            editorNodeInfos: this.withProperty('InsertPlugins')[0]?.exports,
+            editorNodes: this.withProperty('editorTypes').filter(x => x?.exports)
         }
     }
     /**
@@ -47,7 +54,12 @@ module.exports = class WebpackManager {
      * @returns {[{i: number, exports: any}]} Webpack Module Exports
      */
     withProperty(name) {
-        return this.withFilter(x => x.exports && x.exports[name])
+        return this.withFilter(x => {
+            // Gets it as ES Module
+            const {default: obj, ...rest} = this.asEsModule(x.exports)
+            // Returns whether it contains that property
+            return obj && (obj[name] || rest[name])
+        })
     }
     /**
      * Gets exports of a Webpack module that contains class with the given property.
@@ -55,12 +67,12 @@ module.exports = class WebpackManager {
      * @returns {[{i: number, exports: any}]} Webpack Module Exports
      */
     withClassProperty(name) {
-        return this.withFilter(x =>
-            // Checks if x.exports.prototype has property
-            (typeof x.exports === 'function' && x.exports.prototype && x.exports.prototype?.hasOwnProperty?.(name)) ||
-            // Checks if x.exports.default.prototype has property
-            (typeof x.exports?.default === 'function' && x.exports.default.prototype && x.exports.default.prototype?.hasOwnProperty?.(name))
-        )
+        return this.withFilter(x => {
+            // Fetches the type
+            const {default: type} = this.asEsModule(x.exports)
+            // Checks if it's a function with property in prototypes
+            return typeof type === 'function' && type.prototype && type.prototype?.hasOwnProperty?.(name)
+        })
     }
     /**
      * Gets a module from WebpackJsonp.
