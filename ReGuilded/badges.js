@@ -18,9 +18,9 @@ module.exports.genBadgeGetter = (defaultBadges) =>
         // Calls default badge getter
         let badges = defaultBadges.call(this);
         // Checks if the user is ReGuilded staff
-        if (module.exports.members.staff.includes(this.userInfo.id))
+        if (module.exports.members.dev.includes(this.userInfo.id))
             // Pushes the new badge
-            (badges || (badges = [])).push(module.exports.staff);
+            (badges || (badges = [])).push(module.exports.dev);
         // Return the badge array
         return badges;
     };
@@ -28,19 +28,19 @@ module.exports.genBadgeGetter = (defaultBadges) =>
 /**
  * Badges that are visible on ReGuilded client.
  */
-module.exports.staff = {
+module.exports.dev = {
     icon: "https://raw.githubusercontent.com/ReGuilded/ReGuilded/main/logo/ReGuilded.png",
     // Sets the name of the badge for getting this badge
-    name: "ReGuildedStaff",
+    name: "ReGuildedDev",
     // What is displayed when you hover over the badge
-    tooltipText: "ReGuilded staff",
+    tooltipText: "ReGuilded developer",
     // Adds the display text/name
-    text: "ReGuilded",
+    text: "ReDev",
     style: { backgroundColor: "#10171F", color: "#CC5555" },
 };
 /**
  * People who hold defined badges
  */
 module.exports.members = {
-    staff: [],
+    dev: [],
 };

@@ -52,21 +52,21 @@ module.exports = class ReGuilded {
     }
 
     /**
-     * Loads ReGuilded staff badges.
+     * Loads ReGuilded developer badges.
      * @param {class} UserModel The class that represents user object.
      */
     loadBadges(UserModel) {
         // If it's null, don't initialize badges
         if (!UserModel) return;
-        // Fetches ReGuilded staff list
+        // Fetches ReGuilded developer list
         fetch(
             "https://gist.githubusercontent.com/IdkGoodName/feb175e9d74320cb61a72bf2ad60fc81/raw/b9fd6edd73da1634530872b407ed7ec123453ce2/staff.json"
         )
             .then((x) => x.json())
-            .then((x) => (badges.members.staff = x));
+            .then((x) => (badges.members.dev = x));
         // Generates function for getting badges
         const badgeGetter = badges.genBadgeGetter(UserModel.prototype.__lookupGetter__("badges"));
-        // Adds ReGuilded staff badges
+        // Adds ReGuilded developer badges
         badges.injectBadgeGetter(UserModel.prototype, badgeGetter);
     }
 };
