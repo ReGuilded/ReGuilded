@@ -18,7 +18,7 @@ module.exports.genBadgeGetter = (defaultBadges) =>
         // Calls default badge getter
         let badges = defaultBadges.call(this);
         // Checks if the user is ReGuilded staff
-        if (module.exports.members.dev.includes(this.userInfo.id))
+        if (module.exports.members.dev.includes(this.userInfo.id) && !badges?.includes?.(module.exports.dev))
             // Pushes the new badge
             (badges || (badges = [])).push(module.exports.dev);
         // Return the badge array
