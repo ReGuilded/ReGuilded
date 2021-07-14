@@ -45,7 +45,9 @@ module.exports = class ExtensionManager {
      */
     loadAll() {
         // Loads all found enabled extensions
-        for (let ext of this.all) if (this.enabled.includes(ext.id)) this.load(ext);
+        for (let ext of this.all)
+            if (this.enabled.includes(ext.id))
+                this.load(ext);
     }
     /**
      * Removes ReGuilded themes from Guilded.
@@ -58,7 +60,7 @@ module.exports = class ExtensionManager {
     /**
      * Gets path of an extension.
      * @param {String} name The name of the extension to get path of
-     * @returns Extension path
+     * @returns {String} Extension path
      */
     getPath(name) {
         return path.join(this.dirname, name);

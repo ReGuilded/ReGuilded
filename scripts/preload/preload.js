@@ -8,7 +8,7 @@ global.ReGuilded = new ReGuilded();
 
 document.addEventListener("readystatechange", () => {
     // When document is interactive, start loading JS stuff
-    if (document.readyState === "interactive") {
+    if (document.readyState === "interactive")
         // Wait when bundle loads
         global.bundle.addEventListener("load", () => {
             // Saves the old push
@@ -18,7 +18,6 @@ document.addEventListener("readystatechange", () => {
                 get: () => webpackPush,
             });
         });
-    }
 });
 
 const preload = ipcRenderer.sendSync("REGUILDED_GET_PRELOAD");

@@ -1,5 +1,6 @@
-const { stat } = require("fs");
 const ExtensionManager = require("./extension.js");
+const { join } = require("path");
+const { existsSync } = require("fs");
 
 /**
  * Manager that manages ReGuilded's addons
@@ -29,36 +30,33 @@ module.exports = class AddonManager extends ExtensionManager {
             // Gets the path of the addon
             const addonPath = super.getPath(addon.name);
             // Gets path of the main JS file
-            const jsPath = path.join(addonPath, "main.js");
+            const jsPath = join(addonPath, "main.js");
             // If it doesn't have main file, it's not an addon and ignore it
-            stat(jsPath, (e, _) => {
-                if(e) {
-                    // If it doesn't exist ignore it
-                    if(e.code === 'ENOENT') return;
-                    // If there is other kind of an error, throw it
-                    else throw e;
-                }
-                // Require the main file
-                const main = require(jsPath);
-                // Push it to the list of addons
-                this.all.push(main);
-            })
+            if(!existsSync(jsPath)) continue
+            // Require the main file
+            const main = require(jsPath);
+            // Pre-initialize addon
+            main.preinit(this.parent, this);
+            // Push it to the list of addons
+            this.all.push(main);
         }
+        // Loads all addons
+        this.loadAll();
     }
     /**
      * Loads a ReGuilded addon.
-     * @param {{id: String, name: String, load: Function, unload: Function}} addon Addon to load onto Guilded
+     * @param {{id: String, name: String, init: Function, uninit: Function}} addon Addon to load onto Guilded
      */
     load(addon) {
         console.log(`Loading addon by ID '${addon.id}'`);
-        addon.load(this.parent, this);
+        addon.init(this.parent, this, this.parent.webpackManager);
     }
     /**
      * Unloads/removes a ReGuilded addon.
-     * @param {{id: String, name: String, load: Function, unload: Function}} addon Addon to load onto Guilded
+     * @param {{id: String, name: String, init: Function, uninit: Function}} addon Addon to load onto Guilded
      */
     unload(addon) {
         console.log(`Unloading addon by ID '${addon.id}'`);
-        addon.unload();
+        addon.uninit();
     }
 };

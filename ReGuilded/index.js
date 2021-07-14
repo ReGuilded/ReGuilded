@@ -24,9 +24,9 @@ module.exports = class ReGuilded {
      */
     init(webpackRequire) {
         // Adds Webpack stuff to addon manager
-        this.addonManager.webpackRequire = webpackRequire
-        this.addonManager.webpackModules = webpackRequire.c
-        this.addonManager.webpackFunctions = webpackRequire.m
+        this.addonManager.webpackRequire = webpackRequire;
+        this.addonManager.webpackModules = webpackRequire.c;
+        this.addonManager.webpackFunctions = webpackRequire.m;
         // Gets theme configurations
         const themeConfig = this.settingsManager.getValueTyped("themes", "object"),
             addonConfig = this.settingsManager.getValueTyped("addons", "object");
@@ -37,10 +37,8 @@ module.exports = class ReGuilded {
         if (enabledThemes.length !== 0) this.themesManager.init(enabledThemes);
         // Initializes Webpack manager
         this.webpackManager = new WebpackManager(webpackRequire);
-        
-        this.webpackManager.modules = this.webpackManager.fetch()
         // Loads badges with UserModel class
-        this.loadBadges(this.webpackManager.modules?.users?.exports?.UserModel)
+        this.loadBadges(this.webpackManager.userModel?.UserModel);
         // Initiates addon manager
         this.addonManager.init(enabledAddons);
     }
@@ -50,6 +48,7 @@ module.exports = class ReGuilded {
      */
     uninit() {
         this.themesManager.unloadThemes();
+        this.addonManager.unloadAll();
     }
 
     /**
@@ -58,14 +57,16 @@ module.exports = class ReGuilded {
      */
     loadBadges(UserModel) {
         // If it's null, don't initialize badges
-        if(!UserModel) return
+        if (!UserModel) return;
         // Fetches ReGuilded staff list
-        fetch('https://gist.githubusercontent.com/IdkGoodName/feb175e9d74320cb61a72bf2ad60fc81/raw/b9fd6edd73da1634530872b407ed7ec123453ce2/staff.json')
-            .then(x => x.json())
-            .then(x => badges.members.staff = x)
+        fetch(
+            "https://gist.githubusercontent.com/IdkGoodName/feb175e9d74320cb61a72bf2ad60fc81/raw/b9fd6edd73da1634530872b407ed7ec123453ce2/staff.json"
+        )
+            .then((x) => x.json())
+            .then((x) => (badges.members.staff = x));
         // Generates function for getting badges
-        const badgeGetter = badges.genBadgeGetter(UserModel.prototype.__lookupGetter__('badges'))
+        const badgeGetter = badges.genBadgeGetter(UserModel.prototype.__lookupGetter__("badges"));
         // Adds ReGuilded staff badges
-        badges.injectBadgeGetter(UserModel.prototype, badgeGetter)
+        badges.injectBadgeGetter(UserModel.prototype, badgeGetter);
     }
 };
