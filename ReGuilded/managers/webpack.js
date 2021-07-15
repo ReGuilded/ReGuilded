@@ -11,7 +11,6 @@ module.exports = class WebpackManager {
         this._webpackExports = webpackRequire.c;
         this._webpackExportList = Object.values(this._webpackExports);
         this._webpackModules = webpackRequire.m;
-        this.cached = {};
 
         this.asEsModule = webpackRequire(0);
     }
@@ -86,70 +85,85 @@ module.exports = class WebpackManager {
         // Returns webpackJsonp
         return filtered;
     }
-    /**
-     * Gets either the cached object module or sets cache of the object.
-     * @param {String} name The name of the property.
-     * @param {Function} fn Function for getting the module.
-     * @returns {any} Webpack Module Exports
-     */
-    withCache(name, fn) {
-        return this.cached[name] || (this.cached[name] = fn.bind(this)()?.exports);
-    }
 
-    /*
-     * -=- Client -=-
-     */
-
+    // Client stuff
     /**
      * All of the REST API methods.
      */
     get restMethods() {
-        return this.withCache("restMethods", () => this.withProperty("getMe")[0]);
+        return exportsOf(this.withProperty("getMe"));
     }
     /**
      * Module with context of what channel client is looking at, channel messages, etc.
      */
     get chatContext() {
-        return this.withCache("chatContext", () => this.withProperty("chatContext")[0]);
+        return exportsOf(this.withProperty("chatContext"));
+    }
+    /**
+     * The list of all client sounds.
+     */
+    get sounds() {
+        return exportsOf(this.withProperty("IncomingCall"));
+    }
+    /**
+     * The list of settings tabs.
+     */
+    get settingsTabs() {
+        return exportsOf(this.withProperty("Notifications"));
+    }
+    /**
+     * The list of all global badges.
+     */
+    get globalBadges() {
+        return exportsOf(this.withProperty("Webhook"));
     }
 
-    /*
-     * -=- Models -=-
-     */
-
+    // Models
     /**
      * Model class for channels.
      */
     get channelModel() {
-        return this.withCache("channelModel", () => this.withProperty("ChannelModel")[0]);
+        return exportsOf(this.withProperty("ChannelModel"));
     }
     /**
      * Model class for users.
      */
     get userModel() {
-        return this.withCache("userModel", () => this.withProperty("UserModel")[0]);
+        return exportsOf(this.withProperty("UserModel"));
     }
     /**
      * Model class for chat messages.
      */
     get messageModel() {
-        return this.withCache("messageModel", () => this.withClassProperty("chatMessageInfo")[0]);
+        return exportsOf(this.withClassProperty("chatMessageInfo"));
+    }
+    /**
+     * The list of all channel and section types.
+     */
+    get channelTypes() {
+        return exportsOf(this.withProperty("Overview"));
     }
 
-    /*
-     * -=- Slate/Editor -=-
-     */
-
+    // Slate stuff
     /**
      * The list of nodes sorted by reactions, bare, etc.
      */
     get editorNodeInfos() {
-        return this.withCache("editorNodeInfos", () => this.withProperty("InsertPlugins")[0]);
+        return exportsOf(this.withProperty("InsertPlugins"));
     }
     /**
      * The list of all Slate nodes.
      */
     get editorNodes() {
-        return this.withCache("editorNodes", () => this.withProperty("editorTypes").filter((x) => x?.exports));
+        return this.withProperty("editorTypes").map((x) => x?.exports);
     }
 };
+/**
+ * Gets exports of a Webpack module at given index.
+ * @param {[{i: number, l: boolean, exports: any}]} mods The array of Webpack modules.
+ * @param {number} index The index of the module to get export's of.
+ * @returns Webpack Module Exports
+ */
+function exportsOf(mods, index = 0) {
+    return mods[index]?.exports;
+}
