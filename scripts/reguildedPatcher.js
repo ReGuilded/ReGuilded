@@ -15,9 +15,6 @@ const guildedPackage = require(join(guildedPath, "package.json"));
 const reguildedPackage = join(dirname(guildedPath), "../resources", "app/package.json");
 require.main.filename = join(guildedPath, "main.js");
 
-// Fix Mismatch version between ReGuilded and Guilded
-fixMismatchVersion(guildedPackage, reguildedPackage);
-
 // ReGuilded's IPCMain
 require("./ipc/main");
 
@@ -41,7 +38,8 @@ require.cache[electronPath].exports = electronExports;
 // Fix DevTools
 fixDevTools(electron);
 
-// Set App Path & App Name, then Launch Guilded.
+// Set App Path, App Name & App Version, then Launch Guilded.
 electron.app.setAppPath(guildedPath);
 electron.app.name = guildedPackage.name;
+electron.app.setVersion(guildedPackage.version);
 _load(join(guildedPath, guildedPackage.main), null, true);
