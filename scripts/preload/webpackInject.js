@@ -1,6 +1,3 @@
-// ID of the SVG module
-const svgId = 151;
-
 /**
  * Returns fake SVG module that exposes Webpack's require and calls original SVG module.
  * @param {Number} index Index of this module where it was pushed
@@ -9,7 +6,8 @@ const svgId = 151;
  */
 function webpackModule(index, svgModule) {
     // Get the SVG module's main method's ID
-    const svgMain = Object.keys(svgModule[1])[0];
+    const [ [svgId], svgFunctions ] = svgModule
+    const svgMain = Object.keys(svgFunctions)[0];
     console.log("SVG Module Id:", svgId, "\nSVG Module Function:", svgMain, "\nSVG Module:", svgModule);
     // Returns the new module
     return [
@@ -41,15 +39,9 @@ function webpackModule(index, svgModule) {
 function push(mod) {
     // Makes sure that undefined is not pushed
     if (typeof mod === "undefined") return;
-    // Gets ID of the module
-    const [[id]] = mod;
-    // Checks if its ID is 151, SVG module's id
-    if (id === svgId) {
-        // Sets SVG module locally
-        svgModule = mod;
-        // Pushes ReGuilded's module instead
-        global.webpackJsonp._push(webpackModule(window.webpackJsonp.length, mod));
-        // Otherwise, push module normally
-    } else global.webpackJsonp._push(mod);
+    // Pushes fake module instead
+    this._push(webpackModule(window.webpackJsonp.length, mod));
+    // Changes fake push to normal push
+    this.push = this._push
 }
 module.exports = push;

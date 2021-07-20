@@ -6,6 +6,10 @@ const webpackPush = require("./webpackInject.js");
 
 global.ReGuilded = new ReGuilded();
 
+function setPush(obj) {
+    Object.defineProperty(global.webpackJsonp, "push", obj)
+}
+
 document.addEventListener("readystatechange", () => {
     // When document is interactive, start loading JS stuff
     if (document.readyState === "interactive")
@@ -14,8 +18,9 @@ document.addEventListener("readystatechange", () => {
             // Saves the old push
             global.webpackJsonp._push = global.webpackJsonp.push;
             // Replaces the push function with injected
-            Object.defineProperty(global.webpackJsonp, "push", {
-                get: () => webpackPush,
+            setPush({
+                get: () => webpackPush.bind(global.webpackJsonp),
+                set: (value) => setPush({get: () => value})
             });
         });
 });
