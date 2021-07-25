@@ -32,9 +32,9 @@ module.exports = class ThemesManager extends ExtensionManager {
 
             // If json doesn't exist, ignore this directory
             stat(jsonPath, (e, _) => {
-                if(e) {
+                if (e) {
                     // If it doesn't exist ignore it
-                    if(e.code === 'ENOENT') return;
+                    if (e.code === 'ENOENT') return;
                     // If there is other kind of an error, throw it
                     else throw e;
                 }
@@ -42,14 +42,14 @@ module.exports = class ThemesManager extends ExtensionManager {
                 const json = require(jsonPath);
                 // Sets directory's name
                 json.dirname = themePath;
-    
+
                 // TODO: Use JSON schema
-    
+
                 // Gets ID property
                 const propId = json.id;
                 // Checks if ID is correct
                 if (!ExtensionManager.checkId(propId)) throw new Error(`Incorrect syntax of the property 'id'.`);
-    
+
                 // Gets CSS path
                 const propCss = json.css;
                 // Checks if it's a string
@@ -58,19 +58,14 @@ module.exports = class ThemesManager extends ExtensionManager {
                 const cssPath = path.isAbsolute(propCss) ? propCss : path.join(themePath, propCss);
                 // Checks if CSS file exists
                 if (!existsSync(cssPath)) throw new Error(`Could not find CSS file in path ${cssPath}`);
-    
+                
                 // Adds it to themes array instead
                 this.all.push(json);
+                // Loads it
+                if(this.enabled.includes(propId)) this.load(json)
             })
         }
-
-        // Wait 3 seconds to let Guilded's Styles load.
-        setTimeout(
-            function () {
-                this.loadAll();
-            }.bind(this),
-            3000
-        );
+        this._bodyChild = document.body.firstChild
     }
 
     /**
@@ -78,12 +73,10 @@ module.exports = class ThemesManager extends ExtensionManager {
      * @param {{id: String, name: String, dirname: String, css: String}} theme ReGuilded theme to load
      */
     load(theme) {
+        console.log(`Loading theme by ID '${theme.id}'`);
         // Creates path to the Theme Directory
         const themeCss = path.join(theme.dirname, theme.css);
-
         theme.watcher = new FileWatcher(themeCss, this.reload.bind(this), theme.id);
-
-        console.log(`Loading theme by ID '${theme.id}'`);
 
         // Creates a new style element for that theme
         const style = document.createElement("style");
@@ -93,8 +86,8 @@ module.exports = class ThemesManager extends ExtensionManager {
         // Sets the innerText of the style element to the themeCss file.
         style.innerHTML = readFileSync(themeCss).toString();
 
-        // Adds style element to head element
-        document.head.appendChild(style);
+        // Adds style element at the start of the body
+        document.body.insertBefore(style, this._bodyChild);
     }
 
     /**

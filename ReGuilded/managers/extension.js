@@ -45,9 +45,10 @@ module.exports = class ExtensionManager {
      */
     loadAll() {
         // Loads all found enabled extensions
-        for (let ext of this.all)
-            if (this.enabled.includes(ext.id))
-                this.load(ext);
+        for (let ext of this.enabled) {
+            const extension = this.all.find(x => x.id == ext);
+            this.load(extension);
+        }
     }
     /**
      * Removes ReGuilded themes from Guilded.
