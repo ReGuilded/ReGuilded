@@ -39,7 +39,7 @@ exports.inject = async (guildedDir, reguildedDir) => {
             if (process.platform === "linux" && process.getuid() !== 0)
                 rootPerms(guildedDir, reguildedDir, ["node", join(__dirname, "inject.js"), "-d", reguildedDir]);
             // Otherwise inject normally
-            else require("./injection")();
+            else require("./injection")(guildedDir, reguildedDir);
         } catch (err) {
             // If there was an error, try uninjecting ReGuilded
             if (existsSync(guildedDir)) await exports.uninject(guildedDir, reguildedDir);
