@@ -94,6 +94,12 @@ module.exports = class WebpackManager {
         return exportsOf(this.withProperty("getMe"));
     }
     /**
+     * Methods for getting and doing Guilded stuff.
+     */
+    get methods() {
+        return exportsOf(this.withProperty("GetChannels"));
+    }
+    /**
      * Module with context of what channel client is looking at, channel messages, etc.
      */
     get chatContext() {
@@ -117,8 +123,58 @@ module.exports = class WebpackManager {
     get globalBadges() {
         return exportsOf(this.withProperty("Webhook"));
     }
+    /**
+     * Links to various Guilded help-center articles.
+     */
+    get guildedArticles() {
+        return exportsOf(this.withProperty("aboutURL"));
+    }
+    /**
+     * Various methods related to cookies in the client.
+     */
+    get cookies() {
+        return exportsOf(this.withProperty("cookie"));
+    }
+
+    // Types and lists
+    /**
+     * The list of all channel and section types.
+     */
+    get channelTypes() {
+        return exportsOf(this.withProperty("Overview"));
+    }
+    /**
+     * The list of all external sites Guilded embeds support.
+     */
+    get externalSites() {
+        return exportsOf(this.withProperty("ExternalSiteTypes"));
+    }
+    /**
+     * Information about external sites Guilded embeds support, such as colours and icons.
+     */
+    get externalSiteInfo() {
+        return exportsOf(this.withProperty("reddit"));
+    }
+    /**
+     * All of the social medias that Guilded client recognizes.
+     */
+    get socialMedia() {
+        return exportsOf(this.withProperty("SocialMediaTypes"));
+    }
 
     // Models
+    /**
+     * Model class for teams.
+     */
+    get teamModel() {
+        return exportsOf(this.withClassProperty("_teamInfo"));
+    }
+    /**
+     * Model class for groups.
+     */
+    get groupModel() {
+        return exportsOf(this.withProperty("GroupModel"));
+    }
     /**
      * Model class for channels.
      */
@@ -138,10 +194,34 @@ module.exports = class WebpackManager {
         return exportsOf(this.withClassProperty("chatMessageInfo"));
     }
     /**
-     * The list of all channel and section types.
+     * Model class for calendar events.
      */
-    get channelTypes() {
-        return exportsOf(this.withProperty("Overview"));
+    get eventModel() {
+        return exportsOf(this.withClassProperty("_eventInfo"));
+    }
+    /**
+     * Model class for announcement posts.
+     */
+    get announcementModel() {
+        return exportsOf(this.withClassProperty("_announcementInfo"));
+    }
+    /**
+     * Model class for document channel documents.
+     */
+    get documentModel() {
+        return exportsOf(this.withClassProperty("docInfo"));
+    }
+    /**
+     * Model class for list channel items/tasks.
+     */
+    get listItemModel() {
+        return exportsOf(this.withClassProperty("listItemInfo"));
+    }
+    /**
+     * Model class for users' profile posts.
+     */
+    get profilePostModel() {
+        return exportsOf(this.withClassProperty("_profilePostInfo"));
     }
 
     // Slate stuff
@@ -156,6 +236,26 @@ module.exports = class WebpackManager {
      */
     get editorNodes() {
         return this.withProperty("editorTypes").map((x) => x?.exports);
+    }
+    /**
+     * Gets the plugins and language settings of Prism.js.
+     */
+    get prismSettings() {
+        return exportsOf(this.withProperty("PrismPlugins"));
+    }
+    /**
+     * The list of language identifiers and their display names.
+     */
+    get languageCodes() {
+        return exportsOf(this.withProperty("availableLanguageCodes"));
+    }
+
+    // Voice
+    /**
+     * Actions that can be performed in the voice or streaming channels, such as push-to-talk.
+     */
+    get voiceActions() {
+        return exportsOf(this.withProperty("PushToTalk"), 2);
     }
 };
 /**
