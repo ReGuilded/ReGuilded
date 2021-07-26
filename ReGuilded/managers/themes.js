@@ -65,7 +65,6 @@ module.exports = class ThemesManager extends ExtensionManager {
                 if(this.enabled.includes(propId)) this.load(json)
             })
         }
-        this._bodyChild = document.body.firstChild
     }
 
     /**
@@ -87,7 +86,7 @@ module.exports = class ThemesManager extends ExtensionManager {
         style.innerHTML = readFileSync(themeCss).toString();
 
         // Adds style element at the start of the body
-        document.body.insertBefore(style, this._bodyChild);
+        document.body.appendChild(style);
     }
 
     /**
@@ -96,8 +95,8 @@ module.exports = class ThemesManager extends ExtensionManager {
      */
     unload(theme) {
         console.log(`Unloading theme by ID '${theme}'`);
-        // Selects the theme's link element by name that is in head element
-        const linkRef = document.querySelector(`head style#reGl-theme-${theme}`);
+        // Selects the theme's link element by name that is in body element
+        const linkRef = document.querySelector(`body style#reGl-theme-${theme}`);
         // Removes it
         linkRef.remove();
     }
