@@ -33,7 +33,7 @@ module.exports.dev = {
     // Sets the name of the badge for getting this badge
     name: "ReGuildedDev",
     // What is displayed when you hover over the badge
-    tooltipText: "ReGuilded developer",
+    tooltipText: "ReGuilded Developer",
     // Adds the display text/name
     text: "ReDev",
     style: { backgroundColor: "#10171F", color: "#CC5555" },
