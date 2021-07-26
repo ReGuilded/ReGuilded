@@ -14,9 +14,9 @@
   </a>
 </p>
 
-**ReGuilded** is an app injector that injects new code to your Guilded client. It extends Guilded by providing theme and add-on system, through which people can shape client-sided part of Guilded in whatever way they want.
+**ReGuilded** is a client injector/client mod that allows you to extend the functionality of Guilded's client by providing theme and add-on support.
 
-> **NOTE:** ReGuilded is currently under active development and is not ready for use.  We are looking for contributors.  See the 'Project Status' section for more information.
+> **NOTE:** ReGuilded isn't fully stable and you may encounter some bugs or short-comings. We are looking for more contributors working on ReGuilded.
 
 ## Installation
 
@@ -30,17 +30,17 @@ We have contacted Guilded asking if a modified client would be grounds for an ac
 > 
 > That said, internally we have a non-action policy against developers that use our brand and/or internal APIs in good faith in order to help develop a better ecosystem for our users and communities. And while this should not be construed as a legal guarantee, I believe that what you described above would fall into this category.
 
-It seems that Guilded is reserving the right to ban users for using altered clients, but they are only planning to do so when an altered client is used in bad faith.  Therefore, ReGuilded seems to be in the clear regarding account bans.
+It seems that Guilded is reserving the right to ban users for using altered clients, but they are only planning to do so when an altered client is used in bad faith. Therefore, ReGuilded seems to be in the clear regarding account bans.
 
 **However, please read the above quote and make your own decision before using ReGuilded. Be sure to also read [our license](https://github.com/ReGuilded/ReGuilded/blob/main/LICENSE).**
 
 ## Contributing
 
-Pull requests and Issues are welcome.  You may want to coordinate with us on our [Guilded Server](https://guilded.gg/ReGuilded) in advance.
+Pull requests and Issues are welcome. You may want to coordinate with us on our [Guilded Server](https://guilded.gg/ReGuilded) in advance.
 
 ## Project Status
 
-As mentioned at the top of this document, ReGuilded is currently under active development and is not ready for end-users yet.  Please leave suggestions and ideas in the Community Tab or on our [Guilded Server](https://guilded.gg/ReGuilded).  Contributions are welcome.
+As mentioned at the top of this document, ReGuilded is currently under active development and is not fully stable yet. Please leave suggestions and ideas in the Community Tab or on our [Guilded Server](https://guilded.gg/ReGuilded). Contributions are welcome.
 
 ## License
 
