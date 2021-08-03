@@ -2,6 +2,7 @@ const ExtensionManager = require("./extension.js");
 const { FileWatcher } = require("../utils");
 const { join } = require("path");
 const { existsSync } = require("fs");
+const Module = require('module');
 
 /**
  * Manager that manages ReGuilded's addons
@@ -73,8 +74,10 @@ module.exports = class AddonManager extends ExtensionManager {
         console.log(`Reloading addon by ID '${id}'`);
         console.log(addon);
         addon.uninit();
-        delete require.cache[addon.dirname];
+        //console.log(addon.dirname);
+        delete Module._cache[addon.dirname];
+        console.log(require.cache);
+        //this.all = this.all.filter(addon => addon.id !== id);
         addon.init(this.parent, this, this.parent.webpackManager);
-        this.all = this.all.filter(addon => addon.id !== id);
     }
 };
