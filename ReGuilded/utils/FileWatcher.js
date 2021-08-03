@@ -4,7 +4,8 @@ module.exports = class FileWatcher {
     constructor(file, reload, id) {
         watch(file, (event, filename) => {
             if (filename && event === "change") {
-                reload(id);
+                setTimeout(() => reload(id), 100)
+                //reload(id);
             }
         });
     }
