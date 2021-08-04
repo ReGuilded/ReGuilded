@@ -2,7 +2,6 @@ const ExtensionManager = require("./extension.js");
 const { FileWatcher } = require("../utils");
 const { join } = require("path");
 const { existsSync } = require("fs");
-const Module = require('module');
 
 /**
  * Manager that manages ReGuilded's addons
