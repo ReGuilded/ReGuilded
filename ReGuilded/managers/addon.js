@@ -70,14 +70,12 @@ module.exports = class AddonManager extends ExtensionManager {
      * @param {{id: String, name: String, init: Function, uninit: Function}} addon Addon to load onto Guilded
      */
     reload(id) {
-        const addon = this.all.find(addon => addon.id === id);
         console.log(`Reloading addon by ID '${id}'`);
-        console.log(addon);
+        const addon = this.all.find(addon => addon.id === id);
         addon.uninit();
-        //console.log(addon.dirname);
-        delete Module._cache[addon.dirname];
-        console.log(require.cache);
-        //this.all = this.all.filter(addon => addon.id !== id);
-        addon.init(this.parent, this, this.parent.webpackManager);
+        delete require.cache[addon.dirname];
+        const reloadedAddon = require(addon.dirname);
+        reloadedAddon.preinit(this.parent, this);
+        reloadedAddon.init(this.parent, this, this.parent.webpackManager);
     }
 };
