@@ -67,7 +67,7 @@ module.exports = class AddonManager extends ExtensionManager {
     }
     /**
      * Reloads a ReGuilded addon.
-     * @param {{id: String, name: String, init: Function, uninit: Function}} addon Addon to load onto Guilded
+     * @param {{id: String}} id id of addon to reload on Guilded
      */
     reload(id) {
         console.log(`Reloading addon by ID '${id}'`);
