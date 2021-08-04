@@ -40,7 +40,7 @@ module.exports = class AddonManager extends ExtensionManager {
             // Pre-initialize addon
             main.preinit(this.parent, this);
             // Sets directory's name
-            main.dirname = jsPath;
+            main.dirname = addonPath;
             // Setup watcher
             main.watcher = new FileWatcher(jsPath, this.reload.bind(this), main.id);
             // Push it to the list of addons
@@ -74,7 +74,7 @@ module.exports = class AddonManager extends ExtensionManager {
         const addon = this.all.find(addon => addon.id === id);
         addon.uninit();
         delete require.cache[addon.dirname];
-        const reloadedAddon = require(addon.dirname);
+        const reloadedAddon = require(join(addon.dirname, "main.js"));
         reloadedAddon.preinit(this.parent, this);
         reloadedAddon.init(this.parent, this, this.parent.webpackManager);
     }
