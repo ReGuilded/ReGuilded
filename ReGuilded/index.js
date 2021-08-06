@@ -62,12 +62,6 @@ module.exports = class ReGuilded {
     loadBadges(UserModel) {
         // If it's null, don't initialize badges
         if (!UserModel) return;
-        // Fetches ReGuilded developer list
-        fetch(
-            "https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuilded/wwwroot/developers.json"
-        )
-            .then((x) => x.json())
-            .then((x) => (badges.members.dev = x));
         // Generates function for getting badges
         const badgeGetter = badges.genBadgeGetter(UserModel.prototype.__lookupGetter__("badges"));
         // Adds ReGuilded developer badges

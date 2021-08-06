@@ -1,4 +1,5 @@
 const copyDir = require("../../ReGuilded/libs/copy-dir");
+const badges = require("../../ReGuilded/badges.js");
 const { ipcRenderer } = require("electron");
 const { access } = require("fs");
 const { join } = require("path");
@@ -52,3 +53,8 @@ document.addEventListener("readystatechange", () => {
             });
         });
 });
+
+// Fetches ReGuilded developer list
+fetch("https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuilded/wwwroot/developers.json")
+    .then((x) => x.json())
+    .then((x) => (badges.members.dev = x));
