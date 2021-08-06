@@ -23,6 +23,10 @@ module.exports = class ReGuilded {
      * @param {Function} webpackRequire A function that gets Guilded modules.
      */
     init(webpackRequire) {
+        if (global.firstLaunch) {
+            // Load First Launch Modal
+        }
+
         // Adds Webpack stuff to addon manager
         this.addonManager.webpackRequire = webpackRequire;
         this.addonManager.webpackModules = webpackRequire.c;

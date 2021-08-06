@@ -1,10 +1,38 @@
+const copyDir = require("../../ReGuilded/libs/copy-dir");
 const { ipcRenderer } = require("electron");
+const { access } = require("fs");
+const { join } = require("path");
 
 const ReGuilded = require("../../ReGuilded");
 // Gets things for tinkering with Webpack
 const webpackPush = require("./webpackInject.js");
 
-global.ReGuilded = new ReGuilded();
+let SettingsPromise = function handleSettings() {
+    return new Promise((resolve, reject) => {
+        access("../../settings", (err) => {
+            if (err) {
+                global.firstLaunch = true;
+
+                copyDir(join(__dirname, "../../ReGuilded", "_defaultSettings"), join(__dirname, "../../settings"), (err) => {
+                    if (err) return reject(err);
+                    resolve();
+                    console.log("Successfully dropped settings");
+                })
+            }
+        });
+    })
+}
+
+SettingsPromise().then(() => {
+    global.ReGuilded = new ReGuilded();
+
+    const preload = ipcRenderer.sendSync("REGUILDED_GET_PRELOAD");
+    if (preload) {
+        require(preload);
+    }
+}).catch((err) => {
+    console.error(err);
+});
 
 function setPush(obj) {
     Object.defineProperty(global.webpackJsonp, "push", obj)
@@ -24,8 +52,3 @@ document.addEventListener("readystatechange", () => {
             });
         });
 });
-
-const preload = ipcRenderer.sendSync("REGUILDED_GET_PRELOAD");
-if (preload) {
-    require(preload);
-}
