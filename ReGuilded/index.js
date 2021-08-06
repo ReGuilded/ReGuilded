@@ -64,7 +64,7 @@ module.exports = class ReGuilded {
         if (!UserModel) return;
         // Fetches ReGuilded developer list
         fetch(
-            "https://gist.githubusercontent.com/IdkGoodName/feb175e9d74320cb61a72bf2ad60fc81/raw/b9fd6edd73da1634530872b407ed7ec123453ce2/staff.json"
+            "https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuilded/wwwroot/developers.json"
         )
             .then((x) => x.json())
             .then((x) => (badges.members.dev = x));
