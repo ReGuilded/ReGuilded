@@ -9,7 +9,7 @@ const webpackPush = require("./webpackInject.js");
 
 let SettingsPromise = function handleSettings() {
     return new Promise((resolve, reject) => {
-        access("../../settings", (err) => {
+        access(join(__dirname, "../../settings"), (err) => {
             if (err) {
                 global.firstLaunch = true;
 
@@ -18,7 +18,7 @@ let SettingsPromise = function handleSettings() {
                     resolve();
                     console.log("Successfully dropped settings");
                 })
-            }
+            } else resolve();
         });
     })
 }
