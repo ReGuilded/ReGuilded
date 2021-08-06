@@ -1,0 +1,32 @@
+{
+  "author": {
+    "name": "pillys",
+    "email": "pillys@163.com",
+    "url": "https://www.qque.com"
+  },
+  "dependencies": {
+    
+  },
+  "description": "copy-dir",
+  "keywords": [
+    "copy-dir",
+    "copy",
+    "copy dir",
+    "copy directory",
+    "copy file"
+  ],
+  "main": "index.js",
+  "name": "copy-dir",
+  "repository": {
+    "url": "https://github.com/pillys/copy-dir",
+    "type": "git"
+  },
+  "version": "1.2.0",
+  "readmeFilename": "README.md",
+  "bugs": {
+    "url": "https://github.com/pillys/copy-dir/issues"
+  },
+  "homepage": "https://github.com/pillys/copy-dir",
+  "scripts": {},
+  "license": "MIT"
+}

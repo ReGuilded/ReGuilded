@@ -1,4 +1,5 @@
 const ExtensionManager = require("./extension.js");
+const { FileWatcher } = require("../utils");
 const { join } = require("path");
 const { existsSync } = require("fs");
 
@@ -37,6 +38,10 @@ module.exports = class AddonManager extends ExtensionManager {
             const main = require(jsPath);
             // Pre-initialize addon
             main.preinit(this.parent, this);
+            // Sets directory's name
+            main.dirname = addonPath;
+            // Setup watcher
+            main.watcher = new FileWatcher(addonPath, this.reload.bind(this), main.id);
             // Push it to the list of addons
             this.all.push(main);
         }
@@ -58,5 +63,20 @@ module.exports = class AddonManager extends ExtensionManager {
     unload(addon) {
         console.log(`Unloading addon by ID '${addon.id}'`);
         addon.uninit();
+    }
+    /**
+     * Reloads a ReGuilded addon.
+     * @param {{id: String}} id id of addon to reload on Guilded
+     */
+    reload(id) {
+        console.log(`Reloading addon by ID '${id}'`);
+        const addon = this.all.find(addon => addon.id === id);
+        addon.uninit();
+        const cachedModules = Object.keys(require.cache)
+                                    .filter(moduleId => moduleId.match(new RegExp(`^${addon.dirname}`)));
+        cachedModules.forEach(moduleId => delete require.cache[moduleId]);
+        const reloadedAddon = require(join(addon.dirname, "main.js"));
+        reloadedAddon.preinit(this.parent, this);
+        reloadedAddon.init(this.parent, this, this.parent.webpackManager);
     }
 };
