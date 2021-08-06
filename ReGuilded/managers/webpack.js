@@ -31,6 +31,19 @@ module.exports = class WebpackManager {
         return this._webpackExportList.filter(fn);
     }
     /**
+     * Gets a function that has part of the given code.
+     * @param {String} code The part of code that function should contain.
+     * @returns {[{i: number, exports: function | {default: function}}]}
+     */
+    withCode(code) {
+        return this.withFilter((x) => {
+            // Getss it as ES module
+            const { default: fn } = this.asEsModule(x.exports);
+            // Checks if it is a function and has part of the code
+            return typeof fn === "function" && fn.toString().includes(code);
+        });
+    }
+    /**
      * Gets exports of a Webpack module that has specific property.
      * @param {String} name The name of the property that the module should contain.
      * @returns {[{i: number, exports: any}]} Webpack Module Exports
@@ -44,9 +57,29 @@ module.exports = class WebpackManager {
         });
     }
     /**
+     * Gets a module with given child or grand-child property based on given array path.
+     * @param  {...any} names The path of the property.
+     * @returns {[{i: number, exports: any}]} Webpack Module Exports
+     */
+    withDeepProperty(...names) {
+        return this.withFilter((x) => {
+            // Current object to look at
+            const current = x.exports;
+            // Iterates through each property name/index
+            for(let name of props) {
+                // If it doesn't exist, ignore it
+                if(!(current[name])) return false;
+                // Changes current path's object
+                current = current[name];
+            }
+            // If no issues were found, return true
+            return true;
+        });
+    }
+    /**
      * Gets exports of a Webpack module that contains class with the given property.
      * @param {String} name The name of the property that prototype should contain.
-     * @returns {[{i: number, exports: any}]} Webpack Module Exports
+     * @returns {[{i: number, exports: function | {default: function}}]} Webpack Module Exports
      */
     withClassProperty(name) {
         return this.withFilter((x) => {
@@ -66,7 +99,7 @@ module.exports = class WebpackManager {
     }
     /**
      * Pushes a new module to webpackJsonp
-     * @param {[[Number], [Function], [], [String]]} mod Webpack module to push
+     * @param {[[number], [function], []?, string[]?]} mod Webpack module to push
      * @returns Push return
      */
     pushModule(mod) {
@@ -75,7 +108,7 @@ module.exports = class WebpackManager {
     /**
      * Removes pushed modules from WebpackJsonp with the given ID.
      * @param {number} id The identifier of the pushed module
-     * @returns WebpackJsonp
+     * @returns {[ [[number], [function], []?, string[]?], push: function]} WebpackJsonp
      */
     removeModules(id) {
         // Filtered webpackJsonp without the module
@@ -161,6 +194,36 @@ module.exports = class WebpackManager {
     get socialMedia() {
         return exportsOf(this.withProperty("SocialMediaTypes"));
     }
+    /**
+     * Captain, former member, admin, etc. infos and names.
+     */
+    get membershipRoles() {
+        return exportsOf(this.withProperty("CaptainRoleName"));
+    }
+    /**
+     * The list of supported games.
+     */
+    get gameList() {
+        return exportsOf(this.withProperty("SearchableGames"));
+    }
+    /**
+     * Draggable element names and infos.
+     */
+    get draggable() {
+        return exportsOf(this.withProperty("DraggableTypes"));
+    }
+    /**
+     * Links and information about guilded.gg domain.
+     */
+    get domainUri() {
+        return exportsOf(this.withProperty("WebClient"));
+    }
+    /**
+     * The list of social links that can be put under profile.
+     */
+    get profileSocialLinks() {
+        return exportsOf(this.withDeepProperty("SOCIAL_LINK_CONSTS_BY_TYPE"));
+    }
 
     // Models
     /**
@@ -186,6 +249,12 @@ module.exports = class WebpackManager {
      */
     get userModel() {
         return exportsOf(this.withProperty("UserModel"));
+    }
+    /**
+     * Model class for team members.
+     */
+    get memberModel() {
+        return exportsOf(this.withProperty("MemberModel"));
     }
     /**
      * Model class for chat messages.
@@ -256,6 +325,14 @@ module.exports = class WebpackManager {
      */
     get voiceActions() {
         return exportsOf(this.withProperty("PushToTalk"), 2);
+    }
+
+    // Information
+    /**
+     * The lengths of channel names, IDs and other things related to channel settings.
+     */
+    get channelSettingsInfo() {
+        return this.withProperty("channelSettingsInfo");
     }
 };
 /**

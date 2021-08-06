@@ -48,10 +48,10 @@ module.exports = class AddonManager extends ExtensionManager {
                     // Push it to the list of addons
                     this.all.push(main);
                 }
-                else console.error("Addon has no preinit function or is formatted invalidly!", addon.name); 
+                else console.error("Addon has no preinit function or has invalid formatting:", addon.id, '-', addon.name); 
             }
             catch (e) {
-                console.error("Addon failed to initialize!", addon.name, e);
+                console.error("Failed to initialize addon by ID", addon.id, e);
             }
         }
         // Loads all addons
@@ -64,11 +64,11 @@ module.exports = class AddonManager extends ExtensionManager {
     load(addon) {
         // Try-catch errors to prevent conflicts with other plugins
         try {
-            console.log(`Loading addon by ID '${addon.id}'`);
+            console.log(`Loading addon by ID`, addon.id);
             addon.init(this.parent, this, this.parent.webpackManager);
         }
         catch (e) {
-            console.error("Addon failed to load!", addon.name, e);
+            console.error("Failed to load addon by ID", addon.id, e);
         }
     }
     /**
@@ -77,11 +77,11 @@ module.exports = class AddonManager extends ExtensionManager {
      */
     unload(addon) {
         try {
-            console.log(`Unloading addon by ID '${addon.id}'`);
+            console.log("Unloading addon by ID", addon.id);
             addon.uninit();
         }
         catch (e) {
-            console.error("Addon failed to unload!", addon.name, e);
+            console.error("Failed to unload an addon by ID", addon.id, e);
         }
     }
     /**
@@ -89,12 +89,15 @@ module.exports = class AddonManager extends ExtensionManager {
      * @param {{id: String}} id id of addon to reload on Guilded
      */
     reload(id) {
-        console.log(`Reloading addon by ID '${id}'`);
+        console.log("Reloading addon by ID", id);
+        // Gets an addon and uninitialize it
         const addon = this.all.find(addon => addon.id === id);
         addon.uninit();
+        // Gets its caches and delete them
         const cachedModules = Object.keys(require.cache)
                                     .filter(moduleId => moduleId.match(new RegExp(`^${addon.dirname}`)));
         cachedModules.forEach(moduleId => delete require.cache[moduleId]);
+        // Reload the addon
         const reloadedAddon = require(join(addon.dirname, "main.js"));
         reloadedAddon.preinit(this.parent, this);
         reloadedAddon.init(this.parent, this, this.parent.webpackManager);
