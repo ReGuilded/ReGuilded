@@ -41,7 +41,7 @@ module.exports = class AddonManager extends ExtensionManager {
             // Sets directory's name
             main.dirname = addonPath;
             // Setup watcher
-            main.watcher = new FileWatcher(jsPath, this.reload.bind(this), main.id);
+            main.watcher = new FileWatcher(addonPath, this.reload.bind(this), main.id);
             // Push it to the list of addons
             this.all.push(main);
         }
@@ -72,7 +72,9 @@ module.exports = class AddonManager extends ExtensionManager {
         console.log(`Reloading addon by ID '${id}'`);
         const addon = this.all.find(addon => addon.id === id);
         addon.uninit();
-        delete require.cache[addon.dirname];
+        const cachedModules = Object.keys(require.cache)
+                                    .filter(moduleId => moduleId.match(new RegExp(`^${addon.dirname}`)));
+        cachedModules.forEach(moduleId => delete require.cache[moduleId]);
         const reloadedAddon = require(join(addon.dirname, "main.js"));
         reloadedAddon.preinit(this.parent, this);
         reloadedAddon.init(this.parent, this, this.parent.webpackManager);
