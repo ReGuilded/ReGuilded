@@ -107,7 +107,7 @@ module.exports = class AddonManager extends ExtensionManager {
             // Check for ESM default module
             if (typeof(reloadedAddon.preinit) !== "function" && reloadedAddon.default) reloadedAddon = reloadedAddon.default;
             // Check if the preinit function still exists to prevent errors
-                if (typeof(main.preinit) === "function") {
+                if (typeof(reloadedAddon.preinit) === "function") {
                     // Pre-initialize addon
                     reloadedAddon.preinit(this.parent, this);
                     // Initialize addon
