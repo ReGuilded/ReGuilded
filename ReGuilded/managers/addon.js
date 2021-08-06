@@ -45,6 +45,10 @@ module.exports = class AddonManager extends ExtensionManager {
                 if (typeof(main.preinit) === "function") {
                     // Pre-initialize addon
                     main.preinit(this.parent, this);
+                    // Sets directory's name
+                    main.dirname = addonPath;
+                    // Setup watcher
+                    main.watcher = new FileWatcher(addonPath, this.reload.bind(this), main.id);
                     // Push it to the list of addons
                     this.all.push(main);
                 }
@@ -89,17 +93,29 @@ module.exports = class AddonManager extends ExtensionManager {
      * @param {{id: String}} id id of addon to reload on Guilded
      */
     reload(id) {
-        console.log("Reloading addon by ID", id);
-        // Gets an addon and uninitialize it
         const addon = this.all.find(addon => addon.id === id);
-        addon.uninit();
-        // Gets its caches and delete them
-        const cachedModules = Object.keys(require.cache)
-                                    .filter(moduleId => moduleId.match(new RegExp(`^${addon.dirname}`)));
-        cachedModules.forEach(moduleId => delete require.cache[moduleId]);
-        // Reload the addon
-        const reloadedAddon = require(join(addon.dirname, "main.js"));
-        reloadedAddon.preinit(this.parent, this);
-        reloadedAddon.init(this.parent, this, this.parent.webpackManager);
+        try {
+            console.log(`Reloading addon by ID '${id}'`);
+            // Unitilize addon
+            addon.uninit();
+            
+            const cachedModules = Object.keys(require.cache)
+                                        .filter(moduleId => moduleId.match(new RegExp(`^${addon.dirname}`)));
+            cachedModules.forEach(moduleId => delete require.cache[moduleId]);
+            // Require main file
+            const reloadedAddon = require(join(addon.dirname, "main.js"));
+            // Check for ESM default module
+            if (typeof(reloadedAddon.preinit) !== "function" && reloadedAddon.default) main = main.default;
+            // Check if the preinit function still exists to prevent errors
+                if (typeof(main.preinit) === "function") {
+                    // Pre-initialize addon
+                    reloadedAddon.preinit(this.parent, this);
+                    // Initialize addon
+                    reloadedAddon.init(this.parent, this, this.parent.webpackManager);
+                }
+                else console.error("Addon has no preinit function or is formatted invalidly!", addon.name);
+        } catch(e) {
+            console.error("Addon failed ro reload!", addon.name, e);
+        }
     }
 };
