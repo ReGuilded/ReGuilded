@@ -20,7 +20,7 @@ module.exports = class WebpackManager {
      * @returns Webpack Module Exports
      */
     withId(id) {
-        return this._asModule(this._webpackRequire(id));
+        return this.asEsModule(this._webpackRequire(id));
     }
     /**
      * Gets Webpack module's exports using specific filter
