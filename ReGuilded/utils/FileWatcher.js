@@ -1,7 +1,7 @@
 const watch = require("../libs/node-watch");
 const { statSync, existsSync } = require('fs')
 const isDirectory = fileOrDir => {
-    if(existsSync(fileOrDir)) statSync(fileOrDir).isDirectory()
+    if(existsSync(fileOrDir)) statSync(fileOrDir).isDirectory();
 };
 
 module.exports = class FileWatcher {
