@@ -83,6 +83,10 @@ module.exports = class AddonManager extends ExtensionManager {
         try {
             console.log("Unloading addon by ID", addon.id);
             addon.uninit();
+            
+            const cachedModules = Object.keys(require.cache)
+                                        .filter(moduleId => moduleId.match(new RegExp(`^${addon.dirname}`)));
+            cachedModules.forEach(moduleId => delete require.cache[moduleId]);
         }
         catch (e) {
             console.error("Failed to unload an addon by ID", addon.id, e);
