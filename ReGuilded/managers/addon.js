@@ -114,7 +114,7 @@ module.exports = class AddonManager extends ExtensionManager {
                                         .filter(moduleId => moduleId.match(new RegExp(`^${addon.dirname}`)));
             cachedModules.forEach(moduleId => delete require.cache[moduleId]);
             // Require main file
-            const reloadedAddon = require(join(addon.dirname, "main.js"));
+            let reloadedAddon = require(join(addon.dirname, "main.js"));
             // Check for ESM default module
             if (typeof(reloadedAddon.preinit) !== "function" && reloadedAddon.default) reloadedAddon = reloadedAddon.default;
             // Check if the preinit function still exists to prevent errors
