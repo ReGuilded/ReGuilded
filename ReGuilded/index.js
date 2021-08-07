@@ -31,10 +31,6 @@ module.exports = class ReGuilded {
         this.addonManager.webpackRequire = webpackRequire;
         this.addonManager.webpackModules = webpackRequire.c;
         this.addonManager.webpackFunctions = webpackRequire.m;
-        
-        // Initialize the addon lib
-        this.addonManager.load(require("./libs/addon-lib/main").default);
-        
         // Gets theme configurations
         const themeConfig = this.settingsManager.getValueTyped("themes", "object"),
             addonConfig = this.settingsManager.getValueTyped("addons", "object");
@@ -49,9 +45,6 @@ module.exports = class ReGuilded {
         this.loadBadges(this.webpackManager.userModel?.UserModel);
         // Initiates addon manager
         this.addonManager.init(enabledAddons);
-        
-        // Inject the settings components
-        this.addonManager.load(require("./libs/settings-injector/main").default);
     }
 
     /**
