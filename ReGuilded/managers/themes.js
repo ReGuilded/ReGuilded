@@ -1,7 +1,7 @@
+const { existsSync, readFileSync, stat } = require("fs");
 const ExtensionManager = require("./extension.js");
 const { FileWatcher } = require("../utils");
 const path = require("path");
-const { existsSync, readFileSync, stat } = require("fs");
 
 /**
  * Manager that manages ReGuilded's themes
@@ -13,6 +13,7 @@ module.exports = class ThemesManager extends ExtensionManager {
      */
     constructor(themesDir) {
         super(themesDir);
+        this.on("fullLoad", e => console.log("Full load"));
     }
 
     /**
@@ -24,7 +25,8 @@ module.exports = class ThemesManager extends ExtensionManager {
         const themes = super.getDirs(enabled);
 
         // Gets every theme directory
-        for (let theme of themes) {
+        for (let i in themes) {
+            const theme = themes[i]
             // Creates path to the Theme Directory
             const themePath = super.getPath(theme.name);
             // Gets path of the JSON
@@ -32,37 +34,43 @@ module.exports = class ThemesManager extends ExtensionManager {
 
             // If json doesn't exist, ignore this directory
             stat(jsonPath, (e, _) => {
-                if (e) {
-                    // If it doesn't exist ignore it
-                    if (e.code === 'ENOENT') return;
-                    // If there is other kind of an error, throw it
-                    else throw e;
+                checkTheme: {
+                    if (e) {
+                        // If it doesn't exist ignore it
+                        if (e.code === 'ENOENT') break checkTheme;
+                        // If there is other kind of an error, throw it
+                        else throw e;
+                    }
+                    // Get that json
+                    const json = require(jsonPath);
+                    // Sets directory's name
+                    json.dirname = themePath;
+
+                    // TODO: Use JSON schema
+
+                    // Gets ID property
+                    const propId = json.id;
+                    // Checks if ID is correct
+                    if (!ExtensionManager.checkId(propId)) throw new Error(`Incorrect syntax of the property 'id'.`);
+
+                    // Gets CSS path
+                    const propCss = json.css;
+                    // Checks if it's a string
+                    ExtensionManager.checkProperty("css", propCss, "string", jsonPath);
+                    // Gets full CSS path
+                    const cssPath = path.isAbsolute(propCss) ? propCss : path.join(themePath, propCss);
+                    // Checks if CSS file exists
+                    if (!existsSync(cssPath)) throw new Error(`Could not find CSS file in path ${cssPath}`);
+                    // Adds it to themes array instead
+                    this.all.push(json);
+                    // Loads it
+                    if(this.enabled.includes(propId)) {
+                        this.load(json);
+                        this.emit("load", json);
+                    }
                 }
-                // Get that json
-                const json = require(jsonPath);
-                // Sets directory's name
-                json.dirname = themePath;
-
-                // TODO: Use JSON schema
-
-                // Gets ID property
-                const propId = json.id;
-                // Checks if ID is correct
-                if (!ExtensionManager.checkId(propId)) throw new Error(`Incorrect syntax of the property 'id'.`);
-
-                // Gets CSS path
-                const propCss = json.css;
-                // Checks if it's a string
-                ExtensionManager.checkProperty("css", propCss, "string", jsonPath);
-                // Gets full CSS path
-                const cssPath = path.isAbsolute(propCss) ? propCss : path.join(themePath, propCss);
-                // Checks if CSS file exists
-                if (!existsSync(cssPath)) throw new Error(`Could not find CSS file in path ${cssPath}`);
-                
-                // Adds it to themes array instead
-                this.all.push(json);
-                // Loads it
-                if(this.enabled.includes(propId)) this.load(json)
+                // Checks if it's the last item
+                this.checkLoaded(i, themes.length);
             })
         }
     }

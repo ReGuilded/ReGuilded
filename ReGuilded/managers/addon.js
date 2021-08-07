@@ -26,7 +26,8 @@ module.exports = class AddonManager extends ExtensionManager {
         // Gets a list of addon directories
         const addons = super.getDirs(enabled);
         // Gets every theme directory
-        for (let addon of addons) {
+        for (let i in addons) {
+            const addon = addons[i]
             // Try-catch errors to prevent conflicts with other plugins
             try {
                 console.log(`Found addon directory '${addon.name}'`);
@@ -51,12 +52,16 @@ module.exports = class AddonManager extends ExtensionManager {
                     main.watcher = new FileWatcher(addonPath, this.reload.bind(this), main.id);
                     // Push it to the list of addons
                     this.all.push(main);
+                    // Emit addon load event
+                    this.emit("load", main);
                 }
-                else console.error("Addon has no preinit function or has invalid formatting:", addon.id, '-', addon.name); 
+                else console.error("Addon has no preinit function or has invalid formatting:", addon.id, '-', addon.name);
             }
             catch (e) {
                 console.error("Failed to initialize addon by ID", addon.id, e);
             }
+            // Checks if it's the last item
+            this.checkLoaded(i, addons.length);
         }
         // Loads all addons
         this.loadAll();

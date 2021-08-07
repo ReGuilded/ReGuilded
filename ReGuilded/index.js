@@ -1,5 +1,5 @@
 const { SettingsManager, ThemesManager, AddonManager, WebpackManager } = require("./managers");
-const badges = require("./badges.js");
+const badges = require('./badges.js');
 
 /**
  * ReGuilded's full manager's class.

@@ -1,16 +1,19 @@
 const fs = require("fs");
 const path = require("path");
+const EventEmitter = require("events");
 
 /**
  * Manages different components of ReGuilded to allow them to be extended.
  */
-module.exports = class ExtensionManager {
+module.exports = class ExtensionManager extends EventEmitter {
     /**
      * Manages different components of ReGuilded to allow them to be extended.
      * @param {String} dirname The path to the extension directory
      */
     constructor(dirname) {
+        super();
         this.dirname = dirname;
+        this.allLoaded = false;
     }
     /**
      * Checks if the identifier of the extension is correct or not.
@@ -38,6 +41,18 @@ module.exports = class ExtensionManager {
         this.enabled = enabled;
         // Gets all files in extensions directory
         return fs.readdirSync(this.dirname, { withFileTypes: true }).filter((x) => x.isDirectory());
+    }
+    /**
+     * Checks whether all extensions were loaded and emits the event for them.
+     * @param {number} index The current index of the iterator
+     * @param {length} totalLength The total length of all extensions available
+     */
+    checkLoaded(index, totalLength) {
+        if(totalLength - 1 == index) {
+            console.log('All loaded', index, totalLength)
+            this.allLoaded = true;
+            this.emit("fullLoad", this.all);
+        }
     }
 
     /**
