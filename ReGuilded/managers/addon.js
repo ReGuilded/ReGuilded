@@ -93,9 +93,11 @@ module.exports = class AddonManager extends ExtensionManager {
      * @param {{id: String}} id id of addon to reload on Guilded
      */
     reload(id) {
-        const addon = this.all.find(addon => addon.id === id);
+        let addon = this.all.find(addon => addon.id === id);
+        if (!addon) addon = { name: `Invalid Addon (${id})`, invalid: true };
         try {
-            console.log(`Reloading addon by ID '${id}'`);
+            if(addon.invalid) throw new Error("Not installed or loaded");
+            console.log("Reloading addon by ID", id);
             // Unitilize addon
             addon.uninit();
             
@@ -115,7 +117,7 @@ module.exports = class AddonManager extends ExtensionManager {
                 }
                 else console.error("Addon has no preinit function or is formatted invalidly!", addon.name);
         } catch(e) {
-            console.error("Addon failed ro reload!", addon.name, e);
+            console.error("Addon failed to reload!", addon.name, e);
         }
     }
 };
