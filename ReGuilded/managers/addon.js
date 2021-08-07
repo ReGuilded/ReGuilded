@@ -88,6 +88,10 @@ module.exports = class AddonManager extends ExtensionManager {
         try {
             console.log("Unloading addon by ID", addon.id);
             addon.uninit();
+            
+            const cachedModules = Object.keys(require.cache)
+                                        .filter(moduleId => moduleId.match(new RegExp(`^${addon.dirname}`)));
+            cachedModules.forEach(moduleId => delete require.cache[moduleId]);
         }
         catch (e) {
             console.error("Failed to unload an addon by ID", addon.id, e);
@@ -98,9 +102,11 @@ module.exports = class AddonManager extends ExtensionManager {
      * @param {{id: String}} id id of addon to reload on Guilded
      */
     reload(id) {
-        const addon = this.all.find(addon => addon.id === id);
+        let addon = this.all.find(addon => addon.id === id);
+        if (!addon) addon = { name: `Invalid Addon (${id})`, invalid: true };
         try {
-            console.log(`Reloading addon by ID '${id}'`);
+            if(addon.invalid) throw new Error("Not installed or loaded");
+            console.log("Reloading addon by ID", id);
             // Unitilize addon
             addon.uninit();
             
@@ -110,9 +116,9 @@ module.exports = class AddonManager extends ExtensionManager {
             // Require main file
             const reloadedAddon = require(join(addon.dirname, "main.js"));
             // Check for ESM default module
-            if (typeof(reloadedAddon.preinit) !== "function" && reloadedAddon.default) main = main.default;
+            if (typeof(reloadedAddon.preinit) !== "function" && reloadedAddon.default) reloadedAddon = reloadedAddon.default;
             // Check if the preinit function still exists to prevent errors
-                if (typeof(main.preinit) === "function") {
+                if (typeof(reloadedAddon.preinit) === "function") {
                     // Pre-initialize addon
                     reloadedAddon.preinit(this.parent, this);
                     // Initialize addon
@@ -120,7 +126,7 @@ module.exports = class AddonManager extends ExtensionManager {
                 }
                 else console.error("Addon has no preinit function or is formatted invalidly!", addon.name);
         } catch(e) {
-            console.error("Addon failed ro reload!", addon.name, e);
+            console.error("Addon failed to reload!", addon.name, e);
         }
     }
 };
