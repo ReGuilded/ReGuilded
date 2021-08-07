@@ -61,21 +61,17 @@ module.exports = class ExtensionManager extends EventEmitter {
     loadAll() {
         // Loads all found enabled extensions
         for (let ext of this.enabled) {
-            const extension = this.all.find(x => x.id === ext);
-            // Make sure it exists
-            if(extension) this.load(extension);
+            const extension = this.all.find(x => x.id == ext);
+            this.load(extension);
         }
     }
     /**
      * Removes ReGuilded themes from Guilded.
      */
     unloadAll() {
-        // Get all existing extensions
-        const existing = this.all.map(x => x.id);
-        // Unload all existing extensions
-        for (let id of this.enabled)
-            if(existing.contains(id))
-                this.unload(id);
+        // Gets all enabled extensions
+        // Unloads an extension
+        for (let id of this.enabled) this.unload(id);
     }
     /**
      * Gets path of an extension.
