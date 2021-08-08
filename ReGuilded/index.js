@@ -1,5 +1,7 @@
 const { SettingsManager, ThemesManager, AddonManager, WebpackManager } = require("./managers");
+const { readFileSync } = require("fs");
 const badges = require('./badges.js');
+const { join } = require("path");
 
 /**
  * ReGuilded's full manager's class.
@@ -24,7 +26,30 @@ module.exports = class ReGuilded {
      */
     init(webpackRequire) {
         if (global.firstLaunch) {
-            // Load First Launch Modal
+            const welcomeModalStyleElement = Object.assign(document.createElement("style"), {
+                id: "rgWelcomeModal-style",
+                innerHTML: readFileSync(join(__dirname, "assets/welcomeModal.css")).toString()
+            });
+            document.body.appendChild(welcomeModalStyleElement);
+
+            const welcomeModalDivElement = Object.assign(document.createElement("div"), {
+                classList: ["ReGuildedWelcomeModal"],
+                id: "rgWelcomeModal",
+                innerHTML: readFileSync(join(__dirname, "assets/welcomeModal.html")).toString()
+            })
+            document.body.appendChild(welcomeModalDivElement);
+
+            function destroyIt() {
+                welcomeModalDivElement.classList.add("Despawning");
+                setTimeout(() => {
+                    welcomeModalDivElement.remove();
+                    welcomeModalStyleElement.remove();
+                }, 200);
+            }
+
+            const welcomeModalCloseElement = document.getElementById("rgWelcomeModalClose");
+            welcomeModalDivElement.addEventListener("click", destroyIt);
+            welcomeModalCloseElement.addEventListener("click", destroyIt);
         }
 
         // Adds Webpack stuff to addon manager
