@@ -4,6 +4,7 @@ const { ipcRenderer } = require("electron");
 const { access } = require("fs");
 const { join } = require("path");
 
+// Get ReGuilded's class.
 const ReGuilded = require("../../ReGuilded");
 // Gets things for tinkering with Webpack
 const webpackPush = require("./webpackInject.js");
