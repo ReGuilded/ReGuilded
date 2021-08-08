@@ -1,5 +1,5 @@
 // Modules
-const { mimicGuilded, PatchedBrowserWindow, fixMismatchVersion, fixDevTools } = require("./patcherUtils");
+const { mimicGuilded, PatchedBrowserWindow, fixDevTools } = require("./patcherUtils");
 const { join, dirname } = require("path");
 const { _load } = require("module");
 
@@ -10,9 +10,6 @@ const electronPath = require.resolve("electron");
 // Guilded's app.asar & package.json
 const guildedPath = join(dirname(require.main.filename), "..", "app.asar");
 const guildedPackage = require(join(guildedPath, "package.json"));
-
-// ReGuilded's package.json
-const reguildedPackage = join(dirname(guildedPath), "../resources", "app/package.json");
 require.main.filename = join(guildedPath, "main.js");
 
 // ReGuilded's IPCMain
@@ -39,7 +36,7 @@ require.cache[electronPath].exports = electronExports;
 fixDevTools(electron);
 
 // Set App Path, App Name & App Version, then Launch Guilded.
-electron.app.setAppPath(guildedPath);
 electron.app.name = guildedPackage.name;
+electron.app.setAppPath(guildedPath);
 electron.app.setVersion(guildedPackage.version);
 _load(join(guildedPath, guildedPackage.main), null, true);
