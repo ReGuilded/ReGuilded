@@ -1,11 +1,15 @@
-const { existsSync, rmSync, readdirSync } = require("fs");
-const { spawnSync } = require("child_process");
-const { copySync } = require("fs-extra");
-const { join } = require("path");
+import { existsSync, rmSync, readdirSync } from "fs";
+import { spawnSync } from "child_process";
+import injection from "./injection.js";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+import fse from "fs-extra";
 
-function rootPerms(path, reguildedDir, command) {
+const __dirname = dirname(fileURLToPath(import.meta.url))
+
+function rootPerms(path, command) {
     // Warns us about this
-    global.logger.warn(`ReGuilded Linux requires root permissions to create, modify or delete '${path}'`);
+    console.warn(`ReGuilded Linux requires root permissions to create, modify or delete '${path}'`);
     // Goes into sudo mode
     // FIXME Won't work for non-sudo users
     spawnSync("sudo", command, { stdio: "inherit" });
@@ -19,7 +23,7 @@ const ignored = ["logo", "node_modules", "inject", ".vscode"];
  * @param {String} guildedDir Path to Guilded's resource/app directory
  * @param {String} reguildedDir Path to ReGuilded's configuration directory
  */
-exports.inject = async (guildedDir, reguildedDir) => {
+export async function inject(guildedDir, reguildedDir) {
     // If there is no injection present, inject
     if (!existsSync(guildedDir)) {
         try {
@@ -31,38 +35,38 @@ exports.inject = async (guildedDir, reguildedDir) => {
             const dirs = files.filter((x) => x.isDirectory() && !ignored.includes(x.name));
             // Copy all of them
             for (let dir of dirs) {
-                const inReguilded = join(reguildedDir, dir.name);
+                const inReguilded = join(reguildedDir, dir.name);``
                 // Copies src stuff to ~/.reguilded/:name
-                copySync(join(src, dir.name), inReguilded, { recursive: true, errorOnExist: false, overwrite: true });
+                fse.copySync(join(src, dir.name), inReguilded, { recursive: true, errorOnExist: false, overwrite: true });
             }
             // If this is on Linux and not on root, execute full injection with root perms
             if (process.platform === "linux" && process.getuid() !== 0)
-                rootPerms(guildedDir, reguildedDir, ["node", join(__dirname, "inject.js"), "-d", reguildedDir]);
+                rootPerms(guildedDir, ["node", join(__dirname, "inject.js"), "-d", reguildedDir]);
             // Otherwise inject normally
-            else require("./injection")(guildedDir, reguildedDir);
+            else injection(guildedDir, reguildedDir);
         } catch (err) {
             // If there was an error, try uninjecting ReGuilded
-            if (existsSync(guildedDir)) await exports.uninject(guildedDir, reguildedDir);
+            if (existsSync(guildedDir)) await uninject(guildedDir, reguildedDir);
 
             throw err;
         }
         // Otherwise, throw an error
     } else throw new Error("There is already an injection.");
-};
+}
 
 /**
  * Removes any injections present in Guilded.
  * @param {String} guildedDir Path to Guilded's resource/app directory
  * @param {String} reguildedDir Path to ReGuilded's configuration directory
  */
-exports.uninject = async (guildedDir, reguildedDir) => {
+export async function uninject(guildedDir, reguildedDir) {
     // If there is an injection, then remove the injection
     if (existsSync(guildedDir)) {
         // If this is on Linux, do it in sudo perms
         if (process.platform === "linux" && process.getuid() !== 0)
-            rootPerms(guildedDir, reguildedDir, process.argv.slice(0, 3).concat(["-d", reguildedDir]));
+            rootPerms(guildedDir, process.argv.slice(0, 3).concat(["-d", reguildedDir]));
         // Removes JS file
         rmSync(guildedDir, { force: true, recursive: true });
         // Otherwise, throw
     } else throw new Error("There is no injection.");
-};
+}
