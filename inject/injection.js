@@ -1,7 +1,7 @@
-const { writeFileSync, mkdirSync } = require("fs");
-const { join, sep } = require("path");
+import { writeFileSync, mkdirSync } from "fs";
+import { join, sep } from "path";
 
-module.exports = function(guildedDir, reguildedDir) {
+export default function(guildedDir, reguildedDir) {
     // Creates the "app" directory in Guilded's "resources" directory.
     mkdirSync(guildedDir);
 
