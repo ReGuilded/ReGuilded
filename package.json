@@ -6,8 +6,7 @@
   "type": "module",
   "scripts": {
     "inject": "node inject/index.js inject",
-    "uninject": "node inject/index.js uninject",
-    "reinject": "npm run uninject && npm run inject"
+    "uninject": "node inject/index.js uninject"
   },
   "repository": {
     "type": "git",

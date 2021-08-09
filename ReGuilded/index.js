@@ -1,5 +1,7 @@
 const { SettingsManager, ThemesManager, AddonManager, WebpackManager } = require("./managers");
+const { readFileSync } = require("fs");
 const badges = require('./badges.js');
+const { join } = require("path");
 
 /**
  * ReGuilded's full manager's class.
@@ -24,17 +26,36 @@ module.exports = class ReGuilded {
      */
     init(webpackRequire) {
         if (global.firstLaunch) {
-            // Load First Launch Modal
+            const welcomeModalStyleElement = Object.assign(document.createElement("style"), {
+                id: "rgWelcomeModal-style",
+                innerHTML: readFileSync(join(__dirname, "assets/welcomeModal.css")).toString()
+            });
+            document.body.appendChild(welcomeModalStyleElement);
+
+            const welcomeModalDivElement = Object.assign(document.createElement("div"), {
+                classList: ["ReGuildedWelcomeModal"],
+                id: "rgWelcomeModal",
+                innerHTML: readFileSync(join(__dirname, "assets/welcomeModal.html")).toString()
+            })
+            document.body.appendChild(welcomeModalDivElement);
+
+            function destroyIt() {
+                welcomeModalDivElement.classList.add("Despawning");
+                setTimeout(() => {
+                    welcomeModalDivElement.remove();
+                    welcomeModalStyleElement.remove();
+                }, 200);
+            }
+
+            const welcomeModalCloseElement = document.getElementById("rgWelcomeModalClose");
+            welcomeModalDivElement.addEventListener("click", destroyIt);
+            welcomeModalCloseElement.addEventListener("click", destroyIt);
         }
 
         // Adds Webpack stuff to addon manager
         this.addonManager.webpackRequire = webpackRequire;
         this.addonManager.webpackModules = webpackRequire.c;
         this.addonManager.webpackFunctions = webpackRequire.m;
-        
-        // Initialize the addon lib
-        this.addonManager.load(require("./libs/addon-lib/main").default);
-        
         // Gets theme configurations
         const themeConfig = this.settingsManager.getValueTyped("themes", "object"),
             addonConfig = this.settingsManager.getValueTyped("addons", "object");
@@ -49,9 +70,6 @@ module.exports = class ReGuilded {
         this.loadBadges(this.webpackManager.userModel?.UserModel);
         // Initiates addon manager
         this.addonManager.init(enabledAddons);
-        
-        // Inject the settings components
-        this.addonManager.load(require("./libs/settings-injector/main").default);
     }
 
     /**

@@ -10,5 +10,5 @@ export default function(guildedDir, reguildedDir) {
 
     // Creates require statement in `index.js`
     writeFileSync(join(guildedDir, "index.js"), `require("${patcherPath}");`);
-    writeFileSync(join(guildedDir, "package.json"), JSON.stringify({ name: "Guilded", main: "index.js", version: "0.0.0" }));
+    writeFileSync(join(guildedDir, "package.json"), JSON.stringify({ name: "Guilded", main: "index.js" }));
 }

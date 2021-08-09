@@ -4,6 +4,7 @@ const { ipcRenderer } = require("electron");
 const { access } = require("fs");
 const { join } = require("path");
 
+// Get ReGuilded's class.
 const ReGuilded = require("../../ReGuilded");
 // Gets things for tinkering with Webpack
 const webpackPush = require("./webpackInject.js");
@@ -16,8 +17,8 @@ let SettingsPromise = function handleSettings() {
 
                 copyDir(join(__dirname, "../../ReGuilded", "_defaultSettings"), join(__dirname, "../../settings"), (err) => {
                     if (err) return reject(err);
-                    resolve();
                     console.log("Successfully dropped settings");
+                    resolve();
                 })
             } else resolve();
         });
