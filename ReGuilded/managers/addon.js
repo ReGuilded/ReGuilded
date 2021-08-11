@@ -1,8 +1,7 @@
 const ExtensionManager = require("./extension.js");
 const { FileWatcher } = require("../utils");
-const { join, parse } = require("path");
+const { join } = require("path");
 const { existsSync } = require("fs");
-const copydir = require("../libs/copy-dir");
 
 /**
  * Manager that manages ReGuilded's add-ons
@@ -66,41 +65,6 @@ module.exports = class AddonManager extends ExtensionManager {
         }
         // Loads all add-ons
         this.loadAll();
-    }
-    /**
-     * Installs a ReGuilded add-on.
-     * @param {{addonFromDir: String}} addonFromDir directory of add-on to install on Guilded
-     */
-    install(addonFromDir) {
-        try {
-            console.log('Installing addon from directory', addonFromDir);
-            const addonDirName = parse(addonFromDir).base;
-            const addonPath = join(this.parent.settingsManager.getAddonsDir(), addonDirName);
-            // Copy add-on
-            copydir.sync(addonFromDir, addonPath);
-            // Require main file
-            let installedAddon = require(join(addonPath, "main.js"));
-            // Check for ESM default module
-            if (typeof(installedAddon.preinit) !== "function" && installedAddon.default) installedAddon = installedAddon.default;
-            // Check if the preinit function exists to prevent errors
-            if (typeof(installedAddon.preinit) === "function") {
-                // Pre-initialize add-on
-                installedAddon.preinit(this.parent, this);
-                // Sets directory's name
-                installedAddon.dirname = addonPath;
-                // Setup watcher
-                installedAddon.watcher = new FileWatcher(addonPath, this.reload.bind(this), installedAddon.id);
-                // Push it to the list of add-ons
-                this.all.push(installedAddon);
-                // Emit add-on load event
-                this.emit("load", installedAddon);
-                // Initialize addon-on
-                installedAddon.init(this.parent, this, this.parent.webpackManager);
-            }
-            else console.error("Add-on has no preinit function or has invalid formatting:", addonFromDir);
-        } catch(e) {
-            console.error("Failed to install add-on from directory", addonFromDir, e);
-        };
     }
     /**
      * Loads a ReGuilded add-on.
