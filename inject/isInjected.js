@@ -1,7 +1,7 @@
-const { existsSync } = require("fs");
-const getPlatformModule = require("./getPlatformModule");
+import { existsSync } from "fs";
+import getPlatformModule from "./platform";
 
-module.exports = () => {
+export default () => {
     // Gets the module
     const platformModule = getPlatformModule();
     // Checks if the injected ReGuilded app exists

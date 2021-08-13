@@ -1,23 +1,19 @@
-const { exec } = require("child_process")
-const { argv } = require("yargs")
-const log4js = require("log4js")
-const path = require("path")
+import { resolve, join } from "path";
+import { exec } from "child_process";
+import log4js from "log4js";
+import yargs from "yargs";
+
+const { argv } = yargs
 
 // Additional code
-const { getPlatformModule } = require("./injectUtil");
-const main = require("./main.js");
+import platform from "./platform.js";
+import * as main from "./main.js";
 
 // Logger stuff
-global.logger = log4js.getLogger("ReGuilded");
-global.logger.level = "debug";
-const { logger } = global
+const logger = log4js.getLogger("ReGuilded");
+logger.level = "debug";
 
-const platformModule = getPlatformModule();
-
-/**
- * Performs a given task
- */
-async function mainAsync() {
+(async function() {
     // Gets command-line arguments
     const dir = argv.d || argv.dir
 
@@ -26,27 +22,27 @@ async function mainAsync() {
 
     // If task argument is null, return error
     if (taskArg === undefined) throw new Error("First argument expected")
-    logger.info("Performing task", taskArg)
+    logger.trace("Performing task", taskArg)
 
     // Checks types of those arguments
     if (dir !== undefined && typeof dir !== 'string')
         throw new TypeError('Argument -d or --dir must be a string')
 
     // If there is given task, then run it
-    if (main[taskArg] !== null) {        
-        logger.info("Force closing Guilded");
+    if (main[taskArg] !== null) {
+        logger.trace("Force closing Guilded");
         // Creates path for ReGuilded
-        const reguildedPath = path.resolve(
+        const reguildedPath = resolve(
             dir ||
             // if variable `reguilded` is empty, get default path instead
-            path.join(process.env.APPDATA || process.env.HOME, ".reguilded")
+            join(process.env.APPDATA || process.env.HOME, ".reguilded")
         )
 
         try {
             // Kills Guilded's process
-            exec(platformModule.closeGuilded);
+            exec(platform.close);
             // Executes the task
-            await main[taskArg](platformModule.getAppDir(), reguildedPath)
+            await main[taskArg](platform.dir, reguildedPath)
             // Tells us that it succeeded
             logger.info("Task", taskArg, "has been successful");
         } catch(err) {
@@ -55,7 +51,4 @@ async function mainAsync() {
         }
     // Otherwise shout that no task was found
     } else logger.error("Unknown task", taskArg);
-}
-
-// If platform module was found, execute mainAsync
-if (platformModule !== null) mainAsync();
+})()
