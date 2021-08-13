@@ -1,4 +1,3 @@
-import { existsSync } from "fs";
 import { join } from "path";
 
 const platforms = {
@@ -22,6 +21,7 @@ const current = platforms[process.platform]
 
 // Check if it exists
 if(!current)
+    // TODO: Possible make it so this also opens a window on the default browser with a prefilled out issue on GitHub.
     throw new Error("Unsupported platform", process.platform, ". Please submit a new issue");
 // Export it
 export default current
