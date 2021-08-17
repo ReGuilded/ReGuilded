@@ -17,17 +17,19 @@ module.exports = class ExtensionManager extends EventEmitter {
     }
     /**
      * Checks if the identifier of the extension is correct or not.
-     * @param {String} id The identifier of the extension
+     * @param {string} id The identifier of the extension
+     * @param {string} path The path of the file
      * @returns Whether the identifier is correct or not
      */
-    static checkId(id) {
-        return (
+    static checkId(id, path) {
+        const isId = (
             typeof id === "string" &&
             // Checks if it's empty
             id
                 // Removes correct parts of the ID
                 .replace(module.exports.idRegex, "").length === 0
         );
+        if (!isId) throw new Error(`Incorrect syntax of the property 'id'.`);
     }
     /**
      * Gets a list of extensions.
@@ -88,13 +90,13 @@ module.exports = class ExtensionManager extends EventEmitter {
 
     /**
      * Checks if property is given type and if it isn't, throws an error.
-     * @param {String} name The name of the property.
+     * @param {string} name The name of the property.
      * @param {any} value The value of the property.
-     * @param {String} type Expected type of the property.
-     * @param {String} path Path to the JSON where property is.
+     * @param {[string | function]} types Expected types of the property.
+     * @param {string} path Path to the JSON where property is.
      */
-    static checkProperty(name, value, type, path) {
-        if (typeof value !== type)
+    static checkProperty(name, value, types, path) {
+        if (types.includes(typeof value) && types.some(x => x instanceof Function && value instanceof x))
             throw new TypeError(`Expected '${name}' to be ${type}, found ${typeof value} instead in ${path}`);
     }
 };
