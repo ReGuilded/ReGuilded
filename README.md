@@ -20,7 +20,7 @@
 
 ## Installation
 
-Up-to-date installation instructions during our Alpha period can be found at [this doc on our Guilded server](https://www.guilded.gg/ReGuilded/groups/k3yaNW83/channels/6084b1dd-7110-47e7-a579-62f8a33b0fe1/docs/255221).
+You can use the Easy Installer located on our [website](https://reguilded.dev/downloads).
 
 ## Will you get banned for using ReGuilded?
 
