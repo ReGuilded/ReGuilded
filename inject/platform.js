@@ -3,17 +3,32 @@ import { join } from "path";
 const platforms = {
     linux: {
         dir: "/opt/Guilded/resources/app",
-        close: "killall guilded"
+        get execPath() {
+            return "/opt/Guilded/guilded";
+        },
+        close: "killall guilded",
+        open: this.execPath + "& disown"
     },
     darwin: {
         dir: "/Applications/Guilded.app/Contents/Resources/app",
-        close: "killall Guilded"
+        get appPath() {
+            return "/Applications/Guilded.app/Contents/Resources/app";
+        }
+        close: "killall Guilded",
+        open: "open " + this.appPath
     },
     win32: {
         get dir() {
             return join(process.env.LOCALAPPDATA, "Programs/Guilded/resources/app");
         },
-        close: "taskkill /f /IM Guilded.exe >nul"
+        get name() {
+            return "Guilded";
+        },
+        get execPath() {
+            return process.env.LOCALAPPDATA + "/Programs/Guilded/Guilded.exe";
+        },
+        close: "taskkill /f /IM Guilded.exe >nul",
+        open: "start " + this.execPath
     }
 }
 // Get current platform
