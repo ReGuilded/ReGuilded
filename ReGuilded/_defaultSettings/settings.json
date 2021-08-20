@@ -1,12 +1,16 @@
 {
-    "themes": {
-        "enabled": [
-            "dreamFrame"
+	"themes": {
+		"enabled": [
+            "MatrixFrame"
         ]
-    },
-    "addons": {
-        "enabled": [
-            "testo"
-        ]
-    }
+	},
+	"addons": {
+		"enabled": [
+			"testo",
+			"SettingsInjector",
+			"LinkTooltips",
+			"GifPicker",
+			"addonLib"
+		]
+	}
 }

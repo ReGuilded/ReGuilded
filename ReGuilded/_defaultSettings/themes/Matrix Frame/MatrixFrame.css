@@ -1,0 +1,22 @@
+/**
+    Based Around the Dream Frame
+    Source Code: https://github.com/dream-frame/Dream-Frame-Guilded
+*/
+
+@import url("https://dream-frame.github.io/Dream-Frame-Guilded/raw/raw.css");
+*{
+    color: #03A062;
+}
+:root {
+    
+    /* Background */
+    --Background: url(https://i.imgur.com/1UYv3AR.gif);
+    --Background-Color: #1a1a1a;
+    --ForeGround-Color: rgb(11, 168, 103);
+
+    --BackgroundBrightness: 0.3;
+    --BackgroundBlur: 1px;
+    --BackgroundRepeat: no-repeat;
+    --BackgroundScale: 1;
+    --BackgroundRotation: 0deg;
+}
