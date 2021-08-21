@@ -43,7 +43,7 @@ logger.level = "debug";
             exec(platform.close);
             // Executes the task
             await main[taskArg](platform.dir, reguildedPath)
-            logger.info("Relaunching Guilded(If not opened in 10 minutes after this please manually execute the app)");
+            logger.info("Relaunching Guilded (If not opened in 10 minutes after this please manually execute the app)");
             // Open the app Again after the injection task is done
             exec(platform.open);
             // Tells us that it succeeded
