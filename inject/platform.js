@@ -7,15 +7,19 @@ const platforms = {
             return "/opt/Guilded/guilded";
         },
         close: "killall guilded",
-        open: this.execPath + "& disown"
+        get open() {
+            return this.execPath + "& disown"
+        }
     },
     darwin: {
         dir: "/Applications/Guilded.app/Contents/Resources/app",
         get appPath() {
             return "/Applications/Guilded.app/Contents/Resources/app";
-        }
+        },
         close: "killall Guilded",
-        open: "open " + this.appPath
+        get open() {
+            return "open " + this.appPath
+        }
     },
     win32: {
         get dir() {
@@ -28,7 +32,9 @@ const platforms = {
             return process.env.LOCALAPPDATA + "/Programs/Guilded/Guilded.exe";
         },
         close: "taskkill /f /IM Guilded.exe >nul",
-        open: "start " + this.execPath
+        get open() {
+            return "start " + this.execPath
+        }
     }
 }
 // Get current platform
