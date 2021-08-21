@@ -43,8 +43,11 @@ logger.level = "debug";
             exec(platform.close);
             // Executes the task
             await main[taskArg](platform.dir, reguildedPath)
+            logger.info("Relaunching Guilded(If not opened in 10 minutes after this please manually execute the app)");
+            //Open the app Again after the injection task is done
+            exec(platformModule.openGuilded);
             // Tells us that it succeeded
-            logger.info("Task", taskArg, "has been successful");
+            logger.info("Task", taskArg, "has been successful press ctrl + c to close this"); //critcal code bug causes this to hang on windows so we have to close it manually and tell the user to do so
         } catch(err) {
             logger.error("Failed to do task", taskArg);
             logger.fatal(err);
