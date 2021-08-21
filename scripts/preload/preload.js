@@ -56,6 +56,9 @@ document.addEventListener("readystatechange", () => {
 });
 
 // Fetches ReGuilded developer list
-fetch("https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuilded/wwwroot/developers.json")
+fetch("https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuilded/wwwroot/maintainers.json")
     .then((x) => x.json())
-    .then((x) => (badges.members.dev = x));
+    .then((x) => {
+        badges.members.dev = x.developers;
+        badges.members.contrib = x.contributors;
+    });
