@@ -60,5 +60,5 @@ module.exports.all = {
  */
 module.exports.members = {
     dev: [],
-    contrib: ["AnbaMOyA"]
+    contrib: []
 };
