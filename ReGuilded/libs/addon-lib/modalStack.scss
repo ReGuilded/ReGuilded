@@ -1,0 +1,86 @@
+﻿$t: 250ms ease-in;
+
+#ReGuildedModalStackContainer .ModalStack {
+  // Give the devs 3 variables to use, let's make themer's lives easier
+  --primary-bg: #363842;
+  --secondary-bg: #31333c;
+  --tertiary-bg: #4e505c;
+  
+  // Stretch our container across the entire screen
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  
+  // Give it some life
+  background-color: rgba(black, 0.5);
+  
+  // I really wish this wasn't necessary
+  z-index: 999999;
+  
+  > .ModalContainer {
+    // Stretch our container across the entire screen
+    // We need to do this for the containers as well so they don't push each other when opening and closing
+    position: fixed;
+    top: 0; left: 0; bottom: 0; right: 0;
+
+    // Center all children vertically and horizontally
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    // Animations pog
+    animation-name: ModalAttach;
+    animation-timing-function: ease-in;
+    animation-duration: 250ms;
+    animation-fill-mode: forwards;
+    
+    &.Closing {
+      animation-name: ModalDetach;
+      animation-timing-function: ease-in;
+      animation-duration: 250ms;
+      animation-fill-mode: forwards;
+    }
+    
+    > * {
+      position: relative;
+      border-radius: 4px;
+      
+      background-color: var(--primary-bg);
+      padding: 15px;
+    }
+  }
+
+  // Apply our transition and default values
+  opacity: 0;
+  transition: opacity $t;
+  pointer-events: none;
+  
+  // On active, set our values to their active state
+  &.Active {
+    opacity: 1;
+    pointer-events: all;
+  }
+}
+
+@keyframes ModalAttach {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes ModalDetach {
+  0% {
+    transform: none;
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+}
