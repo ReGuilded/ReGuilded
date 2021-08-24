@@ -1,0 +1,232 @@
+﻿.SettingsMenu-container {
+  position: relative;
+  
+  $t: 150ms ease-in;
+  
+  .ReGuildedSettings {
+    width: 100%;
+  }
+  
+  .SettingsGroup {
+    padding: 20px;
+    display: flex;
+    
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    
+    .Banner {
+      border-radius: 4px;
+      width: 100%;
+    }
+    
+    .ExtensionItemsList {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 500px);
+      grid-gap: 20px;
+      
+      width: 100%;
+      
+      .ExtItem {
+        background-color: #454854;
+        border-radius: 4px;
+        padding: 12px;
+        
+        width: 500px;
+        height: 200px;
+        
+        display: flex;
+        flex-direction: column;
+        
+        transition: opacity $t, transform $t, box-shadow $t;
+        
+        &.Disabled {
+          opacity: 0.5;
+          
+          &:Hover {
+            opacity: 1;
+            transform: scale(1.025);
+            box-shadow: 0 0 10px rgba(black, 0.3);
+          }
+        }
+        
+        .Head {
+          display: flex;
+          align-items: center;
+          
+          .Title {
+            font-weight: bolder;
+            font-size: 1.1em;
+          }
+          
+          .ID {
+            font-weight: bolder;
+            margin-left: auto;
+            
+            > span {
+              opacity: 0.5;
+            }
+          }
+        }
+        
+        .Placeholder {
+          opacity: 0.5;
+        }
+        
+        .Footer {
+          margin-top: auto;
+          border-top: 2px solid rgba(white, 0.1);
+          
+          .Buttons {
+            display: flex;
+            
+            .ButtonContainer {
+              position: relative;
+              
+              &:Hover:After {
+                opacity: 1;
+                transform: translateX(-50%);
+              }
+              
+              &::After {
+                content: attr(data-tooltip);
+                display: block;
+
+                position: absolute;
+                bottom: 90%;
+                left: 50%;
+                transform: translateX(-50%) scale(0.75);
+                transform-origin: bottom;
+
+                padding: 8px;
+                border-radius: 4px;
+                background-color: #181a1e;
+                width: max-content;
+                
+                opacity: 0;
+                transition: opacity $t, transform $t;
+                
+                pointer-events: none;
+              }
+            }
+            
+            .Button {
+              width: 38px;
+              height: 38px;
+
+              border-radius: 4px;
+              padding: 10px;
+              margin-top: 6px;
+              margin-bottom: -6px;
+              
+              position: relative;
+              cursor: pointer;
+
+              &:Hover {
+                background-color: rgba(white, 0.1);
+              }
+            }
+          }
+        }
+      } 
+    }
+    
+    .ToggleSwitchContainer {
+      margin-left: 10px;
+      
+      .ToggleSwitch {
+        outline: none;
+        border: none;
+        -webkit-appearance: none;
+        
+        position: relative;
+        
+        background-color: rgba(black, 0.25);
+        
+        width: 40px;
+        height: 20px;
+        border-radius: 20px;
+        
+        &:Checked {
+          background-color: #66dd66;
+          
+          &:After {
+            transform: translateX(125%);
+          }
+        }
+        
+        transition: background-color $t;
+        
+        &::After {
+          content: "";
+          display: block;
+          
+          position: absolute;
+          top: 2.5px; left: 2.5px;
+          
+          width: 15px;
+          height: 15px;
+          
+          background-color: white;
+          border-radius: 15px;
+          
+          transition: transform $t;
+        }
+      }
+    }
+  }
+}
+
+.ModalStack .ThemeSettings {
+  width: 600px;
+  max-width: 80vw;
+  height: max-content;
+  max-height: 60vh;
+  
+  overflow-x: hidden;
+  overflow-y: auto;
+  
+  display: flex;
+  flex-direction: column;
+}
+
+.FieldContainer {
+  > .FieldTitle {
+    font-weight: bolder;
+    font-size: 1.2em;
+  }
+  
+  &:Not(:Last-Child) {
+    margin-bottom: 20px;
+  }
+  
+  input {
+    outline: none;
+    border: none;
+    
+    border-radius: 4px;
+    background-color: var(--secondary-bg);
+    
+    padding: 10px;
+    width: calc(100% - 20px);
+  }
+  
+  &.TypeColor {
+    .ColorBlip {
+      width: 10px;
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px;
+    }
+    
+    .ColorField {
+      margin-top: 5px;
+      border-radius: 4px;
+      
+      display: flex;
+      
+      input {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+      }
+    }
+  }
+}

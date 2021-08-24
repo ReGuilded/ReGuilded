@@ -2,6 +2,7 @@ const ExtensionManager = require("./extension.js");
 const { FileWatcher } = require("../utils");
 const { join } = require("path");
 const { existsSync } = require("fs");
+const compiler = require("../libs/compiler");
 
 /**
  * Manager that manages ReGuilded's add-ons
@@ -22,12 +23,36 @@ module.exports = class AddonManager extends ExtensionManager {
      * @param {String[]} enabled An array of enabled add-ons.
      */
     init(enabled = []) {
+<<<<<<< Updated upstream
         console.log("Initiating add-on manager");
         // Gets a list of add-on directories
         const addons = super.getDirs(enabled);
         // Gets every add-on directory
         for (let i in addons) {
             const addon = addons[i]
+=======
+        console.log("Initiating addon manager");
+        
+        // Patch the requires
+        compiler.patchRequires();
+        
+        // Try-catch; this should never throw errors
+        try {
+            // Initialize the addon library
+            require("../libs/addon-lib");
+            // Initialize the settings injector/menu
+            require("../libs/settings-injector");
+        }
+        catch(e) {
+            console.error("Failed to initialize the ReGuilded addon API!", e);
+        }
+        
+        // Gets a list of addon directories
+        const addons = super.getDirs(enabled);
+        // Gets every theme directory
+        for (const i in addons) {
+            const addon = addons[i];
+>>>>>>> Stashed changes
             // Try-catch errors to prevent conflicts with other plugins
             try {
                 console.log(`Found addon directory '${addon.name}'`);
@@ -65,6 +90,9 @@ module.exports = class AddonManager extends ExtensionManager {
         }
         // Loads all add-ons
         this.loadAll();
+        
+        // Unpatch requires
+        compiler.unpatchRequire();
     }
     /**
      * Loads a ReGuilded add-on.
