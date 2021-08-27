@@ -1,6 +1,7 @@
-﻿import {faCog, faEdit, faFolder} from "@fortawesome/free-solid-svg-icons";
+﻿import {faCog} from "@fortawesome/free-solid-svg-icons";
 import {ThemeSettingsHandler} from "../index";
 import ExtensionItem from "./ExtensionItem";
+import ErrorBoundary from "./ErrorBoundary";
 
 // Awww yeaaahh
 const path: any = require("path");
@@ -39,14 +40,19 @@ function openThemeSettings(variables: [line: string, propName: string, propValue
     }).filter(v => v);
     
     ModalStack.push(
-        <div className="ThemeSettings">
-            { components }
-        </div>
+        <ErrorBoundary>
+            <div className="ThemeSettings">
+                { components }
+            </div>
+        </ErrorBoundary>
     );
 }
 
 // @ts-ignore
 function ThemeItem({ id, name, css, dirname }): React.Component {
+    // what?
+    css = css[0];
+    
     // Some memos, for that tasty performance boost that we don't need
     // Literally 0 reason to use a memo for this, but I did anyways
     const fp: string = React.useMemo(() => path.join(dirname, css), [dirname, css]);
@@ -86,39 +92,43 @@ function ThemeItem({ id, name, css, dirname }): React.Component {
     }
     
     return (
-        <ExtensionItem id={id} name={name} fp={fp} dirname={dirname} type="Theme"
-                       enabledState={~ReGuilded.themesManager.enabled.indexOf(id)}
-                       enabledStateCallback={handleEnabledStateChanged}>
-            { variables.length ?  (
-                <div className="ButtonContainer" data-tooltip="Settings"
-                     onClick={openThemeSettings.bind(null, variables, id)}>
-                    <svg className="Button" viewBox={`0 0 ${faCog.icon[0]} ${faCog.icon[1]}`} role="img" xmlns="http://www.w3.org/2000/svg">
-                        <path d={faCog.icon[faCog.icon.length - 1]} fill="currentColor"/>
-                    </svg>
-                </div>
-            ) : null }
-        </ExtensionItem>
+        <ErrorBoundary>
+            <ExtensionItem id={id} name={name} fp={fp} dirname={dirname} type="Theme"
+                           enabledState={~ReGuilded.themesManager.enabled.indexOf(id)}
+                           enabledStateCallback={handleEnabledStateChanged}>
+                { variables.length ?  (
+                    <div className="ButtonContainer" data-tooltip="Settings"
+                         onClick={openThemeSettings.bind(null, variables, id)}>
+                        <svg className="Button" viewBox={`0 0 ${faCog.icon[0]} ${faCog.icon[1]}`} role="img" xmlns="http://www.w3.org/2000/svg">
+                            <path d={faCog.icon[faCog.icon.length - 1]} fill="currentColor"/>
+                        </svg>
+                    </div>
+                ) : null }
+            </ExtensionItem>
+        </ErrorBoundary>
     );
 }
 
 // @ts-ignore
-export default function ThemeSettings(): React.Component {
+export default function ThemeSettings(): React.ReactElement {
     const [themes, initThemes] = React.useState(ReGuilded.themesManager.all);
     
     return (
-        <div className="ReGuildedSettings ThemeSettings">
-            <div className="SettingsGroup">
-                { themes.length ? (
-                    <div className="ExtensionItemsList">
-                        { themes.map(theme => <ThemeItem key={theme.id} {...theme}/>) }
-                    </div>
-                ) : (
-                    <div className="NothingHere">
-                        There are no themes installed.
-                    </div>
-                ) }
+        <ErrorBoundary>
+            <div className="ReGuildedSettings ThemeSettings">
+                <div className="SettingsGroup">
+                    { themes.length ? (
+                        <div className="ExtensionItemsList">
+                            { themes.map(theme => <ThemeItem key={theme.id} {...theme}/>) }
+                        </div>
+                    ) : (
+                        <div className="NothingHere">
+                            There are no themes installed.
+                        </div>
+                    ) }
+                </div>
             </div>
-        </div>
+        </ErrorBoundary>
     );
 }
 

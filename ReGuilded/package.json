@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
-    "@fortawesome/react-fontawesome": "^0.1.15"
+    "chokidar": "^3.5.2",
+    "sass": "^1.38.1",
+    "sucrase": "^3.20.1"
   }
 }

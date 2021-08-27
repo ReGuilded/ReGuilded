@@ -50,10 +50,16 @@ module.exports = class ExtensionManager extends EventEmitter {
      * @param {length} totalLength The total length of all extensions available
      */
     checkLoaded(index, totalLength) {
-        if(totalLength - 1 == index) {
-            console.log('All loaded', index, totalLength)
+        // Ensure this is the last extension and that we haven't already tripped the event
+        if (totalLength - 1 === index && !this.allLoaded) {
+            console.log('All loaded', index, totalLength);
+            
+            // Trip the event
             this.allLoaded = true;
             this.emit("fullLoad", this.all);
+            
+            // If this is the addon manager, load all addons
+            this instanceof AddonManager && this.loadAll();
         }
     }
 
