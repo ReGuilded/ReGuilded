@@ -1,4 +1,4 @@
-﻿import {faEdit, faFolder} from "@fortawesome/free-solid-svg-icons";
+﻿import {faEdit, faFolder} from "../../fontawesome-svg-icons";
 
 const childProcess = require("child_process");
 
