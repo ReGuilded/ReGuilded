@@ -2,7 +2,11 @@ const copyDir = require("../../ReGuilded/libs/copy-dir");
 const badges = require("../../ReGuilded/badges.js");
 const { ipcRenderer } = require("electron");
 const { access } = require("fs");
-const { join } = require("path");
+const { dirname, join } = require("path");
+
+// Set ReGuilded/libs as another node_modules folder.
+const libs = dirname(join("../../ReGuilded", "libs"));
+process.mainModule.paths.push(libs);
 
 // Get ReGuilded's class.
 const ReGuilded = require("../../ReGuilded");
