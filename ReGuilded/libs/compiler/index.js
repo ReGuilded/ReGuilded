@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const sucrase = require("sucrase");
 const sass = require("sass");
+const _module = require("module");
 
 // The list of originals for the un-patcher
 const originals = [];
@@ -13,8 +14,8 @@ const originals = [];
  */
 function patchRequire(patcher, ...extensions) {
     extensions.forEach(ext => (
-        originals.push({ ext, original: require.extensions[ext] }),
-        require.extensions[ext] = patcher
+        originals.push({ ext, original: _module._extensions[ext] }),
+        _module._extensions[ext] = patcher
     ));
 }
 
@@ -22,7 +23,7 @@ function patchRequire(patcher, ...extensions) {
  * Unpatch all requires
  */
 function unpatchRequire() {
-    originals.forEach(o => require.extensions[o.ext] = o.original);
+    originals.forEach(o => _module._extensions[o.ext] = o.original);
 }
 
 module.exports = {
