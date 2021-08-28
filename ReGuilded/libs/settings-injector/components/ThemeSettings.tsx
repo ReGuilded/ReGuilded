@@ -1,4 +1,4 @@
-﻿import {faCog} from "fontawesome-svg-icons";
+﻿import {faCog} from "../../fontawesome-svg-icons";
 import {ThemeSettingsHandler} from "../index";
 import ExtensionItem from "./ExtensionItem";
 import ErrorBoundary from "./ErrorBoundary";

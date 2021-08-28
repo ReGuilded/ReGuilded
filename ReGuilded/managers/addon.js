@@ -1,7 +1,7 @@
 const ExtensionManager = require("./extension.js");
 const { existsSync } = require("fs");
-const compiler = require("compiler");
-const chokidar = require("chokidar");
+const compiler = require("../libs/compiler");
+const chokidar = require("../libs/chokidar");
 const path = require("path");
 const { join } = require("path");
 const _module = require("module");
