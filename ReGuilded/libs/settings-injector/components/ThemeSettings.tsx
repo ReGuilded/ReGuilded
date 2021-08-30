@@ -1,7 +1,8 @@
-﻿import {faCog} from "../../fontawesome-svg-icons";
-import {ThemeSettingsHandler} from "../index";
+﻿import {ThemeSettingsHandler} from "../index";
 import ExtensionItem from "./ExtensionItem";
 import ErrorBoundary from "./ErrorBoundary";
+import ActionSection from "./menu/ActionSection";
+import ActionItem from "./menu/ActionItem";
 
 // Awww yeaaahh
 const path: any = require("path");
@@ -49,9 +50,8 @@ function openThemeSettings(variables: [line: string, propName: string, propValue
 }
 
 // @ts-ignore
-function ThemeItem({ id, name, css, dirname }): React.Component {
-    // what?
-    css = css[0];
+function ThemeItem({ id, name, css: cssList, dirname, description }): React.Component {
+    const css = cssList[0];
     
     // Some memos, for that tasty performance boost that we don't need
     // Literally 0 reason to use a memo for this, but I did anyways
@@ -61,6 +61,8 @@ function ThemeItem({ id, name, css, dirname }): React.Component {
     // Match all of our variables in and place them in an array
     const variables: [line: string, propName: string, propValue: string][] =
         React.useMemo(() => [...data.matchAll(/--(\S+?):(?:\s*)?(\S*?);/g)]);
+    // Checks if the theme is enabled
+    const themeEnabled: boolean = ~ReGuilded.themesManager.enabled.indexOf(id)
     
     function handleEnabledStateChanged(state): void {
         // Get the config object
@@ -93,17 +95,14 @@ function ThemeItem({ id, name, css, dirname }): React.Component {
     
     return (
         <ErrorBoundary>
-            <ExtensionItem id={id} name={name} fp={fp} dirname={dirname} type="Theme"
-                           enabledState={~ReGuilded.themesManager.enabled.indexOf(id)}
-                           enabledStateCallback={handleEnabledStateChanged}>
-                { variables.length ?  (
-                    <div className="ButtonContainer" data-tooltip="Settings"
-                         onClick={openThemeSettings.bind(null, variables, id)}>
-                        <svg className="Button" viewBox={`0 0 ${faCog.icon[0]} ${faCog.icon[1]}`} role="img" xmlns="http://www.w3.org/2000/svg">
-                            <path d={faCog.icon[faCog.icon.length - 1]} fill="currentColor"/>
-                        </svg>
-                    </div>
-                ) : null }
+            <ExtensionItem id={id} name={name} type="theme"
+                description={description} fp={fp} dirname={dirname}
+                onToggle={(_: MouseEvent, b: boolean) => handleEnabledStateChanged(b)}
+                enabled={themeEnabled}>
+                {/* Overflow menu */}
+                <ActionSection>
+                    <ActionItem icon="settings" onClick={openThemeSettings.bind(null, variables, id)}>Settings</ActionItem>
+                </ActionSection>
             </ExtensionItem>
         </ErrorBoundary>
     );
