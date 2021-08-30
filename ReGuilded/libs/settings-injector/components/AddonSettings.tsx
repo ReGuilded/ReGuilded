@@ -1,13 +1,20 @@
 ﻿import ExtensionItem from "./ExtensionItem";
+import ActionMenu from "./menu/ActionMenu";
+import ActionSection from "./menu/ActionSection";
+import ActionItem from "./menu/ActionItem";
+import ToggleField from "./menu/ToggleField";
 
 const fs = require("fs");
 const path = require("path");
 
 // @ts-ignore
 function AddonItem({ id, name, description }): React.Component {
-    const dirname = path.join(ReGuilded.addonManager.dirname, id);
-    const fp = path.join(dirname, "main.js");
-
+    // Gets its main file and path
+    const dirname: string = path.join(ReGuilded.addonManager.dirname, id);
+    const fp: string = path.join(dirname, "main.js");
+    // Gets whether it's enabled
+    const addonEnabled: boolean = ReGuilded.addonManager.enabled.includes(id)
+    // When disabled/enabled
     function handleEnabledStateChanged(state): void {
         // Get the config object
         const config = ReGuilded.settingsManager.config.addons;
@@ -34,10 +41,14 @@ function AddonItem({ id, name, description }): React.Component {
         );
     }
 
-    return <ExtensionItem id={id} name={name} fp={fp} dirname={dirname} type="Addon"
-                          description={description}
-                          enabledState={~ReGuilded.addonManager.enabled.indexOf(id)}
-                          enabledStateCallback={handleEnabledStateChanged}/>;
+    return (
+        <ExtensionItem id={id} name={name} type="addon"
+            description={description} fp={fp} dirname={dirname}
+            onToggle={(_: MouseEvent, b: boolean) => handleEnabledStateChanged(b)}
+            enabled={addonEnabled}>
+            {/* Overflow menu */}
+        </ExtensionItem>
+    )
 }
 
 // @ts-ignore
