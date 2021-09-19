@@ -41,11 +41,13 @@ catch (e) {
 export function waitForElement(selector: string): Promise<Node | Element> {
     return new Promise<Node | Element>(resolve => {
         const node: Node | Element = document.querySelector(selector);
-        if (node) return node;
+        if (node)
+            return node;
 
         const observer: MutationObserver = new MutationObserver(() => {
             const node: Node | Element = document.querySelector(selector);
-            if (!node) return;
+            if (!node)
+                return;
 
             observer.disconnect();
             resolve(node);
@@ -77,17 +79,21 @@ export function patchElementRenderer(
 }
 
 export function getOwnerInstance(element: Element | Node): any {
-    if (!element) return null;
+    if (!element)
+        return null;
     
     let reactInstance: any = element[Object.keys(element).find(key => ~key.indexOf("__reactInternalInstance"))];
-    if (!reactInstance) return;
+    if (!reactInstance)
+        return;
     
     let depth = 0;
     while (reactInstance && depth < 1000) {
         reactInstance = reactInstance?.return;
-        if (!reactInstance) break;
+        if (!reactInstance)
+            break;
         
-        if (reactInstance.stateNode?.isReactComponent) return reactInstance.stateNode;
+        if (reactInstance.stateNode?.isReactComponent)
+            return reactInstance.stateNode;
         depth++;
     }
 }

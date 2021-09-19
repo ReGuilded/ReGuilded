@@ -26,20 +26,17 @@ module.exports = class ThemesManager extends ExtensionManager {
         reGuildedGroup.id = "reGl-main";
         const reGuildedStyle = document.createElement("style");
         reGuildedStyle.innerHTML = "sgroup{display:none;}";
-        // Append it to head
+
         reGuildedGroup.appendChild(reGuildedStyle)
         document.head.appendChild(reGuildedGroup)
 
-        // Gets a list of theme directories
         const themes = super.getDirs(enabled);
 
-        // Gets every theme directory
         for (let i in themes) {
-            const theme = themes[i]
-            // Creates path to the Theme Directory
-            const themePath = super.getPath(theme.name);
-            // Gets path of the JSON
-            const jsonPath = path.join(themePath, "theme.json");
+            const theme = themes[i],
+                  // Creates path to the Theme Directory
+                  themePath = super.getPath(theme.name),
+                  jsonPath = path.join(themePath, "theme.json");
 
             // If json doesn't exist, ignore this directory
             stat(jsonPath, (e, _) => {
@@ -47,35 +44,32 @@ module.exports = class ThemesManager extends ExtensionManager {
                     if (e) {
                         // If it doesn't exist ignore it
                         if (e.code === 'ENOENT') break checkTheme;
-                        // If there is other kind of an error, throw it
                         else throw e;
                     }
-                    // Get that json
                     const json = require(jsonPath);
-                    // Sets directory's name
+                    // For re-use
                     json.dirname = themePath;
 
-                    // Gets ID property
                     const propId = json.id;
                     // Checks if ID is correct
                     ExtensionManager.checkId(propId, jsonPath);
 
-                    // Gets CSS path
                     const propCss = typeof json.css === "string" ? [json.css] : json.css;
-                    // Make sure it's an array
+
+                    // Since we turned string into single-item array,
+                    // we don't need to check for both types
                     if(!Array.isArray(propCss))
                         throw new TypeError(`Expected property 'css' to be either a string or an array. In path: ${jsonPath}`);
-                    // Check each CSS file
+
                     for(let css of propCss) {
-                        // Gets full CSS path
                         const cssPath = getCssPath(json, css);
-                        // Checks if CSS file exists
+
                         if (!existsSync(cssPath))
                             throw new Error(`Could not find CSS file in path ${cssPath}`);
                     }
-                    // Change it for later checks
+                    // For later checks
                     json.css = propCss
-                    // Adds it to themes array instead
+                    
                     this.all.push(json);
                     // Loads it
                     if(this.enabled.includes(propId)) {
@@ -95,35 +89,32 @@ module.exports = class ThemesManager extends ExtensionManager {
      */
     load(theme) {
         console.log(`Loading theme by ID '${theme.id}'`);
-        // Creates path to the Theme Directory
+
+        // Theme watchers that will update the theme when it changes
         theme.watchers = []
-        //const themeCss = path.join(theme.dirname, theme.css);
-        
+
         // Creates a new style element for that theme
         const group = document.createElement("sgroup");
         group.id = `reGl-theme-${theme.id}`;
         group.classList.add("reGl-theme");
-        
-        // Get each CSS file
+
         for(let css of theme.css) {
-            // And get its path,
             const cssPath = getCssPath(theme, css)
             // Create watcher for this file
             theme.watchers.push(new FileWatcher(cssPath, this.reload.bind(this), theme.id));
-            // Then get file's contents
+
             readFile(cssPath, { encoding: 'utf8' }, (e, d) => {
-                // Check for any errors
+
                 if(e) throw e
-                // Create style element based on it
+                // Create style element based on each CSS file
                 const style = document.createElement("style");
                 style.classList.value = "reGl-css reGl-css-theme";
                 style.innerHTML = d
-                // And append it to a style group
+
                 group.appendChild(style)
             })
         }
 
-        // Adds style group element at the start of the body
         document.body.appendChild(group);
     }
 
@@ -133,10 +124,10 @@ module.exports = class ThemesManager extends ExtensionManager {
      */
     unload(theme) {
         console.log(`Unloading theme by ID '${theme}'`);
-        // Selects the theme's link element by name that is in body element
-        const linkRef = document.querySelector(`body sgroup#reGl-theme-${theme}`);
-        // Removes it
-        linkRef.remove();
+
+        document
+            .querySelector(`body sgroup#reGl-theme-${theme}`)
+            .remove();
     }
     /**
      * Reloads a ReGuilded theme.
@@ -145,21 +136,18 @@ module.exports = class ThemesManager extends ExtensionManager {
     reload(id) {
         console.log(`Reloading theme by ID '${id}`);
 
-        // Gets the Theme, Theme Path, and Theme Css.
         const theme = this.all.find((object) => object.id === id);
-        //const themeCss = path.join(theme.dirname, theme.css);
 
-        // Gets the style group of that theme
+        // Style group
         const group = document.getElementById(`reGl-theme-${theme.id}`);
-        // Foreach CSS file there is,
+
         for(let i in theme.css) {
-            // Get CSS and Style elements
-            const css = theme.css[i], style = group.childNodes[i]
-            // Get CSS file's contents
+            const css = theme.css[i],
+                  style = group.childNodes[i]
+
             readFile(getCssPath(theme, css), { encoding: 'utf8' }, (e, d) => {
-                // And throw any errors
                 if(e) throw e
-                // Set it as style element's content
+
                 style.innerHTML = d
             })
         }

@@ -10,7 +10,7 @@ module.exports = class SettingsManager {
     constructor() {
         // Sets settings directory as `~/.reguilded/settings`
         this.directory = join(__dirname, "../../settings");
-        // Set its configuration
+
         this.config = require(join(this.directory, "settings.json"));
     }
 
@@ -45,12 +45,12 @@ module.exports = class SettingsManager {
      * @returns Property's value
      */
     getValueTyped(prop, type) {
-        // Gets property's value
         const value = this.getValue(prop);
+
         // Check if it's instance of type or type of value is given type
         if ((typeof type === "string" && typeof value !== type) || (typeof type === 'function' && !(value instanceof type)))
             throw new TypeError(`Expected property '${prop}' to be instance of '${type}' in configuration`);
-        // Returns the value of the property
+
         return value;
     }
 };

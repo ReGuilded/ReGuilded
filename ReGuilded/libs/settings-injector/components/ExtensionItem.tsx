@@ -2,22 +2,18 @@
 import ActionMenu from "./menu/ActionMenu";
 import ActionSection from "./menu/ActionSection";
 import ActionItem from "./menu/ActionItem";
-import ToggleField from "./menu/ToggleField";
+import SimpleToggle from "./menu/SimpleToggle"
 import createOptions from "../createOptions";
-
-const childProcess = require("child_process");
+import childProcess from "child_process";
 
 // @ts-ignore
 export default function ExtensionItem({ id, name, description, enabled, onToggle, type, fp, dirname, children = null }): React.Component {
-    // Creates menu for the extension
+    
     const createMenu = e => {
-        // Create menu component instance
+        // For addon/theme settings and actions
         const menu =
         <ActionMenu>
             <ActionSection>
-                <ToggleField toggled={enabled} onToggle={onToggle}>
-                    Enabled
-                </ToggleField>
             </ActionSection>
             <ActionSection>
                 <ActionItem icon="edit" onClick={() => childProcess.exec(`start "" "${fp}"`)}>Edit source</ActionItem>
@@ -25,7 +21,7 @@ export default function ExtensionItem({ id, name, description, enabled, onToggle
             </ActionSection>
             { children }
         </ActionMenu>
-        // Render it in Guilded portal
+
         createOptions(e.screenX, e.screenY, menu)
     }
     return (
@@ -45,6 +41,13 @@ export default function ExtensionItem({ id, name, description, enabled, onToggle
                                 {name}
                             </span>
                         </h1>
+                        <div className="ReGuildexExtension-manage">
+                            <SimpleToggle
+                                onChange={onToggle}
+                                defaultValue={enabled}
+                                isDisabled={false}
+                                label="Enabled"/>
+                        </div>
                         <div className="ReGuildedExtension-info">
                             <div className="DocSummaryInfo-subtitle ReGuildedExtension-subtitle">
                                 Id: {id}
@@ -53,7 +56,7 @@ export default function ExtensionItem({ id, name, description, enabled, onToggle
                     </div>
                     {/* Overflow */}
                     <div onClick={createMenu} className="ContextMenuTrigger-container ContextMenuTrigger-container-desktop DocDisplayItem-overflow-icon ReGuildedExtension-overflow-icon">
-                        <GuildedSvg name="overflow" className="ContextMenuTrigger-icon"></GuildedSvg>
+                        <GuildedSvg iconName="icon-overflow"/>
                     </div>
                 </div>
             </div>

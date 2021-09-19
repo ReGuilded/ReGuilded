@@ -17,16 +17,16 @@ module.exports.genBadgeGetter = (defaultBadges) =>
     function badges() {
         // Calls default badge getter
         const globalBadges = defaultBadges.call(this);
-        // Gets ID of this user
+
         const userId = this.userInfo.id
-        // Create ReGuilded badge list
+
         const reguildedBadges = []
-        // Get each available badge
+
         for(let badgeName of Object.keys(module.exports.members))
             // Add a badge if this user holds it
             if(module.exports.members[badgeName].includes(userId))
                 reguildedBadges.push(module.exports.all[badgeName])
-        // Return the original array concat'ed with ReGuilded badge array
+
         return (globalBadges || []).concat(reguildedBadges);
     };
 

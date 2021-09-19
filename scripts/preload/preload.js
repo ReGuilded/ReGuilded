@@ -41,13 +41,13 @@ function setPush(obj) {
 }
 
 document.addEventListener("readystatechange", () => {
-    // When document is interactive, start loading JS stuff
+    // To wait for the bundle to be created
     if (document.readyState === "interactive")
         // Wait when bundle loads
         global.bundle.addEventListener("load", () => {
             // Saves the old push
             global.webpackJsonp._push = global.webpackJsonp.push;
-            // Replaces the push function with injected
+
             setPush({
                 get: () => webpackPush.bind(global.webpackJsonp),
                 set: (value) => setPush({get: () => value})

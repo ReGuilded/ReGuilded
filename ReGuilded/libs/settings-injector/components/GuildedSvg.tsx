@@ -1,9 +1,9 @@
-export default function GuildedSvg({name, className}: {name: string, className?: string}): React.Component {
-    return (
-        <div className={"SVGIcon-container " + (className ? className : "")}>
-            <svg className={"icon SVGIcon-icon icon-" + name} shape-rendering="geometricPrecision" role="img">
-                <use xmlSpace="http://www.w3.org/1999/xlink" xlinkHref={"#icon-" + name}></use>
-            </svg>
-        </div>
-    )
+declare interface GuildedSvg {
+    /**
+     * The name of the icon.
+     * @example "icon-hashtag-new"
+     */
+    iconName: string
 }
+const _: (props: GuildedSvg) => React.Component = ReGuilded.webpackManager.withClassProperty("iconComponentProps")[0]?.exports?.default;
+export default _;

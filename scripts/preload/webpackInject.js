@@ -9,20 +9,20 @@ function webpackModule(index, svgModule) {
     const [ [svgId], svgFunctions ] = svgModule
     const svgMain = Object.keys(svgFunctions)[0];
     console.log("SVG Module Id:", svgId, "\nSVG Module Function:", svgMain, "\nSVG Module:", svgModule);
-    // Returns the new module
+
     return [
         [svgId],
         {
             [svgMain]: function (module, exports, webpackRequire) {
-                // Makes webpackRequire globally available
                 global.webpackRequire = webpackRequire;
-                // Immediately remove itself
+                // Replace itself with old module
                 global.webpackJsonp.splice(index, 1);
-                // Replace itself with old SVG module
                 global.webpackJsonp._push(svgModule);
+
                 // Calls SVG module to export to this module's exports
                 svgModule[1][svgMain](module, exports, webpackRequire);
                 console.log("Webpack injection with module:", module);
+
                 // Make sure Bundle doesn't fail because of ReGuilded and wait for other modules
                 setImmediate(() => {
                     console.log("Initializing ReGuilded");
@@ -41,7 +41,7 @@ function push(mod) {
     if (typeof mod === "undefined") return;
     // Pushes fake module instead
     this._push(webpackModule(window.webpackJsonp.length, mod));
-    // Changes fake push to normal push
+
     this.push = this._push
 }
 module.exports = push;

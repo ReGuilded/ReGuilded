@@ -61,11 +61,10 @@ function ThemeItem({ id, name, css: cssList, dirname, description }): React.Comp
     // Match all of our variables in and place them in an array
     const variables: [line: string, propName: string, propValue: string][] =
         React.useMemo(() => [...data.matchAll(/--(\S+?):(?:\s*)?(\S*?);/g)]);
-    // Checks if the theme is enabled
+
     const themeEnabled: boolean = ~ReGuilded.themesManager.enabled.indexOf(id)
     
     function handleEnabledStateChanged(state): void {
-        // Get the config object
         const config = ReGuilded.settingsManager.config.themes;
         const themes = ReGuilded.themesManager;
         
@@ -130,60 +129,3 @@ export default function ThemeSettings(): React.ReactElement {
         </ErrorBoundary>
     );
 }
-
-// // A simple try parser
-// function tryParseJson(jsonData: string, fallback: object): object {
-//     try { return JSON.parse(jsonData); }
-//     catch(e) { return fallback; }
-// }
-//
-// type ThemesOverrideInterfaceState = {
-//     overrides: {};
-// }
-//
-// // @ts-ignore
-// // The interface component that will override the styles
-// export class ThemesOverridesInterface extends React.Component<null, ThemesOverrideInterfaceState> {
-//     // The singleton instance
-//     static instance: ThemesOverridesInterface;
-//
-//     // The CSS overrides json file path
-//     static fp: string = path.join(ReGuilded.settingsManager.directory, "cssOverrides.json");
-//    
-//     // Read the data once from the overrides
-//     // If the file exists, return its data as utf-8
-//     // Else, create the file and return an empty JSON object as string
-//     static rawData: string =
-//         fs.existsSync(ThemesOverridesInterface.fp)
-//             ? fs.readFileSync(ThemesOverridesInterface.fp, "utf8")
-//             : (fs.writeFileSync(ThemesOverridesInterface.fp, "{}", { encoding: "utf8" }), "{}");
-//     // Try to parse our JSON data
-//     static data: object = tryParseJson(ThemesOverridesInterface.rawData, {});
-//    
-//     static save(): void {
-//        
-//     }
-//    
-//     state: ThemesOverrideInterfaceState;
-//
-//     componentDidMount(): void {
-//         // Set our singleton reference
-//         ThemesOverridesInterface.instance = this;
-//        
-//         // Set our initial state
-//         this.setState({
-//             overrides: ThemesOverridesInterface.data
-//         });
-//     }
-//
-//     render() {
-//         const { overrides } = this.state;
-//        
-//         return (
-//             <style id="ReGuildedThemesOverrideInterface">
-//                 { Object.entries(overrides).map(([propName, propValue]) =>
-//                     `--${propName}:${propValue};`) }
-//             </style>
-//         );
-//     }
-// }

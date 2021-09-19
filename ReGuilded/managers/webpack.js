@@ -37,8 +37,8 @@ module.exports = class WebpackManager {
      */
     withCode(code) {
         return this.withFilter((x) => {
-            // Getss it as ES module
             const { default: fn } = this.asEsModule(x.exports);
+
             // Checks if it is a function and has part of the code
             return typeof fn === "function" && fn.toString().includes(code);
         });
@@ -50,8 +50,8 @@ module.exports = class WebpackManager {
      */
     withProperty(name) {
         return this.withFilter((x) => {
-            // Gets it as ES Module
             const { default: obj, ...rest } = this.asEsModule(x.exports);
+
             // Returns whether it contains that property
             return obj && (obj[name] || rest[name]);
         });
@@ -65,11 +65,11 @@ module.exports = class WebpackManager {
         return this.withFilter((x) => {
             // Current object to look at
             const current = x.exports;
-            // Iterates through each property name/index
+
             for(let name of props) {
-                // If it doesn't exist, ignore it
                 if(!(current[name])) return false;
-                // Changes current path's object
+
+                // Go deeper
                 current = current[name];
             }
             // If no issues were found, return true
@@ -83,8 +83,8 @@ module.exports = class WebpackManager {
      */
     withClassProperty(name) {
         return this.withFilter((x) => {
-            // Fetches the type
             const { default: type } = this.asEsModule(x.exports);
+
             // Checks if it's a function with property in prototypes
             return typeof type === "function" && type.prototype && type.prototype?.hasOwnProperty?.(name);
         });
@@ -113,9 +113,8 @@ module.exports = class WebpackManager {
     removeModules(id) {
         // Filtered webpackJsonp without the module
         const filtered = global.webpackJsonp.filter((x) => x[0][0] !== id);
-        // Sets new webpackJsonp
+
         global.webpackJsonp = filtered;
-        // Returns webpackJsonp
         return filtered;
     }
 

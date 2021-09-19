@@ -20,7 +20,8 @@ export default new class Patcher {
     _patches: PatchData[] = [];
     
     getPatchesByCaller(caller: string): PatchChild[] {
-        if (!caller) return [];
+        if (!caller)
+            return [];
         
         const patches: PatchChild[] = [];
         for (const patch of this._patches)
@@ -33,7 +34,8 @@ export default new class Patcher {
     
     unpatchAll(caller: string): void {
         const patches: PatchChild[] = this.getPatchesByCaller(caller);
-        if (!patches.length) return;
+        if (!patches.length)
+            return;
         
         for (const patch of patches)
             patch.unpatch();
@@ -48,7 +50,8 @@ export default new class Patcher {
             const call = (childPatch: PatchChild, args: IArguments, type: string) => {
                 try {
                     const tempReturn: any = childPatch.callback(this, args, patch.originalFunction.bind(this));
-                    if (tempReturn !== undefined) returnValue = tempReturn;
+                    if (tempReturn !== undefined)
+                        returnValue = tempReturn;
                 }
                 catch (err) {
                     console.error("Patch:" + patch.functionName, "Type:" + type, err);
@@ -59,7 +62,8 @@ export default new class Patcher {
                 call(beforePatch, arguments, "before");
             
             const insteadPatches: PatchChild[] = patch.children.filter(e => e.type === "instead");
-            if (!insteadPatches.length) returnValue = patch.originalFunction.apply(this, arguments);
+            if (!insteadPatches.length)
+                returnValue = patch.originalFunction.apply(this, arguments);
             else for (const insteadPatch of insteadPatches)
                 call(insteadPatch, arguments, "instead");
             

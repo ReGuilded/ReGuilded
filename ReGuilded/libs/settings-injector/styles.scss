@@ -22,7 +22,7 @@
 
     .ExtensionItemsList {
       display: grid;
-      grid-template-columns: repeat(auto-fill, 500px);
+      grid-template-columns: repeat(auto-fill, 250px);
       grid-gap: 20px;
 
       width: 100%;
@@ -30,54 +30,6 @@
       .ReGuildedExtension-aspect-ratio {
         padding-bottom: 90%;
       }
-
-      // .Buttons {
-      //   display: flex;
-
-      //   .ButtonContainer {
-      //     position: relative;
-      //     border-radius: 4px;
-
-      //     padding: 0.5rem;
-          
-      //     &:hover {
-      //       background-color: rgba(white, 0.1);
-      //     }
-      //     &:hover:after {
-      //       opacity: 1;
-      //       transform: translateX(-50%);
-      //     }
-
-      //     &::after {
-      //       content: attr(data-tooltip);
-      //       display: block;
-
-      //       position: absolute;
-      //       bottom: 90%;
-      //       left: 50%;
-      //       transform: translateX(-50%) scale(0.75);
-      //       transform-origin: bottom;
-
-      //       padding: 8px;
-      //       border-radius: 4px;
-      //       background-color: #181a1e;
-      //       width: max-content;
-
-      //       opacity: 0;
-      //       transition: opacity $t, transform $t;
-
-      //       pointer-events: none;
-      //     }
-      //   }
-
-      //   .SVGIcon-container {
-      //     width: 2.4rem;
-      //     height: 2.4rem;
-
-      //     position: relative;
-      //     cursor: pointer;
-      //   }
-      // }
     }
 
     .ToggleSwitchContainer {

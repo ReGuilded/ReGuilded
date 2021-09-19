@@ -1,5 +1,4 @@
 export default function ActionMenu({ children = null }): React.Component {
-    // Replicate it the way Guilded does it
     return (
         // Boilerplate
         <div className="Overlay-status-context">

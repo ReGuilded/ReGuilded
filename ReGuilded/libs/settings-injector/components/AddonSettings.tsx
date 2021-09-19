@@ -1,8 +1,4 @@
 ﻿import ExtensionItem from "./ExtensionItem";
-import ActionMenu from "./menu/ActionMenu";
-import ActionSection from "./menu/ActionSection";
-import ActionItem from "./menu/ActionItem";
-import ToggleField from "./menu/ToggleField";
 
 const fs = require("fs");
 const path = require("path");
@@ -12,8 +8,8 @@ function AddonItem({ id, name, description }): React.Component {
     // Gets its main file and path
     const dirname: string = path.join(ReGuilded.addonManager.dirname, id);
     const fp: string = path.join(dirname, "main.js");
-    // Gets whether it's enabled
-    const addonEnabled: boolean = ReGuilded.addonManager.enabled.includes(id)
+    
+    const isEnabled: boolean = ReGuilded.addonManager.enabled.includes(id)
     // When disabled/enabled
     function handleEnabledStateChanged(state): void {
         // Get the config object
@@ -45,7 +41,7 @@ function AddonItem({ id, name, description }): React.Component {
         <ExtensionItem id={id} name={name} type="addon"
             description={description} fp={fp} dirname={dirname}
             onToggle={(_: MouseEvent, b: boolean) => handleEnabledStateChanged(b)}
-            enabled={addonEnabled}>
+            enabled={isEnabled}>
             {/* Overflow menu */}
         </ExtensionItem>
     )

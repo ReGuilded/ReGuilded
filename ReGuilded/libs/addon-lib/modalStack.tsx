@@ -45,7 +45,8 @@ export default class ModalStack extends React.Component<null, ModalStackState> {
         const modal = stack[stack.length - 1];
         
         // If there is nothing to close, return
-        if (!stack.length || !modal) return;
+        if (!stack.length || !modal)
+            return;
         
         // Push our closing state, to activate the transition
         this.instance.setState({ closing: [...closing, modal] });
@@ -69,7 +70,8 @@ export default class ModalStack extends React.Component<null, ModalStackState> {
     // Handle the backdrop click, to close the last modal
     handleBackDropClick(e: MouseEvent): void {
         // Ensure it's actually the backdrop and not a child
-        if (e.target !== e.currentTarget) return;
+        if (e.target !== e.currentTarget)
+            return;
         
         // K I L L
         ModalStack.pop();

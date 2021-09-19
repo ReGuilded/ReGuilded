@@ -29,7 +29,8 @@ module.exports = class ExtensionManager extends EventEmitter {
                 // Removes correct parts of the ID
                 .replace(module.exports.idRegex, "").length === 0
         );
-        if (!isId) throw new Error(`Incorrect syntax of the property 'id'.`);
+        if (!isId)
+            throw new Error(`Incorrect syntax of the property 'id'.`);
     }
     /**
      * Gets a list of extensions.
@@ -37,11 +38,9 @@ module.exports = class ExtensionManager extends EventEmitter {
      * @returns A list of extension directories
      */
     getDirs(enabled = []) {
-        // Create extensions array
         this.all = [];
-        // Sets enabled extensions
         this.enabled = enabled;
-        // Gets all files in extensions directory
+
         return fs.readdirSync(this.dirname, { withFileTypes: true }).filter((x) => x.isDirectory());
     }
     /**
@@ -67,10 +66,9 @@ module.exports = class ExtensionManager extends EventEmitter {
      * Loads all ReGuilded extensions onto Guilded.
      */
     loadAll() {
-        // Loads all found enabled extensions
         for (let ext of this.enabled) {
             const extension = this.all.find(x => x.id === ext);
-            // Make sure it exists
+
             if(extension) this.load(extension);
         }
     }
@@ -78,8 +76,8 @@ module.exports = class ExtensionManager extends EventEmitter {
      * Removes ReGuilded themes from Guilded.
      */
     unloadAll() {
-        // Get all existing extensions
         const existing = this.all.map(x => x.id);
+
         // Unload all existing extensions
         for (let id of this.enabled)
             if(existing.contains(id))
