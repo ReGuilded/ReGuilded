@@ -11,7 +11,7 @@ function AddonItem({ id, name, description }): React.Component {
     
     const isEnabled: boolean = ReGuilded.addonManager.enabled.includes(id)
     // When disabled/enabled
-    function handleEnabledStateChanged(state): void {
+    function handleEnabledStateChanged(state: boolean): void {
         // Get the config object
         const config = ReGuilded.settingsManager.config.addons;
         const addons = ReGuilded.addonManager;
@@ -40,7 +40,7 @@ function AddonItem({ id, name, description }): React.Component {
     return (
         <ExtensionItem id={id} name={name} type="addon"
             description={description} fp={fp} dirname={dirname}
-            onToggle={(_: MouseEvent, b: boolean) => handleEnabledStateChanged(b)}
+            onToggle={handleEnabledStateChanged}
             enabled={isEnabled}>
             {/* Overflow menu */}
         </ExtensionItem>

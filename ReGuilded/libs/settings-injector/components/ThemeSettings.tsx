@@ -64,10 +64,10 @@ function ThemeItem({ id, name, css: cssList, dirname, description }): React.Comp
 
     const themeEnabled: boolean = ~ReGuilded.themesManager.enabled.indexOf(id)
     
-    function handleEnabledStateChanged(state): void {
+    function handleEnabledStateChanged(state: boolean): void {
         const config = ReGuilded.settingsManager.config.themes;
         const themes = ReGuilded.themesManager;
-        
+
         // The new state is true, enable the theme and add it to the config
         if (state) {
             ReGuilded.themesManager.load(ReGuilded.themesManager.all.find(theme => theme.id === id));
@@ -96,7 +96,7 @@ function ThemeItem({ id, name, css: cssList, dirname, description }): React.Comp
         <ErrorBoundary>
             <ExtensionItem id={id} name={name} type="theme"
                 description={description} fp={fp} dirname={dirname}
-                onToggle={(_: MouseEvent, b: boolean) => handleEnabledStateChanged(b)}
+                onToggle={handleEnabledStateChanged}
                 enabled={themeEnabled}>
                 {/* Overflow menu */}
                 <ActionSection>
