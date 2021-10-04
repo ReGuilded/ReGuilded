@@ -60,6 +60,7 @@ module.exports = class AddonManager extends ExtensionManager {
                 // If the addon is in the list of all loaded addons, remove it
                 ~this.all.indexOf(loaded[dir]) && this.all.splice(this.all.indexOf(loaded[dir]), 1);
 
+                // Get the main.js file path, and if it doesn't exist, ignore it
                 const mainPath = path.join(path.dirname(fp), "main.js");
                 if (!existsSync(mainPath)) return;
                 

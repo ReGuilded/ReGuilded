@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const EventEmitter = require("events");
+const { AddonManager } = require("./index");
 
 /**
  * Manages different components of ReGuilded to allow them to be extended.
@@ -57,8 +58,8 @@ module.exports = class ExtensionManager extends EventEmitter {
             this.allLoaded = true;
             this.emit("fullLoad", this.all);
             
-            // If this is the addon manager, load all addons
-            this instanceof AddonManager && this.loadAll();
+            // Load all addons
+            this.loadAll();
         }
     }
 

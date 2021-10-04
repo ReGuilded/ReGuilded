@@ -1,0 +1,7 @@
+{
+  "name": "Testing Thing",
+  "id": "testo",
+  "description": "Test Addon",
+  "main": "main.js",
+  "author": ["R40Mp0Wd"]
+}
