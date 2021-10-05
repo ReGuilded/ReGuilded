@@ -6,8 +6,21 @@ import SimpleToggle from "./menu/SimpleToggle"
 import createOptions from "../createOptions";
 import childProcess from "child_process";
 
-// @ts-ignore
-export default function ExtensionItem({ id, name, description, enabled, onToggle, type, fp, dirname, children = null }): React.Component {
+/**
+ * Creates a new extension wrapper component.
+ * @param {{
+ *     id: string,
+ *     name: string,
+ *     description: string?,
+ *     enabled: boolean,
+ *     onToggle: state => void,
+ *     type: string, fp: string,
+ *     dirname: string,
+ *     children: React.Component | React.Component[] | null
+ * }} props Component properties
+ * @returns {React.Component} New extension component
+ */
+export default function ExtensionItem({ id, name, description, enabled, onToggle, type, fp, dirname, children = null }) {
     
     const createMenu = e => {
         // For addon/theme settings and actions
@@ -16,8 +29,8 @@ export default function ExtensionItem({ id, name, description, enabled, onToggle
             <ActionSection>
             </ActionSection>
             <ActionSection>
-                <ActionItem icon="edit" onClick={() => childProcess.exec(`start "" "${fp}"`)}>Edit source</ActionItem>
-                <ActionItem icon="team-stream-popout" onClick={() => childProcess.exec(`start "" "${dirname}"`)}>Open directory</ActionItem>
+                <ActionItem icon="icon-edit" onClick={() => childProcess.exec(`start "" "${fp}"`)}>Edit source</ActionItem>
+                <ActionItem icon="icon-team-stream-popout" onClick={() => childProcess.exec(`start "" "${dirname}"`)}>Open directory</ActionItem>
             </ActionSection>
             { children }
         </ActionMenu>
@@ -56,7 +69,8 @@ export default function ExtensionItem({ id, name, description, enabled, onToggle
                     </div>
                     {/* Overflow */}
                     <div onClick={createMenu} className="ContextMenuTrigger-container ContextMenuTrigger-container-desktop DocDisplayItem-overflow-icon ReGuildedExtension-overflow-icon">
-                        <GuildedSvg iconName="icon-overflow"/>
+                        {/* ContextMenuTrigger-icon */}
+                        <GuildedSvg iconName="icon-overflow" className="ContextMenuTrigger-icon"/>
                     </div>
                 </div>
             </div>

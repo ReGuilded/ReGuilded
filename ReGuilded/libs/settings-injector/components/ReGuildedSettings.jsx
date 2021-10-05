@@ -1,5 +1,8 @@
-﻿// @ts-ignore
-export default function ReGuildedSettings(): React.Component {
+﻿/**
+ * Creates ReGuilded main settings component.
+ * @returns {React.Component} Settings component
+ */
+export default function ReGuildedSettings() {
     return (
         <div className="ReGuildedSettings MainSettings">
             <div className="SettingsGroup">

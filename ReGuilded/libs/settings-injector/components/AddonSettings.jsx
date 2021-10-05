@@ -1,17 +1,25 @@
 ﻿import ExtensionItem from "./ExtensionItem";
+import path from "path";
+import fs from "fs";
 
-const fs = require("fs");
-const path = require("path");
-
-// @ts-ignore
-function AddonItem({ id, name, description }): React.Component {
+/**
+ * Creates a new addon item component.
+ * @param { {id: string, name: string, description: string?} } props Component properties
+ * @returns {React.Component} Addon item component
+ */
+function AddonItem({ id, name, description }) {
     // Gets its main file and path
-    const dirname: string = path.join(ReGuilded.addonManager.dirname, id);
-    const fp: string = path.join(dirname, "main.js");
+    const dirname = path.join(ReGuilded.addonManager.dirname, id);
+    const fp = path.join(dirname, "main.js");
     
-    const isEnabled: boolean = ReGuilded.addonManager.enabled.includes(id)
+    /** @type {boolean} */
+    const isEnabled = ReGuilded.addonManager.enabled.includes(id)
     // When disabled/enabled
-    function handleEnabledStateChanged(state: boolean): void {
+    /**
+     * Enables or disables the addon based on the new value of the switch.
+     * @param {boolean} state The state of the switch
+     */
+    function handleEnabledStateChanged(state) {
         // Get the config object
         const config = ReGuilded.settingsManager.config.addons;
         const addons = ReGuilded.addonManager;
@@ -47,8 +55,11 @@ function AddonItem({ id, name, description }): React.Component {
     )
 }
 
-// @ts-ignore
-export default function AddonSettings(): React.Component {
+/**
+ * Creates a new addon settings component.
+ * @returns {React.Component} Addon settings component
+ */
+export default function AddonSettings() {
     const [addons, initAddons] = React.useState(ReGuilded.addonManager.all);
 
     return (

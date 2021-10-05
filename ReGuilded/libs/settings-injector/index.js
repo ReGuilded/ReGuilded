@@ -18,7 +18,7 @@ export const ThemeSettingsHandler = new class {
 
         // TODO update this spaghetti
         // Wait for all themes to be initialized
-        while (ReGuilded.themesManager.all.length < ReGuilded.themesManager.enabled.length)
+        while (ReGuilded.themesManager.enabled === void 0 || ReGuilded.themesManager.all.length < ReGuilded.themesManager.enabled.length)
             await new Promise(r => setTimeout(r, 250));
 
         // Initialize all of our themes

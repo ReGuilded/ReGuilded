@@ -1,4 +1,9 @@
-export default function ActionMenu({ children = null }): React.Component {
+/**
+ * Creates a new action menu for options and menus.
+ * @param {{children: React.Component | React.Component[]}} props Component properties
+ * @returns {React.Component} Action menu component
+ */
+export default function ActionMenu({ children = null }) {
     return (
         // Boilerplate
         <div className="Overlay-status-context">

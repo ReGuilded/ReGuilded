@@ -62,13 +62,11 @@ module.exports = class ReGuilded {
             enabledAddons = addonConfig.enabled;
 
         // Whether it should be initialized
-        if (enabledThemes.length !== 0)
-            this.themesManager.init(enabledThemes);
-
         this.webpackManager = new WebpackManager(webpackRequire);
-
+        
         this.loadBadges(this.webpackManager.userModel?.UserModel);
-
+        
+        this.themesManager.init(enabledThemes);
         this.addonManager.init(enabledAddons);
     }
 
