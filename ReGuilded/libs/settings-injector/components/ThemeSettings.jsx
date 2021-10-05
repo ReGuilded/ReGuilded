@@ -138,11 +138,14 @@ function ThemeItem({ id, name, css: cssList, dirname, description }) {
             <ExtensionItem id={id} name={name} type="theme"
                 description={description} fp={fp} dirname={dirname}
                 onToggle={handleEnabledStateChanged}
+                sections={[{
+                    name: "Theme",
+                    type: "rows",
+                    actions: [
+                        { label: "Settings", icon: "icon-settings", onAction: openThemeSettings.bind(null, variables, id) }
+                    ]
+                }]}
                 enabled={themeEnabled}>
-                {/* Overflow menu */}
-                <ActionSection>
-                    <ActionItem icon="icon-settings" onClick={openThemeSettings.bind(null, variables, id)}>Settings</ActionItem>
-                </ActionSection>
             </ExtensionItem>
         </ErrorBoundary>
     );
@@ -164,10 +167,7 @@ export default function ThemeSettings() {
                             { themes.map(theme => <ThemeItem key={theme.id} {...theme}/>) }
                         </div>
                     ) : (
-                        <div className="NullStateV2-container NullStateV2-container-size-md NullStateV2-container-alignment-center">
-                            <img className="NullStateV2-image" src="https://img.guildedcdn.com/asset/GenericMessages/nothing-here.png" />
-                            <div className="NullStateV2-title">There are no themes installed.</div>
-                        </div>
+                        <NullState type="nothing-here" title="There are no themes installed." subtitle="You have not installed any Guilded theme yet. Open up themes directory and install a theme." alignment="center" buttonText="Open directory" onClick={e => console.log('Null state button clicked', e)} />
                     ) }
                 </div>
             </div>

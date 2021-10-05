@@ -20,21 +20,29 @@ import childProcess from "child_process";
  * }} props Component properties
  * @returns {React.Component} New extension component
  */
-export default function ExtensionItem({ id, name, description, enabled, onToggle, type, fp, dirname, children = null }) {
+export default function ExtensionItem({ id, name, description, enabled, onToggle, type, fp, dirname, sections = null }) {
     
     const createMenu = e => {
         // For addon/theme settings and actions
         const menu =
-        <ActionMenu>
-            <ActionSection>
-            </ActionSection>
-            <ActionSection>
-                <ActionItem icon="icon-edit" onClick={() => childProcess.exec(`start "" "${fp}"`)}>Edit source</ActionItem>
-                <ActionItem icon="icon-team-stream-popout" onClick={() => childProcess.exec(`start "" "${dirname}"`)}>Open directory</ActionItem>
-            </ActionSection>
-            { children }
-        </ActionMenu>
-
+            <ActionMenu
+                onItemClick={e => e.onAction()}
+                menuSpecs={{
+                    id: "ExtensionMenu",
+                    sections: [
+                        {
+                            name: "Extension",
+                            header: "Extension",
+                            type: "rows",
+                            actions: [
+                                { label: "Edit source", icon: "icon-edit", onAction: () => childProcess.exec(`start "" "${fp}"`) },
+                                { label: "Open directory", icon: "icon-team-stream-popout", onAction: () => childProcesss.exec(`start "" "${dirname}"`) }
+                            ]
+                        }
+                    ].concat(sections || [])
+                }}/>
+        console.log('Created menu', menu)
+        console.log('Rendered', menu.render ? menu.render() : 'No render');
         createOptions(e.screenX, e.screenY, menu)
     }
     return (

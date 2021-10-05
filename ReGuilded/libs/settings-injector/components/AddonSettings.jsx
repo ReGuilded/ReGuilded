@@ -1,6 +1,8 @@
 ﻿import ExtensionItem from "./ExtensionItem";
+import NullState from "./NullState";
 import path from "path";
 import fs from "fs";
+
 
 /**
  * Creates a new addon item component.
@@ -70,9 +72,7 @@ export default function AddonSettings() {
                         { addons.map(addon => <AddonItem key={addon.id} {...addon}/>) }
                     </div>
                 ) : (
-                    <div className="NothingHere">
-                        There are no addons installed.
-                    </div>
+                    <NullState type="nothing-here" title="There are no addons installed." subtitle="You have not installed any ReGuilded add-on yet. To add one, click the button below and install add-ons in that directory." alignment="center" buttonText="Open directory" onClick={e => console.log('Null state button clicked', e)}/>
                 ) }
             </div>
         </div>

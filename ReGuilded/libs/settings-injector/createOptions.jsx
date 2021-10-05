@@ -11,7 +11,9 @@ export default function createOptions(x, y, menu) {
     const wrapper =
         <div className="PortalTarget-container TransientMenuPortalContext-target" style={{top: y + 10 + 'px', left: x + 10 + 'px'}}>
             <span className="Animatable-container Animatable-container-animated TransientMenu-container TransientMenu-container-style-default">
-                { menu }
+                <div className="Overlay-status-context">
+                    { menu }
+                </div>
             </span>
         </div>
     // Render it onto the container
