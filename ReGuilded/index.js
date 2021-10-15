@@ -1,6 +1,6 @@
 const { SettingsManager, ThemesManager, AddonManager, WebpackManager } = require("./managers");
 const { readFileSync } = require("fs");
-const badges = require('./badges.js');
+const { badges, flairs, all } = require('./badges-flairs.js');
 const { join } = require("path");
 
 /**
@@ -63,8 +63,8 @@ module.exports = class ReGuilded {
 
         // Whether it should be initialized
         this.webpackManager = new WebpackManager(webpackRequire);
-        
-        this.loadBadges(this.webpackManager.userModel?.UserModel);
+
+        this.loadUser(this.webpackManager.userModel?.UserModel);
         
         this.themesManager.init(enabledThemes);
         this.addonManager.init(enabledAddons);
@@ -79,15 +79,24 @@ module.exports = class ReGuilded {
     }
 
     /**
-     * Loads ReGuilded developer badges.
+     * Loads ReGuilded developer badges & contributor flairs.
      * @param {class} UserModel The class that represents user object.
      */
-    loadBadges(UserModel) {
+    loadUser(UserModel) {
         if (!UserModel)
             return;
-        
+
+        // Pushes RG Contributor Badge into the Global Flairs array, along with a Duplication Tooltip Handler from the Gil Gang flair.
+        const globalFlairsInfo = this.webpackManager.globalFlairs[0].exports;
+        const globalFlairsExtendedInfo = this.webpackManager.globalFlairs[1].exports;
+        globalFlairsInfo.default["rg_contrib"] = all.contrib
+        globalFlairsExtendedInfo.default["rg_contrib"] = globalFlairsExtendedInfo.default["gil_gang"];
+
         const badgeGetter = badges.genBadgeGetter(UserModel.prototype.__lookupGetter__("badges"));
+        const flairGetter = flairs.genFlairGetter(UserModel.prototype.__lookupGetter__("flairInfos"));
+
         // Adds ReGuilded developer badges
         badges.injectBadgeGetter(UserModel.prototype, badgeGetter);
+        flairs.injectFlairGetter(UserModel.prototype, flairGetter);
     }
 };

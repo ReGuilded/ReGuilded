@@ -156,6 +156,12 @@ module.exports = class WebpackManager {
         return exportsOf(this.withProperty("Webhook"));
     }
     /**
+     * The list of all global flairs display info.
+     */
+    get globalFlairs() {
+        return this.withProperty("guilded_gold_v1");
+    }
+    /**
      * Links to various Guilded help-center articles.
      */
     get guildedArticles() {
