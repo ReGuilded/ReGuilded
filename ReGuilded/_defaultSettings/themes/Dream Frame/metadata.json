@@ -2,6 +2,6 @@
   "name": "Dream Frame",
   "id": "dreamFrame",
   "description": "A ReGuilded Theme.",
-  "main": "DreamFrame.css",
-  "authors": ["xAY1P1RA"]
+  "files": "DreamFrame.css",
+  "authors": "xAY1P1RA"
 }
