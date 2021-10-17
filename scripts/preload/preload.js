@@ -1,7 +1,6 @@
-const copyDir = require("../../ReGuilded/libs/copy-dir");
 const { members } = require("../../ReGuilded/badges-flairs.js");
 const { ipcRenderer } = require("electron");
-const { access } = require("fs");
+const { access, mkdir, writeFile } = require("fs");
 const { join } = require("path");
 
 // Get ReGuilded's class.
@@ -11,15 +10,37 @@ const webpackPush = require("./webpackInject.js");
 
 let SettingsPromise = function handleSettings() {
     return new Promise((resolve, reject) => {
-        access(join(__dirname, "../../settings"), (err) => {
+        const settingsPath = join(__dirname, "../../settings");
+
+        access(settingsPath, err => {
             if (err) {
                 global.firstLaunch = true;
 
-                copyDir(join(__dirname, "../../ReGuilded", "_defaultSettings"), join(__dirname, "../../settings"), (err) => {
-                    if (err) return reject(err);
-                    console.log("Successfully dropped settings");
-                    resolve();
-                })
+                // Create ~/.reguilded/settings
+                mkdir(settingsPath, { recursive: true, }, (e, p) => {
+                    if (e) throw e;
+
+                    const settingsJson = JSON.stringify({
+                        themes: {
+                            enabled: []
+                        },
+                        addons: {
+                            enabled: []
+                        }
+                    });
+
+                    // Create settings.json, themes and addons, which are completely empty
+                    writeFile(join(p, "settings.json"), settingsJson, { encoding: 'utf8' }, e => {
+                        if (e) throw e;
+                    });
+                    // If more will be necessary, use for of
+                    mkdir(join(p, "themes"), e => {
+                        if (e) throw e
+                    });
+                    mkdir(join(p, "addons"), e => {
+                        if (e) throw e
+                    });
+                });
             } else resolve();
         });
     })
@@ -57,8 +78,8 @@ document.addEventListener("readystatechange", () => {
 
 // Fetches ReGuilded developer list
 fetch("https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuilded/wwwroot/maintainers.json")
-    .then((x) => x.json())
-    .then((x) => {
+    .then(x => x.json())
+    .then(x => {
         members.dev = x.developers;
         members.contrib = x.contributors;
     });
