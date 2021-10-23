@@ -115,39 +115,4 @@ module.exports = class AddonManager extends ExtensionManager {
             console.error("Failed to unload an add-on by ID", addon.id, e);
         }
     }
-
-    // REVIEW: Isn't used anymore, can be removed.
-    /**
-     * Reloads a ReGuilded add-on.
-     * @param {{id: String}} id id of add-on to reload on Guilded
-     */
-    reload(id) {
-        let addon = this.all.find(addon => addon.id === id);
-        if (!addon) addon = { name: `Invalid Add-on (${id})`, invalid: true };
-        
-        try {
-            if(addon.invalid) throw new Error("Not installed or loaded");
-            console.log("Reloading add-on by ID", id);
-            // Uninitialize addon
-            addon.uninit();
-
-            const cachedModules = Object.keys(require.cache)
-                                        .filter(moduleId => moduleId.match(new RegExp(`^${addon.dirname}`)));
-            cachedModules.forEach(moduleId => delete require.cache[moduleId]);
-            // Require main file
-            let reloadedAddon = require(join(addon.dirname, "main.js"));
-            // Check for ESM default module
-            if (typeof(reloadedAddon.preinit) !== "function" && reloadedAddon.default) reloadedAddon = reloadedAddon.default;
-            // Check if the preinit function still exists to prevent errors
-            if (typeof(reloadedAddon.preinit) === "function") {
-                // Pre-initialize add-on
-                reloadedAddon.preinit(this.parent, this);
-                // Initialize add-on
-                reloadedAddon.init(this.parent, this, this.parent.webpackManager);
-            }
-            else console.error("Add-on has no preinit function or is formatted invalidly!", addon.name);
-        } catch(e) {
-            console.error("Add-on failed to reload!", addon.name, e);
-        }
-    }
 };

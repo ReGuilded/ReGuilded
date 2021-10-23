@@ -142,29 +142,6 @@ module.exports = class ThemesManager extends ExtensionManager {
             delete require.cache[filePath];
         }
     }
-    /**
-     * Reloads a ReGuilded theme.
-     * @param {String} id The identifier of the theme
-     */
-    reload(id) {
-        console.log(`Reloading theme by ID '${id}`);
-
-        const theme = this.all.find((object) => object.id === id);
-
-        // Style group
-        const group = document.getElementById(`reGl-theme-${theme.id}`);
-
-        for (let i in theme.css) {
-            const css = theme.css[i],
-                  style = group.childNodes[i]
-
-            readFile(getCssPath(theme, css), { encoding: 'utf8' }, (e, d) => {
-                if(e) throw e
-
-                style.innerHTML = d
-            })
-        }
-    }
 
     /**
      * Checks if given theme based on ID is loaded.
