@@ -172,13 +172,16 @@ const SettingsInjector = new class extends BaseAddon {
         props.settingsOptions.sections.push({
             id: "reguilded",
             name: "ReGuilded",
-            actions: [{
-                id: "rgSettings",
-                label: "ReGuilded Settings",
-                Component: ReGuildedSettings
-            }, {
+            actions: [
+                // Not used due to lack of options. Will make a return in 0.0.4(or 5)-alpha
+                /*{
+                    id: "rgSettings",
+                    label: "Settings",
+                    Component: ReGuildedSettings
+                },*/
+                {
                 id: "rgAddons",
-                label: "Add-ons",
+                label: "Addons",
                 Component: AddonSettings
             }, {
                 id: "rgThemes",
