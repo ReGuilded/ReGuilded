@@ -52,7 +52,10 @@ module.exports = class ThemesManager extends ExtensionManager {
 
                 // Get the metadata.json file path, and if it doesn't exist, ignore it
                 const metadataPath = path.join(themePath, "metadata.json");
-                if (!existsSync(metadataPath)) return;
+                if (!existsSync(metadataPath)) {
+                    this.all.splice(this.all.find(metadata => metadata.dirname === themePath), 1);
+                    return;
+                }
 
                 // Require the metadata file.
                 const metadata = require(metadataPath);
@@ -60,8 +63,8 @@ module.exports = class ThemesManager extends ExtensionManager {
 
                 // If the theme is already loaded, unload it
                 loaded[dir] && this.unload(metadata);
-                // If the theme is in the list of all loaded themes, remove it
-                ~this.all.indexOf(loaded[dir]) && this.all.splice(this.all.indexOf(loaded[dir], 1))
+                // If the theme is in the list of all themes, remove it
+                ~this.all.indexOf(metadata) && this.all.splice(this.all.indexOf(metadata, 1))
 
                 const propFiles = typeof metadata.files === "string" ? [metadata.files] : metadata.files;
                 metadata.files = propFiles;
