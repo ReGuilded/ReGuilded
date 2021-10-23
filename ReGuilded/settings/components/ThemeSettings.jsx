@@ -186,7 +186,7 @@ export default function ThemeSettings() {
                     { themes.map(theme => <ThemeItem key={theme.id} {...theme}/>) }
                 </ExtensionGrid>
             ) : (
-                <NullState type="nothing-here" title="There are no themes installed." subtitle="You have not installed any Guilded theme yet. Open up theme directory and install a theme." alignment="center" />
+                <NullState type="nothing-here" title="There are no themes installed." subtitle="You have not installed any ReGuilded themes yet. To install a theme, put it in the themes directory." alignment="center" />
             ) }
         </ExtensionSettings>
     );
