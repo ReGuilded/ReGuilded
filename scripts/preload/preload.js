@@ -1,6 +1,6 @@
 const { members } = require("../../ReGuilded/badges-flairs.js");
-const { ipcRenderer } = require("electron");
 const { access, mkdir, writeFile } = require("fs");
+const { ipcRenderer } = require("electron");
 const { join } = require("path");
 
 // Get ReGuilded's class.

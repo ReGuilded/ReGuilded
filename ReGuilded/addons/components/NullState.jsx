@@ -1,4 +1,5 @@
 /**
+ * A null state screen when nothing has been found. Can optionally have a button and sub-title.
  * @type {(props: {
  *     type: string?,
  *     imageSrc: string?,
@@ -15,5 +16,6 @@
  *     customComponent: React.Component
  * }) => React.Component}
  */
-const _ = ReGuilded.webpackManager.withClassProperty("imageSrc")[0]?.exports?.default;
+const _ = window.ReGuilded.webpackManager.withClassProperty("imageSrc")?.default;
+
 export default _;

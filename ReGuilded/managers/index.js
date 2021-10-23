@@ -1,6 +1,7 @@
 module.exports = {
+    WebpackManager: require("../addons/webpack"),
+    AddonApi: require("../addons/addonApi"),
     SettingsManager: require("./settings"),
-    WebpackManager: require("./webpack"),
     ThemesManager: require("./themes"),
     AddonManager: require("./addon")
 }

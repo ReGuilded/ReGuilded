@@ -1,8 +1,10 @@
-﻿import ExtensionItem from "./ExtensionItem";
-import NullState from "./NullState";
+﻿import NullState from "../../addons/components/NullState.jsx";
+//import ErrorBoundary from "./ErrorBoundary.jsx";
+import ExtensionItem from "./ExtensionItem.jsx";
 import path from "path";
 import fs from "fs";
-
+import ExtensionSettings from './ExtensionSettings.jsx';
+import ExtensionGrid from './ExtensionGrid.jsx';
 
 /**
  * Creates a new addon item component.
@@ -65,16 +67,15 @@ export default function AddonSettings() {
     const [addons, initAddons] = React.useState(ReGuilded.addonManager.all);
 
     return (
-        <div className="ReGuildedSettings AddonSettings">
-            <div className="SettingsGroup">
-                { addons.length ? (
-                    <div className="ExtensionItemsList">
-                        { addons.map(addon => <AddonItem key={addon.id} {...addon}/>) }
-                    </div>
-                ) : (
-                    <NullState type="nothing-here" title="There are no addons installed." subtitle="You have not installed any ReGuilded add-on yet. To add one, click the button below and install add-ons in that directory." alignment="center" buttonText="Open directory" onClick={e => console.log('Null state button clicked', e)}/>
-                ) }
-            </div>
-        </div>
+        <ExtensionSettings type="addon">
+            { addons.length ? (
+                <ExtensionGrid type="addon">
+                    { addons.map(addon => <AddonItem key={addon.id} {...addon}/>) }
+                </ExtensionGrid>
+            ) : (
+                // buttonText="" onClick={e => ...}
+                <NullState type="nothing-here" title="There are no addons installed." subtitle="You have not installed any ReGuilded add-on yet. To add one, install an add-on in add-on directory." alignment="center"/>
+            ) }
+        </ExtensionSettings>
     );
 }

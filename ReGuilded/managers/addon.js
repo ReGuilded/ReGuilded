@@ -1,9 +1,8 @@
+const addonPreInit = require("../addons/addonPreinit.js");
+const { join, dirname, basename } = require("path");
 const ExtensionManager = require("./extension.js");
-const { existsSync } = require("fs");
-const compiler = require("../libs/compiler");
 const chokidar = require("../libs/chokidar");
-const path = require("path");
-const { join } = require("path");
+const { existsSync } = require("fs");
 const _module = require("module");
 
 /**
@@ -25,20 +24,14 @@ module.exports = class AddonManager extends ExtensionManager {
      * @param {String[]} enabled An array of enabled add-ons.
      */
     init(enabled = []) {
-        console.log("Initiating addon manager");
-        
         // Initialize these here instead of getDirs()
         this.all = [];
         this.enabled = enabled;
         
-        // Patch the requires
-        compiler.patchRequires();
-        
         // Try-catch; this should never throw errors
         try {
             // Initialize these
-            require("../libs/addon-lib");
-            require("../libs/settings-injector");
+            addonPreInit(this.parent.addonApi);
         }
         catch(e) {
             console.error("Failed to initialize the ReGuilded addon API!", e);
@@ -51,7 +44,7 @@ module.exports = class AddonManager extends ExtensionManager {
         const deBouncers = {};
         // Watch the directory for any file changes
         chokidar.watch(this.dirname).on("all", (type, fp) => {
-            const dir = path.basename(path.dirname(fp));
+            const dir = basename(dirname(fp));
             // Initialize the de-bouncer
             clearTimeout(deBouncers[dir]);
             deBouncers[dir] = setTimeout(() => {
@@ -61,7 +54,7 @@ module.exports = class AddonManager extends ExtensionManager {
                 ~this.all.indexOf(loaded[dir]) && this.all.splice(this.all.indexOf(loaded[dir]), 1);
 
                 // Get the main.js file path, and if it doesn't exist, ignore it
-                const mainPath = path.join(path.dirname(fp), "main.js");
+                const mainPath = join(dirname(fp), "main.js");
                 if (!existsSync(mainPath)) return;
                 
                 // Compile the main.js file
@@ -72,7 +65,7 @@ module.exports = class AddonManager extends ExtensionManager {
                 if (typeof(main.preinit) === "function") {
                     main.preinit(this.parent, this);
                     // For later re-use
-                    main.dirname = path.dirname(fp);
+                    main.dirname = dirname(fp);
 
                     this.all.push(main);
                     

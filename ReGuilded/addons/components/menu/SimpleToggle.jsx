@@ -7,5 +7,6 @@
  *     label: string?
  * }) => React.Component}
  */
-const _ = ReGuilded.webpackManager.withClassProperty("input")[0]?.exports?.default;
+const _ = window.ReGuilded.webpackManager.withClassProperty("input")?.default;
+
 export default _;

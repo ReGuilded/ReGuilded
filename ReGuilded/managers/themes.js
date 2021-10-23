@@ -13,7 +13,6 @@ module.exports = class ThemesManager extends ExtensionManager {
      */
     constructor(themesDir) {
         super(themesDir);
-        this.on("fullLoad", e => console.log("Full load"));
     }
 
     /**

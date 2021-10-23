@@ -1,7 +1,6 @@
-const fs = require("fs");
-const path = require("path");
 const EventEmitter = require("events");
-const { AddonManager } = require("./index");
+const path = require("path");
+const fs = require("fs");
 
 /**
  * Manages different components of ReGuilded to allow them to be extended.
@@ -26,9 +25,7 @@ module.exports = class ExtensionManager extends EventEmitter {
         const isId = (
             typeof id === "string" &&
             // Checks if it's empty
-            id
-                // Removes correct parts of the ID
-                .replace(module.exports.idRegex, "").length === 0
+            id.replace(module.exports.idRegex, "").length === 0
         );
         if (!isId)
             throw new Error(`Incorrect syntax of the property 'id'.`);
@@ -51,15 +48,10 @@ module.exports = class ExtensionManager extends EventEmitter {
      */
     checkLoaded(index, totalLength) {
         // Ensure this is the last extension and that we haven't already tripped the event
-        if (totalLength - 1 === index && !this.allLoaded) {
-            console.log('All loaded', index, totalLength);
-            
+        if (totalLength - 1 == index && !this.allLoaded) {
             // Trip the event
             this.allLoaded = true;
             this.emit("fullLoad", this.all);
-            
-            // Load all addons
-            this.loadAll();
         }
     }
 

@@ -3,5 +3,6 @@
  * @example new GuildedSvg({iconName: "icon-hashtag-new"})
  * @type {(props: {iconName: string}) => React.Component}
  */
-const _ = ReGuilded.webpackManager.withClassProperty("iconComponentProps")[0]?.exports?.default;
-export default _;
+const _ = window.ReGuilded.webpackManager.withClassProperty("iconComponentProps")?.default;
+
+module.exports = _;

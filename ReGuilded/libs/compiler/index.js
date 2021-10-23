@@ -43,6 +43,7 @@ module.exports = {
         patchRequire((module, fp) => {
             // Get the module's source as string
             const content = fs.readFileSync(fp, "utf8");
+
             // If the import is a lib import, return it as normal
             if (/node_modules/.test(fp)) return module._compile(content, fp);
 
@@ -51,7 +52,7 @@ module.exports = {
 
             // Compile the transformed code
             module._compile(code, fp);
-        }, ".js", ".jsx", ".ts", ".tsx");
+        }, ".jsx", ".ts", ".tsx");
         
         // Patch Style-sheets
         patchRequire((module, file) => {

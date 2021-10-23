@@ -1,6 +1,3 @@
-global.React = window.React = ReGuilded.webpackManager.withProperty("createElement")[0].exports;
-global.ReactDOM = window.ReactDOM = ReGuilded.webpackManager.withProperty("createPortal")[0].exports;
-
 /**
  * The base addon class for ReGuilded addons.
  * @type {Window.BaseAddon}

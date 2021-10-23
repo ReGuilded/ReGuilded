@@ -1,8 +1,8 @@
-﻿import styles from "./styles.scss";
-import ReGuildedSettings from "./components/ReGuildedSettings";
-import AddonSettings from "./components/AddonSettings";
-import ThemeSettings from "./components/ThemeSettings";
-const {React, patchElementRenderer, patcher} = ReGuilded.addonLib;
+﻿import ReGuildedSettings from "./components/ReGuildedSettings.jsx";
+import AddonSettings from "./components/AddonSettings.jsx";
+import ThemeSettings from "./components/ThemeSettings.jsx";
+import { patchElementRenderer } from '../addons/lib.jsx';
+import patcher from "../addons/patcher";
 
 const path = require("path");
 const fs = require("fs");
@@ -16,27 +16,20 @@ export const ThemeSettingsHandler = new class {
         // Ensure we haven't already initialized
         if (this.initialized) return;
 
-        // TODO update this spaghetti
-        // Wait for all themes to be initialized
-        while (ReGuilded.themesManager.enabled === void 0 || ReGuilded.themesManager.all.length < ReGuilded.themesManager.enabled.length)
-            await new Promise(r => setTimeout(r, 250));
-
-        // Initialize all of our themes
-        this.reInitAll();
-
-        // Create our container and assign its ID
-        this.container = Object.assign(document.createElement("style"), {
-            id: "ReGuildedThemeSettingsOverride"
-        });
-
-        // Inject our container
-        document.head.appendChild(this.container);
-
-        // Set the window object, for testing mostly
-        // @ts-ignore
-        ReGuilded.themesManager.overridesHandler = this;
-
-        this.initialized = true;
+        ReGuilded.themesManager.on("fullLoad", () => {
+            this.container = Object.assign(document.createElement("style"), {
+                id: "ReGuildedThemeSettingsOverride"
+            });
+            
+            //this.reInitAll();
+            document.head.appendChild(this.container);
+            
+            // Set the window object, for testing mostly
+            // @ts-ignore
+            ReGuilded.themesManager.overridesHandler = this;
+            
+            this.initialized = true;
+        })
     }
 
     // Re-initialize all themes
@@ -82,16 +75,16 @@ export const ThemeSettingsHandler = new class {
     }
 
     render() {
-        this.container.textContent = `
-            #app {
-                ${Object.values(this.overrides)
-            .filter(({ id }) => ~ReGuilded.themesManager.enabled.indexOf(id))
-            .map(({ data }) =>
-                Object.entries(data).map(([propName, propValue]) =>
-                    `--${propName}:${propValue};`).join("")).join("")}
+        if (this.initialized)
+            this.container.textContent = `
+                #app {
+                    ${Object.values(this.overrides)
+                        .filter(({ id }) => ~ReGuilded.themesManager.enabled.indexOf(id))
+                        .map(({ data }) =>
+                        Object.entries(data).map(([propName, propValue]) =>
+                        `--${propName}:${propValue};`).join("")).join("")}
+                }`;
             }
-        `;
-    }
 }
 
 export class ThemeOverridesDictionary {
@@ -105,12 +98,17 @@ export class ThemeOverridesDictionary {
     }
 
     set(key, value) {
-        // Set the new value
         this.data[key] = value;
 
-        // Write the new data
+        // Write and render the new data
         this.serialize();
-        // Render the new data
+        ThemeSettingsHandler.render();
+    }
+    setAll(obj) {
+        Object.assign(this.data, obj);
+
+        // Write and render the new data
+        this.serialize();
         ThemeSettingsHandler.render();
     }
 
@@ -141,18 +139,15 @@ const SettingsInjector = new class extends BaseAddon {
     name = "Settings Injector";
     
     init() {
+        // Initialize overrides
+        ThemeSettingsHandler.init();
+
         // Patch the settings renderer
         patchElementRenderer(".SettingsMenu-container", this.id, "before", this.renderSettings.bind(this))
             // Then run this awful nightmare, since forceUpdate doesn't work
             .then(this.forceUpdateOverlay)
             // If an oopsies happens, notify us
             .catch(this.handleError.bind(this, "Failed to patch the settings renderer!"));
-        
-        // Inject our settings styles
-        styles.inject();
-        
-        // Initialize overrides
-        ThemeSettingsHandler.init();
     }
     
     // This gets the sub-category buttons, then clicks the second and back to the first
@@ -179,7 +174,7 @@ const SettingsInjector = new class extends BaseAddon {
             name: "ReGuilded",
             actions: [{
                 id: "rgSettings",
-                label: "Settings",
+                label: "ReGuilded Settings",
                 Component: ReGuildedSettings
             }, {
                 id: "rgAddons",
@@ -196,7 +191,6 @@ const SettingsInjector = new class extends BaseAddon {
     // Cleanup time, even though this probably never gets called, considering it's the settings
     uninit() {
         patcher.unpatchAll(this.id);
-        styles.uninject();
     }
 }
 

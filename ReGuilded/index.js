@@ -1,6 +1,6 @@
-const { SettingsManager, ThemesManager, AddonManager, WebpackManager } = require("./managers");
-const { readFileSync } = require("fs");
+const { SettingsManager, ThemesManager, AddonManager, WebpackManager, AddonApi } = require("./managers");
 const { badges, flairs, all } = require('./badges-flairs.js');
+const { readFileSync } = require("fs");
 const { join } = require("path");
 
 /**
@@ -63,6 +63,7 @@ module.exports = class ReGuilded {
 
         // Whether it should be initialized
         this.webpackManager = new WebpackManager(webpackRequire);
+        this.addonApi = new AddonApi(this.webpackManager, this.addonManager);
 
         this.loadUser(this.webpackManager.userModel?.UserModel);
         
