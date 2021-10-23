@@ -113,7 +113,6 @@ module.exports = class ThemesManager extends ExtensionManager {
             if (theme.source) {
                 const style = document.createElement("style");
                 style.classList.value = "reGl-css reGl-css-theme";
-                console.log(theme.source);
                 style.innerHTML = theme.source;
 
                 group.appendChild(style)
