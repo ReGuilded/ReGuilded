@@ -53,7 +53,7 @@ module.exports = class ThemesManager extends ExtensionManager {
                 // Get the metadata.json file path, and if it doesn't exist, ignore it
                 const metadataPath = path.join(themePath, "metadata.json");
                 if (!existsSync(metadataPath)) {
-                    this.all.splice(this.all.find(metadata => metadata.dirname === themePath), 1);
+                    this.all.find(metadata => metadata.dirname === themePath) !== undefined && this.all.splice(this.all.find(metadata => metadata.dirname === themePath), 1);
                     return;
                 }
 
