@@ -20,7 +20,8 @@ const cacheFns = {
     externalSiteInfo: webpack => webpack.withProperty("reddit"),
     gameList: webpack => webpack.withProperty("SearchableGames"),
     guildedArticles: webpack => webpack.withProperty("aboutURL"),
-    globalFlairs: webpack => webpack.withProperty("guilded_gold_v1"),
+    globalFlairsDisplayInfo: webpack => webpack.allWithProperty("guilded_gold_v1")[0],
+    globalFlairsTooltipInfo: webpack => webpack.allWithProperty("guilded_gold_v1")[1],
     socialMedia: webpack => webpack.withProperty("SocialMediaTypes"),
     externalSites: webpack => webpack.withProperty("ExternalSiteTypes"),
 
@@ -220,8 +221,14 @@ module.exports = class AddonApi {
     /**
      * The list of all global flairs display info.
      */
-    get globalFlairs() {
-        return this.getCached("globalFlairs");
+    get globalFlairsDisplayInfo() {
+        return this.getCached("globalFlairsDisplayInfo");
+    }
+    /**
+     * The list of all global flairs tooltip info.
+     */
+    get globalFlairsTooltipInfo() {
+        return this.getCached("globalFlairsTooltipInfo");
     }
     /**
      * Model class for groups.
