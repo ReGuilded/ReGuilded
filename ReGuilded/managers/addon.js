@@ -32,8 +32,7 @@ module.exports = class AddonManager extends ExtensionManager {
         try {
             // Initialize these
             addonPreInit(this.parent.addonApi);
-        }
-        catch(e) {
+        } catch(e) {
             console.error("Failed to initialize the ReGuilded addon API!", e);
         }
         
@@ -68,7 +67,9 @@ module.exports = class AddonManager extends ExtensionManager {
                     main.dirname = dirname(fp);
 
                     this.all.push(main);
-                    
+
+                    // TODO: Check Metadata ID with Enabled Array, if present, then continue.
+
                     // Emit the load event
                     this.emit("load", main);
 
@@ -82,6 +83,7 @@ module.exports = class AddonManager extends ExtensionManager {
             }, 250);
         });
     }
+
     /**
      * Loads a ReGuilded add-on.
      * @param {{id: String, name: String, init: Function, uninit: Function}} addon add-on to load onto Guilded
@@ -96,6 +98,7 @@ module.exports = class AddonManager extends ExtensionManager {
             console.error("Failed to load add-on by ID", addon.id, e);
         }
     }
+
     /**
      * Unloads/removes a ReGuilded add-on.
      * @param {{id: String, name: String, init: Function, uninit: Function}} addon add-on to load onto Guilded
@@ -108,11 +111,12 @@ module.exports = class AddonManager extends ExtensionManager {
             // Remove the addon from the cache
             const cache = Object.keys(_module._cache).filter(fp => ~fp.indexOf(addon.id));
             cache.forEach(entry => delete _module._cache[entry]);
-        }
-        catch (e) {
+        } catch (e) {
             console.error("Failed to unload an add-on by ID", addon.id, e);
         }
     }
+
+    // REVIEW: Isn't used anymore, can be removed.
     /**
      * Reloads a ReGuilded add-on.
      * @param {{id: String}} id id of add-on to reload on Guilded
