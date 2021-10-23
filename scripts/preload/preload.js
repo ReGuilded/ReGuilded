@@ -46,7 +46,6 @@ let SettingsPromise = function handleSettings() {
 };
 
 SettingsPromise().then(() => {
-    console.log("CREATING REGUILDED!");
     global.ReGuilded = new ReGuilded();
 
     const preload = ipcRenderer.sendSync("REGUILDED_GET_PRELOAD");
