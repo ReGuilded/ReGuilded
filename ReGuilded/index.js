@@ -73,7 +73,6 @@ module.exports = class ReGuilded {
      */
     loadUser(UserModel) {
         if (!UserModel) return;
-        console.log(UserModel);
 
         // Pushes RG Contributor Badge into the Global Flairs array, along with a Duplication Tooltip Handler from the Gil Gang flair.
         const globalFlairsInfo = this.addonApi.globalFlairsDisplayInfo;
