@@ -1,5 +1,6 @@
 const { SettingsManager, ThemesManager, AddonManager, WebpackManager, AddonApi } = require("./managers");
 const { badges, flairs, all } = require('./badges-flairs.js');
+const compiler = require("./libs/compiler");
 const { readFileSync } = require("fs");
 const { join } = require("path");
 
@@ -8,12 +9,13 @@ const { join } = require("path");
  */
 module.exports = class ReGuilded {
     /**
-     * A class that contains all of ReGuilded's configurations and settingss.
+     * A class that contains all of ReGuilded's configurations and settings.
      */
     constructor() {
         // Creates settings manager for configuration
         this.settingsManager = new SettingsManager();
 
+        // Creates Themes & Addons manager
         this.themesManager = new ThemesManager(this.settingsManager.getThemesDir());
         this.addonManager = new AddonManager(this.settingsManager.getAddonsDir(), this);
     }
@@ -23,41 +25,23 @@ module.exports = class ReGuilded {
      * @param {Function} webpackRequire A function that gets Guilded modules.
      */
     init(webpackRequire) {
-        if (global.firstLaunch) {
-            const welcomeModalStyleElement = Object.assign(document.createElement("style"), {
-                id: "rgWelcomeModal-style",
-                innerHTML: readFileSync(join(__dirname, "assets/welcomeModal.css")).toString()
-            });
-            document.body.appendChild(welcomeModalStyleElement);
+        // Handle First Launch popup
+        if (global.firstLaunch)
+            this.handleFirstLaunch();
 
-            const welcomeModalDivElement = Object.assign(document.createElement("div"), {
-                classList: ["ReGuildedWelcomeModal"],
-                id: "rgWelcomeModal",
-                innerHTML: readFileSync(join(__dirname, "assets/welcomeModal.html")).toString()
-            })
-            document.body.appendChild(welcomeModalDivElement);
-
-            function destroyIt() {
-                welcomeModalDivElement.classList.add("Despawning");
-                setTimeout(() => {
-                    welcomeModalDivElement.remove();
-                    welcomeModalStyleElement.remove();
-                }, 200);
-            }
-
-            const welcomeModalCloseElement = document.getElementById("rgWelcomeModalClose");
-            welcomeModalDivElement.addEventListener("click", destroyIt);
-            welcomeModalCloseElement.addEventListener("click", destroyIt);
-        }
+        // Patch the requires
+        compiler.patchRequires();
 
         // Adds Webpack stuff to addon manager
         this.addonManager.webpackRequire = webpackRequire;
         this.addonManager.webpackModules = webpackRequire.c;
         this.addonManager.webpackFunctions = webpackRequire.m;
 
+        // Declaring Themes & Addons config
         const themeConfig = this.settingsManager.getValueTyped("themes", "object"),
             addonConfig = this.settingsManager.getValueTyped("addons", "object");
 
+        // Declaring Enabling Themes & Addons
         const enabledThemes = themeConfig.enabled,
             enabledAddons = addonConfig.enabled;
 
@@ -65,11 +49,13 @@ module.exports = class ReGuilded {
         this.webpackManager = new WebpackManager(webpackRequire);
         this.addonApi = new AddonApi(this.webpackManager, this.addonManager);
 
-        this.loadUser(this.webpackManager.userModel?.UserModel);
+        // Load ReGuilded developer badges & contributor flairs
+        this.loadUser(this.addonApi.userModel?.UserModel);
 
         //const watermark = document.getElementsByClassName("icon SVGIcon-icon icon-logomark-and-wordmark");
         //watermark[0].style.fill = "#CC5555";
 
+        // Initialize both Themes & Addon manager, pass both enabled arrays into such
         this.themesManager.init(enabledThemes);
         this.addonManager.init(enabledAddons);
     }
@@ -87,20 +73,47 @@ module.exports = class ReGuilded {
      * @param {class} UserModel The class that represents user object.
      */
     loadUser(UserModel) {
-        if (!UserModel)
-            return;
+        if (!UserModel) return;
 
         // Pushes RG Contributor Badge into the Global Flairs array, along with a Duplication Tooltip Handler from the Gil Gang flair.
-        const globalFlairsInfo = this.webpackManager.globalFlairs[0].exports;
-        const globalFlairsExtendedInfo = this.webpackManager.globalFlairs[1].exports;
+        const globalFlairsInfo = this.addonApi.globalFlairsDisplayInfo;
+        const globalFlairsExtendedInfo = this.addonApi.globalFlairsTooltipInfo;
         globalFlairsInfo.default["rg_contrib"] = all.contrib
         globalFlairsExtendedInfo.default["rg_contrib"] = globalFlairsExtendedInfo.default["gil_gang"];
 
+        // Badge Getters.
         const badgeGetter = badges.genBadgeGetter(UserModel.prototype.__lookupGetter__("badges"));
         const flairGetter = flairs.genFlairGetter(UserModel.prototype.__lookupGetter__("flairInfos"));
 
         // Adds ReGuilded developer badges
         badges.injectBadgeGetter(UserModel.prototype, badgeGetter);
         flairs.injectFlairGetter(UserModel.prototype, flairGetter);
+    }
+
+    handleFirstLaunch() {
+        const welcomeModalStyleElement = Object.assign(document.createElement("style"), {
+            id: "rgWelcomeModal-style",
+            innerHTML: readFileSync(join(__dirname, "assets/welcomeModal.css")).toString()
+        });
+        document.body.appendChild(welcomeModalStyleElement);
+
+        const welcomeModalDivElement = Object.assign(document.createElement("div"), {
+            classList: ["ReGuildedWelcomeModal"],
+            id: "rgWelcomeModal",
+            innerHTML: readFileSync(join(__dirname, "assets/welcomeModal.html")).toString()
+        })
+        document.body.appendChild(welcomeModalDivElement);
+
+        function destroyIt() {
+            welcomeModalDivElement.classList.add("Despawning");
+            setTimeout(() => {
+                welcomeModalDivElement.remove();
+                welcomeModalStyleElement.remove();
+            }, 200);
+        }
+
+        const welcomeModalCloseElement = document.getElementById("rgWelcomeModalClose");
+        welcomeModalDivElement.addEventListener("click", destroyIt);
+        welcomeModalCloseElement.addEventListener("click", destroyIt);
     }
 };

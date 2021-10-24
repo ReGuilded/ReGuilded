@@ -45,7 +45,7 @@ logger.level = "debug";
             // Open the app Again after the injection task is done
             exec(platform.open);
 
-            logger.info("Task", taskArg, "has been successful press ctrl + c to close this"); //critcal code bug causes this to hang on windows so we have to close it manually and tell the user to do so
+            logger.info("Task", taskArg, "has been successful press ctrl + c to close this"); //critical code bug causes this to hang on windows so we have to close it manually and tell the user to do so
         } catch(err) {
             logger.error("Failed to do task", taskArg);
             logger.fatal(err);

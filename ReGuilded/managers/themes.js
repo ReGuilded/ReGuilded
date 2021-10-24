@@ -1,6 +1,7 @@
-const { existsSync, readFileSync, readFile, stat } = require("fs");
 const ExtensionManager = require("./extension.js");
-const { FileWatcher } = require("../utils");
+const { existsSync, readFile } = require("fs");
+const chokidar = require("../libs/chokidar");
+const _module = require("module");
 const path = require("path");
 
 /**
@@ -16,10 +17,12 @@ module.exports = class ThemesManager extends ExtensionManager {
     }
 
     /**
-     * Initiates themes and theme manager
-     * @param {String[]} enabled An array of enabled themes
+     * Initiates themes for ReGuilded and theme manager.
+     * @param {String[]} enabled An array of enabled themes.
      */
     init(enabled = []) {
+        console.log("Initiating theme manager");
+
         // Make sure <sgroup> elements are ignored
         const reGuildedGroup = document.createElement("sgroup");
         reGuildedGroup.id = "reGl-main";
@@ -29,89 +32,94 @@ module.exports = class ThemesManager extends ExtensionManager {
         reGuildedGroup.appendChild(reGuildedStyle)
         document.head.appendChild(reGuildedGroup)
 
-        const themes = super.getDirs(enabled);
 
-        for (let i in themes) {
-            const theme = themes[i],
-                  // Creates path to the Theme Directory
-                  themePath = super.getPath(theme.name),
-                  jsonPath = path.join(themePath, "theme.json");
+        // Initialize these here instead of getDirs()
+        this.all = [];
+        this.enabled = enabled;
 
-            // If json doesn't exist, ignore this directory
-            stat(jsonPath, (e, _) => {
-                checkTheme: {
-                    if (e) {
-                        // If it doesn't exist ignore it
-                        if (e.code === 'ENOENT') break checkTheme;
-                        else throw e;
-                    }
-                    const json = require(jsonPath);
-                    // For re-use
-                    json.dirname = themePath;
+        // Create a loaded dictionary, to replace the old index-based load checker,
+        // along with unloading when hot reloading
+        const loaded = {};
+        // Create a de-bouncer dictionary, to prevent lag from multi-loading
+        const deBouncers = {};
+        // Watch the directory for any file changes
+        chokidar.watch(this.dirname).on("all", (type, fp) => {
+            const dir = path.basename(path.dirname(fp));
+            // Initialize the de-bouncer
+            clearTimeout(deBouncers[dir]);
+            deBouncers[dir] = setTimeout(() => {
+                const themePath = super.getPath(dir);
 
-                    const propId = json.id;
-                    // Checks if ID is correct
-                    ExtensionManager.checkId(propId, jsonPath);
+                // Get the metadata.json file path, and if it doesn't exist, ignore it
+                const metadataPath = path.join(themePath, "metadata.json");
+                if (!existsSync(metadataPath)) {
+                    this.all.find(metadata => metadata.dirname === themePath) !== undefined && this.all.splice(this.all.index(this.all.find(metadata => metadata.dirname === themePath)), 1);
+                    return;
+                }
 
-                    const propCss = typeof json.css === "string" ? [json.css] : json.css;
+                // Require the metadata file.
+                const metadata = require(metadataPath);
+                metadata.dirname = themePath;
 
-                    // Since we turned string into single-item array,
-                    // we don't need to check for both types
-                    if(!Array.isArray(propCss))
-                        throw new TypeError(`Expected property 'css' to be either a string or an array. In path: ${jsonPath}`);
+                // If the theme is already loaded, unload it
+                loaded[dir] && this.unload(metadata);
+                // If the theme is in the list of all themes, remove it
+                ~this.all.indexOf(metadata) && this.all.splice(this.all.indexOf(metadata, 1));
 
-                    for(let css of propCss) {
-                        const cssPath = getCssPath(json, css);
+                const propFiles = typeof metadata.files === "string" ? [metadata.files] : metadata.files;
+                metadata.files = propFiles;
 
-                        if (!existsSync(cssPath))
-                            throw new Error(`Could not find CSS file in path ${cssPath}`);
-                    }
-                    // For later checks
-                    json.css = propCss
-                    
-                    this.all.push(json);
-                    // Loads it
-                    if(this.enabled.includes(propId)) {
-                        this.load(json);
-                        this.emit("load", json);
+                // Since we turned string into single-item array,
+                // we don't need to check for both types
+                if (!Array.isArray(propFiles))
+                    throw new TypeError(`Expected property 'files' to be either a string or an array. In path: ${metadataPath}`);
+
+                for (let file of propFiles) {
+                    const filePath = getCssPath(metadata, file);
+
+                    if (!existsSync(filePath))
+                        throw new Error(`Could not find CSS file in path ${filePath}`);
+
+                    this.all.push(metadata)
+
+                    if (this.enabled.includes(metadata.id)) {
+                        // Load the theme.
+                        this.load(metadata);
+
+                        loaded[dir] = metadata;
+
+                        // I... don't want to talk about this
+                        this.checkLoaded(Object.keys(loaded).filter(dir => ~enabled.indexOf(dir)).length - 1, enabled.length);
                     }
                 }
-                // Checks if it's the last item
-                this.checkLoaded(i, themes.length);
-            })
-        }
+            }, 250);
+        });
     }
 
     /**
      * Loads a ReGuilded theme
-     * @param {{id: String, name: String, dirname: String, css: String[]}} theme ReGuilded theme to load
+     * @param {{id: String, name: String, dirname: String, files: String[]}} metadata ReGuilded theme to load
      */
-    load(theme) {
-        console.log(`Loading theme by ID '${theme.id}'`);
-
-        // Theme watchers that will update the theme when it changes
-        theme.watchers = []
+    load(metadata) {
+        console.log(`Loading theme by ID '${metadata.id}'`);
 
         // Creates a new style element for that theme
         const group = document.createElement("sgroup");
-        group.id = `reGl-theme-${theme.id}`;
+        group.id = `reGl-theme-${metadata.id}`;
         group.classList.add("reGl-theme");
 
-        for(let css of theme.css) {
-            const cssPath = getCssPath(theme, css)
-            // Create watcher for this file
-            theme.watchers.push(new FileWatcher(cssPath, this.reload.bind(this), theme.id));
+        for (let file of metadata.files) {
+            const filePath = getCssPath(metadata, file);
 
-            readFile(cssPath, { encoding: 'utf8' }, (e, d) => {
+            const theme = require(filePath);
 
-                if(e) throw e
-                // Create style element based on each CSS file
+            if (theme.source) {
                 const style = document.createElement("style");
                 style.classList.value = "reGl-css reGl-css-theme";
-                style.innerHTML = d
+                style.innerHTML = theme.source;
 
                 group.appendChild(style)
-            })
+            }
         }
 
         document.body.appendChild(group);
@@ -119,36 +127,20 @@ module.exports = class ThemesManager extends ExtensionManager {
 
     /**
      * Unloads a ReGuilded theme.
-     * @param {String} theme ID of the theme to unload from Guilded.
+     * @param {{id: String, name: String, dirname: String, files: String[]}} metadata ID of the theme to unload from Guilded.
      */
-    unload(theme) {
-        console.log(`Unloading theme by ID '${theme}'`);
+    unload(metadata) {
+        console.log(`Unloading theme by ID '${metadata.id}'`);
 
         document
-            .querySelector(`body sgroup#reGl-theme-${theme}`)
+            .querySelector(`body sgroup#reGl-theme-${metadata.id}`)
             .remove();
-    }
-    /**
-     * Reloads a ReGuilded theme.
-     * @param {String} id The identifier of the theme
-     */
-    reload(id) {
-        console.log(`Reloading theme by ID '${id}`);
 
-        const theme = this.all.find((object) => object.id === id);
+        // Remove the theme files from the cache.
+        for (let file of metadata.files) {
+            const filePath = getCssPath(metadata, file);
 
-        // Style group
-        const group = document.getElementById(`reGl-theme-${theme.id}`);
-
-        for(let i in theme.css) {
-            const css = theme.css[i],
-                  style = group.childNodes[i]
-
-            readFile(getCssPath(theme, css), { encoding: 'utf8' }, (e, d) => {
-                if(e) throw e
-
-                style.innerHTML = d
-            })
+            delete require.cache[filePath];
         }
     }
 

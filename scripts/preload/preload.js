@@ -1,5 +1,6 @@
 const { members } = require("../../ReGuilded/badges-flairs.js");
-const { access, mkdir, writeFile } = require("fs");
+// const { promises as fs } =
+const { access, mkdir, writeFile } = require("fs").promises;
 const { ipcRenderer } = require("electron");
 const { join } = require("path");
 
@@ -12,39 +13,37 @@ let SettingsPromise = function handleSettings() {
     return new Promise((resolve, reject) => {
         const settingsPath = join(__dirname, "../../settings");
 
-        access(settingsPath, err => {
-            if (err) {
-                global.firstLaunch = true;
+        access(settingsPath).then(resolve).catch(e => {
+            if (!e || !e.code || e.code !== "ENOENT") {
+                reject(e);
+                return;
+            }
 
-                // Create ~/.reguilded/settings
-                mkdir(settingsPath, { recursive: true, }, (e, p) => {
-                    if (e) throw e;
+            // To do this properly, you're supposed to check the type of error. Fuck that, for now. Nah I'll fix it in a sec
+            global.firstLaunch = true;
 
-                    const settingsJson = JSON.stringify({
-                        themes: {
-                            enabled: []
-                        },
-                        addons: {
-                            enabled: []
-                        }
-                    });
-
-                    // Create settings.json, themes and addons, which are completely empty
-                    writeFile(join(p, "settings.json"), settingsJson, { encoding: 'utf8' }, e => {
-                        if (e) throw e;
-                    });
-                    // If more will be necessary, use for of
-                    mkdir(join(p, "themes"), e => {
-                        if (e) throw e
-                    });
-                    mkdir(join(p, "addons"), e => {
-                        if (e) throw e
-                    });
+            // Create ~/.reguilded/settings
+            mkdir(settingsPath, { recursive: true }).then(async () => {
+                const settingsJson = JSON.stringify({
+                    themes: {
+                        enabled: []
+                    },
+                    addons: {
+                        enabled: []
+                    }
                 });
-            } else resolve();
+
+                // Create the settings.json and an empty themes and addons folder
+                await writeFile(join(settingsPath, "settings.json"), settingsJson, {encoding: "utf-8"});
+                await mkdir(join(settingsPath, "themes"));
+                await mkdir(join(settingsPath, "addons"));
+
+                // Resolve
+                resolve();
+            });
         });
-    })
-}
+    });
+};
 
 SettingsPromise().then(() => {
     global.ReGuilded = new ReGuilded();
@@ -53,9 +52,7 @@ SettingsPromise().then(() => {
     if (preload) {
         require(preload);
     }
-}).catch((err) => {
-    console.error(err);
-});
+}).catch(console.error);
 
 function setPush(obj) {
     Object.defineProperty(global.webpackJsonp, "push", obj)

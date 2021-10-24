@@ -1,4 +1,5 @@
-﻿import { readFileSync, writeFileSync } from "fs";
+﻿import NullState from "../../addons/components/NullState.jsx";
+import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
 import ExtensionSettings from './ExtensionSettings.jsx';
@@ -103,17 +104,17 @@ function openThemeSettings(variables, id, name) {
 
 /**
  * Creates a new theme item component.
- * @param {{ id: string, name: string, css: string[], description: string?}} props Component properties
+ * @param {{ id: string, name: string, file: string[], description: string?}} props Component properties
  * @returns {React.Component} Theme item component
  */
-function ThemeItem({ id, name, css: cssList, dirname, description }) {
-    const css = cssList[0];
+function ThemeItem({ id, name, files: fileList, dirname, description }) {
+    const file = fileList[0];
     
     // Some memos, for that tasty performance boost that we don't need
     // Literally 0 reason to use a memo for this, but I did anyways
-    const fp = React.useMemo(() => join(dirname, css), [dirname, css]);
+    const fp = React.useMemo(() => join(dirname, file), [dirname, file]);
     // Get the source code and store it in a memo
-    const data = React.useMemo(() => readFileSync(fp, "utf8"), [dirname, css]);
+    const data = React.useMemo(() => readFileSync(fp, "utf8"), [dirname, file]);
     
     // Match all of our variables in and place them in an array
     /** @type {[line: string, propName: string, propValue: string]} */
@@ -131,15 +132,17 @@ function ThemeItem({ id, name, css: cssList, dirname, description }) {
         // FIXME: to get unloaded/loaded again when opening settings.
         const config = ReGuilded.settingsManager.config.themes;
         const themes = ReGuilded.themesManager;
-        
+
+        const themeObject = ReGuilded.themesManager.all.find(theme => theme.id === id);
+
         // The new state is true, enable the theme and add it to the config
         if (state) {
-            ReGuilded.themesManager.load(ReGuilded.themesManager.all.find(theme => theme.id === id));
+            ReGuilded.themesManager.load(themeObject);
             config.enabled = [...config.enabled, id];
         }
         // The state is false, disable the theme and remove it from the config
         else {
-            ReGuilded.themesManager.unload(id);
+            ReGuilded.themesManager.unload(themeObject);
             config.enabled = config.enabled.filter(_id => _id !== id);
         }
         
@@ -186,7 +189,7 @@ export default function ThemeSettings() {
                     { themes.map(theme => <ThemeItem key={theme.id} {...theme}/>) }
                 </ExtensionGrid>
             ) : (
-                <NullState type="nothing-here" title="There are no themes installed." subtitle="You have not installed any Guilded theme yet. Open up theme directory and install a theme." alignment="center" />
+                <NullState type="nothing-here" title="There are no themes installed." subtitle="You have not installed any ReGuilded themes yet. To install a theme, put it in the themes directory." alignment="center" />
             ) }
         </ExtensionSettings>
     );

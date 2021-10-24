@@ -74,7 +74,7 @@ export default function AddonSettings() {
                 </ExtensionGrid>
             ) : (
                 // buttonText="" onClick={e => ...}
-                <NullState type="nothing-here" title="There are no addons installed." subtitle="You have not installed any ReGuilded add-on yet. To add one, install an add-on in add-on directory." alignment="center"/>
+                <NullState type="nothing-here" title="There are no addons installed." subtitle="You have not installed any ReGuilded addons yet. To install an addon, put it in the addons directory." alignment="center"/>
             ) }
         </ExtensionSettings>
     );
