@@ -50,16 +50,15 @@ module.exports = class ReGuilded {
         this.addonApi = new AddonApi(this.webpackManager, this.addonManager);
 
         // Load ReGuilded developer badges & contributor flairs
-        this.loadUser(this.addonApi.userModel?.UserModel);
-
-        //const watermark = document.getElementsByClassName("icon SVGIcon-icon icon-logomark-and-wordmark");
-        //watermark[0].style.fill = "#CC5555";
+        this.loadUser(this.addonApi.UserModel);
 
         // Initialize both Themes & Addon manager, pass both enabled arrays into such
         this.themesManager.init(enabledThemes);
         this.addonManager.init(enabledAddons);
     }
 
+
+    // REVIEW: This should be called & ran when the user requests Guilded to fully exit.
     /**
      * Uninitiates ReGuilded
      */
@@ -74,6 +73,7 @@ module.exports = class ReGuilded {
      */
     loadUser(UserModel) {
         if (!UserModel) return;
+        console.log(UserModel);
 
         // Pushes RG Contributor Badge into the Global Flairs array, along with a Duplication Tooltip Handler from the Gil Gang flair.
         const globalFlairsInfo = this.addonApi.globalFlairsDisplayInfo;
