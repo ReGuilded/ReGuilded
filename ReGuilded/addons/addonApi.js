@@ -1,3 +1,5 @@
+//import { PrismGrammar, MenuSpecs } from './guildedTypes';
+
 // Provides API for addons to interact with Guilded.
 // TODO: Better documentation and probably TS declaration files.
 
@@ -12,7 +14,9 @@ const cacheFns = {
 
     // HTTP and WS
     restMethods: webpack => webpack.withProperty("getMe"),
-    methods: webpack => webpack.withProperty("GetChannels"),
+
+    // Management
+    channelManagement: webpack => webpack.withProperty("GetChannels"),
 
     // Guilded
     domainUri: webpack => webpack.withProperty("WebClient"),
@@ -44,33 +48,39 @@ const cacheFns = {
     profileSocialLinks: webpack => webpack.withProperty("SOCIAL_LINK_CONSTS_BY_TYPE"),
 
     // Models
-    teamModel: webpack => webpack.withClassProperty("_teamInfo"),
-    groupModel: webpack => webpack.withProperty("GroupModel"),
-    channelModel: webpack => webpack.withProperty("ChannelModel"),
+    TeamModel: webpack => webpack.withClassProperty("_teamInfo"),
+    GroupModel: webpack => webpack.withProperty("GroupModel"),
+    ChannelModel: webpack => webpack.withProperty("ChannelModel"),
 
-    userModel: webpack => webpack.withProperty("UserModel"),
-    memberModel: webpack => webpack.withProperty("MemberModel"),
-    profilePostModel: webpack => webpack.withClassProperty("_profilePostInfo"),
+    UserModel: webpack => webpack.withProperty("UserModel"),
+    MemberModel: webpack => webpack.withProperty("MemberModel"),
+    ProfilePostModel: webpack => webpack.withClassProperty("_profilePostInfo"),
 
-    eventModel: webpack => webpack.withClassProperty("_eventInfo"),
-    documentModel: webpack => webpack.withClassProperty("docInfo"),
-    listItemModel: webpack => webpack.withClassProperty("listItemInfo"),
-    messageModel: webpack => webpack.withClassProperty("chatMessageInfo"),
-    announcementModel: webpack => webpack.withClassProperty("_announcementInfo"),
+    EventModel: webpack => webpack.withClassProperty("_eventInfo"),
+    DocumentModel: webpack => webpack.withClassProperty("docInfo"),
+    ListItemModel: webpack => webpack.withClassProperty("listItemInfo"),
+    MessageModel: webpack => webpack.withClassProperty("chatMessageInfo"),
+    AnnouncementModel: webpack => webpack.withClassProperty("_announcementInfo"),
 
     // Editor and Rich text
+    prism: webpack => webpack.withProperty("highlightElement"),
     editorNodes: webpack => webpack.allWithProperty("editorTypes"),
     prismSettings: webpack => webpack.withProperty("PrismPlugins"),
     editorNodeInfos: webpack => webpack.withProperty("InsertPlugins"),
+    markdownGrammars: webpack => webpack.withProperty("WebhookEmbed"),
     languageCodes: webpack => webpack.withProperty("availableLanguageCodes"),
 
     // Components
+    Modal: webpack => webpack.withClassProperty("hasConfirm"),
     formFieldTypes: webpack => webpack.withProperty("Dropdown"),
+    NullState: webpack => webpack.withClassProperty("imageSrc"),
     draggable: webpack => webpack.withProperty("DraggableTypes"),
+    OverflowButton: webpack => webpack.withClassProperty("isOpen"),
     GuildedForm: webpack => webpack.withClassProperty("formValues"),
+    MarkdownRenderer: webpack => webpack.withClassProperty("plainText"),
     GuildedSvg: webpack => webpack.withClassProperty("iconComponentProps"),
+    ToggleField: webpack => webpack.withCode("ToggleFieldWrapper-container"),
     inputFieldValidations: webpack => webpack.withProperty("ValidateUserUrl"),
-    Modal: webpack => webpack.withClassProperty("hasConfirm")
 };
 
 module.exports = class AddonApi {
@@ -110,20 +120,29 @@ module.exports = class AddonApi {
             return this._cachedList.splice(i, 1)[0];
     }
 
+    // Additional stuff(ReGuilded only)
+    /**
+     * Renders provided Markdown plain text as a React element.
+     * @param {string} plainText Plain text formatted in Guilded-flavoured Markdown
+     * @returns {React.ReactElement} Rendered Markdown
+     */
+    renderMarkdown(plainText) {
+        return new this.MarkdownRenderer({ plainText, grammar: this.markdownGrammars.WebhookEmbed }).render();
+    }
 
 
     // Alphabetical, not categorized
     /**
      * Model class for announcement posts.
      */
-    get announcementModel() {
-        return this.getCached("announcementModel");
+    get AnnouncementModel() {
+        return this.getCached("AnnouncementModel")?.default;
     }
     /**
      * Model class for channels.
      */
-    get channelModel() {
-        return this.getCached("channelModel");
+    get ChannelModel() {
+        return this.getCached("ChannelModel")?.ChannelModel;
     }
     /**
      * The lengths of channel names, IDs and other things related to channel settings.
@@ -141,25 +160,31 @@ module.exports = class AddonApi {
      * Module with context of what channel client is looking at, channel messages, etc.
      */
     get chatContext() {
-        return this.getCached("chatContext");
+        return this.getCached("chatContext")?.default;
     }
     /**
      * Various methods related to cookies in the client.
      */
     get cookies() {
-        return this.getCached("cookies");
+        return this.getCached("cookies")?.default;
+    }
+    /**
+     * Gets the default title message for new documents.
+     */
+    get defaultDocTitle() {
+        return this.getCached("DocumentModel")?.DefaultDocTitle;
     }
     /**
      * Model class for document channel documents.
      */
-    get documentModel() {
-        return this.getCached("documentModel");
+    get DocumentModel() {
+        return this.getCached("DocumentModel")?.default;
     }
     /**
      * Links and information about guilded.gg domain.
      */
     get domainUri() {
-        return this.getCached("domainUri");
+        return this.getCached("domainUri")?.default;
     }
     /**
      * Draggable element names and infos.
@@ -181,59 +206,59 @@ module.exports = class AddonApi {
     get editorNodes() {
         return this.getCached("editorNodes");
     }
-    /**
-     * The configuration of all events. Event colours and more.
-     */
-    get eventConfig() {
-        return this.getCached("eventConfig");
-    }
+    // /**
+    //  * The configuration of all events. Event colours and more.
+    //  */
+    // get eventConfig() {
+    //     return this.getCached("eventConfig");
+    // }
     /**
      * Model class for calendar events.
      */
-    get eventModel() {
-        return this.getCached("eventModel");
+    get EventModel() {
+        return this.getCached("EventModel")?.default;
     }
     /**
      * The list of all external sites Guilded embeds support.
      */
     get externalSites() {
-        return this.getCached("externalSites");
+        return this.getCached("externalSites")?.default;
     }
     /**
      * Information about external sites Guilded embeds support, such as colours and icons.
      */
     get externalSiteInfo() {
-        return this.getCached("externalSiteInfo");
+        return this.getCached("externalSiteInfo")?.default;
     }
     /**
      * The list of supported games.
      */
     get gameList() {
-        return this.getCached("gameList");
+        return this.getCached("gameList")?.default;
     }
     /**
      * The list of all global badges.
      */
     get globalBadges() {
-        return this.getCached("globalBadges");
+        return this.getCached("globalBadges")?.default;
     }
     /**
      * The list of all global flairs display info.
      */
     get globalFlairs() {
-        return this.getCached("globalFlairs");
+        return this.getCached("globalFlairs")?.default;
     }
     /**
      * Model class for groups.
      */
-    get groupModel() {
-        return this.getCached("groupModel");
+    get GroupModel() {
+        return this.getCached("GroupModel")?.GroupModel;
     }
     /**
      * Links to various Guilded help-center articles.
      */
     get guildedArticles() {
-        return this.getCached("guildedArticles");
+        return this.getCached("guildedArticles")?.default;
     }
     get GuildedForm() {
         return this.getCached("GuildedForm")?.default;
@@ -256,16 +281,35 @@ module.exports = class AddonApi {
     /**
      * Model class for list channel items/tasks.
      */
-    get listItemModel() {
-        return this.getCached("listItemModel");
+    get ListItemModel() {
+        return this.getCached("ListItemModel")?.default;
     }
     
-    
+    /**
+     * A dictionary of Markdown grammars.
+     */
+    get markdownGrammars() {
+        return this.getCached("markdownGrammars")?.default;
+    }
+    /**
+     * Provides a component that displays Markdown plain text.
+     * @returns {(props: { plainText: string, grammar: PrismGrammar }) => React.Component}
+     */
+    get MarkdownRenderer() {
+        return this.getCached("MarkdownRenderer")?.default;
+    }
     /**
      * Model class for team members.
      */
-    get memberModel() {
-        return this.getCached("memberModel");
+    get MemberModel() {
+        return this.getCached("MemberModel")?.MemberModel;
+    }
+    /**
+     * Fetches a model for the given member.
+     * @returns {(memberInfo: {teamId: string, userId: string}) => MemberModel}
+     */
+    get getMemberModel() {
+        return this.getCached("MemberModel")?.getMemberModel;
     }
     /**
      * Captain, former member, admin, etc. infos and names.
@@ -276,17 +320,33 @@ module.exports = class AddonApi {
     /**
      * Model class for chat messages.
      */
-    get messageModel() {
-        return this.getCached("messageModel");
+    get MessageModel() {
+        return this.getCached("MessageModel")?.default;
     }
     /**
-     * Methods for getting and doing Guilded stuff.
+     * Methods related to channel management.
      */
-    get methods() {
-        return this.getCached("methods");
+    get channelManagement() {
+        return this.getCached("channelManagement")?.default;
     }
+    /**
+     * Provides a component to render a Modal. Does not provide full Modal overlay.
+     */
     get Modal() {
         return this.getCached("Modal")?.default;
+    }
+    /**
+     * Provides a null-state screen component.
+     */
+    get NullState() {
+        return this.getCached("NullState")?.default;
+    }
+    /**
+     * Returns an overflow button component that opens a menu.
+     * @returns {(props: { className?: string, alignment?: string, menuSpecs: MenuSpecs }) => React.ReactElement}
+     */
+    get OverflowButton() {
+        return this.getCached("OverflowButton")?.default;
     }
     /**
      * Provides a container that displays a set of overlays.
@@ -301,6 +361,12 @@ module.exports = class AddonApi {
         return this.getCached("portal")?.default;
     }
     /**
+     * Gets Prism library.
+     */
+    get prism() {
+        return this.getCached("prism")?.default;
+    }
+    /**
      * Gets the plugins and language settings of Prism.js.
      */
     get prismSettings() {
@@ -309,8 +375,8 @@ module.exports = class AddonApi {
     /**
      * Model class for users' profile posts.
      */
-    get profilePostModel() {
-        return this.getCached("profilePostModel");
+    get ProfilePostModel() {
+        return this.getCached("ProfilePostModel")?.default;
     }
     /**
      * React.JS framework stuff.
@@ -324,20 +390,23 @@ module.exports = class AddonApi {
     get ReactDOM() {
         return this.getCached("ReactDOM");
     }
+    /**
+     * Method for creating React elements.
+     */
     get ReactElement() {
         return this.getCached("ReactElement");
     }
     /**
-     * All of the REST API methods.
+     * The list of REST methods for interacting with Guilded API.
      */
     get restMethods() {
-        return this.getCached("restMethods");
+        return this.getCached("restMethods")?.default;
     }
     /**
      * The list of settings tabs.
      */
     get settingsTabs() {
-        return this.getCached("settingsTabs");
+        return this.getCached("settingsTabs")?.default;
     }
     /**
      * All of the social medias that Guilded client recognizes.
@@ -349,7 +418,7 @@ module.exports = class AddonApi {
      * The list of all client sounds.
      */
     get sounds() {
-        return this.getCached("sounds");
+        return this.getCached("sounds")?.default;
     }
     /**
      * The list of social links that can be put under profile.
@@ -360,13 +429,13 @@ module.exports = class AddonApi {
     /**
      * Model class for teams.
      */
-    get teamModel() {
-        return this.getCached("teamModel");
+    get TeamModel() {
+        return this.getCached("TeamModel")?.default;
     }
     /**
      * Model class for users.
      */
-    get userModel() {
-        return this.getCached("userModel");
+    get UserModel() {
+        return this.getCached("UserModel")?.UserModel;
     }
 }

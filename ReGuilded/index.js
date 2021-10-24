@@ -67,8 +67,8 @@ module.exports = class ReGuilded {
 
         this.loadUser(this.webpackManager.userModel?.UserModel);
 
-        const watermark = document.getElementsByClassName("icon SVGIcon-icon icon-logomark-and-wordmark");
-        watermark[0].style.fill = "#CC5555";
+        //const watermark = document.getElementsByClassName("icon SVGIcon-icon icon-logomark-and-wordmark");
+        //watermark[0].style.fill = "#CC5555";
 
         this.themesManager.init(enabledThemes);
         this.addonManager.init(enabledAddons);

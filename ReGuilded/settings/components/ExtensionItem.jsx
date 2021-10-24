@@ -5,6 +5,8 @@ import createOptions from "../createOptions.jsx";
 import ErrorBoundary from './ErrorBoundary.jsx';
 import childProcess from "child_process";
 
+const { OverflowButton } = window.ReGuilded.addonApi;
+
 /**
  * Creates a new extension wrapper component.
  * @param {{
@@ -20,25 +22,26 @@ import childProcess from "child_process";
  * @returns {React.Component} New extension component
  */
 export default function ExtensionItem({ id, name, description, enabled, onToggle, type, fp, dirname, sections = null }) {
+    const menuSpecs = {
+        id: "ExtensionMenu",
+        sections: [
+            {
+                name: "Extension",
+                header: "Extension",
+                type: "rows",
+                actions: [
+                    { label: "Edit source", icon: "icon-edit", onClick: () => childProcess.exec(`start "" "${fp}"`) },
+                    { label: "Open directory", icon: "icon-team-stream-popout", onClick: () => childProcesss.exec(`start "" "${dirname}"`) }
+                ]
+            }
+        ].concat(sections || [])
+    }
     const createMenu = e => {
         // For addon/theme settings and actions
         const menu =
             <ActionMenu
                 onItemClick={e => e.onAction()}
-                menuSpecs={{
-                    id: "ExtensionMenu",
-                    sections: [
-                        {
-                            name: "Extension",
-                            header: "Extension",
-                            type: "rows",
-                            actions: [
-                                { label: "Edit source", icon: "icon-edit", onAction: () => childProcess.exec(`start "" "${fp}"`) },
-                                { label: "Open directory", icon: "icon-team-stream-popout", onAction: () => childProcesss.exec(`start "" "${dirname}"`) }
-                            ]
-                        }
-                    ].concat(sections || [])
-                }}/>
+                menuSpecs={menuSpecs}/>
         createOptions(e.screenX, e.screenY, menu)
     }
     return (
@@ -73,9 +76,10 @@ export default function ExtensionItem({ id, name, description, enabled, onToggle
                             </div>
                         </div>
                         {/* Overflow */}
-                        <div onClick={createMenu} className="ContextMenuTrigger-container ContextMenuTrigger-container-desktop DocDisplayItem-overflow-icon ReGuildedExtension-overflow-icon">
+                        {/* <div onClick={createMenu} className="ContextMenuTrigger-container ContextMenuTrigger-container-desktop DocDisplayItem-overflow-icon ReGuildedExtension-overflow-icon">
                             <GuildedSvg iconName="icon-overflow" className="ContextMenuTrigger-icon"/>
-                        </div>
+                        </div> */}
+                        <OverflowButton className="DocDisplayItem-overflow-icon" menuSpecs={menuSpecs}/>
                     </div>
                 </div>
             </div>
