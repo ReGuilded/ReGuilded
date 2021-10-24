@@ -53,7 +53,7 @@ module.exports = class ThemesManager extends ExtensionManager {
                 // Get the metadata.json file path, and if it doesn't exist, ignore it
                 const metadataPath = path.join(themePath, "metadata.json");
                 if (!existsSync(metadataPath)) {
-                    this.all.find(metadata => metadata.dirname === themePath) !== undefined && this.all.splice(this.all.find(metadata => metadata.dirname === themePath), 1);
+                    this.all.find(metadata => metadata.dirname === themePath) !== undefined && this.all.splice(this.all.index(this.all.find(metadata => metadata.dirname === themePath)), 1);
                     return;
                 }
 
@@ -64,7 +64,7 @@ module.exports = class ThemesManager extends ExtensionManager {
                 // If the theme is already loaded, unload it
                 loaded[dir] && this.unload(metadata);
                 // If the theme is in the list of all themes, remove it
-                ~this.all.indexOf(metadata) && this.all.splice(this.all.indexOf(metadata, 1))
+                ~this.all.indexOf(metadata) && this.all.splice(this.all.indexOf(metadata, 1));
 
                 const propFiles = typeof metadata.files === "string" ? [metadata.files] : metadata.files;
                 metadata.files = propFiles;
@@ -83,8 +83,8 @@ module.exports = class ThemesManager extends ExtensionManager {
                     this.all.push(metadata)
 
                     if (this.enabled.includes(metadata.id)) {
+                        // Load the theme.
                         this.load(metadata);
-                        this.emit("load", metadata);
 
                         loaded[dir] = metadata;
 
@@ -136,6 +136,7 @@ module.exports = class ThemesManager extends ExtensionManager {
             .querySelector(`body sgroup#reGl-theme-${metadata.id}`)
             .remove();
 
+        // Remove the theme files from the cache.
         for (let file of metadata.files) {
             const filePath = getCssPath(metadata, file);
 
