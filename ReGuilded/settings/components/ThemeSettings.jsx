@@ -4,7 +4,7 @@ import { join } from "path";
 
 import ExtensionSettings from './ExtensionSettings.jsx';
 import {ThemeSettingsHandler} from "../index.jsx";
-import { validateColor } from '../validation.tsx';
+import { validateColor } from '../validation.ts';
 import ErrorBoundary from "./ErrorBoundary.jsx";
 import ExtensionItem from "./ExtensionItem.jsx";
 import ExtensionGrid from './ExtensionGrid.jsx';
