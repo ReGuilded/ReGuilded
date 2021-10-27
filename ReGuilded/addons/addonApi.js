@@ -1,5 +1,3 @@
-//import { PrismGrammar, MenuSpecs } from './guildedTypes';
-
 // Provides API for addons to interact with Guilded.
 // TODO: Better documentation and probably TS declaration files.
 
@@ -73,12 +71,16 @@ const cacheFns = {
 
     // Components
     Modal: webpack => webpack.withClassProperty("hasConfirm"),
+    SimpleToggle: webpack => webpack.withClassProperty("input"),
     formFieldTypes: webpack => webpack.withProperty("Dropdown"),
     NullState: webpack => webpack.withClassProperty("imageSrc"),
     draggable: webpack => webpack.withProperty("DraggableTypes"),
     OverflowButton: webpack => webpack.withClassProperty("isOpen"),
     GuildedForm: webpack => webpack.withClassProperty("formValues"),
     MarkdownRenderer: webpack => webpack.withClassProperty("plainText"),
+    ActionMenuSection: webpack => webpack.withCode("ActionMenu-section"),
+    ActionMenu: webpack => webpack.withClassProperty("actionMenuHeight"),
+    ActionMenuItem: webpack => webpack.withClassProperty("useRowWrapper"),
     GuildedSvg: webpack => webpack.withClassProperty("iconComponentProps"),
     ToggleField: webpack => webpack.withCode("ToggleFieldWrapper-container"),
     inputFieldValidations: webpack => webpack.withProperty("ValidateUserUrl"),
@@ -133,6 +135,24 @@ module.exports = class AddonApi {
 
 
     // Alphabetical, not categorized
+    /**
+     * Provides a component for action menu button/item.
+     */
+    get ActionMenuItem() {
+        return this.getCached("ActionMenuItem")?.default;
+    }
+    /**
+     * Provides action menu component for rendering Guilded right click, overflow and other kinds of menus.
+     */
+    get ActionMenu() {
+         return this.getCached("ActionMenu")?.default;
+    }
+    /**
+     * Provides an action menu section that categorizes menu items.
+     */
+    get ActionMenuSection() {
+        return this.getCached("ActionMenuSection")?.default;
+    }
     /**
      * Model class for announcement posts.
      */
@@ -207,12 +227,6 @@ module.exports = class AddonApi {
     get editorNodes() {
         return this.getCached("editorNodes");
     }
-    // /**
-    //  * The configuration of all events. Event colours and more.
-    //  */
-    // get eventConfig() {
-    //     return this.getCached("eventConfig");
-    // }
     /**
      * Model class for calendar events.
      */
@@ -350,7 +364,6 @@ module.exports = class AddonApi {
     }
     /**
      * Returns an overflow button component that opens a menu.
-     * @returns {(props: { className?: string, alignment?: string, menuSpecs: MenuSpecs }) => React.ReactElement}
      */
     get OverflowButton() {
         return this.getCached("OverflowButton")?.default;
@@ -414,6 +427,12 @@ module.exports = class AddonApi {
      */
     get settingsTabs() {
         return this.getCached("settingsTabs")?.default;
+    }
+    /**
+     * Provides a simple Guilded toggle with optional label.
+     */
+    get SimpleToggle() {
+        return this.getCached("SimpleToggle")?.default;
     }
     /**
      * All of the social medias that Guilded client recognizes.

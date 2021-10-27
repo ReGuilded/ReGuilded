@@ -1,11 +1,6 @@
-﻿import SimpleToggle from "../../addons/components/menu/SimpleToggle.jsx";
-import ActionMenu from "../../addons/components/menu/ActionMenu.jsx";
-import GuildedSvg from "../../addons/components/GuildedSvg.jsx";
-import createOptions from "../createOptions.jsx";
-import ErrorBoundary from './ErrorBoundary.jsx';
-import childProcess from "child_process";
+﻿import childProcess from "child_process";
 
-const { OverflowButton } = window.ReGuilded.addonApi;
+const { OverflowButton, SimpleToggle } = window.ReGuilded.addonApi;
 
 /**
  * Creates a new extension wrapper component.
@@ -35,14 +30,6 @@ export default function ExtensionItem({ id, name, description, enabled, onToggle
                 ]
             }
         ].concat(sections || [])
-    }
-    const createMenu = e => {
-        // For addon/theme settings and actions
-        const menu =
-            <ActionMenu
-                onItemClick={e => e.onAction()}
-                menuSpecs={menuSpecs}/>
-        createOptions(e.screenX, e.screenY, menu)
     }
     return (
         <a className="DocDisplayItem-wrapper ReGuildedExtension-wrapper">
