@@ -1,7 +1,7 @@
 const initializeApi = require('../../addons/initializeApi.js');
 const { join, dirname, basename } = require("path");
 const ExtensionManager = require("./extension.js");
-const chokidar = require("../libs/chokidar");
+const chokidar = require("../../libs/chokidar");
 const { existsSync } = require("fs");
 const _module = require("module");
 const path = require("path");

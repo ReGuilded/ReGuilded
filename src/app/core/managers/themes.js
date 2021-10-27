@@ -1,6 +1,6 @@
 const ExtensionManager = require("./extension.js");
 const { existsSync, readFile } = require("fs");
-const chokidar = require("../libs/chokidar");
+const chokidar = require("../../libs/chokidar");
 const _module = require("module");
 const path = require("path");
 

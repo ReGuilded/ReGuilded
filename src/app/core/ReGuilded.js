@@ -4,7 +4,7 @@ const WebpackManager = require("../addons/webpack.js");
 const ThemesManager = require("./managers/themes.js");
 const AddonManager = require("./managers/addon.js");
 const AddonApi = require("../addons/addonApi.js");
-const compiler = require("./libs/compiler");
+const compiler = require("../libs/compiler");
 const { readFileSync } = require("fs");
 const { join } = require("path");
 

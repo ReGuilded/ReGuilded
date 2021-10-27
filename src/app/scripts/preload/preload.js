@@ -11,7 +11,7 @@ const webpackPush = require("./webpackInject.js");
 
 let SettingsPromise = function handleSettings() {
     return new Promise((resolve, reject) => {
-        const settingsPath = join(__dirname, "../../setting");
+        const settingsPath = join(__dirname, "../../settings");
 
         access(settingsPath).then(resolve).catch(e => {
             if (!e || !e.code || e.code !== "ENOENT") {
@@ -31,7 +31,7 @@ let SettingsPromise = function handleSettings() {
                     addons: {
                         enabled: []
                     }
-                });
+                }, null, 4);
 
                 // Create the settings.json and an empty themes and addons folder
                 await writeFile(join(settingsPath, "settings.json"), settingsJson, {encoding: "utf-8"});
