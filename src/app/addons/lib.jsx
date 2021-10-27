@@ -76,3 +76,4 @@ export function getOwnerInstance(element) {
         depth++;
     }
 }
+window.getOwnerInstance = getOwnerInstance

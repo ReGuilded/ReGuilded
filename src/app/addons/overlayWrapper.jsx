@@ -1,6 +1,4 @@
-const { ReactDOM } = window.ReGuilded.addonApi;
-
-export function overlayWrapper({ component = null, onClose }) {
+export default function overlayWrapper({ component = null, onClose, ReactDOM }) {
     // Wrap around the provided component
     const elem = Object.assign(document.createElement("span"), {
         classList: ["Animatable-container Animatable-container-animated Animatable-container-shrink ModalWrapper-container Overlay-container"]

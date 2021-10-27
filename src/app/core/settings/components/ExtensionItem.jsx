@@ -1,6 +1,6 @@
 ﻿import childProcess from "child_process";
 
-const { OverflowButton, SimpleToggle } = window.ReGuilded.addonApi;
+const { OverflowButton, SimpleToggle } = ReGuilded.addonApi;
 
 /**
  * Creates a new extension wrapper component.

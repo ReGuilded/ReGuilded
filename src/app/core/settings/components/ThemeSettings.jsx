@@ -8,13 +8,10 @@ import ErrorBoundary from "./ErrorBoundary.jsx";
 import ExtensionItem from "./ExtensionItem.jsx";
 import ExtensionGrid from './ExtensionGrid.jsx';
 
-// Awww yeaaahh
-import { overlayWrapper } from '../../../addons/overlayWrapper.tsx';
-
 // This is used to convert the css variable names from kebab case to.. normal case?
 // some-var-name > Some Var Name
 
-const { NullState } = window.ReGuilded.addonApi;
+const { NullState } = ReGuilded.addonApi;
 
 /**
  * Makes CSS variable's name more readable
@@ -62,7 +59,7 @@ function generateFormSpecs(variables) {
 function openThemeSettings(variables, id, name) {
     const formSpecs = generateFormSpecs(variables, id, name);
 
-    const { Modal, GuildedForm, layerContext, OverlayStack, portal } = window.ReGuilded.addonApi;
+    const { Modal, GuildedForm } = ReGuilded.addonApi;
 
     const form = new GuildedForm({ formSpecs });
 
@@ -75,15 +72,9 @@ function openThemeSettings(variables, id, name) {
                 </ErrorBoundary>
             </div>
         </Modal>
-    // FIXME: Normal approach to context later on
-    modal.context = { layerContext: layerContext.object };
     
-    const portalId = OverlayStack.addPortal(modal, 'reguildedtheme');
-    
-    const wrapped = overlayWrapper({
-        component: modal,
-        onClose: closeThemeSettings
-    });
+    const wrapped = ReGuilded.addonApi.wrapOverlay(modal, closeThemeSettings),
+          portalId = ReGuilded.addonApi.renderOverlay(wrapped, "reguildedTheme");
     
     function closeThemeSettings() {
         OverlayStack.removePortalId(portalId);
@@ -95,12 +86,6 @@ function openThemeSettings(variables, id, name) {
 
         closeThemeSettings();
     }
-
-    // Add it to the Guilded portal
-    setImmediate(() => {
-        const portalElem = portal.Portals[portalId];
-        portalElem.appendChild(wrapped);
-    })
 }
 
 /**

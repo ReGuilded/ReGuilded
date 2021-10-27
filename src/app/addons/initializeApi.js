@@ -1,6 +1,4 @@
-﻿// Patch the requires
-require("./baseAddon.js");
-require("../libs/compiler").patchRequires();
+﻿require("./baseAddon.js");
 
 module.exports = function addonPreInit(addonApi) {
     global.React = window.React = addonApi.React;

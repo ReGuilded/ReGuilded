@@ -1,12 +1,12 @@
+require("../libs/compiler").patchRequires();
+
 const { badges, flairs, all } = require('./badges-flairs.js');
 const SettingsManager = require("./managers/settings.js");
 const WebpackManager = require("../addons/webpack.js");
 const ThemesManager = require("./managers/themes.js");
 const AddonManager = require("./managers/addon.js");
 const AddonApi = require("../addons/addonApi.js");
-const compiler = require("../libs/compiler");
 const { readFileSync } = require("fs");
-const { join } = require("path");
 
 /**
  * ReGuilded's full manager's class.
@@ -29,39 +29,24 @@ module.exports = class ReGuilded {
      * @param {Function} webpackRequire A function that gets Guilded modules.
      */
     init(webpackRequire) {
-        // Handle First Launch popup
-        if (global.firstLaunch)
-            this.handleFirstLaunch();
-
-        // Patch the requires
-        compiler.patchRequires();
-
-        // Adds Webpack stuff to addon manager
-        this.addonManager.webpackRequire = webpackRequire;
-        this.addonManager.webpackModules = webpackRequire.c;
-        this.addonManager.webpackFunctions = webpackRequire.m;
-
         // Declaring Themes & Addons config
         const themeConfig = this.settingsManager.getValueTyped("themes", "object"),
-            addonConfig = this.settingsManager.getValueTyped("addons", "object");
+              addonConfig = this.settingsManager.getValueTyped("addons", "object");
 
-        // Declaring Enabling Themes & Addons
         const enabledThemes = themeConfig.enabled,
-            enabledAddons = addonConfig.enabled;
+        enabledAddons = addonConfig.enabled;
 
-        // Whether it should be initialized
         this.webpackManager = new WebpackManager(webpackRequire);
         this.addonApi = new AddonApi(this.webpackManager, this.addonManager);
 
         // Load ReGuilded developer badges & contributor flairs
         this.loadUser(this.addonApi.userModel?.UserModel);
 
-        //const watermark = document.getElementsByClassName("icon SVGIcon-icon icon-logomark-and-wordmark");
-        //watermark[0].style.fill = "#CC5555";
-
-        // Initialize both Themes & Addon manager, pass both enabled arrays into such
         this.themesManager.init(enabledThemes);
         this.addonManager.init(enabledAddons);
+
+        if (global.firstLaunch)
+            this.handleFirstLaunch();
     }
 
     /**
@@ -95,29 +80,17 @@ module.exports = class ReGuilded {
     }
 
     handleFirstLaunch() {
-        const welcomeModalStyleElement = Object.assign(document.createElement("style"), {
-            id: "rgWelcomeModal-style",
-            innerHTML: readFileSync(join(__dirname, "assets/welcomeModal.css")).toString()
-        });
-        document.body.appendChild(welcomeModalStyleElement);
+        const modalFactory = require("./launchModal.jsx").default,
+              { Modal, MarkRenderer, OverlayStack } = this.addonApi;
 
-        const welcomeModalDivElement = Object.assign(document.createElement("div"), {
-            classList: ["ReGuildedWelcomeModal"],
-            id: "rgWelcomeModal",
-            innerHTML: readFileSync(join(__dirname, "assets/welcomeModal.html")).toString()
-        })
-        document.body.appendChild(welcomeModalDivElement);
+        const modal = modalFactory(Modal, MarkRenderer, modalClose);
+        const wrapped = this.addonApi.wrapOverlay(modal, modalClose);
+        const portalId = this.addonApi.renderOverlay(wrapped, "reguildedFirst");
 
-        function destroyIt() {
-            welcomeModalDivElement.classList.add("Despawning");
-            setTimeout(() => {
-                welcomeModalDivElement.remove();
-                welcomeModalStyleElement.remove();
-            }, 200);
+        function modalClose() {
+            wrapped.remove();
+
+            OverlayStack.removePortalId(portalId);
         }
-
-        const welcomeModalCloseElement = document.getElementById("rgWelcomeModalClose");
-        welcomeModalDivElement.addEventListener("click", destroyIt);
-        welcomeModalCloseElement.addEventListener("click", destroyIt);
     }
 };

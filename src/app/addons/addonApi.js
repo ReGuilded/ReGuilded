@@ -1,3 +1,5 @@
+const overlayWrapper = require("./overlayWrapper.jsx").default;
+
 // Provides API for addons to interact with Guilded.
 // TODO: Better documentation and probably TS declaration files.
 
@@ -71,6 +73,7 @@ const cacheFns = {
 
     // Components
     Modal: webpack => webpack.withClassProperty("hasConfirm"),
+    MarkRenderer: webpack => webpack.withClassProperty("mark"),
     SimpleToggle: webpack => webpack.withClassProperty("input"),
     formFieldTypes: webpack => webpack.withProperty("Dropdown"),
     NullState: webpack => webpack.withClassProperty("imageSrc"),
@@ -132,7 +135,41 @@ module.exports = class AddonApi {
     renderMarkdown(plainText) {
         return new this.MarkdownRenderer({ plainText, grammar: this.markdownGrammars.WebhookEmbed }).render();
     }
+    /**
+     * Wraps around the element to make it available to be rendered into a portal.
+     * @param {React.ReactElement} component The React element to wrap into a full overlay
+     * @param {() => void} onClose What to do when the overlay gets clicked outside
+     * @returns {Element} Wrapped overlay as DOM Element
+     */
+    wrapOverlay(component, onClose) {
+        // FIXME: Normal approach to context
+        component.context = { layerContext: this.layerContext.object };
 
+        return overlayWrapper({
+            component,
+            onClose,
+            ReactDOM: this.ReactDOM
+        });
+    }
+    /**
+     * Creates a new portal and renders the given overlay in it.
+     * @param {Element} element Element to render as overlay
+     * @param {string} portalName The name of the portal that will be rendered on
+     * @returns {string} The identifier of the portal created
+     */
+    renderOverlay(element, portalName) {
+        const portalId = this.OverlayStack.addPortal(element, portalName);
+
+        // Render overlay onto the created portal
+        setImmediate(() => {
+            const portalElem = this.portal.Portals[portalId]
+
+            portalElem.appendChild(element);
+        });
+
+        // For it to be available for destruction
+        return portalId;
+    }
 
     // Alphabetical, not categorized
     /**
