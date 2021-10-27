@@ -40,8 +40,9 @@ module.exports = class ReGuilded {
         this.addonApi = new AddonApi(this.webpackManager, this.addonManager);
 
         // Load ReGuilded developer badges & contributor flairs
-        this.loadUser(this.addonApi.userModel?.UserModel);
+        this.loadUser(this.addonApi.UserModel);
 
+        // Initialize both Themes & Addon manager, pass both enabled arrays into such
         this.themesManager.init(enabledThemes);
         this.addonManager.init(enabledAddons);
 
@@ -49,6 +50,8 @@ module.exports = class ReGuilded {
             this.handleFirstLaunch();
     }
 
+
+    // REVIEW: This should be called & ran when the user requests Guilded to fully exit.
     /**
      * Uninitiates ReGuilded
      */
