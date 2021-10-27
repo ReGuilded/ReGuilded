@@ -48,7 +48,7 @@ module.exports = class ExtensionManager extends EventEmitter {
      */
     checkLoaded(index, totalLength) {
         // Ensure this is the last extension and that we haven't already tripped the event
-        if (totalLength - 1 == index && !this.allLoaded) {
+        if (totalLength == index && !this.allLoaded) {
             // Trip the event
             this.allLoaded = true;
             this.emit("fullLoad", this.all);

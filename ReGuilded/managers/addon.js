@@ -44,6 +44,8 @@ module.exports = class AddonManager extends ExtensionManager {
         const loaded = {};
         // Create a de-bouncer dictionary, to prevent lag from multi-loading
         const deBouncers = {};
+
+        // REVIEW: This is a mess
         // Watch the directory for any file changes
         chokidar.watch(this.dirname).on("all", (type, fp) => {
             if (fp.endsWith("settings.json") || fp.endsWith("data.json")) { return; }
@@ -95,7 +97,9 @@ module.exports = class AddonManager extends ExtensionManager {
                         loaded[dir] = metadata;
 
                         // I... don't want to talk about this
-                        this.checkLoaded(Object.keys(loaded).filter(dir => ~enabled.indexOf(dir)).length - 1, enabled.length);
+
+                        // And I do.
+                        this.checkLoaded(Object.keys(loaded).length, enabled.length);
                     }
                 }
                 else console.error("Addon has no pre-init function or has invalid formatting:", dir);

@@ -79,19 +79,19 @@ module.exports = class ThemesManager extends ExtensionManager {
 
                     if (!existsSync(filePath))
                         throw new Error(`Could not find CSS file in path ${filePath}`);
-
-                    this.all.push(metadata)
-
-                    if (this.enabled.includes(metadata.id)) {
-                        // Load the theme.
-                        this.load(metadata);
-
-                        loaded[dir] = metadata;
-
-                        // I... don't want to talk about this
-                        this.checkLoaded(Object.keys(loaded).filter(dir => ~enabled.indexOf(dir)).length - 1, enabled.length);
-                    }
                 }
+
+                if (this.enabled.includes(metadata.id)) {
+                    // Load the theme.
+                    this.load(metadata);
+                    
+                    loaded[dir] = metadata;
+                }
+                this.all.push(metadata)
+                // I... don't want to talk about this
+
+                // And I do.
+                this.checkLoaded(Object.keys(loaded).length, enabled.length);
             }, 250);
         });
     }

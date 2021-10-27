@@ -12,24 +12,28 @@ export const ThemeSettingsHandler = new class {
     container;
     initialized = false;
 
-    async init() {
+    init() {
         // Ensure we haven't already initialized
         if (this.initialized) return;
 
-        ReGuilded.themesManager.on("fullLoad", () => {
-            this.container = Object.assign(document.createElement("style"), {
-                id: "ReGuildedThemeSettingsOverride"
-            });
-            
-            //this.reInitAll();
-            document.head.appendChild(this.container);
-            
-            // Set the window object, for testing mostly
-            // @ts-ignore
-            ReGuilded.themesManager.overridesHandler = this;
-            
-            this.initialized = true;
-        })
+        if (ReGuilded.themesManager.allLoaded)
+            this.initOnLoad();
+        else
+            ReGuilded.themesManager.on("fullLoad", this.initOnLoad.bind(this))
+    }
+    async initOnLoad() {
+        this.container = Object.assign(document.createElement("style"), {
+            id: "ReGuildedThemeSettingsOverride"
+        });
+        
+        //this.reInitAll();
+        document.head.appendChild(this.container);
+        
+        // Set the window object, for testing mostly
+        // @ts-ignore
+        ReGuilded.themesManager.overridesHandler = this;
+
+        this.initialized = true;
     }
 
     // Re-initialize all themes
@@ -76,15 +80,14 @@ export const ThemeSettingsHandler = new class {
 
     render() {
         if (this.initialized)
-            this.container.textContent = `
-                #app {
-                    ${Object.values(this.overrides)
-                        .filter(({ id }) => ~ReGuilded.themesManager.enabled.indexOf(id))
-                        .map(({ data }) =>
-                        Object.entries(data).map(([propName, propValue]) =>
-                        `--${propName}:${propValue};`).join("")).join("")}
-                }`;
-            }
+        {
+            this.container.textContent = `#app {${Object.values(this.overrides)
+                    .filter(({ id }) => ~ReGuilded.themesManager.enabled.indexOf(id))
+                    .map(({ data }) =>
+                    Object.entries(data).map(([propName, propValue]) =>
+                    `--${propName}:${propValue};`).join("")).join("")}}`;
+        }
+    }
 }
 
 export class ThemeOverridesDictionary {
