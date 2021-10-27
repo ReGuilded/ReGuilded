@@ -1,8 +1,8 @@
-﻿import ReGuildedSettings from "./components/ReGuildedSettings.jsx";
+﻿//import ReGuildedSettings from "./components/ReGuildedSettings.jsx";
+import { patchElementRenderer } from '../../addons/lib.jsx';
 import AddonSettings from "./components/AddonSettings.jsx";
 import ThemeSettings from "./components/ThemeSettings.jsx";
-import { patchElementRenderer } from '../addons/lib.jsx';
-import patcher from "../addons/patcher";
+import patcher from "../../addons/patcher";
 
 const path = require("path");
 const fs = require("fs");

@@ -1,10 +1,11 @@
-﻿import NullState from "../../addons/components/NullState.jsx";
-//import ErrorBoundary from "./ErrorBoundary.jsx";
+﻿//import ErrorBoundary from "./ErrorBoundary.jsx";
 import ExtensionItem from "./ExtensionItem.jsx";
 import path from "path";
 import fs from "fs";
 import ExtensionSettings from './ExtensionSettings.jsx';
 import ExtensionGrid from './ExtensionGrid.jsx';
+
+const { NullState } = window.ReGuilded.addonApi;
 
 /**
  * Creates a new addon item component.

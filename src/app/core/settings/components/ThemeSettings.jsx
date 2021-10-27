@@ -1,5 +1,4 @@
-﻿import NullState from "../../addons/components/NullState.jsx";
-import { readFileSync, writeFileSync } from "fs";
+﻿import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
 import ExtensionSettings from './ExtensionSettings.jsx';
@@ -10,10 +9,12 @@ import ExtensionItem from "./ExtensionItem.jsx";
 import ExtensionGrid from './ExtensionGrid.jsx';
 
 // Awww yeaaahh
-import { overlayWrapper } from '../../addons/overlayWrapper.tsx';
+import { overlayWrapper } from '../../../addons/overlayWrapper.tsx';
 
 // This is used to convert the css variable names from kebab case to.. normal case?
 // some-var-name > Some Var Name
+
+const { NullState } = window.ReGuilded.addonApi;
 
 /**
  * Makes CSS variable's name more readable

@@ -1,4 +1,4 @@
-const addonPreInit = require("../addons/addonPreinit.js");
+const initializeApi = require('../../addons/initializeApi.js');
 const { join, dirname, basename } = require("path");
 const ExtensionManager = require("./extension.js");
 const chokidar = require("../libs/chokidar");
@@ -34,7 +34,7 @@ module.exports = class AddonManager extends ExtensionManager {
         // Try-catch; this should never throw errors
         try {
             // Initialize these
-            addonPreInit(this.parent.addonApi);
+            initializeApi(this.parent.addonApi);
         } catch(e) {
             console.error("Failed to initialize the ReGuilded addon API!", e);
         }

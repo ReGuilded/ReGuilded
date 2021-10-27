@@ -1,17 +1,17 @@
-const { members } = require("../../ReGuilded/badges-flairs.js");
+const { members } = require("../../core/badges-flairs.js");
 // const { promises as fs } =
 const { access, mkdir, writeFile } = require("fs").promises;
 const { ipcRenderer } = require("electron");
 const { join } = require("path");
 
 // Get ReGuilded's class.
-const ReGuilded = require("../../ReGuilded");
+const ReGuilded = require("../../core/ReGuilded.js");
 // Gets things for tinkering with Webpack
 const webpackPush = require("./webpackInject.js");
 
 let SettingsPromise = function handleSettings() {
     return new Promise((resolve, reject) => {
-        const settingsPath = join(__dirname, "../../settings");
+        const settingsPath = join(__dirname, "../../setting");
 
         access(settingsPath).then(resolve).catch(e => {
             if (!e || !e.code || e.code !== "ENOENT") {

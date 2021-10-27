@@ -1,6 +1,6 @@
 ﻿// Patch the requires
 require("./baseAddon.js");
-require("../../ReGuilded/libs/compiler").patchRequires();
+require("../libs/compiler").patchRequires();
 
 module.exports = function addonPreInit(addonApi) {
     global.React = window.React = addonApi.React;
@@ -15,5 +15,5 @@ module.exports = function addonPreInit(addonApi) {
         console.error("ReGuilded Addon SDK", "Failed to disable sentries!", e);
     }
 
-    require("../settings/index.jsx");
+    require("../core/settings/index.jsx");
 }

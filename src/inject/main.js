@@ -25,17 +25,19 @@ export async function inject(guildedDir, reguildedDir) {
     // If there is no injection present, inject
     if (!existsSync(guildedDir)) {
         try {
-            const src = join(__dirname, "../");
+            const src = join(__dirname, "../app");
 
-            const files = readdirSync(src, { withFileTypes: true });
-            // Gets all directories that shouldn't be ignored
-            const dirs = files.filter((x) => x.isDirectory() && !ignored.includes(x.name));
+            // const files = readdirSync(src, { withFileTypes: true });
+            // // Gets all directories that shouldn't be ignored
+            // const dirs = files.filter((x) => x.isDirectory() && !ignored.includes(x.name));
 
-            for (let dir of dirs) {
-                const inReguilded = join(reguildedDir, dir.name);
-                // Copies src stuff to ~/.reguilded/:name
-                fse.copySync(join(src, dir.name), inReguilded, { recursive: true, errorOnExist: false, overwrite: true });
-            }
+            // for (let dir of dirs) {
+            //     const inReguilded = join(reguildedDir, dir.name);
+            //     // Copies src stuff to ~/.reguilded/:name
+            //     fse.copySync(join(src, dir.name), inReguilded, { recursive: true, errorOnExist: false, overwrite: true });
+            // }
+            fse.copySync(src, reguildedDir, { recursive: true, errorOnExist: false, overwrite: true });
+
             // If this is on Linux and not on root, execute full injection with root perms
             if (process.platform === "linux" && process.getuid() !== 0)
                 rootPerms(guildedDir, ["node", join(__dirname, "inject.js"), "-d", reguildedDir]);
