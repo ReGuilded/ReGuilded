@@ -37,7 +37,6 @@ module.exports = {
         // And the SASS_PATH property needs to be defined so sass knows where it exists at? Because they've never heard of __dirname I guess?
         window.process = process;
         window.Buffer = Buffer;
-        process.env.SASS_PATH = path.join(__dirname, "node_modules", "sass");
         
         // Patch React and TypeScript
         patchRequire((module, fp) => {
@@ -53,33 +52,6 @@ module.exports = {
             // Compile the transformed code
             module._compile(code, fp);
         }, ".jsx", ".ts", ".tsx");
-        
-        // Patch Style-sheets
-        patchRequire((module, file) => {
-            // Get the addon name from the directory
-            const addonName = path.basename(path.dirname(file));
-            // Generate a random 7-length string
-            const randomKey = Math.random().toString(36).substr(7);
-            // Create a unique ID compound
-            const id = `${addonName}-styles-${randomKey}`;
-            
-            // Compile the style-sheet source code to plain CSS
-            const code = sass.renderSync({ file }).css.toString();
-
-            // Create an element to be injected into the document
-            const element = Object.assign(document.createElement("style"), {
-                textContent: code, id
-            });
-
-            // Export the styles object
-            module.exports = {
-                inject: () => document.head.appendChild(element),
-                uninject: () => element.remove(),
-                destroy: () => element.remove(),
-                element, id,
-                source: code
-            };
-        }, ".css", ".scss", ".sass");
     },
     patchRequire, unpatchRequire
 };

@@ -45,6 +45,8 @@ module.exports = class ThemesManager extends ExtensionManager {
         // Watch the directory for any file changes
         chokidar.watch(this.dirname).on("all", (type, fp) => {
             const dir = path.basename(path.dirname(fp));
+            
+            console.log('Fp', fp)
             // Initialize the de-bouncer
             clearTimeout(deBouncers[dir]);
             deBouncers[dir] = setTimeout(() => {
@@ -103,24 +105,22 @@ module.exports = class ThemesManager extends ExtensionManager {
     load(metadata) {
         console.log(`Loading theme by ID '${metadata.id}'`);
 
-        // Creates a new style element for that theme
+        // Creates a new style group element for that theme
         const group = document.createElement("sgroup");
         group.id = `reGl-theme-${metadata.id}`;
         group.classList.add("reGl-theme");
 
-        for (let file of metadata.files) {
-            const filePath = getCssPath(metadata, file);
+        // Add all CSS files to the group
+        for (let file of metadata.files)
+            readFile(getCssPath(metadata, file), { encoding: 'utf8' }, (e, d) => {
+                if (e) throw e;
 
-            const theme = require(filePath);
-
-            if (theme.source) {
                 const style = document.createElement("style");
                 style.classList.value = "reGl-css reGl-css-theme";
-                style.innerHTML = theme.source;
+                style.innerHTML = d;
 
-                group.appendChild(style)
-            }
-        }
+                group.appendChild(style);
+            });
 
         document.body.appendChild(group);
     }
