@@ -93,7 +93,9 @@ function openThemeSettings(variables, id, name) {
  * @param {{ id: string, name: string, file: string[], description: string?}} props Component properties
  * @returns {React.Component} Theme item component
  */
-function ThemeItem({ id, name, files: fileList, dirname, description }) {
+function ThemeItem(theme) {
+    const { id, files: fileList, dirname } = theme;
+
     const file = fileList[0];
     
     // Some memos, for that tasty performance boost that we don't need
@@ -144,10 +146,9 @@ function ThemeItem({ id, name, files: fileList, dirname, description }) {
             JSON.stringify(ReGuilded.settingsManager.config, null, "\t")
         );
     }
-        
     return (
-        <ExtensionItem id={id} name={name} type="theme"
-            description={description} fp={fp} dirname={dirname}
+        <ExtensionItem {...theme} type="theme"
+            fp={fp} dirname={dirname}
             onToggle={handleEnabledStateChanged}
             sections={[{
                 name: "Theme",

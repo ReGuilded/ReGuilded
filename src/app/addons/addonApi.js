@@ -89,6 +89,7 @@ const cacheFns = {
     GuildedSvg: webpack => webpack.withClassProperty("iconComponentProps"),
     ToggleField: webpack => webpack.withCode("ToggleFieldWrapper-container"),
     inputFieldValidations: webpack => webpack.withProperty("ValidateUserUrl"),
+    UserBasicInfo: webpack => webpack.withClassProperty("userPresenceContext"),
 };
 
 module.exports = class AddonApi {
@@ -516,9 +517,21 @@ module.exports = class AddonApi {
         return this.getCached("TeamModel")?.default;
     }
     /**
+     * Component that renders user's name, profile picture, badges and other things in a line.
+     */
+    get UserBasicInfo() {
+        return this.getCached("UserBasicInfo")?.default;
+    }
+    /**
      * Model class for users.
      */
     get UserModel() {
         return this.getCached("UserModel")?.UserModel;
+    }
+    /**
+     * Utilities related to user model.
+     */
+    get UserModelHelper() {
+        return this.getCached("UserModel")?.default;
     }
 }

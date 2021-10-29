@@ -1,6 +1,6 @@
 ﻿import childProcess from "child_process";
 
-const { OverflowButton, SimpleToggle } = ReGuilded.addonApi;
+const { OverflowButton, GuildedForm, UserBasicInfo, UserModelHelper } = ReGuilded.addonApi;
 
 /**
  * Creates a new extension wrapper component.
@@ -16,7 +16,7 @@ const { OverflowButton, SimpleToggle } = ReGuilded.addonApi;
  * }} props Component properties
  * @returns {React.Component} New extension component
  */
-export default function ExtensionItem({ id, name, description, enabled, onToggle, type, fp, dirname, sections = null }) {
+export default function ExtensionItem({ id, name, description, enabled, onToggle, type, fp, dirname, publisher, sections = null }) {
     const menuSpecs = {
         id: "ExtensionMenu",
         sections: [
@@ -44,28 +44,32 @@ export default function ExtensionItem({ id, name, description, enabled, onToggle
                         </div>
                         {/* Footer */}
                         <div className="DocDisplayItem-summary-info DocSummaryInfo-container ReGuildedExtension-summary-info">
-                            <h1 className="GH1-container DocSummaryInfo-badge-title">
-                                <span className="GuildedText-container GuildedText-container-type-heading3 GuildedText-container-weight-normals GuildedText-container-ellipsify DocSummaryInfo-title ReGuildedExtension-name">
-                                    {name}
-                                </span>
-                            </h1>
-                            <div className="ReGuildexExtension-manage">
-                                <SimpleToggle
-                                    onChange={onToggle}
-                                    defaultValue={enabled}
-                                    isDisabled={false}
-                                    label="Enabled"/>
-                            </div>
-                            <div className="ReGuildedExtension-info">
-                                <div className="DocSummaryInfo-subtitle ReGuildedExtension-subtitle">
-                                    Id: {id}
-                                </div>
-                            </div>
+                            <GuildedForm onChange={e => e.hasChanged ? onToggle(e.values.extensionToggle) : null} formSpecs={{
+                                sections: [
+                                    {
+                                        fieldSpecs: [
+                                            {
+                                                type: "Switch",
+                                                label: name,
+                                                fieldName: "extensionToggle",
+                                                description: `Id - ${id}`,
+                                                layout: "space-between",
+                                                defaultValue: enabled
+                                            }
+                                        ]
+                                    }
+                                ],
+                            }}/>
+                            {/* TODO: Fix the publisher not being fetched if the publisher isn't viewing user */}
+                            {/*
+                            <br/>
+                            { publisher
+                                ? <UserBasicInfo size="sm" user={UserModelHelper?.GetModel(publisher)}/>
+                                : Unknown publisher
+                            } */}
+                            <h6>Unknown publisher</h6>
                         </div>
                         {/* Overflow */}
-                        {/* <div onClick={createMenu} className="ContextMenuTrigger-container ContextMenuTrigger-container-desktop DocDisplayItem-overflow-icon ReGuildedExtension-overflow-icon">
-                            <GuildedSvg iconName="icon-overflow" className="ContextMenuTrigger-icon"/>
-                        </div> */}
                         <OverflowButton className="DocDisplayItem-overflow-icon" menuSpecs={menuSpecs}/>
                     </div>
                 </div>

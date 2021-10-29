@@ -12,7 +12,9 @@ const { NullState } = ReGuilded.addonApi;
  * @param { {id: string, name: string, description: string?} } props Component properties
  * @returns {React.Component} Addon item component
  */
-function AddonItem({ id, name, description }) {
+function AddonItem(addon) {
+    const { id } = addon;
+
     // Gets its main file and path
     const dirname = path.join(ReGuilded.addonManager.dirname, id);
     const fp = path.join(dirname, "main.js");
@@ -51,8 +53,8 @@ function AddonItem({ id, name, description }) {
     }
 
     return (
-        <ExtensionItem id={id} name={name} type="addon"
-            description={description} fp={fp} dirname={dirname}
+        <ExtensionItem {...addon} type="addon"
+            fp={fp} dirname={dirname}
             onToggle={handleEnabledStateChanged}
             enabled={isEnabled}>
             {/* Overflow menu */}

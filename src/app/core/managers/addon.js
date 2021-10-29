@@ -71,9 +71,19 @@ module.exports = class AddonManager extends ExtensionManager {
                 // If the addon is in the list of all loaded addons, remove it
                 ~this.all.indexOf(metadata) && this.all.splice(this.all.indexOf(metadata), 1);
 
-                if (Array.isArray(metadata.files)) console.warn("REGUILDED: An array of files for addons is unsupported. Defaulting to use the first item! [0]");
+                if (Array.isArray(metadata.files))
+                    console.warn("REGUILDED: An array of files for addons is unsupported. Defaulting to use the first item! [0]");
+
                 const propFiles = Array.isArray(metadata.files) ? metadata.files[0] : metadata.files;
                 metadata.files = propFiles;
+
+                // Make sure publisher is an ID
+                if (metadata.publisher && typeof metadata.publisher !== "string" && metadata.publisher.length !== 8)
+                {
+                    console.warn("Publisher must be an identifier of the user in Guilded, not their name or anything else");
+                    // To not cause errors and stuff
+                    metadata.publisher = undefined;
+                }
 
                 // Gets the propFiles[0] file path, and if it doesn't exist, ignore it
                 const mainPath = join(dirname(fp), propFiles);
