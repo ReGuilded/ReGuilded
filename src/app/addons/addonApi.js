@@ -79,7 +79,9 @@ const cacheFns = {
     NullState: webpack => webpack.withClassProperty("imageSrc"),
     draggable: webpack => webpack.withProperty("DraggableTypes"),
     OverflowButton: webpack => webpack.withClassProperty("isOpen"),
+    Button: webpack => webpack.withClassProperty("useHoverContext"),
     GuildedForm: webpack => webpack.withClassProperty("formValues"),
+    ProfilePicture: webpack => webpack.withClassProperty("borderType"),
     MarkdownRenderer: webpack => webpack.withClassProperty("plainText"),
     ActionMenuSection: webpack => webpack.withCode("ActionMenu-section"),
     ActionMenu: webpack => webpack.withClassProperty("actionMenuHeight"),
@@ -197,6 +199,18 @@ module.exports = class AddonApi {
         return this.getCached("AnnouncementModel")?.default;
     }
     /**
+     * A clickable Guilded button.
+     */
+    get Button() {
+        return this.getCached("Button")?.default;
+    }
+    /**
+     * Methods related to channel management.
+     */
+    get channelManagement() {
+        return this.getCached("channelManagement")?.default;
+    }
+    /**
      * Model class for channels.
      */
     get ChannelModel() {
@@ -219,6 +233,12 @@ module.exports = class AddonApi {
      */
     get chatContext() {
         return this.getCached("chatContext")?.default;
+    }
+    /**
+     * A custom embed in a chat.
+     */
+    get ChatEmbed() {
+        return this.getCached("ChatEmbed")?.default;
     }
     /**
      * Various methods related to cookies in the client.
@@ -382,12 +402,6 @@ module.exports = class AddonApi {
         return this.getCached("MessageModel")?.default;
     }
     /**
-     * Methods related to channel management.
-     */
-    get channelManagement() {
-        return this.getCached("channelManagement")?.default;
-    }
-    /**
      * Provides a component to render a Modal. Does not provide full Modal overlay.
      */
     get Modal() {
@@ -428,6 +442,12 @@ module.exports = class AddonApi {
      */
     get prismSettings() {
         return this.getCached("prismSettings");
+    }
+    /**
+     * Profile picture of someone.
+     */
+    get ProfilePicture() {
+        return this.getCached("ProfilePicture")?.default;
     }
     /**
      * Model class for users' profile posts.
