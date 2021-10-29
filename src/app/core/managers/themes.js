@@ -45,8 +45,7 @@ module.exports = class ThemesManager extends ExtensionManager {
         // Watch the directory for any file changes
         chokidar.watch(this.dirname).on("all", (type, fp) => {
             const dir = path.basename(path.dirname(fp));
-            
-            console.log('Fp', fp)
+
             // Initialize the de-bouncer
             clearTimeout(deBouncers[dir]);
             deBouncers[dir] = setTimeout(() => {
@@ -54,6 +53,7 @@ module.exports = class ThemesManager extends ExtensionManager {
 
                 // Get the metadata.json file path, and if it doesn't exist, ignore it
                 const metadataPath = path.join(themePath, "metadata.json");
+
                 if (!existsSync(metadataPath)) {
                     this.all.find(metadata => metadata.dirname === themePath) !== undefined && this.all.splice(this.all.index(this.all.find(metadata => metadata.dirname === themePath)), 1);
                     return;
@@ -67,6 +67,7 @@ module.exports = class ThemesManager extends ExtensionManager {
                 loaded[dir] && this.unload(metadata);
                 // If the theme is in the list of all themes, remove it
                 ~this.all.indexOf(metadata) && this.all.splice(this.all.indexOf(metadata, 1));
+
 
                 const propFiles = typeof metadata.files === "string" ? [metadata.files] : metadata.files;
                 metadata.files = propFiles;
@@ -83,12 +84,11 @@ module.exports = class ThemesManager extends ExtensionManager {
                         throw new Error(`Could not find CSS file in path ${filePath}`);
                 }
 
-                if (this.enabled.includes(metadata.id)) {
-                    // Load the theme.
-                    this.load(metadata);
-                    
-                    loaded[dir] = metadata;
-                }
+
+                if (this.enabled.includes(metadata.id))
+                    // Load the theme and add it to loaded dictionary
+                    this.load(loaded[dir] = metadata);
+
                 this.all.push(metadata)
                 // I... don't want to talk about this
 

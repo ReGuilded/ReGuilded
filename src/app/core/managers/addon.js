@@ -71,10 +71,14 @@ module.exports = class AddonManager extends ExtensionManager {
                 // If the addon is in the list of all loaded addons, remove it
                 ~this.all.indexOf(metadata) && this.all.splice(this.all.indexOf(metadata), 1);
 
-                if (Array.isArray(metadata.files))
-                    console.warn("REGUILDED: An array of files for addons is unsupported. Defaulting to use the first item! [0]");
+                
+                const propFiles = Array.isArray(metadata.files)
+                    ? (
+                        console.warn("REGUILDED: An array of files for addons is unsupported. Defaulting to use the first item! [0]"),
+                        metadata.files[0]
+                    )
+                    : metadata.files;
 
-                const propFiles = Array.isArray(metadata.files) ? metadata.files[0] : metadata.files;
                 metadata.files = propFiles;
 
                 // Make sure publisher is an ID
