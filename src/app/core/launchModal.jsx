@@ -13,8 +13,7 @@ export default function WelcomeModal(Modal, MarkRenderer, closeModal) {
                         installed.
                     </Paragraph>
                     <Paragraph>
-                        To get started, you could install a theme. This can be done by going to
-                        <InlineCode>%appdata%/.reguilded/settings/themes</InlineCode> on Windows
+                        To get started, you could install a theme. This can be done by going to <InlineCode>%appdata%/.reguilded/settings/themes</InlineCode> on Windows
                         or <InlineCode>~/.reguilded/settings/themes</InlineCode> on Linux or Mac OS,
                         creating a folder for the theme and installing the theme in newly created
                         folder. From then, you can simply go to theme settings and enable the
@@ -22,7 +21,7 @@ export default function WelcomeModal(Modal, MarkRenderer, closeModal) {
                     <Paragraph>You can also install addons as well in the similar way as themes, but going to the addon settings instead.</Paragraph>
                     <Paragraph>
                         We recommend joining our server, as it not only will it provide
-                        a support for ReGuilded, but it also has a list of ReGuilded add-ons and themes.</Paragraph>
+                        a support for ReGuilded, but it also has a list of ReGuilded addons and themes.</Paragraph>
                     <Paragraph>That's all regarding ReGuilded. Thanks for trying us out, and have fun!</Paragraph>
                 </RichTextContainer>
             </div>
