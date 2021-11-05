@@ -32,6 +32,7 @@ const cacheFns = {
     portal: webpack => webpack.withProperty("Portals"),
     layerContext: webpack => webpack.allWithProperty("object")[1],
     OverlayStack: webpack => webpack.withProperty("addPortal"),
+    OverlayProvider: webpack => webpack.withCode("OverlayProvider"),
 
     // Settings and this user
     cookies: webpack => webpack.withProperty("cookie"),
@@ -425,6 +426,12 @@ module.exports = class AddonApi {
      */
     get OverlayStack() {
         return this.getCached("OverlayStack")?.default;
+    }
+    /**
+     * Decorator for getting specific set of overlays.
+     */
+    get OverlayProvider() {
+        return this.getCached("OverlayProvider")?.default;
     }
     /**
      * Provides overlay portal.
