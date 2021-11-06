@@ -4,35 +4,23 @@
  */
 global.BaseAddon = window.BaseAddon = class BaseAddon {
     /**
-     * The unique ID for the addon.
-     * @type {string}
+     * Called once when add-on is enabled before the load state.
      */
-    id = "";
-    /**
-     * The display name for the addon.
-     * @type {string}
-     */
-    name = "";
+    init() { }
 
     /**
-     * Called before the addon is initialized, regardless of enabled state.
-     * @param reGuilded The window.ReGuilded object.
-     * @param addonManager The window.ReGuilded.addonManager object.
-     */
-    preinit(reGuilded, addonManager) { }
-
-    /**
-     * Called after pre-init, if the addon is enabled.
-     * @param reGuilded The window.ReGuilded object.
+     * Called when add-on gets loaded or re-loaded.
      * @param addonManager The window.ReGuilded.addonManager object.
      * @param webpackManager The window.ReGuilded.webpackManager object.
      */
-    init(reGuilded, addonManager, webpackManager) { }
+    load(addonManager, webpackManager) { }
 
     /**
-     * Called when un-loading an addon. Use this to ensure your addon cleans up after itself.
+     * Called when un-loading an addon. Use this to ensure your add-on cleans up after itself.
+     * @param addonManager The window.ReGuilded.addonManager object.
+     * @param webpackManager The window.ReGuilded.webpackManager object.
      */
-    uninit() { }
+    unload(addonManager, webpackManager) { }
 
     /**
      * A simple error handler, formatted with the addon ID.

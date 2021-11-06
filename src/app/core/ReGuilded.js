@@ -21,7 +21,7 @@ module.exports = class ReGuilded {
 
         // Creates Themes & Addons manager
         this.themesManager = new ThemesManager(this.settingsManager.getThemesDir());
-        this.addonManager = new AddonManager(this.settingsManager.getAddonsDir(), this);
+        this.addonManager = new AddonManager(this.settingsManager.getAddonsDir());
     }
 
     /**
@@ -44,7 +44,14 @@ module.exports = class ReGuilded {
 
         // Initialize both Themes & Addon manager, pass both enabled arrays into such
         this.themesManager.init(enabledThemes);
-        this.addonManager.init(enabledAddons);
+        this.addonManager.webpack = this.webpackManager;
+        this.addonManager.init(this.addonApi, enabledAddons);
+        
+        // TODO[!!!]: Add more to this than just `api`
+        global.guildedRequest = window.guildedRequest = (function guildedRequest(s) {
+            if (s === "api")
+                return this.addonApi;
+        }).bind(this);
 
         if (global.firstLaunch)
             this.handleFirstLaunch();

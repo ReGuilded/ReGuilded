@@ -287,6 +287,12 @@ module.exports = class AddonApi {
         return this.getCached("editorNodes");
     }
     /**
+     * Gets event configuration limitations.
+     */
+    get eventConfig() {
+        return this.getCached("eventConfig");
+    }
+    /**
      * Model class for calendar events.
      */
     get EventModel() {
@@ -309,6 +315,13 @@ module.exports = class AddonApi {
      */
     get gameList() {
         return this.getCached("gameList")?.default;
+    }
+    /**
+     * Fetches a model for the given member.
+     * @returns {(memberInfo: {teamId: string, userId: string}) => MemberModel}
+     */
+    get getMemberModel() {
+        return this.getCached("MemberModel")?.getMemberModel;
     }
     /**
      * The list of all global badges.
@@ -347,6 +360,12 @@ module.exports = class AddonApi {
         return this.getCached("GuildedSvg")?.default;
     }
     /**
+     * Returns the class that contains a set of validators, which either return string (error message) or void. 
+     */
+    get inputFieldValidations() {
+        return this.getCached("inputFieldValidations")?.default;
+    }
+    /**
      * The list of language identifiers and their display names.
      */
     get languageCodes() {
@@ -383,13 +402,6 @@ module.exports = class AddonApi {
      */
     get MemberModel() {
         return this.getCached("MemberModel")?.MemberModel;
-    }
-    /**
-     * Fetches a model for the given member.
-     * @returns {(memberInfo: {teamId: string, userId: string}) => MemberModel}
-     */
-    get getMemberModel() {
-        return this.getCached("MemberModel")?.getMemberModel;
     }
     /**
      * Captain, former member, admin, etc. infos and names.

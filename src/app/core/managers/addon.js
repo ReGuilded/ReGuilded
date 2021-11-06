@@ -13,18 +13,17 @@ module.exports = class AddonManager extends ExtensionManager {
     /**
      * Manager that manages ReGuilded's addons
      * @param {String} addonsDir Path to the directory that holds addons
-     * @param {ReGuilded} reGuilded Instance of ReGuilded that created this manager
      */
-    constructor(addonsDir, reGuilded) {
+    constructor(addonsDir) {
         super(addonsDir);
-        this.parent = reGuilded;
+        this.preinitialized = [];
     }
 
     /**
      * Initiates addons for ReGuilded and addon manager
      * @param {String[]} enabled An array of enabled addons.
      */
-    init(enabled = []) {
+    init(addonApi, enabled = []) {
         console.log("Initiating addon manager");
 
         // Initialize these here instead of getDirs()
@@ -34,7 +33,7 @@ module.exports = class AddonManager extends ExtensionManager {
         // Try-catch; this should never throw errors
         try {
             // Initialize these
-            initializeApi(this.parent.addonApi);
+            initializeApi(addonApi);
         } catch(e) {
             console.error("Failed to initialize the ReGuilded addon API!", e);
         }
@@ -96,15 +95,13 @@ module.exports = class AddonManager extends ExtensionManager {
                 // Compile the main.js file
                 let main = require(mainPath);
                 // To check if it's valid
-                if (typeof(main.preinit) !== "function" && main.default) main = main.default;
+                if (typeof(main.init) !== "function" && main.default) main = main.default;
 
-                if (typeof(main.preinit) === "function") {
+                if (typeof(main.init) === "function") {
                     metadata.functions = main;
                     this.all.push(metadata);
 
                     if (this.enabled.includes(metadata.id)) {
-                        metadata.functions.preinit(this.parent, this);
-
                         // Load the addon.
                         this.load(metadata);
 
@@ -123,13 +120,18 @@ module.exports = class AddonManager extends ExtensionManager {
 
     /**
      * Loads a ReGuilded addon.
-     * @param {{id: String, name: String, functions: {preinit: Function, init: Function, uninit: Function}}} metadata addon to load onto Guilded
+     * @param {{id: String, name: String, functions: {init: Function, load: Function, unload: Function}}} metadata addon to load onto Guilded
      */
     load(metadata) {
         // Try-catch errors to prevent conflicts with other plugins
         try {
             console.log(`Loading addon by ID`, metadata.id);
-            metadata.functions.init(this.parent, this, this.parent.webpackManager);
+            if (!this.preinitialized.includes(metadata.id)) {
+                // TODO: Add-on sandboxing
+                metadata.functions.init()
+                this.preinitialized.push(metadata.id);
+            }
+            metadata.functions.load(this, this.webpack);
         }
         catch (e) {
             console.error("Failed to load addon by ID", metadata.id, e);
@@ -138,12 +140,12 @@ module.exports = class AddonManager extends ExtensionManager {
 
     /**
      * Unloads/removes a ReGuilded addon.
-     * @param {{id: String, name: String, dirname: String, files: String functions: {preinit: Function, init: Function, uninit: Function}}} metadata addon to load onto Guilded
+     * @param {{id: String, name: String, dirname: String, files: String functions: {init: Function, load: Function, unload: Function}}} metadata addon to load onto Guilded
      */
     unload(metadata) {
         try {
             console.log("Unloading addon by ID", metadata.id);
-            metadata.functions.uninit();
+            metadata.functions.unload(this, this.webpack);
 
             // Remove the addon from the cache
             const filePath = path.join(metadata.dirname, metadata.files);

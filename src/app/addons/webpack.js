@@ -95,7 +95,7 @@ module.exports = class WebpackManager {
             const { default: obj, ...rest } = this.asEsModule(x.exports);
 
             // Returns whether it contains that property
-            return obj && (obj[name] || rest[name]);
+            return (obj && obj[name]) || rest[name];
         });
     }
     /**

@@ -18,7 +18,7 @@ export default class AddonItem extends ExtensionItem {
             fp: path.join(dirname, "main.js"),
 
             /** @type {boolean} */
-            enabled: ~ReGuilded.addonManager.enabled.indexOf(id)
+            enabled: ~ReGuilded.addonManager.enabled.indexOf(props.id)
         };
     }
     /**
@@ -27,17 +27,18 @@ export default class AddonItem extends ExtensionItem {
      */
     onToggle(state) {
         // Get the config object
-        const config = ReGuilded.settingsManager.config.addons;
-        const addons = ReGuilded.addonManager;
+        const config = ReGuilded.settingsManager.config.addons,
+              addons = ReGuilded.addonManager,
+              { id } = this.props;
 
         // The new state is true, enable the addon and add it to the config
         if (state) {
-            ReGuilded.addonManager.load(ReGuilded.addonManager.all.find(addon => addon.id === id));
+            addons.load(addons.all.find(addon => addon.id === id));
             config.enabled = [...config.enabled, id];
         }
         // The state is false, disable the addon and remove it from the config
         else {
-            ReGuilded.addonManager.unload(ReGuilded.addonManager.all.find(addon => addon.id === id));
+            addons.unload(addons.all.find(addon => addon.id === id));
             config.enabled = config.enabled.filter(_id => _id !== id);
         }
 
