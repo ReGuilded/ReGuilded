@@ -39,6 +39,8 @@ module.exports = class ReGuilded {
         this.webpackManager = new WebpackManager(webpackRequire);
         this.addonApi = new AddonApi(this.webpackManager, this.addonManager);
 
+        global.ReGuildedApi = window.ReGuildedApi = this.addonApi;
+
         // Load ReGuilded developer badges & contributor flairs
         this.loadUser(this.addonApi.UserModel);
 
@@ -46,12 +48,6 @@ module.exports = class ReGuilded {
         this.themesManager.init(enabledThemes);
         this.addonManager.webpack = this.webpackManager;
         this.addonManager.init(this.addonApi, enabledAddons);
-        
-        // TODO[!!!]: Add more to this than just `api`
-        global.guildedRequest = window.guildedRequest = (function guildedRequest(s) {
-            if (s === "api")
-                return this.addonApi;
-        }).bind(this);
 
         if (global.firstLaunch)
             this.handleFirstLaunch();

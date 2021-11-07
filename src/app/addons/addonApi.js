@@ -1,4 +1,5 @@
 const overlayWrapper = require("./overlayWrapper.jsx").default;
+const { getOwnerInstance, patchElementRenderer, waitForElement } = require("./lib.jsx");
 
 // Provides API for addons to interact with Guilded.
 // TODO: Better documentation and probably TS declaration files.
@@ -76,12 +77,15 @@ const cacheFns = {
     Modal: webpack => webpack.withClassProperty("hasConfirm"),
     MarkRenderer: webpack => webpack.withClassProperty("mark"),
     SimpleToggle: webpack => webpack.withClassProperty("input"),
+    CalloutBadge: webpack => webpack.withClassProperty("style"),
     formFieldTypes: webpack => webpack.withProperty("Dropdown"),
     NullState: webpack => webpack.withClassProperty("imageSrc"),
+    SearchBar: webpack => webpack.withClassProperty("_inputRef"),
     draggable: webpack => webpack.withProperty("DraggableTypes"),
     OverflowButton: webpack => webpack.withClassProperty("isOpen"),
     Button: webpack => webpack.withClassProperty("useHoverContext"),
     GuildedForm: webpack => webpack.withClassProperty("formValues"),
+    ItemManager: webpack => webpack.withClassProperty("ItemManager"),
     ProfilePicture: webpack => webpack.withClassProperty("borderType"),
     MarkdownRenderer: webpack => webpack.withClassProperty("plainText"),
     ActionMenuSection: webpack => webpack.withCode("ActionMenu-section"),
@@ -167,12 +171,32 @@ module.exports = class AddonApi {
         // Render overlay onto the created portal
         setImmediate(() => {
             const portalElem = this.portal.Portals[portalId]
-
+            
             portalElem.appendChild(element);
         });
-
+        
         // For it to be available for destruction
         return portalId;
+    }
+    /**
+     * Gets the React component instance that owns given element.
+     * @returns {(element: Element) => React.Component?} React owner instance
+     */
+    get getOwnerInstance() {
+        return getOwnerInstance;
+    }
+    /**
+     * 
+     */
+    get patchElementRenderer() {
+        return patchElementRenderer;
+    }
+    /**
+     * Waits for the given DOM element to get created.
+     * @returns {(query: string) => Element} Created element
+     */
+    get waitForElement() {
+        return waitForElement;
     }
 
     // Alphabetical, not categorized
@@ -186,7 +210,7 @@ module.exports = class AddonApi {
      * Provides action menu component for rendering Guilded right click, overflow and other kinds of menus.
      */
     get ActionMenu() {
-         return this.getCached("ActionMenu")?.default;
+        return this.getCached("ActionMenu")?.default;
     }
     /**
      * Provides an action menu section that categorizes menu items.
@@ -205,6 +229,12 @@ module.exports = class AddonApi {
      */
     get Button() {
         return this.getCached("Button")?.default;
+    }
+    /**
+     * A badge or a flair for anything.
+     */
+    get CalloutBadge() {
+        return this.getCached("CalloutBadge")?.default;
     }
     /**
      * Methods related to channel management.
@@ -311,6 +341,12 @@ module.exports = class AddonApi {
         return this.getCached("externalSiteInfo")?.default;
     }
     /**
+     * The list of available field types in forms.
+     */
+    get formFieldTypes() {
+        return this.getCached("formFieldTypes")?.default;
+    }
+    /**
      * The list of supported games.
      */
     get gameList() {
@@ -364,6 +400,12 @@ module.exports = class AddonApi {
      */
     get inputFieldValidations() {
         return this.getCached("inputFieldValidations")?.default;
+    }
+    /**
+     * Returns a searchable table with filtering and other features.
+     */
+    get ItemManager() {
+        return this.getCached("ItemManager")?.default;
     }
     /**
      * The list of language identifiers and their display names.
@@ -455,7 +497,7 @@ module.exports = class AddonApi {
      * Gets Prism library.
      */
     get prism() {
-        return this.getCached("prism")?.default;
+        return this.getCached("prism");
     }
     /**
      * Gets the plugins and language settings of Prism.js.
@@ -474,6 +516,12 @@ module.exports = class AddonApi {
      */
     get ProfilePostModel() {
         return this.getCached("ProfilePostModel")?.default;
+    }
+    /**
+     * The list of social links that can be put under profile.
+     */
+    get profileSocialLinks() {
+        return this.getCached("profileSocialLinks");
     }
     /**
      * React.JS framework stuff.
@@ -500,7 +548,14 @@ module.exports = class AddonApi {
         return this.getCached("restMethods")?.default;
     }
     /**
+     * An input made for searching.
+     */
+    get SearchBar() {
+        return this.getCached("SearchBar")?.default;
+    }
+    /**
      * The list of settings tabs.
+     * @returns {{[tabName: string]: { id: string, label: string, calloutBadgeProps?: { text: string, color: string } }}}
      */
     get settingsTabs() {
         return this.getCached("settingsTabs")?.default;
@@ -513,6 +568,7 @@ module.exports = class AddonApi {
     }
     /**
      * All of the social medias that Guilded client recognizes.
+     * @returns {{ SocialMediaTypes: { [socialMediaName: string]: string }, default: { [socialMediaName: string]: { label: string, icon: string, href?: string } } }}
      */
     get socialMedia() {
         return this.getCached("socialMedia");
@@ -522,12 +578,6 @@ module.exports = class AddonApi {
      */
     get sounds() {
         return this.getCached("sounds")?.default;
-    }
-    /**
-     * The list of social links that can be put under profile.
-     */
-    get profileSocialLinks() {
-        return this.getCached("profileSocialLinks");
     }
     /**
      * Model class for teams.
