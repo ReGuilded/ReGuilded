@@ -1,3 +1,4 @@
+const chokidar = require("../../libs/chokidar");
 const EventEmitter = require("events");
 const path = require("path");
 const fs = require("fs");
@@ -6,6 +7,7 @@ const fs = require("fs");
  * Manages different components of ReGuilded to allow them to be extended.
  */
 module.exports = class ExtensionManager extends EventEmitter {
+    static readmeName = "readme.md";
     /**
      * Manages different components of ReGuilded to allow them to be extended.
      * @param {String} dirname The path to the extension directory
@@ -53,6 +55,83 @@ module.exports = class ExtensionManager extends EventEmitter {
             this.allLoaded = true;
             this.emit("fullLoad", this.all);
         }
+    }
+    addMetadataConfig(metadata, dirname) {
+        fs.readdir(dirname, (err, files) => {
+            if (err) throw err;
+
+            // Add readme to metadata if one of the readme file names exist
+            const readmeName = files.find(f => f.toLowerCase() === readmeName);
+            if (readmeName) {
+                fs.readFile(path.join(dirname, readmeName), { encoding: 'utf8' }, (e, d) => {
+                    if (e) throw e;
+
+                    metadata.readme = d;
+                });
+            }
+        });
+        // Make sure publisher is an ID
+        if (metadata.publisher && typeof metadata.publisher !== "string" && metadata.publisher.length !== 8)
+        {
+            console.warn("Publisher must be an identifier of the user in Guilded, not their name or anything else");
+            // To not cause errors and stuff
+            metadata.publisher = undefined;
+        }
+    }
+    /**
+     * Watches the extension directory for any changes.
+     * @param {(dirname: string, fp: string, metadata) => void} callback
+     */
+    watch(callback) {
+        const available = fs.readdirSync(this.dirname, { withFileTypes: true }),
+              // Split '/' and get its length, to get the name of the extension.
+              // The length already gives us +1, so no need to do that.
+              // That's a dumdum way of doing it, but eh.
+              relativeIndex = this.dirname.split(path.sep).length;
+
+        // Create a loaded dictionary, to replace the old index-based load checker,
+        // along with unloading when hot reloading
+        const loaded = {};
+        // Create a de-bouncer dictionary, to prevent lag from multi-loading
+        const deBouncers = {};
+
+        // Watch the directory for any file changes
+        chokidar.watch(this.dirname).on("all", (type, fp) => {
+            const extName = fp.split(path.sep)[relativeIndex]
+
+            // Initialize the de-bouncer
+
+            // Make sure extName exists(this not being `settings/addons` or `settings/themes`
+            // ) and it's currently not in the process of rebouncing
+            if (extName && !deBouncers[extName])
+                deBouncers[extName] = setTimeout(async () => {
+                    const extPath = this.getPath(extName);
+
+                    // Get the metadata.json file path, and if it doesn't exist, ignore it
+                    const metadataPath = path.join(extPath, "metadata.json");
+                    if (!fs.existsSync(metadataPath)) {
+                        this.all.find(metadata => metadata.dirname === addonPath) !== undefined && this.all.splice(this.all.index(this.all.find(metadata => metadata.dirname === addonPath)), 1);
+                        return;
+                    }
+
+                    // Require the metadata file.
+                    const metadata = require(metadataPath);
+                    metadata.dirname = extPath;
+
+                    await callback(extPath, loaded[extName], metadata)
+                        .then(
+                            metadata => loaded[extName] = metadata,
+                            rejection => console.error("Error in " + metadata.id + ":\n", rejection)
+                        )
+                        .then(() => {
+                            // Check if it's done loading all extensions and do stuff with it
+                            this.checkLoaded(Object.keys(loaded).length, available.length);
+
+                            // Remove debouncer from the set for further debouncing and updatings
+                            delete deBouncers[extName];
+                        })
+                }, 250);
+        });
     }
 
     /**

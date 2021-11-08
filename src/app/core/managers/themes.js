@@ -1,6 +1,5 @@
 const ExtensionManager = require("./extension.js");
 const { existsSync, readFile } = require("fs");
-const chokidar = require("../../libs/chokidar");
 const _module = require("module");
 const path = require("path");
 
@@ -37,65 +36,37 @@ module.exports = class ThemesManager extends ExtensionManager {
         this.all = [];
         this.enabled = enabled;
 
-        // Create a loaded dictionary, to replace the old index-based load checker,
-        // along with unloading when hot reloading
-        const loaded = {};
-        // Create a de-bouncer dictionary, to prevent lag from multi-loading
-        const deBouncers = {};
-        // Watch the directory for any file changes
-        chokidar.watch(this.dirname).on("all", (type, fp) => {
-            const dir = path.basename(path.dirname(fp));
-
-            // Initialize the de-bouncer
-            clearTimeout(deBouncers[dir]);
-            deBouncers[dir] = setTimeout(() => {
-                const themePath = super.getPath(dir);
-
-                // Get the metadata.json file path, and if it doesn't exist, ignore it
-                const metadataPath = path.join(themePath, "metadata.json");
-
-                if (!existsSync(metadataPath)) {
-                    this.all.find(metadata => metadata.dirname === themePath) !== undefined && this.all.splice(this.all.index(this.all.find(metadata => metadata.dirname === themePath)), 1);
-                    return;
-                }
-
-                // Require the metadata file.
-                const metadata = require(metadataPath);
-                metadata.dirname = themePath;
-
-                // If the theme is already loaded, unload it
-                loaded[dir] && this.unload(metadata);
-                // If the theme is in the list of all themes, remove it
-                ~this.all.indexOf(metadata) && this.all.splice(this.all.indexOf(metadata, 1));
+        this.watch((_, loaded, metadata) => new Promise((resolve, reject) => {
+            // If the theme is already loaded, unload it
+            loaded && this.unload(metadata);
+            // If the theme is in the list of all themes, remove it
+            ~this.all.indexOf(metadata) && this.all.splice(this.all.indexOf(metadata, 1));
 
 
-                const propFiles = typeof metadata.files === "string" ? [metadata.files] : metadata.files;
-                metadata.files = propFiles;
+            const propFiles = typeof metadata.files === "string" ? [metadata.files] : metadata.files;
+            metadata.files = propFiles;
 
-                // Since we turned string into single-item array,
-                // we don't need to check for both types
-                if (!Array.isArray(propFiles))
-                    throw new TypeError(`Expected property 'files' to be either a string or an array. In path: ${metadataPath}`);
+            // Since we turned string into single-item array,
+            // we don't need to check for both types
+            if (!Array.isArray(propFiles))
+                return reject(new TypeError(`Expected property 'files' to be either a string or an array. In path: ${metadataPath}`));
 
-                for (let file of propFiles) {
-                    const filePath = getCssPath(metadata, file);
+            for (let file of propFiles) {
+                const filePath = getCssPath(metadata, file);
 
-                    if (!existsSync(filePath))
-                        throw new Error(`Could not find CSS file in path ${filePath}`);
-                }
+                if (!existsSync(filePath))
+                    return reject(new Error(`Could not find CSS file in path ${filePath}`));
+            }
 
 
-                if (this.enabled.includes(metadata.id))
-                    // Load the theme and add it to loaded dictionary
-                    this.load(loaded[dir] = metadata);
+            if (this.enabled.includes(metadata.id))
+                // Load the theme and add it to loaded dictionary
+                this.load(metadata);
 
-                this.all.push(metadata)
-                // I... don't want to talk about this
+            this.all.push(metadata);
 
-                // And I do.
-                this.checkLoaded(Object.keys(loaded).length, enabled.length);
-            }, 250);
-        });
+            resolve(metadata);
+        }));
     }
 
     /**
