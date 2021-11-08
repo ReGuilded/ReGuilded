@@ -10,6 +10,10 @@ const fs = require("fs");
 module.exports = class ExtensionManager extends EventEmitter {
     static allowedReadmeName = "readme.md";
     /**
+     * A Regex pattern for determining whether given extension's ID is correct.
+     */
+    static idRegex = /^[A-Za-z0-9]+$/g;
+    /**
      * Manages different components of ReGuilded to allow them to be extended.
      * @param {String} dirname The path to the extension directory
      */
@@ -25,13 +29,8 @@ module.exports = class ExtensionManager extends EventEmitter {
      * @returns Whether the identifier is correct or not
      */
     static checkId(id, path) {
-        const isId = (
-            typeof id === "string" &&
-            // Checks if it's empty
-            id.replace(module.exports.idRegex, "").length === 0
-        );
-        if (!isId)
-            throw new Error(`Incorrect syntax of the property 'id'.`);
+        if (!(typeof id === "string" && id.match(ExtensionManager.idRegex)))
+            throw new Error(`Incorrect syntax of the property 'id'. Path:`, path);
     }
     /**
      * Gets a list of extensions.
@@ -145,7 +144,7 @@ module.exports = class ExtensionManager extends EventEmitter {
         for (let ext of this.enabled) {
             const extension = this.all.find(x => x.id === ext);
 
-            if(extension) this.load(extension);
+            if (extension) this.load(extension);
         }
     }
     /**
@@ -180,7 +179,3 @@ module.exports = class ExtensionManager extends EventEmitter {
             throw new TypeError(`Expected '${name}' to be ${type}, found ${typeof value} instead in ${path}`);
     }
 };
-/**
- * A Regex pattern for determining whether given extension's ID is correct.
- */
-module.exports.idRegex = /^[A-Za-z0-9]+$/g;

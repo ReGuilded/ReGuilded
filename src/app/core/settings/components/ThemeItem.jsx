@@ -3,7 +3,7 @@ import ExtensionItem from "./ExtensionItem.jsx";
 import { join } from "path";
 
 import { ThemeSettingsHandler } from "../index.jsx";
-import { validateColor } from '../validation.ts';
+import validations from '../validation.ts';
 import ExtensionItem from "./ExtensionItem.jsx";
 
 const { React, OverlayProvider } = ReGuildedApi;
@@ -14,19 +14,12 @@ export default OverlayProvider(["SimpleFormOverlay"])(class ThemeItem extends Ex
 
         this.props.type = "theme";
 
-        const { id, dirname, files: fileList } = props;
+        const { id, settings, settingsProps } = props;
 
-        const file = fileList[0];
-        const fp = join(dirname, file);
-        const data = readFileSync(fp, "utf8");
-
+        console.log('Theme', props, 'Settings', settings, 'Props', settingsProps)
         this.state = {
-            fp,
-            data,
-            dirname,
-
-            /** @type {[line: string, propName: string, propValue: string]} */
-            variables: [...data.matchAll(/--(\S+?):(?:\s*)?(\S*?);/g)],
+            settings,
+            settingsProps,
             /** @type {boolean} */
             enabled: ~ReGuilded.themesManager.enabled.indexOf(id)
         };
@@ -34,38 +27,42 @@ export default OverlayProvider(["SimpleFormOverlay"])(class ThemeItem extends Ex
         // Move this somewhere else
         const settingsBtnCallback = this.openThemeSettings.bind(this);
 
-        this.overflowMenuSpecs.sections.push({
-            name: "Theme",
-            type: "rows",
-            actions: [
-                {
-                    label: "Settings",
-                    icon: "icon-settings",
-                    onClick: settingsBtnCallback
-                }
-            ]
-        });
+        // Add "Settings" button if settings are present
+        if (settings)
+            this.overflowMenuSpecs.sections.push({
+                name: "Theme",
+                type: "rows",
+                actions: [
+                    {
+                        label: "Settings",
+                        icon: "icon-settings",
+                        onClick: settingsBtnCallback
+                    }
+                ]
+            });
     }
     get formSpecs() {
-        const { variables } = this.state;
+        const { settings, settingsProps } = this.state;
 
         return {
             sections: [
                 {
-                    fieldSpecs: variables.map(([, name, defaultValue]) => {
-                        // Get validation function and type that fit
-                        const [ validationFunction, type ] =
+                    fieldSpecs: settingsProps.map(id => {
+                        const { type, value, name } = settings[id];
 
-                            !validateColor(defaultValue) ? [validateColor, "color"]
-                            : [];
+                        // Get validation function and type that fit
+                        const validationFunction = validations[type];
 
                         return {
                             type: "Text",
-                            fieldName: name,
-                            header: ThemeItem.formatCssVarName(name),
+                            fieldName: id,
+                            header: name,
                             label: type ? `Value (${type})` : "Value",
-                            defaultValue,
+                            defaultValue: value,
+
+                            inputType: type === "number" ? type : undefined,
                             validationFunction,
+
                             grow: 1
                         }
                     })
@@ -111,7 +108,7 @@ export default OverlayProvider(["SimpleFormOverlay"])(class ThemeItem extends Ex
         const { id, name } = this.props;
 
         // Get whether Save was clicked and get form values
-        const { confirmed, values } =
+        const { confirmed, changedValues } =
             await this.SimpleFormOverlay.Open({
                 header: name + " settings",
 
@@ -123,19 +120,6 @@ export default OverlayProvider(["SimpleFormOverlay"])(class ThemeItem extends Ex
 
         // FIXME: .overrides is always {}. Might as well replace ThemeSettingsHandler entirely
         if (confirmed)
-            ThemeSettingsHandler.overrides[id].setAll(values);
-    }
-
-    /**
-     * Changes `snake-case` to `Capitalized Case`.
-     * @param {string} name The name of the CSS variable.
-     * @example "--fizz-buzz" => "Fizz Buzz"
-     * @returns {string} Formatted CSS variable
-     */
-    static formatCssVarName(name) {
-        return name
-            .split("-")
-            .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-            .join(" ");
+            ReGuilded.themesManager.assignProperties(this.props, changedValues);
     }
 });
