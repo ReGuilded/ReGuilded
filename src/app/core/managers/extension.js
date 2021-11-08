@@ -3,11 +3,12 @@ const EventEmitter = require("events");
 const path = require("path");
 const fs = require("fs");
 
+
 /**
  * Manages different components of ReGuilded to allow them to be extended.
  */
 module.exports = class ExtensionManager extends EventEmitter {
-    static readmeName = "readme.md";
+    static allowedReadmeName = "readme.md";
     /**
      * Manages different components of ReGuilded to allow them to be extended.
      * @param {String} dirname The path to the extension directory
@@ -61,7 +62,7 @@ module.exports = class ExtensionManager extends EventEmitter {
             if (err) throw err;
 
             // Add readme to metadata if one of the readme file names exist
-            const readmeName = files.find(f => f.toLowerCase() === readmeName);
+            const readmeName = files.find(f => f.toLowerCase() === ExtensionManager.allowedReadmeName);
             if (readmeName) {
                 fs.readFile(path.join(dirname, readmeName), { encoding: 'utf8' }, (e, d) => {
                     if (e) throw e;
@@ -117,6 +118,9 @@ module.exports = class ExtensionManager extends EventEmitter {
                     // Require the metadata file.
                     const metadata = require(metadataPath);
                     metadata.dirname = extPath;
+
+                    // Add Readme, etc.
+                    this.addMetadataConfig(metadata, extPath);
 
                     await callback(extPath, loaded[extName], metadata)
                         .then(

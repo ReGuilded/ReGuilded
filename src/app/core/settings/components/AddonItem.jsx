@@ -3,7 +3,7 @@ import ExtensionItem from "./ExtensionItem.jsx";
 import path from "path";
 import fs from "fs";
 
-const { React } = ReGuilded.addonApi;
+const { React } = ReGuildedApi;
 
 export default class AddonItem extends ExtensionItem {
     constructor(props, context) {

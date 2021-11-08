@@ -1,7 +1,7 @@
 ﻿import { shell } from 'electron';
 import ErrorBoundary from './ErrorBoundary';
 
-const { OverflowButton, GuildedForm, UserBasicInfo, UserModelHelper, React } = ReGuilded.addonApi;
+const { OverflowButton, GuildedForm, UserBasicInfo, UserModelHelper, React } = ReGuildedApi;
 
 export default class ExtensionItem extends React.Component {
     constructor(props, context) {
@@ -33,7 +33,7 @@ export default class ExtensionItem extends React.Component {
     }
     onToggle() {}
     render() {
-        const { id, name, description, type, publisher } = this.props,
+        const { id, name, readme, type, publisher } = this.props,
               toggleCallback = this.onToggle.bind(this),
               { overflowMenuSpecs } = this,
               { enabled } = this.state;
@@ -46,7 +46,7 @@ export default class ExtensionItem extends React.Component {
                             {/* Description */}
                             <div className="DocDisplayItem-preview ReGuildedExtension-preview">
                                 <p className="ReGuildedExtension-description">
-                                    {description?.length ? description : "No description provided."}
+                                    {readme?.length ? ReGuildedApi.renderMarkdown(readme) : "No description provided."}
                                 </p>
                             </div>
                             {/* Footer */}

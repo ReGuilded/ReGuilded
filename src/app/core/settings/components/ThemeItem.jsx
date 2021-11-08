@@ -6,7 +6,7 @@ import { ThemeSettingsHandler } from "../index.jsx";
 import { validateColor } from '../validation.ts';
 import ExtensionItem from "./ExtensionItem.jsx";
 
-const { React, OverlayProvider } = ReGuilded.addonApi;
+const { React, OverlayProvider } = ReGuildedApi;
 
 export default OverlayProvider(["SimpleFormOverlay"])(class ThemeItem extends ExtensionItem {
     constructor(props, context) {

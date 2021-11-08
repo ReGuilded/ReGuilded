@@ -1,6 +1,6 @@
 import ErrorBoundary from './ErrorBoundary.jsx';
 
-const { React, NullState } = ReGuilded.addonApi;
+const { React, NullState } = ReGuildedApi;
 
 export default class ExtensionSettings extends React.Component {
     constructor(...args) {
