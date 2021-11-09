@@ -1,6 +1,5 @@
 const ExtensionManager = require("./extension.js");
 const { existsSync, readFile, writeFile } = require("fs");
-const _module = require("module");
 const path = require("path");
 
 /**
@@ -198,9 +197,8 @@ module.exports = class ThemesManager extends ExtensionManager {
     unload(metadata) {
         console.log(`Unloading theme by ID '${metadata.id}'`);
 
-        document
-            .getElementById(`reGl-theme-${metadata.id}`)
-            .remove();
+        const themeElement = document.getElementById(`reGl-theme-${metadata.id}`)
+        themeElement && themeElement.remove();
     }
 
     /**
