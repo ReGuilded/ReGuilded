@@ -40,7 +40,7 @@ export default class ExtensionItem extends React.Component {
     }
     onToggle() {}
     render() {
-        const { id, name, readme, type, publisher } = this.props,
+        const { id, name, readme, type } = this.props,
               toggleCallback = this.onToggle.bind(this),
               { overflowMenuSpecs } = this,
               { enabled } = this.state;
