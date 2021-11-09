@@ -83,9 +83,7 @@ export default OverlayProvider(["SimpleFormOverlay"])(class ThemeItem extends Ex
         if (enabled) {
             ReGuilded.themesManager.load(this.props);
             config.enabled = [...config.enabled, id];
-        }
-        // The state is false, disable the theme and remove it from the config
-        else {
+        } else { // The state is false, disable the theme and remove it from the config
             ReGuilded.themesManager.unload(this.props);
             config.enabled = config.enabled.filter(_id => _id !== id);
         }
@@ -93,8 +91,9 @@ export default OverlayProvider(["SimpleFormOverlay"])(class ThemeItem extends Ex
         // Spaghetti
         themes.enabled = config.enabled;
 
+        // REVIEW: Is this still needed?
         // Re-init all theme data
-        ThemeSettingsHandler.reInitAll();
+        // ThemeSettingsHandler.reInitAll();
 
         // Write the new date
         writeFileSync(
@@ -105,7 +104,7 @@ export default OverlayProvider(["SimpleFormOverlay"])(class ThemeItem extends Ex
         this.setState({ enabled });
     }
     async openThemeSettings() {
-        const { id, name } = this.props;
+        const { name } = this.props;
 
         // Get whether Save was clicked and get form values
         const { confirmed, changedValues } =
