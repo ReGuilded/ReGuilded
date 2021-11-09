@@ -36,8 +36,6 @@ export default class ExtensionItem extends React.Component {
             await restMethods.getUserById(this.props.publisher)
                 .then(userInfo => this.setState({publisher: userInfo.user}))
                 .catch(() => {});
-
-            console.log(this.props.publisher, this.state.publisher)
         }
     }
     onToggle() {}
