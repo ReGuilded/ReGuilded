@@ -1,8 +1,7 @@
 const initializeApi = require('../../addons/initializeApi.js');
-const { join, dirname, basename } = require("path");
+const { join } = require("path");
 const ExtensionManager = require("./extension.js");
 const { existsSync } = require("fs");
-const _module = require("module");
 const path = require("path");
 
 /**
@@ -57,6 +56,8 @@ module.exports = class AddonManager extends ExtensionManager {
 
             metadata.files = propFiles;
 
+            this.all.push(metadata);
+
             if (isEnabled) {
                 // Load the addon.
                 this.load(metadata);
@@ -99,7 +100,6 @@ module.exports = class AddonManager extends ExtensionManager {
 
         if (typeof(main.init) === "function") {
             metadata.core = main;
-            this.all.push(metadata);
         }
         else console.error("Addon has no pre-init function or has invalid formatting:", dir);
 
