@@ -1,5 +1,4 @@
-﻿import ReGuildedSettings from "./components/ReGuildedSettings.jsx";
-import { patchElementRenderer } from '../../addons/lib.jsx';
+﻿import { patchElementRenderer } from '../../addons/lib.jsx';
 import AddonSettings from "./components/AddonSettings.jsx";
 import ThemeSettings from "./components/ThemeSettings.jsx";
 import patcher from "../../addons/patcher";
