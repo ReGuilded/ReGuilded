@@ -1,7 +1,7 @@
 ﻿import { shell } from 'electron';
 import ErrorBoundary from './ErrorBoundary';
 
-const { OverflowButton, GuildedForm, UserBasicInfo, UserModelHelper, React } = ReGuildedApi;
+const { OverflowButton, GuildedForm, UserBasicInfo, UserModel, restMethods, React } = ReGuildedApi;
 
 export default class ExtensionItem extends React.Component {
     constructor(props, context) {
@@ -30,6 +30,15 @@ export default class ExtensionItem extends React.Component {
                 }
             ]
         };
+    }
+    async componentWillMount() {
+        if (this.props.publisher) {
+            await restMethods.getUserById(this.props.publisher)
+                .then(userInfo => this.setState({publisher: userInfo.user}))
+                .catch(() => {});
+
+            console.log(this.props.publisher, this.state.publisher)
+        }
     }
     onToggle() {}
     render() {
@@ -67,14 +76,10 @@ export default class ExtensionItem extends React.Component {
                                         }
                                     ],
                                 }}/>
-                                {/* TODO: Fix the publisher not being fetched if the publisher isn't viewing user */}
-                                {/*
-                                <br/>
-                                { publisher
-                                    ? <UserBasicInfo size="sm" user={UserModelHelper?.GetModel(publisher)}/>
-                                    : Unknown publisher
-                                } */}
-                                <h6>Unknown publisher</h6>
+                                {this.state.publisher
+                                    ? <div><br/><UserBasicInfo size="sm" user={new UserModel(this.state.publisher)}/></div>
+                                    : <h6>Unknown Publisher</h6>
+                                }
                             </div>
                             {/* Overflow */}
                             <ErrorBoundary>
