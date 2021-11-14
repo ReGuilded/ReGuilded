@@ -21,6 +21,7 @@
 ## Installation
 
 You can use the Easy Installer located on our [website](https://reguilded.dev/downloads).
+Or alternatively you can also download it from [github](https://github.com/reguilded/reguilded-setup/releases).
 
 ## Will you get banned for using ReGuilded?
 
