@@ -1,7 +1,6 @@
 const fs = require("fs");
 const path = require("path");
 const sucrase = require("../sucrase");
-const sass = require("../sass");
 const _module = require("module");
 
 // The list of originals for the un-patcher
@@ -27,7 +26,7 @@ function unpatchRequire() {
 }
 
 module.exports = {
-    sucrase, sass,
+    sucrase,
     /**
      * Patch the require to handle TS/JSX/TSX/CSS/SASS/SCSS.
      */
