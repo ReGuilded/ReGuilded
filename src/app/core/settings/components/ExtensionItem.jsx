@@ -32,9 +32,9 @@ export default class ExtensionItem extends React.Component {
         };
     }
     async componentWillMount() {
-        if (this.props.publisher) {
-            await restMethods.getUserById(this.props.publisher)
-                .then(userInfo => this.setState({publisher: userInfo.user}))
+        if (this.props.author) {
+            await restMethods.getUserById(this.props.author)
+                .then(userInfo => this.setState({author: userInfo.user}))
                 .catch(() => {});
         }
     }
@@ -74,9 +74,9 @@ export default class ExtensionItem extends React.Component {
                                         }
                                     ],
                                 }}/>
-                                {this.state.publisher
-                                    ? <div><br/><UserBasicInfo size="sm" user={new UserModel(this.state.publisher)}/></div>
-                                    : <h6>Unknown Publisher</h6>
+                                {this.state.author
+                                    ? <div><br/><UserBasicInfo size="sm" user={new UserModel(this.state.author)}/></div>
+                                    : <h6>Unknown Author</h6>
                                 }
                             </div>
                             {/* Overflow */}

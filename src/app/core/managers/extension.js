@@ -70,12 +70,12 @@ module.exports = class ExtensionManager extends EventEmitter {
                 });
             }
         });
-        // Make sure publisher is an ID
-        if (metadata.publisher && typeof metadata.publisher !== "string" && metadata.publisher.length !== 8)
+        // Make sure author is an ID
+        if (metadata.author && typeof metadata.author !== "string" && metadata.author.length !== 8)
         {
-            console.warn("Publisher must be an identifier of the user in Guilded, not their name or anything else");
+            console.warn("Author must be an identifier of the user in Guilded, not their name or anything else");
             // To not cause errors and stuff
-            metadata.publisher = undefined;
+            metadata.author = undefined;
         }
     }
     /**
