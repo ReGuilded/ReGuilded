@@ -1,5 +1,4 @@
 const { members } = require("../../core/badges-flairs.js");
-// const { promises as fs } =
 const { access, mkdir, writeFile } = require("fs").promises;
 const { ipcRenderer } = require("electron");
 const { join } = require("path");
@@ -74,9 +73,11 @@ document.addEventListener("readystatechange", () => {
 });
 
 // Fetches ReGuilded developer list
-fetch("https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuilded/wwwroot/maintainers.json")
-    .then(x => x.json())
-    .then(x => {
-        members.dev = x.developers;
-        members.contrib = x.contributors;
+fetch("https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuilded/wwwroot/maintainers.json").then((response) => {
+    response.json().then((json) => {
+        members.dev = json.filter(user => user.isCoreDeveloper)
+        members.contrib = json.filter(user => user.isContributor)
+
+        console.log(members.dev, members.contrib)
     });
+})

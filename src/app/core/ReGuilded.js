@@ -70,6 +70,12 @@ module.exports = class ReGuilded {
     loadUser(UserModel) {
         if (!UserModel) return;
 
+        // Pushes RG Contributor Flair into the Global Flairs array, along with a Duplication Tooltip Handler from the Gil Gang flair.
+        const globalFlairsInfo = this.addonApi.globalFlairsDisplayInfo;
+        const globalFlairsTooltipInfo = this.addonApi.globalFlairsTooltipInfo;
+        globalFlairsInfo.default["rg_contrib"] = all.contrib;
+        globalFlairsTooltipInfo.default["rg_contrib"] = globalFlairsTooltipInfo.default["gil_gang"];
+
         // Badge Getters.
         const badgeGetter = badges.genBadgeGetter(UserModel.prototype.__lookupGetter__("badges"));
         const flairGetter = flairs.genFlairGetter(UserModel.prototype.__lookupGetter__("flairInfos"));

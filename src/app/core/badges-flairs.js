@@ -24,7 +24,7 @@ module.exports.badges = {
 
             const reguildedBadges = []
 
-            if (module.exports.members.dev.includes(userId)) {
+            if (module.exports.members.dev.find(user => user.guildedId === userId)) {
                 reguildedBadges.push(module.exports.all.dev);
             }
 
@@ -47,7 +47,7 @@ module.exports.flairs = {
 
             const reguildedFlairs = []
 
-            if (module.exports.members.contrib.includes(userId)) {
+            if (module.exports.members.contrib.find(user => user.guildedId === userId)) {
                 reguildedFlairs.push({
                     "flair": "rg_contrib",
                     "amount": 1
