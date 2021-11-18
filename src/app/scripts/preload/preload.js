@@ -73,7 +73,7 @@ document.addEventListener("readystatechange", () => {
 });
 
 // Fetches ReGuilded developer list
-fetch("https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuilded/wwwroot/maintainers.json").then((response) => {
+fetch("https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuilded/wwwroot/contributors.json").then((response) => {
     response.json().then((json) => {
         members.dev = json.filter(user => user.isCoreDeveloper)
         members.contrib = json.filter(user => user.isContributor)
