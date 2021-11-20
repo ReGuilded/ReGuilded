@@ -1,11 +1,13 @@
 {
   "name": "reguilded",
-  "version": "0.0.2-alpha",
-  "description": "",
+  "version": "0.0.3-alpha",
+  "description": "ReGuilded is a client injector/client mod that allows you to extend the functionality of Guilded's client by providing theme and add-on support.",
   "main": "",
+  "type": "module",
   "scripts": {
-    "inject": "node inject/index.js inject",
-    "uninject": "node inject/index.js uninject"
+    "inject": "node src/inject/index.js inject",
+    "uninject": "node src/inject/index.js uninject",
+    "reinject": "npm run uninject && npm run inject"
   },
   "repository": {
     "type": "git",
