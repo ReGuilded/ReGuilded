@@ -6,7 +6,6 @@ const WebpackManager = require("../addons/webpack.js");
 const ThemesManager = require("./managers/themes.js");
 const AddonManager = require("./managers/addon.js");
 const AddonApi = require("../addons/addonApi.js");
-const { readFileSync } = require("fs");
 
 /**
  * ReGuilded's full manager's class.
