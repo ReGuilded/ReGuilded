@@ -30,6 +30,7 @@ export default class ExtensionItem extends React.Component {
                 }
             ]
         };
+        this.hasToggled = false;
     }
     async componentWillMount() {
         if (this.props.author) {
@@ -58,14 +59,14 @@ export default class ExtensionItem extends React.Component {
                             </div>
                             {/* Footer */}
                             <div className="DocDisplayItem-summary-info DocSummaryInfo-container ReGuildedExtension-summary-info">
-                                <GuildedForm onChange={e => e.hasChanged ? toggleCallback(e.values.extensionToggle) : null} formSpecs={{
+                                <GuildedForm onChange={({ hasChanged, values: {enabled} }) => hasChanged && (this.hasToggled = true) || this.hasToggled ? toggleCallback(enabled) : null} formSpecs={{
                                     sections: [
                                         {
                                             fieldSpecs: [
                                                 {
                                                     type: "Switch",
                                                     label: name,
-                                                    fieldName: "extensionToggle",
+                                                    fieldName: "enabled",
                                                     description: `Id - ${id}`,
                                                     layout: "space-between",
                                                     defaultValue: enabled
