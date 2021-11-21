@@ -77,7 +77,5 @@ fetch("https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuil
     response.json().then((json) => {
         members.dev = json.filter(user => user.isCoreDeveloper)
         members.contrib = json.filter(user => user.isContributor)
-
-        console.log(members.dev, members.contrib)
     });
 })
