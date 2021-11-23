@@ -1,3 +1,4 @@
+// @ts-ignore
 const { inputFieldValidations: { validateIsUrl } }: { inputFieldValidations: { validateIsUrl: (raw: string) => undefined | string } } = ReGuildedApi;
 
 export default {
@@ -35,6 +36,7 @@ export default {
     // Guilded validators
     url: validateIsUrl
 }
+
 function validationFactory(regex: RegExp) {
     // Validator
     return function validate(raw: string): undefined | string {

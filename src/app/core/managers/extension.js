@@ -97,9 +97,7 @@ module.exports = class ExtensionManager extends EventEmitter {
 
         // Watch the directory for any file changes
         chokidar.watch(this.dirname).on("all", (type, fp) => {
-            const extName = fp.split(path.sep)[relativeIndex]
-
-            // Initialize the de-bouncer
+            const extName = fp.split(path.sep)[relativeIndex];
 
             // Make sure extName exists(this not being `settings/addons` or `settings/themes`
             // ) and it's currently not in the process of rebouncing
@@ -110,13 +108,22 @@ module.exports = class ExtensionManager extends EventEmitter {
                     // Get the metadata.json file path, and if it doesn't exist, ignore it
                     const metadataPath = path.join(extPath, "metadata.json");
                     if (!fs.existsSync(metadataPath)) {
-                        this.all.find(metadata => metadata.dirname === addonPath) !== undefined && this.all.splice(this.all.index(this.all.find(metadata => metadata.dirname === addonPath)), 1);
+                        const existingExt =  this.all.find(metadata => metadata.dirname === extPath)
+                        if (existingExt !== undefined) {
+                            this.all.splice(this.all.indexOf(existingExt), 1);
+                            this.unload(existingExt, true);
+                            delete loaded[extName]
+                        }
+                        delete deBouncers[extName];
                         return;
                     }
 
+                    let metadata = this.all.find(metadata => metadata.dirname === extPath);
                     // Require the metadata file.
-                    const metadata = require(metadataPath);
-                    metadata.dirname = extPath;
+                    if (metadata === undefined) {
+                        metadata = require(metadataPath);
+                        metadata.dirname = extPath;
+                    }
 
                     // Add Readme, etc.
                     this.addMetadataConfig(metadata, extPath);

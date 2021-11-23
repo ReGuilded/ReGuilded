@@ -1,8 +1,6 @@
-import { readFileSync, writeFileSync } from "fs";
-import ExtensionItem from "./ExtensionItem.jsx";
+import { writeFileSync } from "fs";
 import { join } from "path";
 
-import { ThemeSettingsHandler } from "../index.jsx";
 import validations from '../validation.ts';
 import ExtensionItem from "./ExtensionItem.jsx";
 
@@ -16,7 +14,6 @@ export default OverlayProvider(["SimpleFormOverlay"])(class ThemeItem extends Ex
 
         const { id, settings, settingsProps } = props;
 
-        console.log('Theme', props, 'Settings', settings, 'Props', settingsProps)
         this.state = {
             settings,
             settingsProps,

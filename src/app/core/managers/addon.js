@@ -19,6 +19,7 @@ module.exports = class AddonManager extends ExtensionManager {
 
     /**
      * Initiates addons for ReGuilded and addon manager
+     * @param addonApi ReGuilded Addon API.
      * @param {String[]} enabled An array of enabled addons.
      */
     init(addonApi, enabled = []) {
@@ -42,7 +43,8 @@ module.exports = class AddonManager extends ExtensionManager {
             metadata.dirname = addonPath;
 
             // If the addon is already loaded, unload it
-            loaded && this.unload(metadata);
+            loaded && this.unload(metadata, true);
+
             // If the addon is in the list of all loaded addons, remove it
             if (~this.all.indexOf(metadata))
                 this.all.splice(this.all.indexOf(metadata), 1);
@@ -58,18 +60,16 @@ module.exports = class AddonManager extends ExtensionManager {
 
             this.all.push(metadata);
 
-            if (isEnabled) {
-                // Load the addon.
-                this.load(metadata);
+            // Load the addon if enabled.
+            isEnabled && this.load(metadata);
 
-                resolve(metadata);
-            }
+            resolve(metadata);
         }));
     }
     
     /**
      * Loads a ReGuilded addon.
-     * @param {{id: String, name: String, functions: {init: Function, load: Function, unload: Function}}} metadata addon to load onto Guilded
+     * @param {{id: String, dirname: String, files: String, core: {init: Function, load: Function, unload: Function}}} metadata addon to load onto Guilded
      */
     load(metadata) {
         // Try-catch errors to prevent conflicts with other plugins
@@ -77,14 +77,18 @@ module.exports = class AddonManager extends ExtensionManager {
             console.log(`Loading addon by ID`, metadata.id);
 
             // Check if it's first time loading
-            if (!~this.initialized.indexOf(metadata.id))
-                this.initializeAddon(metadata);
+            !~this.initialized.indexOf(metadata.id) && this.initializeAddon(metadata);
 
             metadata.core.load(this, this.webpack);
         } catch (e) {
             console.error("Failed to load addon by ID", metadata.id, e);
         }
     }
+
+    /**
+     * Initializes a ReGuilded addon.
+     * @param {{id: String, dirname: String, files: String, core: {init: Function, load: Function, unload: Function}}} metadata addon to init.
+     */
     initializeAddon(metadata) {
         // Gets the propFiles[0] file path, and if it doesn't exist, ignore it
         const mainPath = join(metadata.dirname, metadata.files);
@@ -100,8 +104,7 @@ module.exports = class AddonManager extends ExtensionManager {
 
         if (typeof(main.init) === "function") {
             metadata.core = main;
-        }
-        else console.error("Addon has no pre-init function or has invalid formatting:", dir);
+        } else console.error("Addon has no pre-init function or has invalid formatting:", metadata.dirname);
 
         // TODO: Add-on sandboxing
         metadata.core.init();
@@ -110,16 +113,24 @@ module.exports = class AddonManager extends ExtensionManager {
 
     /**
      * Unloads/removes a ReGuilded addon.
-     * @param {{id: String, name: String, dirname: String, files: String functions: {init: Function, load: Function, unload: Function}}} metadata addon to load onto Guilded
+     * @param hardUnload determines if the addon should also be "uninitialized" false by default
+     * @param {{id: String, dirname: String, files: String, core: {init: Function, load: Function, unload: Function}}} metadata addon to load onto Guilded
      */
-    unload(metadata) {
+    unload(metadata, hardUnload = false) {
         try {
             console.log("Unloading addon by ID", metadata.id);
             metadata.core.unload(this, this.webpack);
 
+            if (hardUnload && ~this.initialized.indexOf(metadata.id)) {
+                this.initialized.splice(this.initialized.indexOf(metadata.id), 1);
+            }
+
             // Remove the addon from the cache
             const filePath = path.join(metadata.dirname, metadata.files);
-            delete require.cache[filePath];
+            const metadataPath = path.join(metadata.dirname, "metadata.json");
+
+            delete require.cache[require.resolve(filePath)];
+            delete require.cache[require.resolve(metadataPath)];
         } catch (e) {
             console.error("Failed to unload an addon by ID", metadata.id, e);
         }

@@ -72,11 +72,12 @@ module.exports = class ThemesManager extends ExtensionManager {
                     return reject(new Error(`Could not find CSS file in path ${filePath}`));
             }
 
-            
+
+            // If Enabled; Load the theme and add it to loaded dictionary
             if (this.enabled.includes(metadata.id))
-            // Load the theme and add it to loaded dictionary
-            this.load(metadata);
-            
+                this.load(metadata);
+
+            // Add theme to all array.
             this.all.push(metadata);
             
             resolve(metadata);
