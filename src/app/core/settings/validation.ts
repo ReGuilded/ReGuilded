@@ -1,5 +1,5 @@
 // @ts-ignore
-const { inputFieldValidations: { validateIsUrl } }: { inputFieldValidations: { validateIsUrl: (raw: string) => undefined | string } } = ReGuildedApi;
+const { inputFieldValidations: { validateIsUrl } }: { inputFieldValidations: { validateIsUrl: (raw: string) => undefined | string } } = window.ReGuildedApi;
 
 export default {
     /**
