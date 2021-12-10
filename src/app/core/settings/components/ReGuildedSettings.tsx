@@ -1,7 +1,7 @@
 ﻿import ErrorBoundary from "./ErrorBoundary";
 import React from "react";
 
-const { GuildedForm } = window.ReGuildedApi;
+const { Form } = window.ReGuildedApi;
 
 /**
  * Creates ReGuilded main settings component.
@@ -12,7 +12,7 @@ export default function ReGuildedSettings() {
     return (
         <ErrorBoundary>
             <div className="OptionsMenuPageWrapper-container">
-                <GuildedForm formSpecs={{
+                <Form formSpecs={{
                     sectionStyle: "border",
                     sections: [
                         {
@@ -28,7 +28,7 @@ export default function ReGuildedSettings() {
                                     
                                     layout: "vertical",
                                     isPanel: true,
-                                    showDescription: true,
+                                    //showDescription: true,
                                     isCheckbox: true,
                                     options: [
                                         {

@@ -2,6 +2,10 @@ import { getOwnerInstance, patchElementRenderer, waitForElement } from "./lib";
 import AddonManager from "../core/managers/addon";
 import overlayWrapper from "./overlayWrapper";
 import WebpackManager from "./webpack";
+import { Form } from "../guilded/form";
+import { SvgIcon, ItemManager, NullState } from "../guilded/content";
+import { OverflowButton } from "../guilded/menu";
+import React from "react";
 
 // Provides API for addons to interact with Guilded.
 // TODO: Better documentation and probably TS declaration files.
@@ -76,6 +80,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     languageCodes: webpack => webpack.withProperty("availableLanguageCodes"),
 
     // Components
+    Form: webpack => webpack.withClassProperty("formValues"),
     Modal: webpack => webpack.withClassProperty("hasConfirm"),
     MarkRenderer: webpack => webpack.withClassProperty("mark"),
     SimpleToggle: webpack => webpack.withClassProperty("input"),
@@ -86,14 +91,13 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     draggable: webpack => webpack.withProperty("DraggableTypes"),
     OverflowButton: webpack => webpack.withClassProperty("isOpen"),
     Button: webpack => webpack.withClassProperty("useHoverContext"),
-    GuildedForm: webpack => webpack.withClassProperty("formValues"),
     ItemManager: webpack => webpack.withClassProperty("ItemManager"),
     ProfilePicture: webpack => webpack.withClassProperty("borderType"),
     MarkdownRenderer: webpack => webpack.withClassProperty("plainText"),
+    SvgIcon: webpack => webpack.withClassProperty("iconComponentProps"),
     ActionMenuSection: webpack => webpack.withCode("ActionMenu-section"),
     ActionMenu: webpack => webpack.withClassProperty("actionMenuHeight"),
     ActionMenuItem: webpack => webpack.withClassProperty("useRowWrapper"),
-    GuildedSvg: webpack => webpack.withClassProperty("iconComponentProps"),
     ToggleField: webpack => webpack.withCode("ToggleFieldWrapper-container"),
     inputFieldValidations: webpack => webpack.withProperty("ValidateUserUrl"),
     UserBasicInfo: webpack => webpack.withClassProperty("userPresenceContext"),
@@ -143,7 +147,7 @@ export default class AddonApi {
      * @param plainText Plain text formatted in Guilded-flavoured Markdown
      * @returns Rendered Markdown
      */
-    renderMarkdown(plainText: string): React.ReactElement {
+    renderMarkdown(plainText: string): React.ReactNode {
         return new this.MarkdownRenderer({ plainText, grammar: this.markdownGrammars.WebhookEmbed }).render();
     }
     /**
@@ -284,7 +288,7 @@ export default class AddonApi {
     /**
      * Gets the default title message for new documents.
      */
-    get defaultDocTitle() {
+    get defaultDocTitle(): string {
         return this.getCached("DocumentModel")?.DefaultDocTitle;
     }
     /**
@@ -357,9 +361,8 @@ export default class AddonApi {
     }
     /**
      * Fetches a model for the given member.
-     * @returns {(memberInfo: {teamId: string, userId: string}) => MemberModel}
      */
-    get getMemberModel() {
+    get getMemberModel(): (memberInfo: { teamId: string; userId: string; }) => object {
         return this.getCached("MemberModel")?.getMemberModel;
     }
     /**
@@ -392,11 +395,11 @@ export default class AddonApi {
     get guildedArticles() {
         return this.getCached("guildedArticles")?.default;
     }
-    get GuildedForm() {
-        return this.getCached("GuildedForm")?.default;
+    get Form(): typeof Form {
+        return this.getCached("Form")?.default;
     }
-    get GuildedSvg() {
-        return this.getCached("GuildedSvg")?.default;
+    get SvgIcon(): typeof SvgIcon {
+        return this.getCached("SvgIcon")?.default;
     }
     /**
      * Returns the class that contains a set of validators, which either return string (error message) or void. 
@@ -407,13 +410,13 @@ export default class AddonApi {
     /**
      * Returns a searchable table with filtering and other features.
      */
-    get ItemManager() {
+    get ItemManager(): typeof ItemManager {
         return this.getCached("ItemManager")?.default;
     }
     /**
      * The list of language identifiers and their display names.
      */
-    get languageCodes() {
+    get languageCodes(): { [languageId: string]: string } {
         return this.getCached("languageCodes");
     }
     /**
@@ -437,9 +440,9 @@ export default class AddonApi {
     }
     /**
      * Provides a component that displays Markdown plain text.
-     * @returns {(props: { plainText: string, grammar: PrismGrammar }) => React.Component}
      */
-    get MarkdownRenderer() {
+    get MarkdownRenderer(): typeof React.Component //typeof React.Component<{ plainText: string, grammar: PrismGrammar }, {}>
+    {
         return this.getCached("MarkdownRenderer")?.default;
     }
     /**
@@ -469,13 +472,13 @@ export default class AddonApi {
     /**
      * Provides a null-state screen component.
      */
-    get NullState() {
+    get NullState(): typeof NullState {
         return this.getCached("NullState")?.default;
     }
     /**
      * Returns an overflow button component that opens a menu.
      */
-    get OverflowButton() {
+    get OverflowButton(): typeof OverflowButton {
         return this.getCached("OverflowButton")?.default;
     }
     /**
@@ -558,9 +561,8 @@ export default class AddonApi {
     }
     /**
      * The list of settings tabs.
-     * @returns {{[tabName: string]: { id: string, label: string, calloutBadgeProps?: { text: string, color: string } }}}
      */
-    get settingsTabs() {
+    get settingsTabs(): { [tabName: string]: { id: string; label: string; calloutBadgeProps?: { text: string; color: string; }; }; } {
         return this.getCached("settingsTabs")?.default;
     }
     /**
@@ -571,9 +573,8 @@ export default class AddonApi {
     }
     /**
      * All of the social medias that Guilded client recognizes.
-     * @returns {{ SocialMediaTypes: { [socialMediaName: string]: string }, default: { [socialMediaName: string]: { label: string, icon: string, href?: string } } }}
      */
-    get socialMedia() {
+    get socialMedia(): { SocialMediaTypes: { [socialMediaName: string]: string; }; default: { [socialMediaName: string]: { label: string; icon: string; href?: string; }; }; } {
         return this.getCached("socialMedia");
     }
     /**
