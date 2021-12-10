@@ -7,12 +7,9 @@ export default class AddonItem extends ExtensionItem {
         super(props, context);
 
         this.props.type = "addon";
-
-        const dirname = path.join(window.ReGuilded.addonManager.dirname, props.id);
-
         this.state = {
-            dirname,
-            fp: path.join(dirname, "main.js"),
+            dirname: props.dirname,
+            fp: path.join(props.dirname, "main.js"),
             enabled: ~window.ReGuilded.addonManager.enabled.indexOf(props.id)
         };
     }

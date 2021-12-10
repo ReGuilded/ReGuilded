@@ -13,9 +13,10 @@ export default class ThemeItem extends ExtensionItem<object> {
 
         this.props.type = "theme";
 
-        const { id, settings, settingsProps } = props;
+        const { id, settings, settingsProps, dirname } = props;
 
         this.state = {
+            dirname,
             settings,
             settingsProps,
             enabled: ~window.ReGuilded.themesManager.enabled.indexOf(id)

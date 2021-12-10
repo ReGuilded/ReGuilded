@@ -1,7 +1,7 @@
 ﻿import ErrorBoundary from "./ErrorBoundary";
 const { shell } = require("electron");
 
-const { OverflowButton, GuildedForm, UserBasicInfo, UserModel, restMethods, React } = window.ReGuildedApi;
+const { OverflowButton, Form, UserBasicInfo, UserModel, restMethods, React } = window.ReGuildedApi;
 
 export default abstract class ExtensionItem<T = {}> extends React.Component<{ type: string }, T & { enabled: boolean }> {
     constructor(props, context) {
@@ -59,7 +59,7 @@ export default abstract class ExtensionItem<T = {}> extends React.Component<{ ty
                             </div>
                             {/* Footer */}
                             <div className="DocDisplayItem-summary-info DocSummaryInfo-container ReGuildedExtension-summary-info">
-                                <GuildedForm onChange={({ hasChanged, values: {enabled} }) => hasChanged && (this.hasToggled = true) || this.hasToggled ? toggleCallback(enabled) : null} formSpecs={{
+                                <Form onChange={({ hasChanged, values: {enabled} }) => hasChanged && (this.hasToggled = true) || this.hasToggled ? toggleCallback(enabled) : null} formSpecs={{
                                     sections: [
                                         {
                                             fieldSpecs: [
