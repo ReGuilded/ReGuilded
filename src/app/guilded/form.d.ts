@@ -298,7 +298,7 @@ declare interface FieldRadioSpecs extends FieldSpecs<"Radios", any | OptionRadio
         [optionName: string]: any
     }
 }
-declare interface FieldCheckboxesSpecs extends FieldSpecs<"Checkboxes", any>, FieldHasOptions<OptionSpecs> {
+declare interface FieldCheckboxesSpecs extends FieldSpecs<"Checkboxes", Array<{ optionName: string, value: boolean }>>, FieldHasOptions<OptionSpecs> {
     numColumns?: number;
 }
 declare interface FieldIconMenuSpecs extends FieldSpecs<"IconMenu", string>, FieldHasOptions<OptionSpecs> {
@@ -467,9 +467,9 @@ declare interface OptionSpecs extends OptionBaseSpecs {
     description?: string;
     value?: any;
     iconName?: string;
-    disabled?: boolean;
 }
 declare interface OptionRadioSpecs extends OptionSpecs {
+    disabled?: boolean;
     //isCheckbox?: boolean;
     layout?: Alignment;
     shortLabel?: string;

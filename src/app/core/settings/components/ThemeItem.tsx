@@ -115,7 +115,6 @@ export default class ThemeItem extends ExtensionItem<object> {
                 formSpecs: this.formSpecs
             });
 
-        // FIXME: .overrides is always {}. Might as well replace ThemeSettingsHandler entirely
         if (confirmed)
             window.ReGuilded.themesManager.assignProperties(this.props, changedValues);
     }
