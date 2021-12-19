@@ -189,6 +189,11 @@ declare interface FieldRichText extends FieldSpecs<"RichText", MessageContent>, 
     placeholder?: string;
     style?: "padded";
     /**
+     * Whether the rich text field has title editor above it. If true, the label will be used as the placeholder of the title.
+     * @default false
+     */
+    hasTitle?: boolean;
+    /**
      * The type of the editor it is. If it's "simple", then the toolbar is hidden.
      */
     editorType?: "simple";
@@ -215,6 +220,10 @@ declare interface FieldSwitchSpecs extends FieldToggleSpecs<"Switch", boolean> {
      * @example "icon-clock-new"
      */
     iconName?: string;
+    /**
+     * The source of the image that will be displayed before the label of the switch.
+     */
+    imageSrc?: string;
 }
 declare interface FieldTriStateSpecs extends FieldToggleSpecs<"TriState", "on" | "passThrough" | "off"> {
     /**
@@ -418,7 +427,10 @@ declare interface FieldRangeSpecs extends FieldSpecs<"Range", { max: number, min
      * @default true
      */
     lockMinValue?: boolean;
+    lockSliderMinToZero?: boolean;
     hideLabels?: boolean;
+    steps?: number[]
+    stepDetails?: { hasEmptyDefault?: boolean };
 }
 type KeybindValue = {
     id: string,

@@ -132,7 +132,7 @@ export default class WebpackManager {
      * @param name The name of the property that prototype should contain
      * @returns Webpack Module Exports
      */
-    withClassProperty(name: string): Function {
+    withClassProperty(name: string): Function | { default: Function } {
         return this.withFilter(x => {
             const { default: type } = this.asEsModule(x.exports);
 
