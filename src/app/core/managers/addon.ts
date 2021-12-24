@@ -7,7 +7,7 @@ import ExtensionManager, { Extension } from "./extension";
 import { existsSync } from "fs";
 import path from "path";
 
-declare class Addon extends Extension<string> {
+export declare interface Addon extends Extension<string> {
     core: {
         init: () => void,
         load: (addonManager: AddonManager, webpackManager: WebpackManager) => void,

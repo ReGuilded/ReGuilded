@@ -1,7 +1,9 @@
+import { ChildTabProps } from "./TabbedSettings";
+
 const { React, SvgIcon, GuildedText } = window.ReGuildedApi;
 
-export default class ExtensionView extends React.Component {
-    constructor(props, context) {
+export default class ExtensionView extends React.Component<ChildTabProps> {
+    constructor(props: ChildTabProps, context) {
         super(props, context);
 
         this.state = {

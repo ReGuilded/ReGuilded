@@ -2,7 +2,7 @@ import ExtensionManager, { Extension } from "./extension.js";
 import { existsSync, readFile, writeFile } from "fs";
 import { join, isAbsolute } from "path";
 
-declare class Theme extends Extension<string[]> {
+export declare interface Theme extends Extension<string[]> {
     settingsProps: string[];
     settings: {
         [id: string]: {

@@ -1,10 +1,14 @@
 import ErrorBoundary from "./ErrorBoundary.jsx";
-import { ChildTabProps } from "./TabbedSettings.js";
+import ExtensionItem from "./ExtensionItem.js";
+import { ChildTabProps } from "./TabbedSettings";
 const { shell } = require("electron");
 
 const { React, NullState } = window.ReGuildedApi;
 
-export default class ExtensionSettings extends React.Component<ChildTabProps> {
+export default class ExtensionSettings extends React.Component<ChildTabProps, { dirname: string, all: object[] }> {
+    protected type: string;
+    protected ItemTemplate: any; // TODO: Change this to typeof ExtensionItem child
+
     constructor(props: ChildTabProps, context?: any) {
         super(props, context);
     }

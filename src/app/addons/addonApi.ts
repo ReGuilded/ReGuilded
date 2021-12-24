@@ -5,7 +5,8 @@ import WebpackManager from "./webpack";
 import { Form } from "../guilded/form";
 import { SvgIcon, ItemManager, NullState } from "../guilded/content";
 import { OverflowButton } from "../guilded/menu";
-import React from "react";
+import _React from "react";
+import _ReactDOM from "react-dom";
 
 // Provides API for addons to interact with Guilded.
 // TODO: Better documentation and probably TS declaration files.
@@ -153,7 +154,7 @@ export default class AddonApi {
      * @param plainText Plain text formatted in Guilded-flavoured Markdown
      * @returns Rendered Markdown
      */
-    renderMarkdown(plainText: string): React.ReactNode {
+    renderMarkdown(plainText: string): _React.ReactNode {
         return new this.MarkdownRenderer({ plainText, grammar: this.markdownGrammars.WebhookEmbed }).render();
     }
     /**
@@ -162,7 +163,7 @@ export default class AddonApi {
      * @param onClose What to do when the overlay gets clicked outside
      * @returns Wrapped overlay as DOM Element
      */
-    wrapOverlay(component: React.Component, onClose: () => void): Element {
+    wrapOverlay(component: _React.Component, onClose: () => void): Element {
         // FIXME: Normal approach to context
         component.context = { layerContext: this.layerContext.object };
 
@@ -453,7 +454,7 @@ export default class AddonApi {
     /**
      * Provides a component that displays Markdown plain text.
      */
-    get MarkdownRenderer(): typeof React.Component //typeof React.Component<{ plainText: string, grammar: PrismGrammar }, {}>
+    get MarkdownRenderer(): typeof _React.Component //typeof React.Component<{ plainText: string, grammar: PrismGrammar }, {}>
     {
         return this.getCached("MarkdownRenderer")?.default;
     }
@@ -544,13 +545,13 @@ export default class AddonApi {
     /**
      * React.JS framework stuff.
      */
-    get React() {
+    get React(): typeof _React {
         return this.getCached("React");
     }
     /**
      * React.JS framework DOM-related things.
      */
-    get ReactDOM() {
+    get ReactDOM(): typeof _ReactDOM {
         return this.getCached("ReactDOM");
     }
     /**

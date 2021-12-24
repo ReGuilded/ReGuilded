@@ -23,6 +23,15 @@ type SvgIconProps = {
     className?: string,
     iconName: string
 };
+type GuildedTextProps = {
+    type:
+        "title" | "heading1" | "heading2" | "heading3" | "heading4" | "heading6" |
+        "headinglg" | "headingxl" | "subheading" |
+        "subtext" | "subtext2" | "subtext3" | "subtextHeading" |
+        "subtextBodyWhite" | "bigBody" | "fineText" | "gray",
+    weight?: "normal" | "semibold" | "bold",
+    color?: "bodyWhite" | "white" | "gray" | "gilded1" | "errorRed"
+};
 
 export declare class NullState extends React.Component<NullStateProps> {
     constructor(props: NullStateProps, context?: object);
@@ -30,6 +39,9 @@ export declare class NullState extends React.Component<NullStateProps> {
 }
 export declare class SvgIcon extends React.Component<SvgIconProps> {
     constructor(props: SvgIconProps, context?: object);
+}
+export declare class GuildedText extends React.Component<GuildedTextProps> {
+    constructor(props: GuildedTextProps, context?: object);
 }
 export declare class ItemManager<T> extends React.Component {
     constructor(props: {

@@ -54,13 +54,14 @@ export default [
     // Preload
     {
         input: "./src/app/main.ts",
+        preserveEntrySignatures: false,
         output: {
             dir: "./out",
             format: "cjs",
             name: "bundle",
             globals: globalModules,
             entryFileNames: "reguilded.preload.js",
-            chunkFileNames: "reguilded.[name].js"
+            chunkFileNames: "reguilded.[name].js",
         },
         plugins: [
             root({

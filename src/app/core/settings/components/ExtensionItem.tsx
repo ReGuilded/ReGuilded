@@ -1,9 +1,25 @@
-﻿import ErrorBoundary from "./ErrorBoundary";
+﻿import { MenuSpecs } from "../../../guilded/menu.js";
+import { Extension } from "../../managers/extension.js";
+import ErrorBoundary from "./ErrorBoundary.jsx";
+import { SwitchTab } from "./TabbedSettings.js";
 const { shell } = require("electron");
 
 const { OverflowButton, Form, UserBasicInfo, UserModel, restMethods, React } = window.ReGuildedApi;
 
-export default abstract class ExtensionItem<T = {}> extends React.Component<{ type: string }, T & { enabled: boolean }> {
+type AdditionalProps = {
+    type: string,
+    switchTab: SwitchTab
+};
+type State = {
+    enabled: boolean | number,
+    dirname: string,
+    author?: object
+};
+
+export default abstract class ExtensionItem<P extends Extension<any>, S = {}> extends React.Component<P & AdditionalProps, State & S> {
+    protected overflowMenuSpecs: MenuSpecs;
+    private hasToggled: boolean;
+
     constructor(props, context) {
         super(props, context);
 
@@ -16,11 +32,6 @@ export default abstract class ExtensionItem<T = {}> extends React.Component<{ ty
                     header: "Extension",
                     type: "rows",
                     actions: [
-                        {
-                            label: "Edit source",
-                            icon: "icon-edit",
-                            onClick: () => shell.openItem(this.state?.fp)
-                        },
                         {
                             label: "Open directory",
                             icon: "icon-team-stream-popout",
@@ -41,7 +52,7 @@ export default abstract class ExtensionItem<T = {}> extends React.Component<{ ty
     }
     abstract onToggle(state: boolean): void;
     render() {
-        const { overflowMenuSpecs, props: { id, name, readme, type, switchTab }, state: { enabled } } = this,
+        const { overflowMenuSpecs, props: { name, readme, version, type, switchTab }, state: { enabled } } = this,
               toggleCallback = this.onToggle.bind(this);
 
         return (
@@ -57,25 +68,27 @@ export default abstract class ExtensionItem<T = {}> extends React.Component<{ ty
                             </div>
                             {/* Footer */}
                             <div className="DocDisplayItem-summary-info DocSummaryInfo-container ReGuildedExtension-summary-info">
-                                <Form onChange={({ hasChanged, values: {enabled} }) => hasChanged && (this.hasToggled = true) || this.hasToggled ? toggleCallback(enabled) : null} formSpecs={{
-                                    sections: [
-                                        {
-                                            fieldSpecs: [
-                                                {
-                                                    type: "Switch",
-                                                    label: name,
-                                                    fieldName: "enabled",
-                                                    description: `Id - ${id}`,
-                                                    layout: "space-between",
-                                                    defaultValue: enabled
-                                                }
-                                            ]
-                                        }
-                                    ],
-                                }}/>
+                                <div onClick={e => e.stopPropagation()}>
+                                    <Form onChange={({ hasChanged, values: {enabled} }) => hasChanged && (this.hasToggled = true) || this.hasToggled ? toggleCallback(enabled) : null} formSpecs={{
+                                        sections: [
+                                            {
+                                                fieldSpecs: [
+                                                    {
+                                                        type: "Switch",
+                                                        label: name,
+                                                        fieldName: "enabled",
+                                                        description: version ? `Version ${version}` : "Latest release",
+                                                        layout: "space-between",
+                                                        defaultValue: enabled
+                                                    }
+                                                ]
+                                            }
+                                        ],
+                                    }}/>
+                                </div>
                                 {this.state.author
                                     ? <div><br/><UserBasicInfo size="sm" user={new UserModel(this.state.author)}/></div>
-                                    : <h6>Unknown Author</h6>
+                                    : <div className="DocSummaryInfo-subtitle">Unknown Author</div>
                                 }
                             </div>
                             {/* Overflow */}

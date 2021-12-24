@@ -2,15 +2,17 @@ import ExtensionItem from "./ExtensionItem";
 import path from "path";
 import fs from "fs";
 import { FormSpecs } from "../../../guilded/form";
+import { Addon } from "../../managers/addon";
 
 const { OverlayProvider } = window.ReGuildedApi;
 
 @OverlayProvider(["SimpleFormOverlay"])
-export default class AddonItem extends ExtensionItem {
+export default class AddonItem extends ExtensionItem<Addon, { fp: string }> {
+    SimpleFormOverlay: { Open: Function };
+
     constructor(props, context) {
         super(props, context);
 
-        this.props.type = "addon";
         this.state = {
             dirname: props.dirname,
             fp: path.join(props.dirname, "main.js"),

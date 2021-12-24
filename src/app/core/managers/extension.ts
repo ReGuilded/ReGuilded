@@ -4,14 +4,16 @@ import path from "path";
 import fs from "fs";
 
 
-export class Extension<T> {
-    public id: string;
-    public files: T;
-    public dirname: string;
-
-    public author?: string;
-    public contributors?: string[];
-    public readme?: string;
+export declare interface Extension<T> {
+    id: string;
+    name: string;
+    files: T;
+    dirname: string;
+    
+    author?: string;
+    contributors?: string[];
+    version?: string;
+    readme?: string;
 }
 /**
  * Manages different components of ReGuilded to allow them to be extended.

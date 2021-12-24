@@ -1,5 +1,6 @@
 import { writeFileSync } from "fs";
 import { join } from "path";
+import { Theme } from "../../managers/themes";
 
 import validations from "../validation";
 import ExtensionItem from "./ExtensionItem";
@@ -7,11 +8,10 @@ import ExtensionItem from "./ExtensionItem";
 const { OverlayProvider } = window.ReGuildedApi;
 
 @OverlayProvider(["SimpleFormOverlay"])
-export default class ThemeItem extends ExtensionItem<object> {
+export default class ThemeItem extends ExtensionItem<Theme, { settings: object, settingsProps: string[] }> {
+    SimpleFormOverlay;
     constructor(props, context) {
         super(props, context);
-
-        this.props.type = "theme";
 
         const { id, settings, settingsProps, dirname } = props;
 
