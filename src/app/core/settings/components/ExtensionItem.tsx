@@ -39,15 +39,13 @@ export default abstract class ExtensionItem<T = {}> extends React.Component<{ ty
                 .catch(() => {});
         }
     }
-    abstract onToggle(state: boolean);
+    abstract onToggle(state: boolean): void;
     render() {
-        const { id, name, readme, type } = this.props,
-              toggleCallback = this.onToggle.bind(this),
-              { overflowMenuSpecs } = this,
-              { enabled } = this.state;
+        const { overflowMenuSpecs, props: { id, name, readme, type, switchTab }, state: { enabled } } = this,
+              toggleCallback = this.onToggle.bind(this);
 
         return (
-            <a className="DocDisplayItem-wrapper ReGuildedExtension-wrapper">
+            <a className="DocDisplayItem-wrapper ReGuildedExtension-wrapper" onClick={() => switchTab("specific", { extension: this.props })}>
                 <div className={"DocDisplayItem-container DocDisplayItem-container-desktop DocDisplayItem-container-aspect-ratio ReGuildedExtension-container ReGuildedExtension-" + type + (enabled ? " Enabled" : " Disabled")}>
                     <div className="AspectRatioContainer-container ReGuildedExtension-aspect-ratio" style={{ paddingBottom: '90.9091%' }}>
                         <div className="DocDisplayItem-preview-summary ReGuildedExtension-preview-summary">

@@ -4,8 +4,8 @@ import ThemeItem from "./ThemeItem.jsx";
 export default class ThemeSettings extends ExtensionSettings {
     type = "theme";
     ItemTemplate = ThemeItem;
-    constructor(...args) {
-        super(...args);
+    constructor(props, context) {
+        super(props, context);
         
         this.state = {
             dirname: window.ReGuilded.themesManager.dirname,

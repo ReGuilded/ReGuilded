@@ -39,12 +39,17 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     portal: webpack => webpack.withProperty("Portals"),
     layerContext: webpack => webpack.allWithProperty("object")[1],
     OverlayStack: webpack => webpack.withProperty("addPortal"),
+
     OverlayProvider: webpack => webpack.withCode("OverlayProvider"),
+    TeamContextProvider: webpack => webpack.withCode("EnforceTeamData"),
+    DefaultContextProvider: webpack => webpack.withCode("defaultContext"),
 
     // Settings and this user
     cookies: webpack => webpack.withProperty("cookie"),
     sounds: webpack => webpack.withProperty("IncomingCall"),
+    stylePusher: webpack => webpack.withProperty("singleton"),
     chatContext: webpack => webpack.withProperty("chatContext"),
+    styleGenerator: webpack => webpack.withProperty("sourceURL"),
     settingsTabs: webpack => webpack.withProperty("Notifications"),
 
     // Team/server
@@ -80,6 +85,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     languageCodes: webpack => webpack.withProperty("availableLanguageCodes"),
 
     // Components
+    GuildedText: webpack => webpack.withCode("GuildedText"),
     Form: webpack => webpack.withClassProperty("formValues"),
     Modal: webpack => webpack.withClassProperty("hasConfirm"),
     MarkRenderer: webpack => webpack.withClassProperty("mark"),
@@ -285,6 +291,9 @@ export default class AddonApi {
     get cookies() {
         return this.getCached("cookies")?.default;
     }
+    get DefaultContextProvider(): <T>(cls: T) => T {
+        return this.getCached("DefaultContextProvider")?.default;
+    }
     /**
      * Gets the default title message for new documents.
      */
@@ -394,6 +403,9 @@ export default class AddonApi {
      */
     get guildedArticles() {
         return this.getCached("guildedArticles")?.default;
+    }
+    get GuildedText() {
+        return this.getCached("GuildedText")?.default;
     }
     get Form(): typeof Form {
         return this.getCached("Form")?.default;
@@ -582,6 +594,15 @@ export default class AddonApi {
      */
     get sounds() {
         return this.getCached("sounds")?.default;
+    }
+    get styleGenerator(): (e: boolean) => ([number, string, ""][] & { toString(): string, i(e, t, a): any, local: object }) {
+        return this.getCached("styleGenerator")?.default;
+    }
+    get stylePusher(): (style: [number, [number, string, ""][], ""], config: { insert: "head" | "body", singleton: boolean }) => Function {
+        return this.getCached("stylePusher")?.default;
+    }
+    get TeamContextProvider(): <T>(cls: T) => T {
+        return this.getCached("TeamContextProvider")?.default;
     }
     /**
      * Model class for teams.

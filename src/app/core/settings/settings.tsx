@@ -2,11 +2,20 @@
 import AddonSettings from "./components/AddonSettings.jsx";
 import ThemeSettings from "./components/ThemeSettings.jsx";
 import patcher from "../../addons/patcher";
+import TabbedSettings from './components/TabbedSettings.js';
+import ExtensionView from './components/ExtensionView.js';
 
 export default class SettingsInjector {
     id = "SettingsInjector";
 
     init() {
+        //const { styleGenerator, stylePusher } = window.ReGuildedApi;
+        
+        // To stylize ReGuilded stuff (mostly spacing)
+        // const style = styleGenerator(false);
+        // style.push([9998, ".ReGuildedExtensionPage-wrapper { background-color: red; }", ""]);
+        // style.local = {};
+        // stylePusher([9999, style, ""], { insert: "head", singleton: false });
         // Patch the settings renderer
         patchElementRenderer(".SettingsMenu-container", this.id, "before", this.renderSettings.bind(this))
             // Then run this awful nightmare, since forceUpdate doesn't work
@@ -46,12 +55,40 @@ export default class SettingsInjector {
                 {
                     id: "rgAddons",
                     label: "Addons",
-                    Component: AddonSettings
-                }, {
+                    Component: TabbedSettings,
+                    hasNestedOptionsMenuPage: true,
+                    props: {
+                        tabs: {
+                            list: AddonSettings,
+                            specific: ExtensionView
+                        },
+                        defaultTab: "list"
+                    }
+                },
+                {
                     id: "rgThemes",
                     label: "Themes",
-                    Component: ThemeSettings
-                }
+                    Component: TabbedSettings,
+                    hasNestedOptionsMenuPage: true,
+                    props: {
+                        tabs: {
+                            list: ThemeSettings,
+                            specific: ExtensionView
+                        },
+                        defaultTab: "list"
+                    }
+                },
+                // {
+                //     id: "rgAddon-extension",
+                //     label: "Extension Name",
+                //     Component: ThemeSettings,
+                //     calloutBadgeProps: {
+                //         text: "Addon",
+                //         style: {
+                //             backgroundColor: "#CC5555"
+                //         }
+                //     }
+                // }
             ]
         });
     }
