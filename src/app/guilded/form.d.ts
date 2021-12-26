@@ -35,8 +35,9 @@ type HeaderStyle = "collapsible";
 
 //#region Fields
 export type FieldAnySpecs
-    // Basic
-    = (FieldTextSpecs       | FieldTextAreaSpecs
+    // Text
+    = (FieldTextSpecs       | FieldTextAreaSpecs     | FieldRichTextSpecs
+    | FieldTagSpecs
     // Number & Range
     | FieldNumberSpecs      | FieldRangeSpecs
     // Date
@@ -52,11 +53,12 @@ export type FieldAnySpecs
     // Flow
     | FieldReactionSpecs
     // Exotic
-    | FieldCustomFormSpecs  | FieldItemKeybindsSpecs
-    | FieldSpecs<string, any>) & object;
+    | FieldCustomFormSpecs  | FieldItemKeybindsSpecs | FieldHotkeySpecs
+    | FieldSpecs<string, any>) & { [prop: string]: any };
 
 //#region Interfaces
 declare interface FieldSpecs<N, V> {
+    label?: string;
     /**
      * The type of the field
      */
@@ -100,10 +102,10 @@ declare interface FieldSpecs<N, V> {
     validationFunction?: ValidationFunction;
 }
 declare interface FieldBasics {
-    /**
-     * The displayed name of the field.
-     */
-    label?: string;
+    // /**
+    //  * The displayed name of the field.
+    //  */
+    // label?: string;
     /**
      * The description of the field that will appear below the field.
      */
@@ -153,6 +155,9 @@ declare interface FieldToggleSpecs<N, V> extends FieldSpecs<N, V>, FieldWithHead
 //#endregion
 
 //#region Field definitions
+/**
+ * The field that allows one-line text.
+ */
 declare interface FieldTextSpecs extends FieldSpecs<"Text", string>, FieldBasics {
     /**
      * The time to wait before validating the value of the field.
@@ -163,6 +168,9 @@ declare interface FieldTextSpecs extends FieldSpecs<"Text", string>, FieldBasics
      */
     inputType?: "number" | "password";
 }
+/**
+ * The field that allows any kind of text.
+ */
 declare interface FieldTextAreaSpecs extends FieldSpecs<"TextArea", string>, FieldWithHeader {
     /**
      * The placeholder of the text area that will be seen if no value is present.
@@ -185,7 +193,10 @@ declare interface FieldTextAreaSpecs extends FieldSpecs<"TextArea", string>, Fie
     showCharactersRemaining?: boolean;
     isInvalidWhenLoading?: boolean;
 }
-declare interface FieldRichText extends FieldSpecs<"RichText", MessageContent>, FieldBasics {
+/**
+ * The field that allows any kind of text with specified formatting.
+ */
+declare interface FieldRichTextSpecs extends FieldSpecs<"RichText", MessageContent>, FieldBasics {
     placeholder?: string;
     style?: "padded";
     /**
@@ -206,6 +217,24 @@ declare interface FieldRichText extends FieldSpecs<"RichText", MessageContent>, 
     showValidationErrors?: boolean;
     validationFunction?: ValidationFunction;
 }
+/**
+ * The field that allows adding multiple tags.
+ * 
+ * Only present in media post creation.
+ */
+declare interface FieldTagSpecs extends FieldSpecs<"Tag", string[]>, FieldBasics {
+    /**
+     * The array of suggested/already used tags.
+     * @default []
+     */
+    tagOptions?: string[];
+}
+/**
+ * The field that allows any number up to the maximum.
+ * 
+ * Only present in event repetition. Anything else uses text field instead.
+ * This is similar to dropdown.
+ */
 declare interface FieldNumberSpecs extends FieldSpecs<"Number", number> {
     /**
      * The max number allowed.
@@ -214,6 +243,9 @@ declare interface FieldNumberSpecs extends FieldSpecs<"Number", number> {
     caption?: string;
     isStandalone?: boolean;
 }
+/**
+ * The toggle field that only has enabled and disabled states.
+ */
 declare interface FieldSwitchSpecs extends FieldToggleSpecs<"Switch", boolean> {
     /**
      * The name of the icon to display before the switch.
@@ -225,6 +257,11 @@ declare interface FieldSwitchSpecs extends FieldToggleSpecs<"Switch", boolean> {
      */
     imageSrc?: string;
 }
+/**
+ * The toggle field that has deny state, allow state and inherit state.
+ * 
+ * Only present in channel permissions.
+ */
 declare interface FieldTriStateSpecs extends FieldToggleSpecs<"TriState", "on" | "passThrough" | "off"> {
     /**
      * @default false
@@ -287,8 +324,16 @@ declare interface FieldDropdownProps extends FieldHasOptions<OptionSpecs> {
     useFuzzySort?: boolean;
     fuzzySortMaxResults?: number;
 }
+/**
+ * The field that hides its options until it's clicked.
+ */
 declare interface FieldDropdownSpecs extends FieldSpecs<"Dropdown", OptionSpecs | any>, FieldDropdownProps { }
-declare interface FieldRadioSpecs extends FieldSpecs<"Radios", any | OptionRadioSpecs>, FieldHasOptions<OptionRadioSpecs> {
+/**
+ * The field that allows one option to be selected.
+ * 
+ * Present in custom forms (normal version) and everywhere else (panel checkboxes).
+ */
+declare interface FieldRadioSpecs extends FieldSpecs<"Radios", { optionName: string }>, FieldHasOptions<OptionRadioSpecs> {
     labelFlavor?: "subtle";
     labelMarginSize?: Size;
     numColumns?: number;
@@ -307,14 +352,46 @@ declare interface FieldRadioSpecs extends FieldSpecs<"Radios", any | OptionRadio
         [optionName: string]: any
     }
 }
+/**
+ * The field that allows multiple options to be selected.
+ * 
+ * Present only in custom forms.
+ * Everywhere else, Switch is used instead.
+ */
 declare interface FieldCheckboxesSpecs extends FieldSpecs<"Checkboxes", Array<{ optionName: string, value: boolean }>>, FieldHasOptions<OptionSpecs> {
     numColumns?: number;
 }
+/**
+ * The field that acts as an icon dropdown.
+ * 
+ * Present in emote picker menu (normal), event creation (color type).
+ * Similar to dropdown, but doesn't have a border.
+ */
 declare interface FieldIconMenuSpecs extends FieldSpecs<"IconMenu", string>, FieldHasOptions<OptionSpecs> {
+    /**
+     * The type of the icon menu.
+     * - If the type of this menu is `color`, then option values are colours that will be used as icons.
+     * - If no type is given, then `iconName` in options will be used as icons.
+     */
     iconType?: "color";
     isRemovable?: boolean;
     hideRemove?: boolean;
+    menuPositioningClass?: string;
+    usePortal?: boolean;
+    /**
+     * Where to align the portal.
+     * @default "bottom-center"
+     */
+    portalAlignment?: "top-center";
+    /**
+     * The size of the icons in the icon menu.
+     * @default "md"
+     */
+    iconSize?: Size;
 }
+/**
+ * The field for doing an action upon pressing the button.
+ */
 declare interface FieldButtonSpecs extends FieldSpecs<"Button", undefined> {
     /**
      * The text of the button.
@@ -331,6 +408,8 @@ declare interface FieldButtonSpecs extends FieldSpecs<"Button", undefined> {
     style?: "filled" | "hollow";
     /**
      * The type of the button it is.
+     * 
+     * Success is only used in mobile version, while monochrome is never used and bleached is only used as hollow button.
      * @default "gilded"
      */
     buttonType?: "gilded" | "delete" | "success" | "bleached" | "monochrome";
@@ -364,25 +443,58 @@ declare interface FieldButtonSpecs extends FieldSpecs<"Button", undefined> {
      */
     suffixIconClassname?: string;
 }
+/**
+ * The field for getting the range between 2 dates and times.
+ * 
+ * Present in event creation.
+ */
 declare interface FieldDateAndTimeRangeSpecs extends FieldSpecs<"DateAndTimeRange", { startMoment: object, endMoment: object }>, FieldBasics {
     allowPastValues?: boolean;
 }
+/**
+ * The field for getting event repetition.
+ * 
+ * Present in event creation.
+ * This is a wrapper around another form using number and dropdown fields.
+ */
 declare interface FieldEventRepeatSpecs extends FieldSpecs<"EventRepeat", { repeatType: "once", isValid: boolean }>, FieldBasics {
     defaultStartDate?: boolean;
 }
+/**
+ * The field for getting specific day of the month and of the year.
+ * 
+ * Present in date and time range field.
+ * This will always hold a value.
+ */
 declare interface FieldDateSpecs extends FieldSpecs<"Date", object>, FieldBasics {
     hasError?: boolean;
     allowPastValues?: boolean;
 }
+/**
+ * The field for getting hours and minutes.
+ * 
+ * Present in date and time range field.
+ */
 declare interface FieldTimeSpecs extends FieldSpecs<"Time", number>, FieldBasics {
     showTimezone?: boolean;
     showInlineTimezone?: boolean;
     hasError?: boolean;
 }
+/**
+ * The field for picking a colour.
+ * 
+ * Present in role settings.
+ * This does not have alpha channel available.
+ */
 declare interface FieldColorSpecs extends FieldSpecs<"Color", string>, FieldBasics {
     size?: Size;
     useLightColor?: boolean;
 }
+/**
+ * The field for uploading images and avatars.
+ * 
+ * Present in server settings, bot settings and webhook settings.
+ */
 declare interface FieldImageSpecs extends FieldSpecs<"Image", string>, FieldBasics {
     /**
      * Instructions that appear at the right side of the image. This usually tells what image size user should typically use or any other information.
@@ -413,6 +525,9 @@ declare interface FieldImageSpecs extends FieldSpecs<"Image", string>, FieldBasi
     imageInputClassName?: string;
     friendlyUploadName?: string;
 }
+/**
+ * The field for getting the range with minimum and maximum value.
+ */
 declare interface FieldRangeSpecs extends FieldSpecs<"Range", { max: number, min: number }>, FieldBasics {
     rangeType?: "gilded";
     size?: Size;
@@ -440,7 +555,12 @@ type KeybindValue = {
     }>,
     entities: Array<OptionDropdownSpecs>
 }
-declare interface FieldItemKeybindsSpecs extends FieldSpecs<"ItemKeybinds", KeybindValue[]> {
+/**
+ * The field for setting keyboard keys for roles and users.
+ * 
+ * Only present in voice settings.
+ */
+declare interface FieldItemKeybindsSpecs extends FieldSpecs<"ItemKeybinds", KeybindValue[]>, FieldBasics {
     /**
      * The text that will be displayed when there are no keybinds set.
      */
@@ -451,7 +571,15 @@ declare interface FieldItemKeybindsSpecs extends FieldSpecs<"ItemKeybinds", Keyb
     entitySubtext?: string;
     dropdownProps?: FieldDropdownProps;
 }
-declare interface FieldTableSpecs extends FieldSpecs<"Table", Array<{ optionName: string } & object>> {
+/**
+ * The field for getting a set of keyboard keys.
+ * 
+ * Only present in item keybinds.
+ */
+declare interface FieldHotkeySpecs extends FieldSpecs<"Hotkey", { keys: KeybindValue[] }> {
+
+}
+declare interface FieldTableSpecs extends FieldSpecs<"Table", Array<{ optionName: string } & object>>, FieldBasics {
     rowInputType: string;
     emptyText: string;
     itemClass?: string;
@@ -459,12 +587,22 @@ declare interface FieldTableSpecs extends FieldSpecs<"Table", Array<{ optionName
         { text: string, key: string } | Array<{ text: string, key: string }>
     >
 }
+/**
+ * The field that allows creating a custom form.
+ * 
+ * Only present in event creation and tournament settings.
+ */
 declare interface FieldCustomFormSpecs extends FieldSpecs<"CustomForm", number> {
     /**
      * Whether the custom created form will always be public.
      */
     isAlwaysPublic?: boolean;
 }
+/**
+ * The field that allows picking any emote.
+ * 
+ * Only present in flow reaction action.
+ */
 declare interface FieldReactionSpecs extends FieldSpecs<"Reaction", number> {
     size?: Size;
 }
