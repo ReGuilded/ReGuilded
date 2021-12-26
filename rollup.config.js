@@ -7,22 +7,25 @@ import json from "@rollup/plugin-json";
 const globalModules = {
     fs: 'require("fs")',
     os: 'require("os")',
+    url: 'require("url")',
     path: 'require("path")',
     util: 'require("util")',
     events: 'require("events")',
     stream: 'require("stream")',
     module: 'require("module")',
-    electron: 'require("electron")'
+    electron: 'require("electron")',
+    child_process: 'require("child_process")'
 };
-const resolvableModules = ['fs', 'os', 'path', 'util', 'events', 'stream', 'module', 'tslib'];
+const resolvableModules = ["fs", "os", "path", "util", "events", "stream", "module", "tslib"];
 
-export default [
+/** @type {import("rollup").RollupOptions[]} */
+const config = [
     // Patcher
     {
         input: "./src/patcher/main.js",
         output: {
-            file: "./out/reguilded.patcher.js",
-            format: "iife",
+            file: "./out/app/reguilded.patcher.js",
+            format: "cjs",
             name: "bundle",
             globals: globalModules
         },
@@ -38,8 +41,8 @@ export default [
     {
         input: "./src/splash/main.js",
         output: {
-            file: "./out/reguilded.preload-splash.js",
-            format: "iife",
+            file: "./out/app/reguilded.preload-splash.js",
+            format: "cjs",
             name: "bundle",
             globals: globalModules
         },
@@ -56,7 +59,7 @@ export default [
         input: "./src/app/main.ts",
         preserveEntrySignatures: false,
         output: {
-            dir: "./out",
+            dir: "./out/app",
             format: "cjs",
             name: "bundle",
             globals: globalModules,
@@ -79,5 +82,47 @@ export default [
                 tsconfig: "tsconfig.json"
             })
         ]
+    },
+    // Injector
+    {
+        input: "./src/inject/index.ts",
+        output: {
+            file: "./out/injector.main.js",
+            format: "cjs",
+            name: "injector"
+        },
+        plugins: [
+            resolve({
+                browser: false
+            }),
+            commonjs({
+                ignoreDynamicRequires: true
+            }),
+            json(),
+            ts({
+                tsconfig: "tsconfig.json"
+            })
+        ]
+    },
+    {
+        input: "./src/inject/helper/linux-inject.ts",
+        output: {
+            file: "./out/injector.linux-inject.js",
+            format: "cjs",
+            name: "linuxInjector"
+        },
+        plugins: [
+            resolve({
+                browser: false
+            }),
+            commonjs({
+                ignoreDynamicRequires: true
+            }),
+            json(),
+            ts({
+                tsconfig: "tsconfig.json"
+            })
+        ]
     }
-]
+];
+export default config;

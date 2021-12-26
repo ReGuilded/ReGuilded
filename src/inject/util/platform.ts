@@ -37,10 +37,11 @@ const platforms = {
         }
     }
 }
-const current = platforms[process.platform]
+const current: { dir: string, close: string, open: string } | undefined
+             = platforms[process.platform];
 
 if (!current)
     // TODO: Possible make it so this also opens a window on the default browser with a prefilled out issue on GitHub.
     throw new Error(`Unsupported platform, ${process.platform}. Please submit a new issue`);
 
-export default current
+export default current;

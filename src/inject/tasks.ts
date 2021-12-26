@@ -1,9 +1,9 @@
-import { existsSync, rmSync, readdirSync } from "fs";
+import { existsSync, rmSync } from "fs";
 import { spawnSync } from "child_process";
-import injection from "./injection.js";
+import injection from "./util/injection.js";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import fse from "fs-extra";
+import { copy } from "fs-extra";
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -14,8 +14,6 @@ function rootPerms(path, command) {
     process.exit(0);
 }
 
-const ignored = ["logo", "node_modules", "inject", ".vscode"];
-
 /**
  * Injects ReGuilded into Guilded.
  * @param {String} guildedDir Path to Guilded's resource/app directory
@@ -25,24 +23,16 @@ export async function inject(guildedDir, reguildedDir) {
     // If there is no injection present, inject
     if (!existsSync(guildedDir)) {
         try {
-            const src = join(__dirname, "../app");
+            const src = join(__dirname, "./app");
 
-            // const files = readdirSync(src, { withFileTypes: true });
-            // // Gets all directories that shouldn't be ignored
-            // const dirs = files.filter((x) => x.isDirectory() && !ignored.includes(x.name));
+            copy(src, reguildedDir, { recursive: true, errorOnExist: false, overwrite: true }, err => {
+                if (err) throw err;
 
-            // for (let dir of dirs) {
-            //     const inReguilded = join(reguildedDir, dir.name);
-            //     // Copies src stuff to ~/.reguilded/:name
-            //     fse.copySync(join(src, dir.name), inReguilded, { recursive: true, errorOnExist: false, overwrite: true });
-            // }
-            fse.copySync(src, reguildedDir, { recursive: true, errorOnExist: false, overwrite: true });
-
-            // If this is on Linux and not on root, execute full injection with root perms
-            if (process.platform === "linux" && process.getuid() !== 0)
-                rootPerms(guildedDir, ["node", join(__dirname, "inject.js"), "-d", reguildedDir]);
-
-            else injection(guildedDir, reguildedDir);
+                // If this is on Linux and not on root, execute full injection with root perms
+                if (process.platform === "linux" && process.getuid() !== 0)
+                    rootPerms(guildedDir, ["node", join(__dirname, "injector.linux-inject.js"), "-d", reguildedDir]);
+                else injection(guildedDir, reguildedDir);
+            });
         } catch (err) {
             // If there was an error, try uninjecting ReGuilded
             if (existsSync(guildedDir))

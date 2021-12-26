@@ -5,10 +5,12 @@
   "main": "",
   "type": "module",
   "scripts": {
-    "inject": "node src/inject/index.js inject",
-    "uninject": "node src/inject/index.js uninject",
-    "reinject": "npm run uninject && npm run inject",
-    "build": "rollup -c rollup.config.js"
+    "injectbare": "node out/injector.main.js inject",
+    "uninjectbare": "node out/injector.main.js uninject",
+    "build": "rollup -c rollup.config.js",
+    "inject": "npm run build && npm run injectbare",
+    "uninject": "npm run build && npm run uninjectbare",
+    "reinject": "npm run build && npm run uninjectbare && npm run injectbare"
   },
   "repository": {
     "type": "git",
@@ -21,11 +23,12 @@
   },
   "homepage": "https://github.com/ReGuilded/ReGuilded#readme",
   "dependencies": {
+    "@types/fs-extra": "^9.0.13",
+    "@types/minimist": "^1.2.2",
     "@types/react": "^17.0.37",
     "@types/react-dom": "^17.0.11",
     "fs-extra": "^8.1.0",
-    "log4js": "^6.3.0",
-    "yargs": "^7.1.2"
+    "minimist": "^1.2.5"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^21.0.1",
