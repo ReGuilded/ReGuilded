@@ -3,6 +3,7 @@ import commonjs from "@rollup/plugin-commonjs";
 import root from "rollup-plugin-root-import";
 import ts from "@rollup/plugin-typescript";
 import json from "@rollup/plugin-json";
+import path, { join } from "path";
 
 const globalModules = {
     fs: 'require("fs")',
@@ -18,13 +19,19 @@ const globalModules = {
 };
 const resolvableModules = ["fs", "os", "path", "util", "events", "stream", "module", "tslib"];
 
+const shouldWatch = Boolean(process.env.ROLLUP_WATCH),
+      // npm run watch -- --environment WATCH_PATH:...
+      watchCopyLocation = process.env.WATCH_PATH;
+
+const modPath = shouldWatch && watchCopyLocation ? watchCopyLocation : "./out/app";
+
 /** @type {import("rollup").RollupOptions[]} */
 const config = [
     // Patcher
     {
         input: "./src/patcher/main.js",
         output: {
-            file: "./out/app/reguilded.patcher.js",
+            file: path.join(modPath, "reguilded.patcher.js"),
             format: "cjs",
             name: "bundle",
             globals: globalModules
@@ -41,7 +48,7 @@ const config = [
     {
         input: "./src/splash/main.js",
         output: {
-            file: "./out/app/reguilded.preload-splash.js",
+            file: path.join(modPath, "./out/app/reguilded.preload-splash.js"),
             format: "cjs",
             name: "bundle",
             globals: globalModules
@@ -59,7 +66,7 @@ const config = [
         input: "./src/app/main.ts",
         preserveEntrySignatures: false,
         output: {
-            dir: "./out/app",
+            dir: modPath,
             format: "cjs",
             name: "bundle",
             globals: globalModules,
