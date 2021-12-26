@@ -35,33 +35,13 @@ export default class AddonItem extends ExtensionItem<Addon, { fp: string }> {
     }
     /**
      * Enables or disables the addon based on the new value of the switch.
-     * @param state The state of the switch
+     * @param enabled The state of the switch
      */
-    override onToggle(state: boolean) {
-        // Get the config object
-        const config = window.ReGuilded.settingsManager.config.addons,
-              addons = window.ReGuilded.addonManager,
-              { id } = this.props;
+    override async onToggle(enabled: boolean): Promise<void> {
+        const addons = window.ReGuilded.addonManager;
 
-        // The new state is true, enable the addon and add it to the config
-        if (state) {
-            addons.load(addons.all.find(addon => addon.id === id));
-            config.enabled = [...config.enabled, id];
-        }
-        // The state is false, disable the addon and remove it from the config
-        else {
-            addons.unload(addons.all.find(addon => addon.id === id));
-            config.enabled = config.enabled.filter(_id => _id !== id);
-        }
-
-        // Spaghetti
-        addons.enabled = config.enabled;
-
-        // Write the new date
-        fs.writeFileSync(
-            path.join(window.ReGuilded.settingsManager.directory, "settings.json"),
-            JSON.stringify(window.ReGuilded.settingsManager.config, null, "\t")
-        );
+        await addons[enabled ? "savedLoad" : "savedUnload"](this.props)
+            .then(() => this.setState({ enabled }));
     }
     async openPermissions() {
         const { name } = this.props;

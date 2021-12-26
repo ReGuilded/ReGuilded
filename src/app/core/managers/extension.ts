@@ -2,6 +2,7 @@ import chokidar from "../../libs/chokidar";
 import EventEmitter from "events";
 import path from "path";
 import fs from "fs";
+import SettingsManager, { ExtensionSettings } from "./settings";
 
 
 export declare interface Extension<T> {
@@ -29,14 +30,20 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
     allLoaded: boolean;
     all?: T[];
     enabled?: string[];
+    settings: ExtensionSettings;
+    settingsManager: SettingsManager;
     /**
      * Manages different components of ReGuilded to allow them to be extended.
      * @param dirname The path to the extension directory
+     * @param settings The reference of extension settings manager
+     * @param settingsManager The current instance of ReGuilded settings manager
      */
-    constructor(dirname: string) {
+    constructor(dirname: string, settings: ExtensionSettings, settingsManager: SettingsManager) {
         super();
         this.dirname = dirname;
         this.allLoaded = false;
+        this.settings = settings;
+        this.settingsManager = settingsManager;
     }
     /**
      * Checks if the identifier of the extension is correct or not.
@@ -54,7 +61,7 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
      * @param {String[]} enabled A list of enabled extensions
      * @returns A list of extension directories
      */
-    getDirs(enabled = []) {
+    protected getDirs(enabled = []) {
         this.all = [];
         this.enabled = enabled;
 
@@ -65,7 +72,7 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
      * @param {number} index The current index of the iterator
      * @param {length} totalLength The total length of all extensions available
      */
-    checkLoaded(index, totalLength) {
+    protected checkLoaded(index, totalLength) {
         // Ensure this is the last extension and that we haven't already tripped the event
         if (totalLength == index && !this.allLoaded) {
             // Trip the event
@@ -73,7 +80,7 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
             this.emit("fullLoad", this.all);
         }
     }
-    addMetadataConfig(metadata, dirname) {
+    protected addMetadataConfig(metadata, dirname) {
         fs.readdir(dirname, (err, files) => {
             if (err) throw err;
 
@@ -99,7 +106,7 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
      * Watches the extension directory for any changes.
      * @param callback The callback when change occurs.
      */
-    watch(callback: (dirname: string, fp: string, metadata) => Promise<Extension<string | string[]>>): void {
+    protected watch(callback: (dirname: string, fp: string, metadata) => Promise<Extension<string | string[]>>): void {
         const available = fs.readdirSync(this.dirname, { withFileTypes: true }),
               // Split '/' and get its length, to get the name of the extension.
               // The length already gives us +1, so no need to do that.
@@ -171,6 +178,19 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
             if (extension) this.load(extension);
         }
     }
+    /**
+     * Loads the given extension and then saves the enabled state in the settings.
+     * @param extension The extension to load
+     */
+    async savedLoad(extension: T): Promise<void> {
+        this.load(extension);
+        this.settings.enabled.push(extension.id);
+        await this.settingsManager.save();
+    }
+    /**
+     * Loads the given extension.
+     * @param extension The extension to load
+     */
     abstract load(extension: T): void;
     /**
      * Removes ReGuilded themes from Guilded.
@@ -183,7 +203,21 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
                 this.unload(ext);
         }
     }
-    abstract unload(extensionId: T, hardUnload?: boolean): void;
+    /**
+     * Unloads the given extension and then saves the disabled state in the settings.
+     * @param extension The extension to unload
+     */
+    async savedUnload(extension: T): Promise<void> {
+        this.unload(extension, false);
+        this.settings.enabled = this.settings.enabled.filter(extId => extId != extension.id);
+        await this.settingsManager.save();
+    }
+    /**
+     * Unloads the given extension.
+     * @param extension The extension to unload
+     * @param hardUnload Whether it's hard unload from a watcher.
+     */
+    abstract unload(extension: T, hardUnload?: boolean): void;
     /**
      * Gets path of an extension.
      * @param {String} name The name of the extension to get path of

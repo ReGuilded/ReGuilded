@@ -23,8 +23,8 @@ export default class ReGuilded {
         this.settingsManager = new SettingsManager();
 
         // Creates Themes & Addons manager
-        this.themesManager = new ThemesManager(this.settingsManager.getThemesDir());
-        this.addonManager = new AddonManager(this.settingsManager.getAddonsDir());
+        this.themesManager = new ThemesManager(this.settingsManager.themesDir, this.settingsManager.config.themes, this.settingsManager);
+        this.addonManager = new AddonManager(this.settingsManager.addonsDir, this.settingsManager.config.addons, this.settingsManager);
     }
 
     /**

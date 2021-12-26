@@ -72,34 +72,11 @@ export default class ThemeItem extends ExtensionItem<Theme, { settings: object, 
      * Changes theme's enabled state.
      * @param enabled The state of the switch
      */
-    override onToggle(enabled: boolean) {
-        const config = window.ReGuilded.settingsManager.config.themes,
-              themes = window.ReGuilded.themesManager,
-              { id } = this.props;
+    override async onToggle(enabled: boolean): Promise<void> {
+        const themes = window.ReGuilded.themesManager;
 
-        // The new state is true, enable the theme and add it to the config
-        if (enabled) {
-            window.ReGuilded.themesManager.load(this.props);
-            config.enabled = [...config.enabled, id];
-        } else { // The state is false, disable the theme and remove it from the config
-            window.ReGuilded.themesManager.unload(this.props);
-            config.enabled = config.enabled.filter(_id => _id !== id);
-        }
-
-        // Spaghetti
-        themes.enabled = config.enabled;
-
-        // REVIEW: Is this still needed?
-        // Re-init all theme data
-        // ThemeSettingsHandler.reInitAll();
-
-        // Write the new date
-        writeFileSync(
-            join(window.ReGuilded.settingsManager.directory, "settings.json"),
-            JSON.stringify(window.ReGuilded.settingsManager.config, null, "\t")
-        );
-
-        this.setState({ enabled });
+        await themes[enabled ? "savedLoad" : "savedUnload"](this.props)
+            .then(() => this.setState({ enabled }));
     }
     async openThemeSettings() {
         const { name } = this.props;

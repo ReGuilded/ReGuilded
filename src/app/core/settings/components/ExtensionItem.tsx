@@ -50,10 +50,10 @@ export default abstract class ExtensionItem<P extends Extension<any>, S = {}> ex
                 .catch(() => {});
         }
     }
-    abstract onToggle(state: boolean): void;
+    abstract onToggle(enabled: boolean): Promise<void>;
     render() {
         const { overflowMenuSpecs, props: { name, readme, version, type, switchTab }, state: { enabled } } = this,
-              toggleCallback = this.onToggle.bind(this);
+              toggleCallback: (enabled: boolean) => Promise<void> = this.onToggle.bind(this);
 
         return (
             <a className="DocDisplayItem-wrapper ReGuildedExtension-wrapper" onClick={() => switchTab("specific", { extension: this.props })}>
@@ -69,7 +69,7 @@ export default abstract class ExtensionItem<P extends Extension<any>, S = {}> ex
                             {/* Footer */}
                             <div className="DocDisplayItem-summary-info DocSummaryInfo-container ReGuildedExtension-summary-info">
                                 <div onClick={e => e.stopPropagation()}>
-                                    <Form onChange={({ hasChanged, values: {enabled} }) => hasChanged && (this.hasToggled = true) || this.hasToggled ? toggleCallback(enabled) : null} formSpecs={{
+                                    <Form onChange={async ({ hasChanged, values: {enabled} }) => (hasChanged && (this.hasToggled = true) || this.hasToggled) && await toggleCallback(enabled)} formSpecs={{
                                         sections: [
                                             {
                                                 fieldSpecs: [

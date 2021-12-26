@@ -1,9 +1,10 @@
-﻿import { patchElementRenderer } from '../../addons/lib.js';
-import AddonSettings from "./components/AddonSettings.jsx";
-import ThemeSettings from "./components/ThemeSettings.jsx";
+﻿import { patchElementRenderer } from "../../addons/lib";
+import AddonSettings from "./components/AddonSettings";
+import ThemeSettings from "./components/ThemeSettings";
 import patcher from "../../addons/patcher";
-import TabbedSettings from './components/TabbedSettings.js';
-import ExtensionView from './components/ExtensionView.js';
+import TabbedSettings from "./components/TabbedSettings";
+import ExtensionView from "./components/ExtensionView"
+import GeneralSettings from "./components/GeneralSettings";
 
 export default class SettingsInjector {
     id = "SettingsInjector";
@@ -47,11 +48,11 @@ export default class SettingsInjector {
             id: "reguilded",
             name: "ReGuilded",
             actions: [
-                // {
-                //     id: "rgSettings",
-                //     label: "Settings",
-                //     Component: ReGuildedSettings
-                // },
+                {
+                    id: "rgGeneral",
+                    label: "General",
+                    Component: GeneralSettings
+                },
                 {
                     id: "rgAddons",
                     label: "Addons",

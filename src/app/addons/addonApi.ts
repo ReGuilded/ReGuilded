@@ -29,6 +29,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     // Guilded
     domainUri: webpack => webpack.withProperty("WebClient"),
     globalBadges: webpack => webpack.withProperty("Webhook"),
+    functionUtil: webpack => webpack.withProperty("coroutine"),
     externalSiteInfo: webpack => webpack.withProperty("reddit"),
     gameList: webpack => webpack.withProperty("SearchableGames"),
     guildedArticles: webpack => webpack.withProperty("aboutURL"),
@@ -44,6 +45,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     OverlayProvider: webpack => webpack.withCode("OverlayProvider"),
     TeamContextProvider: webpack => webpack.withCode("EnforceTeamData"),
     DefaultContextProvider: webpack => webpack.withCode("defaultContext"),
+    SavableSettings: webpack => webpack.withCode("handleSaveChanges"),
 
     // Settings and this user
     cookies: webpack => webpack.withProperty("cookie"),
@@ -364,6 +366,12 @@ export default class AddonApi {
         return this.getCached("formFieldTypes")?.default;
     }
     /**
+     * The utilities related to functions.
+     */
+    get functionUtil(): Function & { coroutine: <T extends Function>(fn: T) => any } {
+        return this.getCached("functionUtil");
+    }
+    /**
      * The list of supported games.
      */
     get gameList() {
@@ -565,6 +573,9 @@ export default class AddonApi {
      */
     get restMethods() {
         return this.getCached("restMethods")?.default;
+    }
+    get SavableSettings(): <T>(settings: T) => T {
+        return this.getCached("SavableSettings")?.default;
     }
     /**
      * An input made for searching.
