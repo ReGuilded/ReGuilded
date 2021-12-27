@@ -1,10 +1,12 @@
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import root from "rollup-plugin-root-import";
+import { terser } from "rollup-plugin-terser";
 import ts from "@rollup/plugin-typescript";
 import json from "@rollup/plugin-json";
-import path, { join } from "path";
+import { join } from "path";
 
+// Electron made me do this
 const globalModules = {
     fs: 'require("fs")',
     os: 'require("os")',
@@ -17,12 +19,32 @@ const globalModules = {
     electron: 'require("electron")',
     child_process: 'require("child_process")'
 };
-const resolvableModules = ["fs", "os", "path", "util", "events", "stream", "module", "tslib", "chokidar"];
+const resolvableModules = [
+    // ReGuilded used
+    "fs", "os", "path", "util", "events", "stream", "module", "tslib", "chokidar",
+    // Dependencies of the dependecies
+    "readdirp", "anymatch", "glob-parent", "is-glob", "braces", "normalize-path", "is-binary-path",
+    "picomatch", "is-extglob", "fill-range", "binary-extensions", "to-regex-range", "is-number"
+];
 
 // npm run watch -- --environment WATCH_PATH:...
-const watchCopyLocation = process.env.WATCH_PATH;
+const watchCopyLocation = process.env.WATCH_PATH,
+      isWatching = Boolean(process.env.ROLLUP_WATCH);
 
 const modPath = watchCopyLocation ? watchCopyLocation : "./out/app";
+
+// To not configure it every time
+const configuredPlugins = {
+    terser: !isWatching && terser({
+        compress: true
+    }),
+    json: json({
+        compact: true
+    }),
+    ts: ts({
+        tsconfig: "tsconfig.json"
+    })
+};
 
 /** @type {import("rollup").RollupOptions[]} */
 const config = [
@@ -30,7 +52,7 @@ const config = [
     {
         input: "./src/patcher/main.js",
         output: {
-            file: path.join(modPath, "reguilded.patcher.js"),
+            file: join(modPath, "reguilded.patcher.js"),
             format: "cjs",
             name: "bundle",
             globals: globalModules
@@ -40,14 +62,15 @@ const config = [
             resolve({
                 browser: true,
                 resolveOnly: resolvableModules
-            })
+            }),
+            configuredPlugins.terser
         ]
     },
     // Preload splash
     {
         input: "./src/splash/main.js",
         output: {
-            file: path.join(modPath, "reguilded.preload-splash.js"),
+            file: join(modPath, "reguilded.preload-splash.js"),
             format: "cjs",
             name: "bundle",
             globals: globalModules
@@ -57,7 +80,8 @@ const config = [
             resolve({
                 browser: true,
                 resolveOnly: resolvableModules
-            })
+            }),
+            configuredPlugins.terser
         ]
     },
     // Preload
@@ -81,12 +105,9 @@ const config = [
                 browser: true,
                 resolveOnly: resolvableModules
             }),
-            json({
-                compact: true
-            }),
-            ts({
-                tsconfig: "tsconfig.json"
-            })
+            configuredPlugins.json,
+            configuredPlugins.ts,
+            configuredPlugins.terser
         ]
     },
     // Injector
@@ -104,10 +125,9 @@ const config = [
             resolve({
                 browser: false
             }),
-            json(),
-            ts({
-                tsconfig: "tsconfig.json"
-            })
+            configuredPlugins.json,
+            configuredPlugins.ts,
+            configuredPlugins.terser
         ]
     },
     {
@@ -124,10 +144,9 @@ const config = [
             resolve({
                 browser: false
             }),
-            json(),
-            ts({
-                tsconfig: "tsconfig.json"
-            })
+            configuredPlugins.json,
+            configuredPlugins.ts,
+            configuredPlugins.terser
         ]
     }
 ];
