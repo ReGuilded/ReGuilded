@@ -19,11 +19,10 @@ const globalModules = {
 };
 const resolvableModules = ["fs", "os", "path", "util", "events", "stream", "module", "tslib"];
 
-const shouldWatch = Boolean(process.env.ROLLUP_WATCH),
-      // npm run watch -- --environment WATCH_PATH:...
-      watchCopyLocation = process.env.WATCH_PATH;
+// npm run watch -- --environment WATCH_PATH:...
+const watchCopyLocation = process.env.WATCH_PATH;
 
-const modPath = shouldWatch && watchCopyLocation ? watchCopyLocation : "./out/app";
+const modPath = watchCopyLocation ? watchCopyLocation : "./out/app";
 
 /** @type {import("rollup").RollupOptions[]} */
 const config = [
@@ -48,7 +47,7 @@ const config = [
     {
         input: "./src/splash/main.js",
         output: {
-            file: path.join(modPath, "./out/app/reguilded.preload-splash.js"),
+            file: path.join(modPath, "reguilded.preload-splash.js"),
             format: "cjs",
             name: "bundle",
             globals: globalModules

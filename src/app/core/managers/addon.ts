@@ -35,14 +35,12 @@ export default class AddonManager extends ExtensionManager<Addon> {
     /**
      * Initiates addons for ReGuilded and addon manager
      * @param addonApi ReGuilded Addon API.
-     * @param enabled An array of enabled addons.
      */
-    init(addonApi: AddonApi, enabled: string[] = []) {
+    init(addonApi: AddonApi) {
         console.log("Initiating addon manager");
 
         // Initialize these here instead of getDirs()
         this.all = [];
-        this.enabled = enabled;
 
         // Try-catch; this should never throw errors
         try {

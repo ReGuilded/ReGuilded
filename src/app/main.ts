@@ -1,4 +1,4 @@
-//require("./libs/compiler/index.js").patchRequires();
+import { defaultSettings } from "./core/managers/settings";
 import { members } from "./core/badges-flairs";
 import { promises as fsPromises } from "fs";
 import webpackPush from "./webpackInject";
@@ -23,14 +23,7 @@ let SettingsPromise = function handleSettings() {
 
             // Create ~/.reguilded/settings
             mkdir(settingsPath, { recursive: true }).then(async () => {
-                const settingsJson = JSON.stringify({
-                    themes: {
-                        enabled: []
-                    },
-                    addons: {
-                        enabled: []
-                    }
-                }, null, 4);
+                const settingsJson = JSON.stringify(defaultSettings, null, 4);
 
                 // Create the settings.json and an empty themes and addons folder
                 await writeFile(join(settingsPath, "settings.json"), settingsJson, {encoding: "utf-8"});

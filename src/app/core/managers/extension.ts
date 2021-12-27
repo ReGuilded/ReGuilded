@@ -1,7 +1,7 @@
 import chokidar from "../../libs/chokidar";
 import EventEmitter from "events";
 import path from "path";
-import fs from "fs";
+import fs, { Dirent } from "fs";
 import SettingsManager, { ExtensionSettings } from "./settings";
 
 
@@ -29,7 +29,7 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
     dirname: string;
     allLoaded: boolean;
     all?: T[];
-    enabled?: string[];
+    enabled: string[];
     settings: ExtensionSettings;
     settingsManager: SettingsManager;
     /**
@@ -43,6 +43,7 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
         this.dirname = dirname;
         this.allLoaded = false;
         this.settings = settings;
+        this.enabled = this.settings.enabled;
         this.settingsManager = settingsManager;
     }
     /**
@@ -57,22 +58,11 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
             throw new Error(`Incorrect syntax of the property 'id'. Path: ${path}`);
     }
     /**
-     * Gets a list of extensions.
-     * @param {String[]} enabled A list of enabled extensions
-     * @returns A list of extension directories
-     */
-    protected getDirs(enabled = []) {
-        this.all = [];
-        this.enabled = enabled;
-
-        return fs.readdirSync(this.dirname, { withFileTypes: true }).filter((x) => x.isDirectory());
-    }
-    /**
      * Checks whether all extensions were loaded and emits the event for them.
-     * @param {number} index The current index of the iterator
-     * @param {length} totalLength The total length of all extensions available
+     * @param index The current index of the iterator
+     * @param totalLength The total length of all extensions available
      */
-    protected checkLoaded(index, totalLength) {
+    protected checkLoaded(index: number, totalLength: number): void {
         // Ensure this is the last extension and that we haven't already tripped the event
         if (totalLength == index && !this.allLoaded) {
             // Trip the event
@@ -80,7 +70,7 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
             this.emit("fullLoad", this.all);
         }
     }
-    protected addMetadataConfig(metadata, dirname) {
+    protected addMetadataConfig(metadata: T, dirname: string) {
         fs.readdir(dirname, (err, files) => {
             if (err) throw err;
 
@@ -95,7 +85,7 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
             }
         });
         // Make sure author is an ID
-        if (metadata.author && typeof metadata.author !== "string" && metadata.author.length !== 8)
+        if (metadata.author && (typeof metadata.author !== "string" || metadata.author.length !== 8))
         {
             console.warn("Author must be an identifier of the user in Guilded, not their name or anything else");
             // To not cause errors and stuff
@@ -106,7 +96,7 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
      * Watches the extension directory for any changes.
      * @param callback The callback when change occurs.
      */
-    protected watch(callback: (dirname: string, fp: string, metadata) => Promise<Extension<string | string[]>>): void {
+    protected watch(callback: (dirname: string, fp: string, metadata: T) => Promise<Extension<string | string[]>>): void {
         const available = fs.readdirSync(this.dirname, { withFileTypes: true }),
               // Split '/' and get its length, to get the name of the extension.
               // The length already gives us +1, so no need to do that.
@@ -120,7 +110,7 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
         const deBouncers = {};
 
         // Watch the directory for any file changes
-        chokidar.watch(this.dirname).on("all", (type, fp) => {
+        chokidar.watch(this.dirname).on("all", (_: any, fp: string) => {
             const extName = fp.split(path.sep)[relativeIndex];
 
             // Make sure extName exists(this not being `settings/addons` or `settings/themes`
@@ -171,7 +161,7 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
     /**
      * Loads all ReGuilded extensions onto Guilded.
      */
-    loadAll() {
+    loadAll(): void {
         for (let ext of this.enabled) {
             const extension = this.all.find(x => x.id === ext);
 
@@ -195,7 +185,7 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
     /**
      * Removes ReGuilded themes from Guilded.
      */
-    unloadAll() {
+    unloadAll(): void {
         // Unload all existing extensions
         for (let ext of this.all)
         {
@@ -220,21 +210,21 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
     abstract unload(extension: T, hardUnload?: boolean): void;
     /**
      * Gets path of an extension.
-     * @param {String} name The name of the extension to get path of
-     * @returns {String} Extension path
+     * @param name The name of the extension to get path of
+     * @returns Extension path
      */
-    getPath(name) {
+    protected getPath(name: string): string {
         return path.join(this.dirname, name);
     }
 
     /**
      * Checks if property is given type and if it isn't, throws an error.
-     * @param {string} name The name of the property.
-     * @param {any} value The value of the property.
-     * @param {[string | function]} types Expected types of the property.
-     * @param {string} path Path to the JSON where property is.
+     * @param name The name of the property.
+     * @param value The value of the property.
+     * @param types Expected types of the property.
+     * @param path Path to the JSON where property is.
      */
-    static checkProperty(name, value, types, path) {
+    static checkProperty(name: string, value: any, types: [string | Function], path: string) {
         if (types.includes(typeof value) && types.some(x => x instanceof Function && value instanceof x))
             throw new TypeError(`Expected '${name}' to be [${types.join(", ")}], found ${typeof value} instead in ${path}`);
     }

@@ -41,6 +41,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     portal: webpack => webpack.withProperty("Portals"),
     layerContext: webpack => webpack.allWithProperty("object")[1],
     OverlayStack: webpack => webpack.withProperty("addPortal"),
+    transientMenuPortal: _ => getOwnerInstance(document.querySelector(".TransientMenuPortalContext-portal-container")),
 
     OverlayProvider: webpack => webpack.withCode("OverlayProvider"),
     TeamContextProvider: webpack => webpack.withCode("EnforceTeamData"),
@@ -89,6 +90,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
 
     // Components
     GuildedText: webpack => webpack.withCode("GuildedText"),
+    RouteLink: webpack => webpack.withClassProperty("href"),
     Form: webpack => webpack.withClassProperty("formValues"),
     Modal: webpack => webpack.withClassProperty("hasConfirm"),
     MarkRenderer: webpack => webpack.withClassProperty("mark"),
@@ -213,6 +215,14 @@ export default class AddonApi {
      */
     get waitForElement(): (query: string) => Promise<Element | Node> {
         return waitForElement;
+    }
+
+    // Private
+    get transientMenuPortal() {
+        return this.getCached("transientMenuPortal");
+    }
+    get transientMenuPortalUnmaskedContext() {
+        return this.transientMenuPortal.__reactInternalMemoizedUnmaskedChildContext;
     }
 
     // Alphabetical, not categorized
@@ -573,6 +583,12 @@ export default class AddonApi {
      */
     get restMethods() {
         return this.getCached("restMethods")?.default;
+    }
+    /**
+     * A clickable hyperlink component.
+     */
+    get RouteLink() {
+        return this.getCached("RouteLink")?.default;
     }
     get SavableSettings(): <T>(settings: T) => T {
         return this.getCached("SavableSettings")?.default;

@@ -45,9 +45,8 @@ export default class ThemesManager extends ExtensionManager<Theme> {
     }
     /**
      * Initiates themes for ReGuilded and theme manager.
-     * @param enabled An array of enabled themes.
      */
-    init(enabled: string[] = []) {
+    init() {
         console.log("Initiating theme manager");
 
         // Make sure <datagroup> elements are ignored
@@ -62,9 +61,7 @@ export default class ThemesManager extends ExtensionManager<Theme> {
         );
         document.body.appendChild(this.megaGroup);
 
-        // Initialize these here instead of getDirs()
         this.all = [];
-        this.enabled = enabled;
 
         this.watch((_, loaded, metadata: Theme) => new Promise((resolve, reject) => {
             // If the theme is already loaded, unload it
