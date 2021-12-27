@@ -1,8 +1,8 @@
-import chokidar from "../../libs/chokidar";
-import EventEmitter from "events";
-import path from "path";
-import fs, { Dirent } from "fs";
 import SettingsManager, { ExtensionSettings } from "./settings";
+import EventEmitter from "events";
+import { watch } from "chokidar";
+import fs, { Dirent } from "fs";
+import path from "path";
 
 
 export declare interface Extension<T> {
@@ -110,7 +110,7 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
         const deBouncers = {};
 
         // Watch the directory for any file changes
-        chokidar.watch(this.dirname).on("all", (_: any, fp: string) => {
+        watch(this.dirname).on("all", (_: any, fp: string) => {
             const extName = fp.split(path.sep)[relativeIndex];
 
             // Make sure extName exists(this not being `settings/addons` or `settings/themes`

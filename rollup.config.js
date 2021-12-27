@@ -17,7 +17,7 @@ const globalModules = {
     electron: 'require("electron")',
     child_process: 'require("child_process")'
 };
-const resolvableModules = ["fs", "os", "path", "util", "events", "stream", "module", "tslib"];
+const resolvableModules = ["fs", "os", "path", "util", "events", "stream", "module", "tslib", "chokidar"];
 
 // npm run watch -- --environment WATCH_PATH:...
 const watchCopyLocation = process.env.WATCH_PATH;
@@ -36,11 +36,11 @@ const config = [
             globals: globalModules
         },
         plugins: [
+            commonjs(),
             resolve({
                 browser: true,
                 resolveOnly: resolvableModules
-            }),
-            commonjs()
+            })
         ]
     },
     // Preload splash
@@ -53,11 +53,11 @@ const config = [
             globals: globalModules
         },
         plugins: [
+            commonjs(),
             resolve({
                 browser: true,
                 resolveOnly: resolvableModules
-            }),
-            commonjs()
+            })
         ]
     },
     // Preload
@@ -76,11 +76,11 @@ const config = [
             root({
                 root: "./src/app"
             }),
+            commonjs(),
             resolve({
                 browser: true,
                 resolveOnly: resolvableModules
             }),
-            commonjs(),
             json({
                 compact: true
             }),
@@ -98,11 +98,11 @@ const config = [
             name: "injector"
         },
         plugins: [
-            resolve({
-                browser: false
-            }),
             commonjs({
                 ignoreDynamicRequires: true
+            }),
+            resolve({
+                browser: false
             }),
             json(),
             ts({
@@ -118,11 +118,11 @@ const config = [
             name: "linuxInjector"
         },
         plugins: [
-            resolve({
-                browser: false
-            }),
             commonjs({
                 ignoreDynamicRequires: true
+            }),
+            resolve({
+                browser: false
             }),
             json(),
             ts({
