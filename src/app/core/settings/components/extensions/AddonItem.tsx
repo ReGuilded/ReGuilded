@@ -1,8 +1,7 @@
+import { FormSpecs } from "../../../../guilded/form";
+import { Addon } from "../../../managers/addon";
 import ExtensionItem from "./ExtensionItem";
 import path from "path";
-import fs from "fs";
-import { FormSpecs } from "../../../guilded/form";
-import { Addon } from "../../managers/addon";
 
 const { OverlayProvider } = window.ReGuildedApi;
 
@@ -33,14 +32,8 @@ export default class AddonItem extends ExtensionItem<Addon, { fp: string }> {
             ]
         });
     }
-    /**
-     * Enables or disables the addon based on the new value of the switch.
-     * @param enabled The state of the switch
-     */
-    override async onToggle(enabled: boolean): Promise<void> {
-        const addons = window.ReGuilded.addonManager;
-
-        await addons[enabled ? "savedLoad" : "savedUnload"](this.props)
+    protected override async onToggle(enabled: boolean): Promise<void> {
+        await window.ReGuilded.addonManager[enabled ? "savedLoad" : "savedUnload"](this.props)
             .then(() => this.setState({ enabled }));
     }
     async openPermissions() {

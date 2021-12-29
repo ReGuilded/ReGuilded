@@ -1,9 +1,7 @@
-import { writeFileSync } from "fs";
-import { join } from "path";
-import { Theme } from "../../managers/themes";
-
-import validations from "../validation";
+import { FieldAnySpecs } from "../../../../guilded/form";
+import { Theme } from "../../../managers/themes";
 import ExtensionItem from "./ExtensionItem";
+import validations from "../../validation";
 
 const { OverlayProvider } = window.ReGuildedApi;
 
@@ -45,37 +43,13 @@ export default class ThemeItem extends ExtensionItem<Theme, { settings: object, 
         return {
             sections: [
                 {
-                    fieldSpecs: settingsProps.map(id => {
-                        const { type, value, name } = settings[id];
-
-                        // Get validation function and type that fit
-                        const validationFunction = validations[type];
-
-                        return {
-                            type: "Text",
-                            fieldName: id,
-                            header: name,
-                            label: type ? `Value (${type})` : "Value",
-                            defaultValue: value,
-
-                            inputType: type === "number" ? type : undefined,
-                            validationFunction,
-
-                            grow: 1
-                        }
-                    })
+                    fieldSpecs: ThemeItem.generateSettingsFields(settings, settingsProps)
                 }
             ]
         }
     }
-    /**
-     * Changes theme's enabled state.
-     * @param enabled The state of the switch
-     */
-    override async onToggle(enabled: boolean): Promise<void> {
-        const themes = window.ReGuilded.themesManager;
-
-        await themes[enabled ? "savedLoad" : "savedUnload"](this.props)
+    protected override async onToggle(enabled: boolean): Promise<void> {
+        await window.ReGuilded.themesManager[enabled ? "savedLoad" : "savedUnload"](this.props)
             .then(() => this.setState({ enabled }));
     }
     async openThemeSettings() {
@@ -94,5 +68,23 @@ export default class ThemeItem extends ExtensionItem<Theme, { settings: object, 
 
         if (confirmed)
             window.ReGuilded.themesManager.assignProperties(this.props, changedValues);
+    }
+    static generateSettingsFields(settings: object, settingsProps: string[]): FieldAnySpecs[] {
+        return settingsProps.map(id => {
+            const { type, value, name } = settings[id];
+
+            return {
+                type: "Text",
+                fieldName: id,
+                header: name,
+                label: type ? `Value (${type})` : "Value",
+                defaultValue: value,
+
+                inputType: type === "number" ? type : undefined,
+                validationFunction: validations[type],
+
+                grow: 1
+            };
+        });
     }
 }

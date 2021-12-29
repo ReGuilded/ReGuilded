@@ -30,12 +30,10 @@ export default class WebpackManager {
 
             // Wait for its exports to be a thing(that could still lead to undefined exports)
             setImmediate(() => {
-                for (let func of Object.keys(mod[1]))
-                {
-                    const exports  = this._webpackExports[func],
-                          esModule = !!exports?.default;
-                    
-                    this._webpackExportList.push({ i: func, l: esModule, exports });
+                for (let func of Object.keys(mod[1])) {
+                    const exports = this._webpackExports[func];
+
+                    if (exports) this._webpackExportList.push(exports);
                 }
             });
 
@@ -134,11 +132,10 @@ export default class WebpackManager {
      */
     withClassProperty(name: string): Function | { default: Function } {
         return this.withFilter(x => {
-            const { default: type } = this.asEsModule(x.exports);
+            const { default: type } = this.asEsModule(x?.exports);
 
             // Checks if it's a function with property in prototypes
-            // No idea why, but hasOwnProperty is sometimes undefined
-            return typeof type === "function" && (type.prototype?.hasOwnProperty?.(name) || type.prototype?.__proto__?.hasOwnProperty?.(name));
+            return typeof type === "function" && (type.prototype !== void 0 && type.prototype !== null && name in type.prototype);
         });
     }
     /**

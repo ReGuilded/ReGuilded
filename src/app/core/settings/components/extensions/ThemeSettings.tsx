@@ -2,8 +2,9 @@
 import ThemeItem from "./ThemeItem.jsx";
 
 export default class ThemeSettings extends ExtensionSettings {
-    type = "theme";
-    ItemTemplate = ThemeItem;
+    protected name = "Themes";
+    protected type = "theme";
+    protected ItemTemplate = ThemeItem;
     constructor(props, context) {
         super(props, context);
         

@@ -32,6 +32,11 @@ type GuildedTextProps = {
     weight?: "normal" | "semibold" | "bold",
     color?: "bodyWhite" | "white" | "gray" | "gilded1" | "errorRed"
 };
+type WordDividerLineProps = {
+    word: string,
+    wordStyle?: "normal" | "chat",
+    onGetRef?: Function
+};
 
 export declare class NullState extends React.Component<NullStateProps> {
     constructor(props: NullStateProps, context?: object);
@@ -42,6 +47,9 @@ export declare class SvgIcon extends React.Component<SvgIconProps> {
 }
 export declare class GuildedText extends React.Component<GuildedTextProps> {
     constructor(props: GuildedTextProps, context?: object);
+}
+export declare class WordDividerLine extends React.Component<WordDividerLineProps> {
+    constructor(props: WordDividerLineProps, context?: object);
 }
 export declare class ItemManager<T> extends React.Component {
     constructor(props: {

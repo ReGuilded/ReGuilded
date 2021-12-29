@@ -1,7 +1,7 @@
-﻿import { MenuSpecs } from "../../../guilded/menu.js";
-import { Extension } from "../../managers/extension.js";
-import ErrorBoundary from "./ErrorBoundary.jsx";
-import { SwitchTab } from "./TabbedSettings.js";
+﻿import ExtensionManager, { Extension } from "../../../managers/extension.js";
+import { MenuSpecs } from "../../../../guilded/menu.js";
+import ErrorBoundary from "../ErrorBoundary.jsx";
+import { SwitchTab } from "../TabbedSettings.jsx";
 const { shell } = require("electron");
 
 const { OverflowButton, Form, UserBasicInfo, UserModel, restMethods, React } = window.ReGuildedApi;
@@ -19,6 +19,7 @@ type State = {
 export default abstract class ExtensionItem<P extends Extension<any>, S = {}> extends React.Component<P & AdditionalProps, State & S> {
     protected overflowMenuSpecs: MenuSpecs;
     private hasToggled: boolean;
+    private _onToggleBinded: (enabled: boolean) => Promise<void>;
 
     constructor(props, context) {
         super(props, context);
@@ -42,7 +43,9 @@ export default abstract class ExtensionItem<P extends Extension<any>, S = {}> ex
             ]
         };
         this.hasToggled = false;
+        this._onToggleBinded = this.onToggle.bind(this);
     }
+    protected abstract onToggle(enabled: boolean): Promise<void>;
     async componentWillMount() {
         if (this.props.author) {
             await restMethods.getUserById(this.props.author)
@@ -50,10 +53,8 @@ export default abstract class ExtensionItem<P extends Extension<any>, S = {}> ex
                 .catch(() => {});
         }
     }
-    abstract onToggle(enabled: boolean): Promise<void>;
     render() {
-        const { overflowMenuSpecs, props: { name, readme, version, type, switchTab }, state: { enabled } } = this,
-              toggleCallback: (enabled: boolean) => Promise<void> = this.onToggle.bind(this);
+        const { overflowMenuSpecs, props: { name, readme, version, type, switchTab }, state: { enabled }, _onToggleBinded } = this;
 
         return (
             <a className="DocDisplayItem-wrapper ReGuildedExtension-wrapper" onClick={() => switchTab("specific", { extension: this.props })}>
@@ -69,7 +70,7 @@ export default abstract class ExtensionItem<P extends Extension<any>, S = {}> ex
                             {/* Footer */}
                             <div className="DocDisplayItem-summary-info DocSummaryInfo-container ReGuildedExtension-summary-info">
                                 <div onClick={e => e.stopPropagation()}>
-                                    <Form onChange={async ({ hasChanged, values: {enabled} }) => (hasChanged && (this.hasToggled = true) || this.hasToggled) && await toggleCallback(enabled)} formSpecs={{
+                                    <Form onChange={async ({ hasChanged, values: {enabled} }) => (hasChanged && (this.hasToggled = true) || this.hasToggled) && await _onToggleBinded(enabled)} formSpecs={{
                                         sections: [
                                             {
                                                 fieldSpecs: [

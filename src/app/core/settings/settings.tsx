@@ -1,10 +1,12 @@
 ﻿import { patchElementRenderer } from "../../addons/lib";
-import AddonSettings from "./components/AddonSettings";
-import ThemeSettings from "./components/ThemeSettings";
+import AddonSettings from "./components/extensions/AddonSettings";
+import ThemeSettings from "./components/extensions/ThemeSettings";
 import patcher from "../../addons/patcher";
 import TabbedSettings from "./components/TabbedSettings";
-import ExtensionView from "./components/ExtensionView"
+import ExtensionView from "./components/extensions/ExtensionView"
 import GeneralSettings from "./components/GeneralSettings";
+import AddonView from "./components/extensions/AddonView";
+import ThemeView from "./components/extensions/ThemeView";
 
 export default class SettingsInjector {
     id = "SettingsInjector";
@@ -55,13 +57,13 @@ export default class SettingsInjector {
                 },
                 {
                     id: "rgAddons",
-                    label: "Addons",
+                    label: "Add-ons",
                     Component: TabbedSettings,
                     hasNestedOptionsMenuPage: true,
                     props: {
                         tabs: {
                             list: AddonSettings,
-                            specific: ExtensionView
+                            specific: AddonView
                         },
                         defaultTab: "list"
                     }
@@ -74,7 +76,7 @@ export default class SettingsInjector {
                     props: {
                         tabs: {
                             list: ThemeSettings,
-                            specific: ExtensionView
+                            specific: ThemeView
                         },
                         defaultTab: "list"
                     }

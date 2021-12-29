@@ -1,7 +1,7 @@
+import { readdir, readdirSync, readFile, existsSync, promises as fsPromises } from "fs";
 import SettingsManager, { ExtensionSettings } from "./settings";
 import EventEmitter from "events";
 import { watch } from "chokidar";
-import fs, { Dirent } from "fs";
 import path from "path";
 
 
@@ -14,6 +14,7 @@ export declare interface Extension<T> {
     author?: string;
     contributors?: string[];
     version?: string;
+    repo_url?: string;
     readme?: string;
 }
 /**
@@ -29,7 +30,6 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
     dirname: string;
     allLoaded: boolean;
     all?: T[];
-    enabled: string[];
     settings: ExtensionSettings;
     settingsManager: SettingsManager;
     /**
@@ -43,9 +43,37 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
         this.dirname = dirname;
         this.allLoaded = false;
         this.settings = settings;
-        this.enabled = this.settings.enabled;
         this.settingsManager = settingsManager;
     }
+    /**
+     * Gets identifiers of all the enabled extensions.
+     */
+    get enabled(): string[] {
+        return this.settings.enabled;
+    }
+    /**
+     * Loads the given extension.
+     * @param extension The extension to load
+     */
+    abstract load(extension: T): void;
+    /**
+     * Unloads the given extension.
+     * @param extension The extension to unload
+     * @param hardUnload Whether it's hard unload from a watcher.
+     */
+    abstract unload(extension: T, hardUnload?: boolean): void;
+    /**
+     * Deletes the given extension.
+     * @param extension Extension to delete
+     */
+    async delete(extension: T): Promise<void> {
+        // Unload to not bug it out
+        this.savedUnload(extension)
+            // Because .rm doesn't exist in Electron's Node.JS apparently
+            .then(() => fsPromises.rmdir(extension.dirname, { recursive: true }))
+            .then(() => console.log(`Deleted extension by ID '${extension.id}'`), e => console.error(`Failed to delete extension by ID '${extension.id}':\n`, e));
+    }
+
     /**
      * Checks if the identifier of the extension is correct or not.
      * @param id The identifier of the extension
@@ -71,13 +99,13 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
         }
     }
     protected addMetadataConfig(metadata: T, dirname: string) {
-        fs.readdir(dirname, (err, files) => {
+        readdir(dirname, (err, files) => {
             if (err) throw err;
 
             // Add readme to metadata if one of the readme file names exist
             const readmeName = files.find(f => f.toLowerCase() === ExtensionManager.allowedReadmeName);
             if (readmeName) {
-                fs.readFile(path.join(dirname, readmeName), { encoding: 'utf8' }, (e, d) => {
+                readFile(path.join(dirname, readmeName), { encoding: 'utf8' }, (e, d) => {
                     if (e) throw e;
 
                     metadata.readme = d;
@@ -97,7 +125,7 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
      * @param callback The callback when change occurs.
      */
     protected watch(callback: (dirname: string, fp: string, metadata: T) => Promise<Extension<string | string[]>>): void {
-        const available = fs.readdirSync(this.dirname, { withFileTypes: true }),
+        const available = readdirSync(this.dirname, { withFileTypes: true }),
               // Split '/' and get its length, to get the name of the extension.
               // The length already gives us +1, so no need to do that.
               // That's a dumdum way of doing it, but eh.
@@ -121,7 +149,7 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
 
                     // Get the metadata.json file path, and if it doesn't exist, ignore it
                     const metadataPath = path.join(extPath, "metadata.json");
-                    if (!fs.existsSync(metadataPath)) {
+                    if (!existsSync(metadataPath)) {
                         const existingExt =  this.all.find(metadata => metadata.dirname === extPath)
                         if (existingExt !== undefined) {
                             this.all.splice(this.all.indexOf(existingExt), 1);
@@ -178,11 +206,6 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
         await this.settingsManager.save();
     }
     /**
-     * Loads the given extension.
-     * @param extension The extension to load
-     */
-    abstract load(extension: T): void;
-    /**
      * Removes ReGuilded themes from Guilded.
      */
     unloadAll(): void {
@@ -202,12 +225,6 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
         this.settings.enabled = this.settings.enabled.filter(extId => extId != extension.id);
         await this.settingsManager.save();
     }
-    /**
-     * Unloads the given extension.
-     * @param extension The extension to unload
-     * @param hardUnload Whether it's hard unload from a watcher.
-     */
-    abstract unload(extension: T, hardUnload?: boolean): void;
     /**
      * Gets path of an extension.
      * @param name The name of the extension to get path of

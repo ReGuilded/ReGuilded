@@ -44,7 +44,7 @@ export type FieldAnySpecs
     | FieldDateSpecs        | FieldTimeSpecs         | FieldDateAndTimeRangeSpecs
     | FieldEventRepeatSpecs
     // Toggling
-    | FieldSwitchSpecs      | FieldTriStateSpecs
+    | FieldSwitchSpecs      | FieldTriStateSpecs     | FieldButtonSpecs
     // With options
     | FieldDropdownSpecs    | FieldRadioSpecs        | FieldCheckboxesSpecs
     | FieldIconMenuSpecs    | FieldTableSpecs
@@ -54,7 +54,7 @@ export type FieldAnySpecs
     | FieldReactionSpecs
     // Exotic
     | FieldCustomFormSpecs  | FieldItemKeybindsSpecs | FieldHotkeySpecs
-    | FieldSpecs<string, any>) & { [prop: string]: any };
+    | FieldSpecs<string, any>) & { [unusedProp: string]: any };
 
 //#region Interfaces
 declare interface FieldSpecs<N, V> {
@@ -66,7 +66,7 @@ declare interface FieldSpecs<N, V> {
     /**
      * Field name that will be used for formSpecs values list
      */
-    fieldName: string;
+    fieldName?: string;
 
     /**
      * Default value of the field if none is provided
@@ -528,15 +528,16 @@ declare interface FieldImageSpecs extends FieldSpecs<"Image", string>, FieldBasi
 /**
  * The field for getting the range with minimum and maximum value.
  */
-declare interface FieldRangeSpecs extends FieldSpecs<"Range", { max: number, min: number }>, FieldBasics {
+declare interface FieldRangeSpecs extends FieldSpecs<"Range", { max: number, min?: number }>, FieldBasics {
     rangeType?: "gilded";
     size?: Size;
+    isPanel?: boolean;
     /**
      * The function that will be used to display a label based on changed range value.
      * @example ({ min, max }) => `Members ${min}-${max}`
      */
-    selectedValueFunction?: (value: { max: number, min: number }) => string;
-    details?: { max: number, min: number };
+    selectedValueFunction?: (value: { max: number, min?: number }) => string;
+    details?: { max: number, min?: number };
     /**
      * Whether to allow only maximum number to be changed. If false, this makes range 2-way with 2 thumbs.
      * @default true
@@ -544,7 +545,8 @@ declare interface FieldRangeSpecs extends FieldSpecs<"Range", { max: number, min
     lockMinValue?: boolean;
     lockSliderMinToZero?: boolean;
     hideLabels?: boolean;
-    steps?: number[]
+    maxTooltip?: string;
+    steps?: number[];
     stepDetails?: { hasEmptyDefault?: boolean };
 }
 type KeybindValue = {

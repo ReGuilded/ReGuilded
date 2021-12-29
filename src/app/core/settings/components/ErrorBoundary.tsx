@@ -1,5 +1,5 @@
-import _React from "react";
 const { shell } = require("electron");
+import _React from "react";
 
 const { React, NullState } = window.ReGuildedApi;
 

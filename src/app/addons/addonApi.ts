@@ -1,10 +1,10 @@
+import { SvgIcon, ItemManager, NullState, WordDividerLine } from "../guilded/content";
 import { getOwnerInstance, patchElementRenderer, waitForElement } from "./lib";
 import AddonManager from "../core/managers/addon";
+import { OverflowButton } from "../guilded/menu";
 import overlayWrapper from "./overlayWrapper";
 import WebpackManager from "./webpack";
 import { Form } from "../guilded/form";
-import { SvgIcon, ItemManager, NullState } from "../guilded/content";
-import { OverflowButton } from "../guilded/menu";
 import _React from "react";
 import _ReactDOM from "react-dom";
 
@@ -101,8 +101,10 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     SearchBar: webpack => webpack.withClassProperty("_inputRef"),
     draggable: webpack => webpack.withProperty("DraggableTypes"),
     OverflowButton: webpack => webpack.withClassProperty("isOpen"),
+    WordDividerLine: webpack => webpack.withCode("WordDividerLine"),
     Button: webpack => webpack.withClassProperty("useHoverContext"),
     ItemManager: webpack => webpack.withClassProperty("ItemManager"),
+    HorizontalTabs: webpack => webpack.withClassProperty("tabOptions"),
     ProfilePicture: webpack => webpack.withClassProperty("borderType"),
     MarkdownRenderer: webpack => webpack.withClassProperty("plainText"),
     SvgIcon: webpack => webpack.withClassProperty("iconComponentProps"),
@@ -111,7 +113,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     ActionMenuItem: webpack => webpack.withClassProperty("useRowWrapper"),
     ToggleField: webpack => webpack.withCode("ToggleFieldWrapper-container"),
     inputFieldValidations: webpack => webpack.withProperty("ValidateUserUrl"),
-    UserBasicInfo: webpack => webpack.withClassProperty("userPresenceContext"),
+    UserBasicInfo: webpack => webpack.withClassProperty("userPresenceContext")
 };
 
 export default class AddonApi {
@@ -369,6 +371,9 @@ export default class AddonApi {
     get externalSiteInfo() {
         return this.getCached("externalSiteInfo")?.default;
     }
+    get Form(): typeof Form {
+        return this.getCached("Form")?.default;
+    }
     /**
      * The list of available field types in forms.
      */
@@ -426,11 +431,11 @@ export default class AddonApi {
     get GuildedText() {
         return this.getCached("GuildedText")?.default;
     }
-    get Form(): typeof Form {
-        return this.getCached("Form")?.default;
-    }
-    get SvgIcon(): typeof SvgIcon {
-        return this.getCached("SvgIcon")?.default;
+    /**
+     * The component that creates horizontal selectable content tabs.
+     */
+    get HorizontalTabs() {
+        return this.getCached("HorizontalTabs")?.default;
     }
     /**
      * Returns the class that contains a set of validators, which either return string (error message) or void. 
@@ -629,6 +634,9 @@ export default class AddonApi {
     get stylePusher(): (style: [number, [number, string, ""][], ""], config: { insert: "head" | "body", singleton: boolean }) => Function {
         return this.getCached("stylePusher")?.default;
     }
+    get SvgIcon(): typeof SvgIcon {
+        return this.getCached("SvgIcon")?.default;
+    }
     get TeamContextProvider(): <T>(cls: T) => T {
         return this.getCached("TeamContextProvider")?.default;
     }
@@ -655,5 +663,11 @@ export default class AddonApi {
      */
     get UserModelHelper() {
         return this.getCached("UserModel")?.default;
+    }
+    /**
+     * Divider that separates content with a line and a text in the middle.
+     */
+    get WordDividerLine(): typeof WordDividerLine {
+        return this.getCached("WordDividerLine")?.default;
     }
 }
