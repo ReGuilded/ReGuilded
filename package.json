@@ -5,9 +5,13 @@
   "main": "",
   "type": "module",
   "scripts": {
-    "inject": "node src/inject/index.js inject",
-    "uninject": "node src/inject/index.js uninject",
-    "reinject": "npm run uninject && npm run inject"
+    "injectbare": "node out/injector.main.js inject",
+    "uninjectbare": "node out/injector.main.js uninject",
+    "build": "rollup -c rollup.config.js",
+    "watch": "rollup -c rollup.config.js -w",
+    "inject": "npm run build && npm run injectbare",
+    "uninject": "npm run build && npm run uninjectbare",
+    "reinject": "npm run build && npm run uninjectbare && npm run injectbare"
   },
   "repository": {
     "type": "git",
@@ -20,9 +24,23 @@
   },
   "homepage": "https://github.com/ReGuilded/ReGuilded#readme",
   "dependencies": {
-    "electron": "^14.0.1",
+    "@types/fs-extra": "^9.0.13",
+    "@types/minimist": "^1.2.2",
+    "@types/react": "^17.0.37",
+    "@types/react-dom": "^17.0.11",
+    "chokidar": "^3.5.2",
     "fs-extra": "^8.1.0",
-    "log4js": "^6.3.0",
-    "yargs": "^7.1.2"
+    "minimist": "^1.2.5"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^21.0.1",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.0.6",
+    "@rollup/plugin-typescript": "^8.3.0",
+    "@types/electron": "^1.6.10",
+    "rollup": "^2.60.1",
+    "rollup-plugin-root-import": "^1.0.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "typescript": "^4.5.2"
   }
 }

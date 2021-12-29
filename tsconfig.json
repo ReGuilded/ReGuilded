@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "module": "ES2020",
+        "esModuleInterop": true,
+        "target": "ES6",
+        "moduleResolution": "node",
+
+        "jsx": "react",
+        "jsxFragmentFactory": "React.Fragment",
+        "jsxFactory": "React.createElement",
+
+        "removeComments": true,
+        "experimentalDecorators": true
+    }
+}
