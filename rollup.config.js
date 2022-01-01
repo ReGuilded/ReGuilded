@@ -131,9 +131,9 @@ const config = [
         ]
     },
     {
-        input: "./src/inject/helper/linux-inject.ts",
+        input: "./src/inject/helper/linux-util.ts",
         output: {
-            file: "./out/injector.linux-inject.js",
+            file: "./out/injector.linux-util.js",
             format: "cjs",
             name: "linuxInjector"
         },
