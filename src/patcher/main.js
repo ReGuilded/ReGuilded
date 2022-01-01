@@ -12,7 +12,7 @@ import ipc from "./ipc";
 const electronPath = require.resolve("electron");
 
 // Guilded's app.asar & package.json
-const guildedPath = join(dirname(require.main.filename), "..", "app.asar");
+const guildedPath = join(dirname(require.main.filename), "..", "_guilded", "app.asar");
 const guildedPackage = JSON.parse(readFileSync(join(guildedPath, "package.json"), { encoding: 'utf8' }));
 require.main.filename = join(guildedPath, "main.js");
 
