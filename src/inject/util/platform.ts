@@ -2,42 +2,37 @@ import { join } from "path";
 
 const platforms = {
     linux: {
-        dir: "/opt/Guilded/resources/app",
-        get execPath() {
-            return "/opt/Guilded/guilded";
-        },
+        resourcesDir: "/opt/Guilded/resources",
         close: "killall guilded",
+        get appDir() {
+            return join(this.resourcesDir, "app")
+        },
         get open() {
-            return this.execPath + "& disown"
+            return "/opt/Guilded/guilded& disown"
         }
     },
     darwin: {
-        dir: "/Applications/Guilded.app/Contents/Resources/app",
-        get appPath() {
-            return "/Applications/Guilded.app/Contents/Resources/app";
-        },
+        resourcesDir: "/Applications/Guilded.app/Contents/Resources",
         close: "killall Guilded",
+        get appDir() {
+            return join(this.resourcesDir, "app");
+        },
         get open() {
-            return "open " + this.appPath
+            return "/Applications/Guilded.app";
         }
     },
     win32: {
-        get dir() {
-            return join(process.env.LOCALAPPDATA, "Programs/Guilded/resources/app");
-        },
-        get name() {
-            return "Guilded";
-        },
-        get execPath() {
-            return process.env.LOCALAPPDATA + "/Programs/Guilded/Guilded.exe";
-        },
+        resourcesDir: join(process.env.LOCALAPPDATA, "Programs/Guilded/resources"),
         close: "taskkill /f /IM Guilded.exe >nul",
+        get appDir() {
+            return join(this.resourcesDir, "app");
+        },
         get open() {
-            return "start " + this.execPath
-        }
+            return join(process.env.LOCALAPPDATA, "Programs/Guilded/Guilded.exe") + " >nul";
+        },
     }
 }
-const current: { dir: string, close: string, open: string } | undefined
+const current: { resourcesDir: string, close: string, appDir: string, open: string } | undefined
              = platforms[process.platform];
 
 if (!current)
