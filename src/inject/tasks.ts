@@ -1,6 +1,7 @@
-import { existsSync, rmSync } from "fs";
+import { existsSync } from "fs";
 import { spawnSync } from "child_process";
 import injection from "./util/injection.js";
+import uninjection from "./util/uninjection.js";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { copy } from "fs-extra";
@@ -16,45 +17,49 @@ function rootPerms(path, command) {
 
 /**
  * Injects ReGuilded into Guilded.
- * @param {String} guildedDir Path to Guilded's resource/app directory
+ * @param {{appDir: String}} platformModule Module correlating to User's Platform, used for directories and commands.
  * @param {String} reguildedDir Path to ReGuilded's configuration directory
  */
-export async function inject(guildedDir, reguildedDir) {
-    // If there is no injection present, inject
-    if (!existsSync(guildedDir)) {
-        try {
+export function inject(platformModule, reguildedDir) {
+    return new Promise<void>((resolve, reject) => {
+        // If there is no injection present, inject
+        if (!existsSync(platformModule.appDir)) {
             const src = join(__dirname, "./app");
 
             copy(src, reguildedDir, { recursive: true, errorOnExist: false, overwrite: true }, err => {
-                if (err) throw err;
+                if (err) reject(err);
 
                 // If this is on Linux and not on root, execute full injection with root perms
                 if (process.platform === "linux" && process.getuid() !== 0)
-                    rootPerms(guildedDir, ["node", join(__dirname, "injector.linux-inject.js"), "-d", reguildedDir]);
-                else injection(guildedDir, reguildedDir);
-            });
-        } catch (err) {
-            // If there was an error, try uninjecting ReGuilded
-            if (existsSync(guildedDir))
-                await uninject(guildedDir, reguildedDir);
+                    rootPerms(platformModule, ["node", join(__dirname, "injector.linux-util.js"), "-d", reguildedDir, "-t", "inject"]);
+                else injection(platformModule, reguildedDir).then(resolve).catch((err) => {
+                    // If there was an error, try uninjecting ReGuilded
+                    console.log("There was an error, reverting process more details will follow shortly...");
 
-            throw err;
-        }
-    } else throw new Error("There is already an injection.");
+                    if (existsSync(platformModule.appDir))
+                        uninject(platformModule, reguildedDir).catch(reject);
+
+                    reject(err);
+                });
+            });
+        } else reject("There is already an injection.");
+    })
 }
 
 /**
  * Removes any injections present in Guilded.
- * @param {String} guildedDir Path to Guilded's resource/app directory
+ * @param {{appDir: String}} platformModule Module correlating to User's Platform, used for directories and commands.
  * @param {String} reguildedDir Path to ReGuilded's configuration directory
  */
-export async function uninject(guildedDir, reguildedDir) {
-    // If there is an injection, then remove the injection
-    if (existsSync(guildedDir)) {
-        // If this is on Linux, do it in sudo perms
-        if (process.platform === "linux" && process.getuid() !== 0)
-            rootPerms(guildedDir, process.argv.slice(0, 3).concat(["-d", reguildedDir]));
+export async function uninject(platformModule, reguildedDir) {
+    return new Promise<void>((resolve, reject) => {
+        // If there is an injection, then remove the injection
+        if (existsSync(platformModule.appDir)) {
+            // If this is on Linux, do it in sudo perms
+            if (process.platform === "linux" && process.getuid() !== 0)
+                rootPerms(platformModule, ["node", join(__dirname, "injector.linux-util.js"), "-d", reguildedDir, "-t", "uninject"]);
+            else uninjection(platformModule, reguildedDir).then(resolve).catch(reject);
+        } else reject("There is no injection.");
+    });
 
-        rmSync(guildedDir, { force: true, recursive: true });
-    } else throw new Error("There is no injection.");
 }

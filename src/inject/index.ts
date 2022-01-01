@@ -1,6 +1,6 @@
 import platform from "./util/platform";
 import { resolve, join } from "path";
-import { exec } from "child_process";
+import {exec, spawnSync} from "child_process";
 import * as tasks from "./tasks.js";
 import minimist from "minimist";
 
@@ -23,24 +23,23 @@ const argv: { _: string[], d?: string, dir?: string } = minimist(process.argv.sl
 
     if (tasks[taskArg] !== null) {
         console.log("Force closing Guilded");
-        // Creates path for ReGuilded
-        const reguildedPath = resolve(
-            dir ||
-            join(process.env.APPDATA || process.env.HOME, ".reguilded")
-        )
 
-        try {
-            // Kills Guilded's process
-            exec(platform.close);
+        // Close Guilded, then continue, because we need to make sure Guilded is closed for the new injection.
+        exec(platform.close).on("exit", () => {
+            // Creates path for ReGuilded
+            const reguildedPath = resolve(
+                dir ||
+                join(process.env.APPDATA || process.env.HOME, ".reguilded")
+            )
 
-            await tasks[taskArg](platform.dir, reguildedPath)
-            console.info("Relaunching Guilded (If not opened in 10 minutes after this please manually execute the app)");
-            // Open the app Again after the injection task is done
-            exec(platform.open);
+            tasks[taskArg](platform, reguildedPath).then(() => {
+                console.info("Relaunching Guilded (If not opened in 10 minutes after this please manually execute the app)");
 
-            console.info("Task", taskArg, "has been successful press ctrl + c to close this."); //critical code bug causes this to hang on windows so we have to close it manually and tell the user to do so
-        } catch(err) {
-            console.error("Failed to do task", taskArg, ":", err);
-        }
+                // Open the app Again after the injection task is done
+                exec(platform.open).on("exit", () => {
+                    process.exit();
+                });
+            }).catch((err) => { console.error("Failed to do task", taskArg, ":", err)});
+        });
     } else console.error("Unknown task", taskArg);
 })();
