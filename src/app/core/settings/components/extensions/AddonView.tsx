@@ -1,11 +1,11 @@
-import { Addon } from "../../../managers/addon";
+import { Addon } from "../../../../../common/extensions";
 import ExtensionView from "./ExtensionView";
 
 const { React, WordDividerLine, Form } = window.ReGuildedApi;
 
 export default class AddonView extends ExtensionView<Addon> {
     protected type = "add-on";
-    protected extensionManager = window.ReGuilded.addonManager;
+    protected extensionManager = window.ReGuilded.addons;
     constructor(props, context?) {
         super(props, context);
     }

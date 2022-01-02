@@ -7,10 +7,10 @@ export default class AddonSettings extends ExtensionSettings {
     ItemTemplate = AddonItem;
     constructor(props, context) {
         super(props, context);
-        
+
         this.state = {
-            dirname: window.ReGuilded.addonManager.dirname,
-            all: window.ReGuilded.addonManager.all
+            dirname: window.ReGuildedConfig.addons.dirname,
+            all: window.ReGuilded.addons.all
         };
     }
 }

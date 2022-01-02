@@ -1,4 +1,5 @@
-import ExtensionManager, { Extension } from "../../../managers/extension";
+import { AnyExtension } from "../../../../../common/extensions";
+import ExtensionHandler from "../../../handlers/extension";
 import { ChildTabProps } from "../TabbedSettings";
 import ErrorBoundary from "../ErrorBoundary";
 import { ReactElement } from "react";
@@ -9,25 +10,25 @@ const { React, SvgIcon, GuildedText, Form, OverlayProvider } = window.ReGuildedA
 type Props<T> = ChildTabProps & { extension: T };
 
 @OverlayProvider(["DeleteConfirmationOverlay"])
-export default abstract class ExtensionView<T extends Extension<string | string[]>> extends React.Component<ChildTabProps, { enabled: boolean | number }> {
+export default abstract class ExtensionView<T extends AnyExtension> extends React.Component<ChildTabProps, { enabled: boolean | number }> {
     // Class functions with proper `this` to not rebind every time
     private _onToggleBinded: () => Promise<void>;
     private _onDeleteBinded: () => Promise<void>;
     private _openDirectory: () => Promise<void>;
     // Configuration
     protected type: string;
-    protected extensionManager: ExtensionManager<T>;
+    protected extensionManager: ExtensionHandler<T>;
     // From overlay provider
     protected DeleteConfirmationOverlay: { Open: ({ name: string }) => Promise<{ confirmed: boolean }> };
     constructor(props: Props<T>, context?: any) {
         super(props, context);
 
         this.state = {
-            enabled: ~window.ReGuilded.themesManager.enabled.indexOf(this.props.extension.id)
+            enabled: ~window.ReGuilded.themes.enabled.indexOf(this.props.extension.id)
         };
         this._onToggleBinded = this._onToggle.bind(this);
         this._onDeleteBinded = this._onDelete.bind(this);
-        this._openDirectory = shell.openItem.bind(null, this.props.extension.dirname);
+        this._openDirectory = window.ReGuildedConfig.openItem.bind(null, this.props.extension.dirname);
     }
     /**
      * Toggles the extension's enabled state.
@@ -82,24 +83,24 @@ export default abstract class ExtensionView<T extends Extension<string | string[
                                 type: "Button",
                                 fieldName: "directory",
                                 buttonText: "Open directory",
-        
+
                                 buttonType: "bleached",
                                 style: "hollow",
                                 grow: 0,
                                 rowCollapseId: "button-list",
-        
+
                                 onClick: _openDirectory
                             },
                             {
                                 type: "Button",
                                 fieldName: "delete",
                                 buttonText: "Delete",
-        
+
                                 buttonType: "delete",
                                 style: "hollow",
                                 grow: 0,
                                 rowCollapseId: "button-list",
-        
+
                                 onClick: _onDeleteBinded
                             }
                         ]

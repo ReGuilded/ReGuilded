@@ -1,45 +1,36 @@
 import { readdir, readdirSync, readFile, existsSync, promises as fsPromises } from "fs";
+import { ReGuildedExtensionSettings } from "../../../common/reguilded-settings";
+import { Extension, AnyExtension } from "../../../common/extensions";
+import SettingsHandler from "./settings";
 import EventEmitter from "events";
 import { watch } from "chokidar";
 import path from "path";
 
-
-export declare interface Extension<T> {
-    id: string;
-    name: string;
-    files: T;
-    dirname: string;
-    
-    author?: string;
-    contributors?: string[];
-    version?: string;
-    repo_url?: string;
-    readme?: string;
-}
 /**
  * Manages different components of ReGuilded to allow them to be extended.
  */
-export default abstract class ExtensionManager<T extends Extension<string | string[]>> extends EventEmitter {
+export default abstract class ExtensionHandler<T extends AnyExtension> extends EventEmitter {
     static allowedReadmeName: string = "readme.md";
     /**
      * A Regex pattern for determining whether given extension's ID is correct.
      */
     static idRegex: RegExp = /^[A-Za-z0-9]+$/g;
 
-    dirname: string;
-    allLoaded: boolean;
     all?: T[];
-    settings: ExtensionSettings;
+    allLoaded: boolean;
+    settings: ReGuildedExtensionSettings;
+    settingsHandler: SettingsHandler;
     /**
      * Manages different components of ReGuilded to allow them to be extended.
      * @param dirname The path to the extension directory
      * @param settings The reference of extension settings manager
+     * @param settingsHandler The extension settings handler
      */
-    constructor(dirname: string, settings: ExtensionSettings) {
+    constructor(settings: ReGuildedExtensionSettings, settingsHandler: SettingsHandler) {
         super();
-        this.dirname = dirname;
         this.allLoaded = false;
         this.settings = settings;
+        this.settingsHandler = settingsHandler;
     }
     /**
      * Gets identifiers of all the enabled extensions.
@@ -66,8 +57,12 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
         // Unload to not bug it out
         this.savedUnload(extension)
             // Because .rm doesn't exist in Electron's Node.JS apparently
+            // TODO: Use window.ReGuilded blabla delete
             .then(() => fsPromises.rmdir(extension.dirname, { recursive: true }))
-            .then(() => console.log(`Deleted extension by ID '${extension.id}'`), e => console.error(`Failed to delete extension by ID '${extension.id}':\n`, e));
+            .then(
+                () => console.log(`Deleted extension by ID '${extension.id}'`),
+                e => console.error(`Failed to delete extension by ID '${extension.id}':\n`, e)
+            );
     }
 
     /**
@@ -78,7 +73,7 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
      * @returns Checks identifier's syntax
      */
     static checkId(id: any, path: string): void {
-        if (!(typeof id === "string" && id.match(ExtensionManager.idRegex)))
+        if (!(typeof id === "string" && id.match(ExtensionHandler.idRegex)))
             throw new Error(`Incorrect syntax of the property 'id'. Path: ${path}`);
     }
     /**
@@ -99,9 +94,11 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
             if (err) throw err;
 
             // Add readme to metadata if one of the readme file names exist
-            const readmeName = files.find(f => f.toLowerCase() === ExtensionManager.allowedReadmeName);
+            const readmeName = files.find(
+                f => f.toLowerCase() === ExtensionHandler.allowedReadmeName
+            );
             if (readmeName) {
-                readFile(path.join(dirname, readmeName), { encoding: 'utf8' }, (e, d) => {
+                readFile(path.join(dirname, readmeName), { encoding: "utf8" }, (e, d) => {
                     if (e) throw e;
 
                     metadata.readme = d;
@@ -109,9 +106,13 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
             }
         });
         // Make sure author is an ID
-        if (metadata.author && (typeof metadata.author !== "string" || metadata.author.length !== 8))
-        {
-            console.warn("Author must be an identifier of the user in Guilded, not their name or anything else");
+        if (
+            metadata.author &&
+            (typeof metadata.author !== "string" || metadata.author.length !== 8)
+        ) {
+            console.warn(
+                "Author must be an identifier of the user in Guilded, not their name or anything else"
+            );
             // To not cause errors and stuff
             metadata.author = undefined;
         }
@@ -120,12 +121,18 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
      * Watches the extension directory for any changes.
      * @param callback The callback when change occurs.
      */
-    protected watch(callback: (dirname: string, fp: string, metadata: T) => Promise<Extension<string | string[]>>): void {
+    protected watch(
+        callback: (
+            dirname: string,
+            fp: string,
+            metadata: T
+        ) => Promise<Extension<string | string[]>>
+    ): void {
         const available = readdirSync(this.dirname, { withFileTypes: true }),
-              // Split '/' and get its length, to get the name of the extension.
-              // The length already gives us +1, so no need to do that.
-              // That's a dumdum way of doing it, but eh.
-              relativeIndex = this.dirname.split(path.sep).length;
+            // Split '/' and get its length, to get the name of the extension.
+            // The length already gives us +1, so no need to do that.
+            // That's a dumdum way of doing it, but eh.
+            relativeIndex = this.dirname.split(path.sep).length;
 
         // Create a loaded dictionary, to replace the old index-based load checker,
         // along with unloading when hot reloading
@@ -146,11 +153,13 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
                     // Get the metadata.json file path, and if it doesn't exist, ignore it
                     const metadataPath = path.join(extPath, "metadata.json");
                     if (!existsSync(metadataPath)) {
-                        const existingExt =  this.all.find(metadata => metadata.dirname === extPath)
+                        const existingExt = this.all.find(
+                            metadata => metadata.dirname === extPath
+                        );
                         if (existingExt !== undefined) {
                             this.all.splice(this.all.indexOf(existingExt), 1);
                             this.unload(existingExt, true);
-                            delete loaded[extName]
+                            delete loaded[extName];
                         }
                         delete deBouncers[extName];
                         return;
@@ -168,8 +177,9 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
 
                     await callback(extPath, loaded[extName], metadata)
                         .then(
-                            metadata => loaded[extName] = metadata,
-                            rejection => console.error("Error in " + metadata.id + ":\n", rejection)
+                            metadata => (loaded[extName] = metadata),
+                            rejection =>
+                                console.error("Error in " + metadata.id + ":\n", rejection)
                         )
                         .then(() => {
                             // Check if it's done loading all extensions and do stuff with it
@@ -177,7 +187,7 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
 
                             // Remove debouncer from the set for further debouncing and updatings
                             delete deBouncers[extName];
-                        })
+                        });
                 }, 250);
         });
     }
@@ -199,17 +209,15 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
     async savedLoad(extension: T): Promise<void> {
         this.load(extension);
         this.settings.enabled.push(extension.id);
-        await this.settingsManager.save();
+        await this.settingsHandler.save();
     }
     /**
      * Removes ReGuilded themes from Guilded.
      */
     unloadAll(): void {
         // Unload all existing extensions
-        for (let ext of this.all)
-        {
-            if(~this.enabled.indexOf(ext.id))
-                this.unload(ext);
+        for (let ext of this.all) {
+            if (~this.enabled.indexOf(ext.id)) this.unload(ext);
         }
     }
     /**
@@ -219,7 +227,7 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
     async savedUnload(extension: T): Promise<void> {
         this.unload(extension, false);
         this.settings.enabled = this.settings.enabled.filter(extId => extId != extension.id);
-        await this.settingsManager.save();
+        await this.settingsHandler.save();
     }
     /**
      * Gets path of an extension.
@@ -238,7 +246,14 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
      * @param path Path to the JSON where property is.
      */
     static checkProperty(name: string, value: any, types: [string | Function], path: string) {
-        if (types.includes(typeof value) && types.some(x => x instanceof Function && value instanceof x))
-            throw new TypeError(`Expected '${name}' to be [${types.join(", ")}], found ${typeof value} instead in ${path}`);
+        if (
+            types.includes(typeof value) &&
+            types.some(x => x instanceof Function && value instanceof x)
+        )
+            throw new TypeError(
+                `Expected '${name}' to be [${types.join(
+                    ", "
+                )}], found ${typeof value} instead in ${path}`
+            );
     }
-};
+}

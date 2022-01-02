@@ -7,28 +7,35 @@ enum Badge {
     Flair = 1,
     Badge = 2
 }
+type GeneralSettingsValues = {
+    loadAuthors: boolean,
+    badge: { optionName: string }
+}
 
 @SavableSettings
 export default class GeneralSettings extends React.Component {
+    // Number to name map for radio default value
     static badgeNames = ["None", "Flair", "Badge"];
 
     SaveChanges: (...args: object[]) => any;
+    // Defined by SavableSettings
     _handleOptionsChange: () => void;
+
     constructor(props, context) {
         super(props, context);
         this.SaveChanges = coroutine(this.onSaveChanges);
     }
     *onSaveChanges({ values, isValid }) {
         if(isValid) {
-            const { loadAuthors, badge: { optionName: badge } } = values;
+            const { loadAuthors, badge: { optionName: badge } }: GeneralSettingsValues = values;
             // Since we need to convert form values to proper values
             // (E.g., radios always returning { optionName: "xyz" } instead of "xyz")
             const configValues = { loadAuthors: loadAuthors, badge: Badge[badge] }
-            return window.ReGuilded.settingsManager.updateSettings(configValues);
+            return window.ReGuildedConfig.settings.updateSettings(configValues);
         } else throw new Error("Invalid settings form values");
     }
     render() {
-        const { config } = window.ReGuilded.settingsManager;
+        const { settings } = window.ReGuilded.settingsHandler;
         // TODO: Make badge radio functional with onChange
         return (
             <ErrorBoundary>
@@ -46,17 +53,17 @@ export default class GeneralSettings extends React.Component {
                                     label: "Load Extension Authors",
                                     description: "Loads add-on and theme authors.",
 
-                                    defaultValue: config.loadAuthors
+                                    defaultValue: settings.loadAuthors
                                 },
                                 {
                                     type: "Radios",
                                     fieldName: "badge",
                                     isOptional: false,
-                                    
+
                                     label: "Badge handling",
                                     description: "This determines how to handle ReGuilded maintainer and other badges.",
                                     isDescriptionAboveField: true,
-                                    
+
                                     layout: "vertical",
                                     isPanel: true,
                                     isCheckbox: true,
@@ -83,7 +90,7 @@ export default class GeneralSettings extends React.Component {
                                             description: "This hides all ReGuilded badges."
                                         },
                                     ],
-                                    defaultValue: { optionName: GeneralSettings.badgeNames[config.badge] }
+                                    defaultValue: { optionName: GeneralSettings.badgeNames[settings.badge] }
                                 }
                             ]
                         }

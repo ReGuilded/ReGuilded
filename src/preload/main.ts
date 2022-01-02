@@ -1,14 +1,18 @@
-import SettingsManager from "./settings";
-import getSettingsFile from "./get-settings";
-import { contextBridge } from "electron";
-import { join } from "path";
 import { ReGuildedSettings, ReGuildedSettingsUpdate } from "../common/reguilded-settings";
+import ExtensionManager from "./extension-manager";
+import { contextBridge, shell } from "electron";
+import getSettingsFile from "./get-settings";
+import SettingsManager from "./settings";
+import { join } from "path";
 
 const settingsPath = join(__dirname, "./settings");
 
 (async () => {
-    const settingsManager = new SettingsManager(join(__dirname, "./settings"), await getSettingsFile(settingsPath));
-    
+    const settingsManager = new SettingsManager(
+        join(__dirname, "./settings"),
+        await getSettingsFile(settingsPath)
+    );
+
     // Allow reconfiguration of settings
     contextBridge.exposeInMainWorld("ReGuildedConfig", {
         isFirstLaunch: window.isFirstLaunch,
@@ -21,9 +25,19 @@ const settingsPath = join(__dirname, "./settings");
              * Updates the properties of the settings and saves them.
              * @param settingsProps Properties to update in the settings
              */
-            async updateSettings(settingsProps: ReGuildedSettingsUpdate) {
+            async updateSettings(settingsProps: ReGuildedSettingsUpdate): Promise<void> {
                 await settingsManager.updateSettings(settingsProps);
             }
+        },
+        // TODO: Test if class instances become objects. Otherwise, convert class instances to objects with `new Object` possibly
+        themes: new ExtensionManager(join(settingsPath, "themes")),
+        addons: new ExtensionManager(join(settingsPath, "addons")),
+        // Anything else does not need to be exposed
+        openItem(path: string): void {
+            shell.openItem(path);
+        },
+        openExternal(path: string): void {
+            shell.openExternal(path);
         }
     });
 })();

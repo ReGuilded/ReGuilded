@@ -1,5 +1,5 @@
+import { Addon } from "../../../../../common/extensions";
 import { FormSpecs } from "../../../../guilded/form";
-import { Addon } from "../../../managers/addon";
 import ExtensionItem from "./ExtensionItem";
 import path from "path";
 
@@ -15,7 +15,7 @@ export default class AddonItem extends ExtensionItem<Addon, { fp: string }> {
         this.state = {
             dirname: props.dirname,
             fp: path.join(props.dirname, "main.js"),
-            enabled: ~window.ReGuilded.addonManager.enabled.indexOf(props.id)
+            enabled: ~window.ReGuilded.addons.enabled.indexOf(props.id)
         };
 
         const permissionsCallback = this.openPermissions.bind(this);
@@ -33,7 +33,7 @@ export default class AddonItem extends ExtensionItem<Addon, { fp: string }> {
         });
     }
     protected override async onToggle(enabled: boolean): Promise<void> {
-        await window.ReGuilded.addonManager[enabled ? "savedLoad" : "savedUnload"](this.props)
+        await window.ReGuilded.addons[enabled ? "savedLoad" : "savedUnload"](this.props)
             .then(() => this.setState({ enabled }));
     }
     async openPermissions() {

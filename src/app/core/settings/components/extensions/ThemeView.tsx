@@ -1,4 +1,4 @@
-import { Theme } from "../../../managers/themes";
+import { Theme } from "../../../../../common/extensions";
 import ExtensionView from "./ExtensionView";
 import ThemeItem from "./ThemeItem";
 
@@ -6,7 +6,7 @@ const { React, Form, WordDividerLine } = window.ReGuildedApi;
 
 export default class ThemeView extends ExtensionView<Theme> {
     protected type = "theme";
-    protected extensionManager = window.ReGuilded.themesManager;
+    protected extensionManager = window.ReGuilded.themes;
     constructor(props, context?) {
         super(props, context);
     }

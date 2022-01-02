@@ -1,33 +1,27 @@
-import AddonApi from "../../addons/addonApi";
-import WebpackManager from "../../addons/webpack";
-
+import { ReGuildedExtensionSettings } from "../../../common/reguilded-settings";
 import initializeApi from "../../addons/initializeApi";
-import { join } from "path";
-import ExtensionManager, { Extension } from "./extension";
+import { Addon } from "../../../common/extensions";
+import WebpackManager from "../../addons/webpack";
+import AddonApi from "../../addons/addonApi";
+import ExtensionHandler from "./extension";
+import SettingsHandler from "./settings";
+import path, { join } from "path";
 import { existsSync } from "fs";
-import path from "path";
-
-export declare interface Addon extends Extension<string> {
-    core: {
-        init: () => void,
-        load: (addonManager: AddonManager, webpackManager: WebpackManager) => void,
-        unload: (addonManager: AddonManager, webpackManager: WebpackManager) => void
-    };
-};
 
 /**
  * Manager that manages ReGuilded's addons
  */
-export default class AddonManager extends ExtensionManager<Addon> {
+export default class AddonHandler extends ExtensionHandler<Addon> {
     initialized: string[] = [];
     webpack?: WebpackManager;
     /**
      * Manager that manages ReGuilded's addons
      * @param addonsDir Path to the directory that holds addons
      * @param settings The settings of the add-ons
+     * @param settingsHandler The extension settings handler
      */
-    constructor(addonsDir: string, settings: ExtensionSettings) {
-        super(addonsDir, settings);
+    constructor(settings: ReGuildedExtensionSettings, settingsHandler: SettingsHandler) {
+        super(settings, settingsHandler);
     }
 
     /**
@@ -44,40 +38,43 @@ export default class AddonManager extends ExtensionManager<Addon> {
         try {
             // Initialize these
             initializeApi(addonApi);
-        } catch(e) {
+        } catch (e) {
             console.error("Failed to initialize the ReGuilded addon API!", e);
         }
 
-        this.watch((addonPath: string, loaded, metadata: Addon) => new Promise((resolve, reject) => {
-            // After that spaghetti junky code, get some properties of it
-            const isEnabled = ~this.enabled.indexOf(metadata.id);
-            metadata.dirname = addonPath;
+        this.watch(
+            (addonPath: string, loaded, metadata: Addon) =>
+                new Promise((resolve, reject) => {
+                    // After that spaghetti junky code, get some properties of it
+                    const isEnabled = ~this.enabled.indexOf(metadata.id);
+                    metadata.dirname = addonPath;
 
-            // If the addon is already loaded, unload it
-            loaded && this.unload(metadata, true);
+                    // If the addon is already loaded, unload it
+                    loaded && this.unload(metadata, true);
 
-            // If the addon is in the list of all loaded addons, remove it
-            if (~this.all.indexOf(metadata))
-                this.all.splice(this.all.indexOf(metadata), 1);
+                    // If the addon is in the list of all loaded addons, remove it
+                    if (~this.all.indexOf(metadata))
+                        this.all.splice(this.all.indexOf(metadata), 1);
 
-            const propFiles = Array.isArray(metadata.files)
-                ? (
-                    console.warn("REGUILDED: An array of files for addons is unsupported. Defaulting to use the first item! [0]"),
-                    metadata.files[0]
-                )
-                : metadata.files;
+                    const propFiles = Array.isArray(metadata.files)
+                        ? (console.warn(
+                              "REGUILDED: An array of files for addons is unsupported. Defaulting to use the first item! [0]"
+                          ),
+                          metadata.files[0])
+                        : metadata.files;
 
-            metadata.files = propFiles;
+                    metadata.files = propFiles;
 
-            this.all.push(metadata);
+                    this.all.push(metadata);
 
-            // Load the addon if enabled.
-            isEnabled && this.load(metadata);
+                    // Load the addon if enabled.
+                    isEnabled && this.load(metadata);
 
-            resolve(metadata);
-        }));
+                    resolve(metadata);
+                })
+        );
     }
-    
+
     /**
      * Loads a ReGuilded addon.
      * @param metadata addon to load onto Guilded
@@ -104,18 +101,21 @@ export default class AddonManager extends ExtensionManager<Addon> {
         // Gets the propFiles[0] file path, and if it doesn't exist, ignore it
         const mainPath = join(metadata.dirname, metadata.files);
 
-        if (!existsSync(mainPath))
-            throw new Error("Missing main file");
+        if (!existsSync(mainPath)) throw new Error("Missing main file");
 
         // Get the main file
         let main = require(mainPath);
 
         // To check if it's valid
-        if (typeof(main.init) !== "function" && main.default) main = main.default;
+        if (typeof main.init !== "function" && main.default) main = main.default;
 
-        if (typeof(main.init) === "function") {
+        if (typeof main.init === "function") {
             metadata.core = main;
-        } else console.error("Addon has no pre-init function or has invalid formatting:", metadata.dirname);
+        } else
+            console.error(
+                "Addon has no pre-init function or has invalid formatting:",
+                metadata.dirname
+            );
 
         // TODO: Add-on sandboxing
         metadata.core.init();
@@ -146,4 +146,4 @@ export default class AddonManager extends ExtensionManager<Addon> {
             console.error("Failed to unload an addon by ID", metadata.id, e);
         }
     }
-};
+}

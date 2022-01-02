@@ -1,12 +1,12 @@
 import { SvgIcon, ItemManager, NullState, WordDividerLine } from "../guilded/content";
 import { getOwnerInstance, patchElementRenderer, waitForElement } from "./lib";
-import AddonManager from "../core/managers/addon";
+import AddonHandler from "../core/handlers/addon";
 import { OverflowButton } from "../guilded/menu";
 import overlayWrapper from "./overlayWrapper";
 import WebpackManager from "./webpack";
 import { Form } from "../guilded/form";
-import _React from "react";
 import _ReactDOM from "react-dom";
+import _React from "react";
 
 // Provides API for addons to interact with Guilded.
 // TODO: Better documentation and probably TS declaration files.
@@ -41,7 +41,10 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     portal: webpack => webpack.withProperty("Portals"),
     layerContext: webpack => webpack.allWithProperty("object")[1],
     OverlayStack: webpack => webpack.withProperty("addPortal"),
-    transientMenuPortal: _ => getOwnerInstance(document.querySelector(".TransientMenuPortalContext-portal-container")),
+    transientMenuPortal: _ =>
+        getOwnerInstance(
+            document.querySelector(".TransientMenuPortalContext-portal-container")
+        ),
 
     OverlayProvider: webpack => webpack.withCode("OverlayProvider"),
     TeamContextProvider: webpack => webpack.withCode("EnforceTeamData"),
@@ -122,8 +125,8 @@ export default class AddonApi {
     // Don't fetch the module 100 times if the module is undefined
     _cachedList: string[] = [];
     webpackManager: WebpackManager;
-    addonManager: AddonManager;
-    constructor(webpackManager: WebpackManager, addonManager: AddonManager) {
+    addonManager: AddonHandler;
+    constructor(webpackManager: WebpackManager, addonManager: AddonHandler) {
         this.webpackManager = webpackManager;
         this.addonManager = addonManager;
     }
@@ -135,12 +138,11 @@ export default class AddonApi {
     getCached(name: string): any {
         // If cached object exists, get it. Else, add it to cached array,
         // cache it and return cached value.
-        return (
-            ~this._cachedList.indexOf(name)
+        return ~this._cachedList.indexOf(name)
             ? this._cached[name]
-            // Honestly, the only convenient thing about JS
-            : (this._cachedList.push(name), this._cached[name] = cacheFns[name](this.webpackManager))
-        );
+            : // Honestly, the only convenient thing about JS
+              (this._cachedList.push(name),
+              (this._cached[name] = cacheFns[name](this.webpackManager)));
     }
     /**
      * Removes the item with the given name from the cached list to be racached later.
@@ -150,8 +152,7 @@ export default class AddonApi {
     uncache(name: string): any | void {
         const i = this._cachedList.indexOf(name);
 
-        if (~i)
-            return this._cachedList.splice(i, 1)[0];
+        if (~i) return this._cachedList.splice(i, 1)[0];
     }
 
     // Additional stuff(ReGuilded only)
@@ -161,7 +162,10 @@ export default class AddonApi {
      * @returns Rendered Markdown
      */
     renderMarkdown(plainText: string): _React.ReactNode {
-        return new this.MarkdownRenderer({ plainText, grammar: this.markdownGrammars.WebhookEmbed }).render();
+        return new this.MarkdownRenderer({
+            plainText,
+            grammar: this.markdownGrammars.WebhookEmbed
+        }).render();
     }
     /**
      * Wraps around the element to make it available to be rendered into a portal.
@@ -190,11 +194,11 @@ export default class AddonApi {
 
         // Render overlay onto the created portal
         setImmediate(() => {
-            const portalElem = this.portal.Portals[portalId]
-            
+            const portalElem = this.portal.Portals[portalId];
+
             portalElem.appendChild(element);
         });
-        
+
         // For it to be available for destruction
         return portalId;
     }
@@ -206,7 +210,7 @@ export default class AddonApi {
         return getOwnerInstance;
     }
     /**
-     * 
+     *
      */
     get patchElementRenderer() {
         return patchElementRenderer;
@@ -334,7 +338,6 @@ export default class AddonApi {
         return this.getCached("draggable");
     }
 
-
     /**
      * The list of nodes sorted by reactions, bare, etc.
      */
@@ -395,7 +398,7 @@ export default class AddonApi {
     /**
      * Fetches a model for the given member.
      */
-    get getMemberModel(): (memberInfo: { teamId: string; userId: string; }) => object {
+    get getMemberModel(): (memberInfo: { teamId: string; userId: string }) => object {
         return this.getCached("MemberModel")?.getMemberModel;
     }
     /**
@@ -438,7 +441,7 @@ export default class AddonApi {
         return this.getCached("HorizontalTabs")?.default;
     }
     /**
-     * Returns the class that contains a set of validators, which either return string (error message) or void. 
+     * Returns the class that contains a set of validators, which either return string (error message) or void.
      */
     get inputFieldValidations() {
         return this.getCached("inputFieldValidations")?.default;
@@ -467,7 +470,7 @@ export default class AddonApi {
     get ListItemModel() {
         return this.getCached("ListItemModel")?.default;
     }
-    
+
     /**
      * A dictionary of Markdown grammars.
      */
@@ -477,8 +480,8 @@ export default class AddonApi {
     /**
      * Provides a component that displays Markdown plain text.
      */
-    get MarkdownRenderer(): typeof _React.Component //typeof React.Component<{ plainText: string, grammar: PrismGrammar }, {}>
-    {
+    get MarkdownRenderer(): typeof _React.Component {
+        //typeof React.Component<{ plainText: string, grammar: PrismGrammar }, {}>
         return this.getCached("MarkdownRenderer")?.default;
     }
     /**
@@ -607,7 +610,13 @@ export default class AddonApi {
     /**
      * The list of settings tabs.
      */
-    get settingsTabs(): { [tabName: string]: { id: string; label: string; calloutBadgeProps?: { text: string; color: string; }; }; } {
+    get settingsTabs(): {
+        [tabName: string]: {
+            id: string;
+            label: string;
+            calloutBadgeProps?: { text: string; color: string };
+        };
+    } {
         return this.getCached("settingsTabs")?.default;
     }
     /**
@@ -619,7 +628,10 @@ export default class AddonApi {
     /**
      * All of the social medias that Guilded client recognizes.
      */
-    get socialMedia(): { SocialMediaTypes: { [socialMediaName: string]: string; }; default: { [socialMediaName: string]: { label: string; icon: string; href?: string; }; }; } {
+    get socialMedia(): {
+        SocialMediaTypes: { [socialMediaName: string]: string };
+        default: { [socialMediaName: string]: { label: string; icon: string; href?: string } };
+    } {
         return this.getCached("socialMedia");
     }
     /**
@@ -628,10 +640,15 @@ export default class AddonApi {
     get sounds() {
         return this.getCached("sounds")?.default;
     }
-    get styleGenerator(): (e: boolean) => ([number, string, ""][] & { toString(): string, i(e, t, a): any, local: object }) {
+    get styleGenerator(): (
+        e: boolean
+    ) => [number, string, ""][] & { toString(): string; i(e, t, a): any; local: object } {
         return this.getCached("styleGenerator")?.default;
     }
-    get stylePusher(): (style: [number, [number, string, ""][], ""], config: { insert: "head" | "body", singleton: boolean }) => Function {
+    get stylePusher(): (
+        style: [number, [number, string, ""][], ""],
+        config: { insert: "head" | "body"; singleton: boolean }
+    ) => Function {
         return this.getCached("stylePusher")?.default;
     }
     get SvgIcon(): typeof SvgIcon {

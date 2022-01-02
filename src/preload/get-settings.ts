@@ -1,7 +1,7 @@
+import { ReGuildedSettings } from "../common/reguilded-settings";
 import { readFileSync, promises as fsPromises } from "fs";
 import { defaultSettings } from "./settings";
 import { join } from "path";
-import { ReGuildedSettings } from "../common/reguilded-settings";
 
 /**
  * Gets the ReGuilded settings file. If it's not present, it gets created and default settings get returned instead.
@@ -10,12 +10,15 @@ import { ReGuildedSettings } from "../common/reguilded-settings";
  */
 export default function getSettingsFile(settingsPath: string) {
     return new Promise<ReGuildedSettings>((resolve, reject) => {
-        fsPromises.access(settingsPath)
+        fsPromises
+            .access(settingsPath)
             // Settings were found, just read the file
             .then(() =>
-                resolve(JSON.parse(
-                    readFileSync(join(settingsPath, "settings.json"), { encoding: "utf8" })
-                ))
+                resolve(
+                    JSON.parse(
+                        readFileSync(join(settingsPath, "settings.json"), { encoding: "utf8" })
+                    )
+                )
             )
             // Settings doesn't exist, create them and give default settings
             .catch(e => {
@@ -30,7 +33,11 @@ export default function getSettingsFile(settingsPath: string) {
                     const settingsJson = JSON.stringify(defaultSettings, null, 4);
 
                     await Promise.all([
-                        fsPromises.writeFile(join(settingsPath, "settings.json"), settingsJson, {encoding: "utf-8"}),
+                        fsPromises.writeFile(
+                            join(settingsPath, "settings.json"),
+                            settingsJson,
+                            { encoding: "utf-8" }
+                        ),
                         fsPromises.mkdir(join(settingsPath, "themes")),
                         fsPromises.mkdir(join(settingsPath, "addons"))
                     ]).then(() => resolve(defaultSettings));

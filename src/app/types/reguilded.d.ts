@@ -7,11 +7,19 @@ declare global {
     interface Window {
         // Exposed via preload
         ReGuildedConfig: {
-            isFirstLaunch: boolean,
+            isFirstLaunch: boolean;
             settings: {
-                getSettings(): ReGuildedSettings,
-                updateSettings(settingsProps: ReGuildedSettingsUpdate): void
-            }
+                getSettings(): ReGuildedSettings;
+                updateSettings(settingsProps: ReGuildedSettingsUpdate): Promise<void>;
+            };
+            addons: {
+                dirname: string;
+            };
+            themes: {
+                dirname: string;
+            };
+            openItem(path: string): void;
+            openExternal(path: string): void;
         };
         // Client
         ReGuildedApi: AddonApi;

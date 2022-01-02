@@ -1,8 +1,7 @@
-﻿import ExtensionManager, { Extension } from "../../../managers/extension.js";
+﻿import { AnyExtension } from "../../../../../common/extensions.js";
 import { MenuSpecs } from "../../../../guilded/menu.js";
 import ErrorBoundary from "../ErrorBoundary.jsx";
 import { SwitchTab } from "../TabbedSettings.jsx";
-const { shell } = require("electron");
 
 const { OverflowButton, Form, UserBasicInfo, UserModel, restMethods, React } = window.ReGuildedApi;
 
@@ -16,7 +15,7 @@ type State = {
     author?: object
 };
 
-export default abstract class ExtensionItem<P extends Extension<any>, S = {}> extends React.Component<P & AdditionalProps, State & S> {
+export default abstract class ExtensionItem<P extends AnyExtension, S = {}> extends React.Component<P & AdditionalProps, State & S> {
     protected overflowMenuSpecs: MenuSpecs;
     private hasToggled: boolean;
     private _onToggleBinded: (enabled: boolean) => Promise<void>;
@@ -36,7 +35,7 @@ export default abstract class ExtensionItem<P extends Extension<any>, S = {}> ex
                         {
                             label: "Open directory",
                             icon: "icon-team-stream-popout",
-                            onClick: () => shell.openItem(this.state?.dirname)
+                            onClick: () => window.ReGuildedConfig.openItem(this.state?.dirname)
                         }
                     ]
                 }

@@ -1,7 +1,5 @@
-import ErrorBoundary from "../ErrorBoundary.jsx";
-import ExtensionItem from "./ExtensionItem.jsx";
 import { ChildTabProps } from "../TabbedSettings";
-const { shell } = require("electron");
+import ErrorBoundary from "../ErrorBoundary.jsx";
 
 const { React, NullState, HorizontalTabs, GuildedText } = window.ReGuildedApi;
 
@@ -34,7 +32,7 @@ export default class ExtensionSettings extends React.Component<ChildTabProps, { 
                                         </div>
                                     :
                                         // buttonText="" onClick={e => ...}
-                                        <NullState type="nothing-here" title={"There are no " + type + "s installed"} subtitle={"You have not installed any ReGuilded " + type + "s yet. To install it, put it in the " + type + "s folder."} buttonText="Open folder" onClick={() => shell.openItem(dirname)} alignment="center"/>
+                                        <NullState type="nothing-here" title={"There are no " + type + "s installed"} subtitle={"You have not installed any ReGuilded " + type + "s yet. To install it, put it in the " + type + "s folder."} buttonText="Open folder" onClick={() => window.ReGuildedConfig.openItem(dirname)} alignment="center"/>
                                     }
                                 </div>
                             </div>

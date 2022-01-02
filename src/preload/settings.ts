@@ -35,11 +35,13 @@ export default class SettingsManager {
      * Saves current configuration of the settings.
      */
     async save(): Promise<void> {
-        await writeFile(this.settingsFile, JSON.stringify(this.settings), { encoding: "utf8" });
+        await writeFile(this.settingsFile, JSON.stringify(this.settings), {
+            encoding: "utf8"
+        });
     }
     /**
      * Updates the configuration and saves it to settings file.
-     * @param config The configuration properties to update with their updated values 
+     * @param config The configuration properties to update with their updated values
      * @returns Configuration
      */
     updateSettings<T extends Object>(config: T): Promise<T> {
@@ -50,21 +52,7 @@ export default class SettingsManager {
                 () => resolve(config),
                 e => reject(e)
             );
-        });  
-    }
-    /**
-     * Gets the path to ReGuilded's theme directory.
-     * @returns Theme directory path
-     */
-    get themesDir(): string {
-        return join(this.directory, "themes");
-    }
-    /**
-     * Gets the path to ReGuilded's addon directory.
-     * @returns Addon directory path
-     */
-    get addonsDir(): string {
-        return join(this.directory, "addons");
+        });
     }
     /**
      * Gets the path to the main settings file.
@@ -82,20 +70,4 @@ export default class SettingsManager {
     getValue(prop: string): any {
         return this.settings[prop];
     }
-
-    /**
-     * Gets configuration property if it exists and type is correct.
-     * @param prop Property's name to get
-     * @param type Type of the property to expect
-     * @returns Property's value
-     */
-    getValueTyped(prop: string, type: string | Function): any {
-        const value = this.getValue(prop);
-
-        // Check if it's instance of type or type of value is given type
-        if ((typeof type === "string" && typeof value !== type) || (typeof type === 'function' && !(value instanceof type)))
-            throw new TypeError(`Expected property '${prop}' to be instance of '${type}' in configuration`);
-
-        return value;
-    }
-};
+}

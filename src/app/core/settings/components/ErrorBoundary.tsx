@@ -1,4 +1,3 @@
-const { shell } = require("electron");
 import _React from "react";
 
 const { React, NullState } = window.ReGuildedApi;
@@ -27,7 +26,7 @@ export default class ErrorBoundary extends React.Component<{ }, { hasErrored: bo
                     title="ReGuilded Error Occurred"
                     type="error"
                     subtitle="Something in ReGuilded has broke. Be sure to report this error by submitting it as an issue in our GitHub repository."
-                    buttonText="Create issue" onClick={() => shell.openExternal(`https://github.com/ReGuilded/ReGuilded/issues/new?labels=bug&title=${this.state.error.name}+${this.state.error.message.replace(/ /g, "+")}`)}/>
+                    buttonText="Create issue" onClick={() => window.ReGuildedConfig.openExternal(`https://github.com/ReGuilded/ReGuilded/issues/new?labels=bug&title=${this.state.error.name}+${this.state.error.message.replace(/ /g, "+")}`)}/>
             )
             : this.props.children
     }

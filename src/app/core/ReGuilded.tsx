@@ -1,26 +1,29 @@
 import { badges, flairs, all } from "./badges-flairs";
 import SettingsManager from "../../preload/settings";
-import WebpackManager from "../addons/webpack";
-import ThemesManager from "./managers/themes";
-import AddonManager from "./managers/addon";
+import WebpackHandler from "../addons/webpack";
+import ThemeHandler from "./handlers/themes";
+import AddonHandler from "./handlers/addon";
 import AddonApi from "../addons/addonApi";
 import { WebpackRequire } from "../types/webpack";
+import SettingsHandler from "./handlers/settings";
 
 /**
  * ReGuilded's full manager's class.
  */
 export default class ReGuilded {
-    themesManager: ThemesManager;
-    addonManager: AddonManager;
-    webpackManager?: WebpackManager;
+    themes: ThemeHandler;
+    addons: AddonHandler;
+    settingsHandler: SettingsHandler;
+    webpack?: WebpackHandler;
     addonApi?: AddonApi;
     /**
      * A class that contains all of ReGuilded's configurations and settings.
      */
     constructor() {
+        this.settingsHandler = new SettingsHandler();
         // Creates Themes & Addons manager
-        this.themesManager = new ThemesManager(this.settingsManager.themesDir, this.settingsManager.getValueTyped("themes", "object"));
-        this.addonManager = new AddonManager(this.settingsManager.addonsDir, this.settingsManager.getValueTyped("addons", "object"));
+        this.themes = new ThemeHandler(this.settingsHandler.settings.themes, this.settingsHandler);
+        this.addons = new AddonHandler(this.settingsHandler.settings.addons, this.settingsHandler);
     }
 
     /**
@@ -28,20 +31,20 @@ export default class ReGuilded {
      * @param webpackRequire A function that gets Guilded modules.
      */
     init(webpackRequire: WebpackRequire) {
-        this.webpackManager = new WebpackManager(webpackRequire);
-        this.addonApi = new AddonApi(this.webpackManager, this.addonManager);
+        this.webpack = new WebpackHandler(webpackRequire);
+        this.addonApi = new AddonApi(this.webpack, this.addons);
 
         window.ReGuildedApi = this.addonApi;
 
         // Load ReGuilded developer badges & contributor flairs
         this.loadUser(this.addonApi.UserModel);
 
-        // Initialize both Themes & Addon manager, pass both enabled arrays into such
-        this.themesManager.init();
-        this.addonManager.webpack = this.webpackManager;
-        this.addonManager.init(this.addonApi);
+        // Initialize both Theme & Addon handlers, pass both enabled arrays into such
+        this.themes.init();
+        this.addons.webpack = this.webpack;
+        this.addons.init(this.addonApi);
 
-        if (window.firstLaunch)
+        if (window.isFirstLaunch)
             this.handleFirstLaunch();
     }
 
@@ -51,8 +54,8 @@ export default class ReGuilded {
      * Uninitiates ReGuilded
      */
     uninit(): void {
-        this.themesManager.unloadAll();
-        this.addonManager.unloadAll();
+        this.themes.unloadAll();
+        this.addons.unloadAll();
     }
 
     /**

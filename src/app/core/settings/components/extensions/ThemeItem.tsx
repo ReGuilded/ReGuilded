@@ -1,5 +1,5 @@
 import { FieldAnySpecs } from "../../../../guilded/form";
-import { Theme } from "../../../managers/themes";
+import { Theme } from "../../../../../common/extensions";
 import ExtensionItem from "./ExtensionItem";
 import validations from "../../validation";
 
@@ -17,7 +17,7 @@ export default class ThemeItem extends ExtensionItem<Theme, { settings: object, 
             dirname,
             settings,
             settingsProps,
-            enabled: ~window.ReGuilded.themesManager.enabled.indexOf(id)
+            enabled: ~window.ReGuilded.themes.enabled.indexOf(id)
         };
 
         // Move this somewhere else
@@ -49,7 +49,7 @@ export default class ThemeItem extends ExtensionItem<Theme, { settings: object, 
         }
     }
     protected override async onToggle(enabled: boolean): Promise<void> {
-        await window.ReGuilded.themesManager[enabled ? "savedLoad" : "savedUnload"](this.props)
+        await window.ReGuilded.themes[enabled ? "savedLoad" : "savedUnload"](this.props)
             .then(() => this.setState({ enabled }));
     }
     async openThemeSettings() {
@@ -67,7 +67,7 @@ export default class ThemeItem extends ExtensionItem<Theme, { settings: object, 
             });
 
         if (confirmed)
-            window.ReGuilded.themesManager.assignProperties(this.props, changedValues);
+            window.ReGuilded.themes.assignProperties(this.props, changedValues);
     }
     static generateSettingsFields(settings: object, settingsProps: string[]): FieldAnySpecs[] {
         return settingsProps.map(id => {
