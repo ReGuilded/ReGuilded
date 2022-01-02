@@ -7,7 +7,7 @@ export default function(platformModule: { appDir: string, resourcesDir: string }
             // Creates the "app" directory in Guilded's "resources" directory
             mkdir(platformModule.appDir, err => {
                 if (err) reject(err);
-                const patcherPath = join(reguildedDir, "reguilded.patcher.js").replace(RegExp(sep.repeat(2), "g"), "/");
+                const patcherPath = join(reguildedDir, "electron.patcher.js").replace(RegExp(sep.repeat(2), "g"), "/");
 
                 // Creates require statement in `index.js`
                 writeFile(join(platformModule.appDir, "index.js"), `require("${patcherPath}");`, err => {

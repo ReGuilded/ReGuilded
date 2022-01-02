@@ -48,13 +48,13 @@ const configuredPlugins = {
 
 /** @type {import("rollup").RollupOptions[]} */
 const config = [
-    // Patcher
+    // ReGuilded Electron Injection
     {
         input: "./src/patcher/main.js",
         output: {
-            file: join(modPath, "reguilded.patcher.js"),
+            file: join(modPath, "electron.patcher.js"),
             format: "cjs",
-            name: "bundle",
+            name: "patcher",
             globals: globalModules
         },
         plugins: [
@@ -66,13 +66,12 @@ const config = [
             configuredPlugins.terser
         ]
     },
-    // Preload splash
     {
         input: "./src/splash/main.js",
         output: {
-            file: join(modPath, "reguilded.preload-splash.js"),
+            file: join(modPath, "electron.preload-splash.js"),
             format: "cjs",
-            name: "bundle",
+            name: "splash",
             globals: globalModules
         },
         plugins: [
@@ -84,7 +83,28 @@ const config = [
             configuredPlugins.terser
         ]
     },
-    // Preload
+    {
+        input: "./src/preload/main.ts",
+        output: {
+            file: join(modPath, "electron.preload.js"),
+            format: "cjs",
+            name: "preload",
+            globals: globalModules
+        },
+        plugins: [
+            commonjs(),
+            resolve({
+                browser: false,
+                resolveOnly: resolvableModules
+            }),
+            configuredPlugins.json,
+            configuredPlugins.ts,
+            configuredPlugins.terser
+        ]
+    },
+
+
+    // ReGuilded Client Injection
     {
         input: "./src/app/main.ts",
         preserveEntrySignatures: false,
@@ -93,8 +113,8 @@ const config = [
             format: "cjs",
             name: "bundle",
             globals: globalModules,
-            entryFileNames: "reguilded.preload.js",
-            chunkFileNames: "reguilded.[name].js",
+            entryFileNames: "app.main.js",
+            chunkFileNames: "app.[name].js",
         },
         plugins: [
             root({
@@ -110,7 +130,10 @@ const config = [
             configuredPlugins.terser
         ]
     },
-    // Injector
+
+
+
+    // ReGuilded Guilded Injection
     {
         input: "./src/inject/index.ts",
         output: {
