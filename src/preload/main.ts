@@ -26,4 +26,4 @@ const settingsPath = join(__dirname, "./settings");
             }
         }
     });
-});
+})();
