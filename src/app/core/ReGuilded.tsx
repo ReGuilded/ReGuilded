@@ -1,5 +1,5 @@
 import { badges, flairs, all } from "./badges-flairs";
-import SettingsManager from "./managers/settings";
+import SettingsManager from "../../preload/settings";
 import WebpackManager from "../addons/webpack";
 import ThemesManager from "./managers/themes";
 import AddonManager from "./managers/addon";
@@ -10,7 +10,6 @@ import { WebpackRequire } from "../types/webpack";
  * ReGuilded's full manager's class.
  */
 export default class ReGuilded {
-    settingsManager: SettingsManager;
     themesManager: ThemesManager;
     addonManager: AddonManager;
     webpackManager?: WebpackManager;
@@ -19,12 +18,9 @@ export default class ReGuilded {
      * A class that contains all of ReGuilded's configurations and settings.
      */
     constructor() {
-        // Creates settings manager for configuration
-        this.settingsManager = new SettingsManager();
-
         // Creates Themes & Addons manager
-        this.themesManager = new ThemesManager(this.settingsManager.themesDir, this.settingsManager.getValueTyped("themes", "object"), this.settingsManager);
-        this.addonManager = new AddonManager(this.settingsManager.addonsDir, this.settingsManager.getValueTyped("addons", "object"), this.settingsManager);
+        this.themesManager = new ThemesManager(this.settingsManager.themesDir, this.settingsManager.getValueTyped("themes", "object"));
+        this.addonManager = new AddonManager(this.settingsManager.addonsDir, this.settingsManager.getValueTyped("addons", "object"));
     }
 
     /**
