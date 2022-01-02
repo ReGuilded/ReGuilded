@@ -1,7 +1,7 @@
 import ExtensionManager, { Extension } from "./extension.js";
 import { existsSync, readFile, writeFile } from "fs";
 import { join, isAbsolute } from "path";
-import SettingsManager, { ExtensionSettings } from "./settings.js";
+import SettingsManager, { ExtensionSettings } from "../../../preload/settings.js";
 
 export declare interface Theme extends Extension<string[]> {
     settingsProps: string[];
@@ -38,10 +38,9 @@ export default class ThemesManager extends ExtensionManager<Theme> {
      * Manager that manages ReGuilded's themes
      * @param themesDir The directory of the ReGuilded themes
      * @param settings The settings of the themes
-     * @param settingsManager The current instance of ReGuilded settings manager
      */
-    constructor(themesDir: string, settings: ExtensionSettings, settingsManager: SettingsManager) {
-        super(themesDir, settings, settingsManager);
+    constructor(themesDir: string, settings: ExtensionSettings) {
+        super(themesDir, settings);
     }
     /**
      * Initiates themes for ReGuilded and theme manager.

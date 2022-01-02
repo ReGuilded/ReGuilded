@@ -1,8 +1,8 @@
 import * as electron from "electron";
 import { join } from "path";
 
-const preload = join(__dirname, "./reguilded.preload.js");
-const preloadSplash = join(__dirname, "./reguilded.preload-splash.js");
+const preload = join(__dirname, "./electron.preload.js"),
+      preloadSplash = join(__dirname, "./electron.preload-splash.js");
 
 export default class PatchedBrowserWindow extends electron.BrowserWindow {
     // noinspection JSAnnotator

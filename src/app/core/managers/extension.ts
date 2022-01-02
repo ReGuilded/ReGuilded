@@ -1,5 +1,4 @@
 import { readdir, readdirSync, readFile, existsSync, promises as fsPromises } from "fs";
-import SettingsManager, { ExtensionSettings } from "./settings";
 import EventEmitter from "events";
 import { watch } from "chokidar";
 import path from "path";
@@ -31,19 +30,16 @@ export default abstract class ExtensionManager<T extends Extension<string | stri
     allLoaded: boolean;
     all?: T[];
     settings: ExtensionSettings;
-    settingsManager: SettingsManager;
     /**
      * Manages different components of ReGuilded to allow them to be extended.
      * @param dirname The path to the extension directory
      * @param settings The reference of extension settings manager
-     * @param settingsManager The current instance of ReGuilded settings manager
      */
-    constructor(dirname: string, settings: ExtensionSettings, settingsManager: SettingsManager) {
+    constructor(dirname: string, settings: ExtensionSettings) {
         super();
         this.dirname = dirname;
         this.allLoaded = false;
         this.settings = settings;
-        this.settingsManager = settingsManager;
     }
     /**
      * Gets identifiers of all the enabled extensions.

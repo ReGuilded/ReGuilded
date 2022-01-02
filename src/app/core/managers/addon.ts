@@ -6,7 +6,6 @@ import { join } from "path";
 import ExtensionManager, { Extension } from "./extension";
 import { existsSync } from "fs";
 import path from "path";
-import SettingsManager, { ExtensionSettings } from "./settings";
 
 export declare interface Addon extends Extension<string> {
     core: {
@@ -26,10 +25,9 @@ export default class AddonManager extends ExtensionManager<Addon> {
      * Manager that manages ReGuilded's addons
      * @param addonsDir Path to the directory that holds addons
      * @param settings The settings of the add-ons
-     * @param settingsManager The current instance of ReGuilded settings manager
      */
-    constructor(addonsDir: string, settings: ExtensionSettings, settingsManager: SettingsManager) {
-        super(addonsDir, settings, settingsManager);
+    constructor(addonsDir: string, settings: ExtensionSettings) {
+        super(addonsDir, settings);
     }
 
     /**

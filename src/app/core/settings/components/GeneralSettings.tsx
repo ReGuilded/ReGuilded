@@ -1,10 +1,17 @@
-﻿import { Badge, BadgeNames } from "../../managers/settings";
-import ErrorBoundary from "./ErrorBoundary";
+﻿import ErrorBoundary from "./ErrorBoundary";
 
 const { Form, React, SavableSettings, functionUtil: { coroutine } } = window.ReGuildedApi;
 
+enum Badge {
+    None = 0,
+    Flair = 1,
+    Badge = 2
+}
+
 @SavableSettings
 export default class GeneralSettings extends React.Component {
+    static badgeNames = ["None", "Flair", "Badge"];
+
     SaveChanges: (...args: object[]) => any;
     _handleOptionsChange: () => void;
     constructor(props, context) {
@@ -17,7 +24,7 @@ export default class GeneralSettings extends React.Component {
             // Since we need to convert form values to proper values
             // (E.g., radios always returning { optionName: "xyz" } instead of "xyz")
             const configValues = { loadAuthors: loadAuthors, badge: Badge[badge] }
-            return window.ReGuilded.settingsManager.updateConfig(configValues);
+            return window.ReGuilded.settingsManager.updateSettings(configValues);
         } else throw new Error("Invalid settings form values");
     }
     render() {
@@ -76,7 +83,7 @@ export default class GeneralSettings extends React.Component {
                                             description: "This hides all ReGuilded badges."
                                         },
                                     ],
-                                    defaultValue: { optionName: BadgeNames[config.badge] }
+                                    defaultValue: { optionName: GeneralSettings.badgeNames[config.badge] }
                                 }
                             ]
                         }
