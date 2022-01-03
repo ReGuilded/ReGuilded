@@ -42,13 +42,11 @@ const settingsPath = join(__dirname, "./settings");
             }
         });
     };
-    try {
-        await reGuildedConfigAndSettings();
-        const preload = ipcRenderer.sendSync("REGUILDED_GET_PRELOAD");
-        if(preload) {
-            import(preload);
-        };
-    } catch {
-        console.error;
-    }
+    await reGuildedConfigAndSettings()
+        .then(() => {
+            const preload = ipcRenderer.sendSync("REGUILDED_GET_PRELOAD");
+            if(preload) {
+                import(preload);
+            };
+        }).catch(console.error);
 })();
