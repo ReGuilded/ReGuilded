@@ -1,4 +1,4 @@
-import { WebpackBundle, WebpackJsonp, WebpackRequire } from "./types/webpack";
+import { WebpackBundle, WebpackJsonp, WebpackRequire } from "../app/types/webpack";
 
 /**
  * Returns fake SVG module that exposes Webpack's require and calls original SVG module.
