@@ -45,8 +45,6 @@ const settingsPath = join(__dirname, "./settings");
     await reGuildedConfigAndSettings()
         .then(() => {
             const preload = ipcRenderer.sendSync("REGUILDED_GET_PRELOAD");
-            if(preload) {
-                import(preload);
-            };
+            if(preload) import(preload);
         }).catch(console.error);
 })();
