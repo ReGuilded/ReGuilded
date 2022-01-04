@@ -193,11 +193,11 @@ const config = [
     },
     {
         input: "./src/app/core/ReGuilded.tsx",
-        inlineDynamicImports: true,
         output: {
-            file: "./out/app/electron.core.js",
+            dir: "./out/app/electron-core",
             format: "cjs",
-            name: "electronCore"
+            name: "electronCore",
+            preserveModules: true
         },
         plugins: [
             commonjs({
