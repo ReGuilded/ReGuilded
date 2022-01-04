@@ -1,9 +1,9 @@
 import { AnyExtension } from "../../../../../common/extensions";
+import { RGExtensionConfig } from "../../../../types/reguilded";
 import ExtensionHandler from "../../../handlers/extension";
 import { ChildTabProps } from "../TabbedSettings";
 import ErrorBoundary from "../ErrorBoundary";
 import { ReactElement } from "react";
-import { shell } from "electron";
 
 const { React, SvgIcon, GuildedText, Form, OverlayProvider } = window.ReGuildedApi;
 
@@ -17,7 +17,7 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
     private _openDirectory: () => Promise<void>;
     // Configuration
     protected type: string;
-    protected extensionManager: ExtensionHandler<T>;
+    protected extensionManager: ExtensionHandler<T, RGExtensionConfig<T>>;
     // From overlay provider
     protected DeleteConfirmationOverlay: { Open: ({ name: string }) => Promise<{ confirmed: boolean }> };
     constructor(props: Props<T>, context?: any) {

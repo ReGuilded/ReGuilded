@@ -1,7 +1,6 @@
 import { Addon } from "../../../../../common/extensions";
 import { FormSpecs } from "../../../../guilded/form";
 import ExtensionItem from "./ExtensionItem";
-import path from "path";
 
 const { OverlayProvider } = window.ReGuildedApi;
 
@@ -14,7 +13,7 @@ export default class AddonItem extends ExtensionItem<Addon, { fp: string }> {
 
         this.state = {
             dirname: props.dirname,
-            fp: path.join(props.dirname, "main.js"),
+            fp: props.dirname,
             enabled: ~window.ReGuilded.addons.enabled.indexOf(props.id)
         };
 

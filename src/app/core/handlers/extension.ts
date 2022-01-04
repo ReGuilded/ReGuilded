@@ -1,15 +1,15 @@
-import { readdir, readdirSync, readFile, existsSync, promises as fsPromises } from "fs";
 import { ReGuildedExtensionSettings } from "../../../common/reguilded-settings";
-import { Extension, AnyExtension } from "../../../common/extensions";
+import { AnyExtension } from "../../../common/extensions";
+import { RGExtensionConfig } from "../../types/reguilded";
 import SettingsHandler from "./settings";
-import EventEmitter from "events";
-import { watch } from "chokidar";
-import path from "path";
 
 /**
  * Manages different components of ReGuilded to allow them to be extended.
  */
-export default abstract class ExtensionHandler<T extends AnyExtension> extends EventEmitter {
+export default abstract class ExtensionHandler<
+    T extends AnyExtension,
+    C extends RGExtensionConfig<T>
+> {
     static allowedReadmeName: string = "readme.md";
     /**
      * A Regex pattern for determining whether given extension's ID is correct.
@@ -17,17 +17,23 @@ export default abstract class ExtensionHandler<T extends AnyExtension> extends E
     static idRegex: RegExp = /^[A-Za-z0-9]+$/g;
 
     all?: T[];
+    config: C;
     allLoaded: boolean;
-    settings: ReGuildedExtensionSettings;
     settingsHandler: SettingsHandler;
+    settings: ReGuildedExtensionSettings;
+    idsToMetadata: { [extensionId: string]: T };
     /**
      * Manages different components of ReGuilded to allow them to be extended.
-     * @param dirname The path to the extension directory
      * @param settings The reference of extension settings manager
      * @param settingsHandler The extension settings handler
+     * @param config The preload configuration of the extensions
      */
-    constructor(settings: ReGuildedExtensionSettings, settingsHandler: SettingsHandler) {
-        super();
+    constructor(
+        settings: ReGuildedExtensionSettings,
+        settingsHandler: SettingsHandler,
+        config: C
+    ) {
+        this.config = config;
         this.allLoaded = false;
         this.settings = settings;
         this.settingsHandler = settingsHandler;
@@ -58,13 +64,12 @@ export default abstract class ExtensionHandler<T extends AnyExtension> extends E
         this.savedUnload(extension)
             // Because .rm doesn't exist in Electron's Node.JS apparently
             // TODO: Use window.ReGuilded blabla delete
-            .then(() => fsPromises.rmdir(extension.dirname, { recursive: true }))
+            .then(() => this.config.delete(extension.id))
             .then(
                 () => console.log(`Deleted extension by ID '${extension.id}'`),
                 e => console.error(`Failed to delete extension by ID '${extension.id}':\n`, e)
             );
     }
-
     /**
      * Checks if the identifier of the extension is correct or not.
      * @param id The identifier of the extension
@@ -75,121 +80,6 @@ export default abstract class ExtensionHandler<T extends AnyExtension> extends E
     static checkId(id: any, path: string): void {
         if (!(typeof id === "string" && id.match(ExtensionHandler.idRegex)))
             throw new Error(`Incorrect syntax of the property 'id'. Path: ${path}`);
-    }
-    /**
-     * Checks whether all extensions were loaded and emits the event for them.
-     * @param index The current index of the iterator
-     * @param totalLength The total length of all extensions available
-     */
-    protected checkLoaded(index: number, totalLength: number): void {
-        // Ensure this is the last extension and that we haven't already tripped the event
-        if (totalLength == index && !this.allLoaded) {
-            // Trip the event
-            this.allLoaded = true;
-            this.emit("fullLoad", this.all);
-        }
-    }
-    protected addMetadataConfig(metadata: T, dirname: string) {
-        readdir(dirname, (err, files) => {
-            if (err) throw err;
-
-            // Add readme to metadata if one of the readme file names exist
-            const readmeName = files.find(
-                f => f.toLowerCase() === ExtensionHandler.allowedReadmeName
-            );
-            if (readmeName) {
-                readFile(path.join(dirname, readmeName), { encoding: "utf8" }, (e, d) => {
-                    if (e) throw e;
-
-                    metadata.readme = d;
-                });
-            }
-        });
-        // Make sure author is an ID
-        if (
-            metadata.author &&
-            (typeof metadata.author !== "string" || metadata.author.length !== 8)
-        ) {
-            console.warn(
-                "Author must be an identifier of the user in Guilded, not their name or anything else"
-            );
-            // To not cause errors and stuff
-            metadata.author = undefined;
-        }
-    }
-    /**
-     * Watches the extension directory for any changes.
-     * @param callback The callback when change occurs.
-     */
-    protected watch(
-        callback: (
-            dirname: string,
-            fp: string,
-            metadata: T
-        ) => Promise<Extension<string | string[]>>
-    ): void {
-        const available = readdirSync(this.dirname, { withFileTypes: true }),
-            // Split '/' and get its length, to get the name of the extension.
-            // The length already gives us +1, so no need to do that.
-            // That's a dumdum way of doing it, but eh.
-            relativeIndex = this.dirname.split(path.sep).length;
-
-        // Create a loaded dictionary, to replace the old index-based load checker,
-        // along with unloading when hot reloading
-        const loaded = {};
-        // Create a de-bouncer dictionary, to prevent lag from multi-loading
-        const deBouncers = {};
-
-        // Watch the directory for any file changes
-        watch(this.dirname).on("all", (_: any, fp: string) => {
-            const extName = fp.split(path.sep)[relativeIndex];
-
-            // Make sure extName exists(this not being `settings/addons` or `settings/themes`
-            // ) and it's currently not in the process of rebouncing
-            if (extName && !deBouncers[extName])
-                deBouncers[extName] = setTimeout(async () => {
-                    const extPath = this.getPath(extName);
-
-                    // Get the metadata.json file path, and if it doesn't exist, ignore it
-                    const metadataPath = path.join(extPath, "metadata.json");
-                    if (!existsSync(metadataPath)) {
-                        const existingExt = this.all.find(
-                            metadata => metadata.dirname === extPath
-                        );
-                        if (existingExt !== undefined) {
-                            this.all.splice(this.all.indexOf(existingExt), 1);
-                            this.unload(existingExt, true);
-                            delete loaded[extName];
-                        }
-                        delete deBouncers[extName];
-                        return;
-                    }
-
-                    let metadata = this.all.find(metadata => metadata.dirname === extPath);
-                    // Require the metadata file.
-                    if (metadata === undefined) {
-                        metadata = require(metadataPath);
-                        metadata.dirname = extPath;
-                    }
-
-                    // Add Readme, etc.
-                    this.addMetadataConfig(metadata, extPath);
-
-                    await callback(extPath, loaded[extName], metadata)
-                        .then(
-                            metadata => (loaded[extName] = metadata),
-                            rejection =>
-                                console.error("Error in " + metadata.id + ":\n", rejection)
-                        )
-                        .then(() => {
-                            // Check if it's done loading all extensions and do stuff with it
-                            this.checkLoaded(Object.keys(loaded).length, available.length);
-
-                            // Remove debouncer from the set for further debouncing and updatings
-                            delete deBouncers[extName];
-                        });
-                }, 250);
-        });
     }
 
     /**
@@ -229,15 +119,6 @@ export default abstract class ExtensionHandler<T extends AnyExtension> extends E
         this.settings.enabled = this.settings.enabled.filter(extId => extId != extension.id);
         await this.settingsHandler.save();
     }
-    /**
-     * Gets path of an extension.
-     * @param name The name of the extension to get path of
-     * @returns Extension path
-     */
-    protected getPath(name: string): string {
-        return path.join(this.dirname, name);
-    }
-
     /**
      * Checks if property is given type and if it isn't, throws an error.
      * @param name The name of the property.

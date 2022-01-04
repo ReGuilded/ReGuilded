@@ -1,5 +1,4 @@
-import { WebpackBundle, WebpackJsonp, WebpackRequire } from "../app/types/webpack";
-import { webFrame } from "electron";
+import { WebpackBundle, WebpackRequire } from "../app/types/webpack";
 
 /**
  * Returns fake SVG module that exposes Webpack's require and calls original SVG module.
@@ -9,14 +8,25 @@ import { webFrame } from "electron";
  */
 function webpackModule(index: number, svgModule: WebpackBundle): WebpackBundle {
     // Get the SVG module's main method's ID
-    const [ [svgId], svgFunctions ] = svgModule;
+    const [[svgId], svgFunctions] = svgModule;
     const svgMain: string = Object.keys(svgFunctions)[0];
-    console.log("SVG Module Id:", svgId, "\nSVG Module Function:", svgMain, "\nSVG Module:", svgModule);
+    console.log(
+        "SVG Module Id:",
+        svgId,
+        "\nSVG Module Function:",
+        svgMain,
+        "\nSVG Module:",
+        svgModule
+    );
 
     return [
         [svgId],
         {
-            [svgMain]: function (module: { exports: {} }, exports: { }, webpackRequire: WebpackRequire) {
+            [svgMain]: function (
+                module: { exports: {} },
+                exports: {},
+                webpackRequire: WebpackRequire
+            ) {
                 // Replace itself with old module
                 window.webpackJsonp.splice(index, 1);
                 window.webpackJsonp._push(svgModule);
@@ -30,8 +40,8 @@ function webpackModule(index: number, svgModule: WebpackBundle): WebpackBundle {
                     console.log("Initializing ReGuilded");
                     window.ReGuilded.init(webpackRequire);
                 });
-            },
-        },
+            }
+        }
     ];
 }
 /**

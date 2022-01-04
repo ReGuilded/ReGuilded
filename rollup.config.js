@@ -103,25 +103,6 @@ const config = [
             configuredPlugins.terser
         ]
     },
-    {
-        input: "./src/renderer/main.ts",
-        output: {
-            file: join(modPath, "electron.renderer-main.js"),
-            format: "cjs",
-            name: "rendererMain",
-            globals: globalModules
-        },
-        plugins: [
-            commonjs(),
-            resolve({
-                browser: true,
-                resolveOnly: resolvableModules
-            }),
-            configuredPlugins.ts,
-            configuredPlugins.terser
-        ]
-    },
-
 
     // ReGuilded Client Injection
     {
@@ -132,17 +113,15 @@ const config = [
             format: "cjs",
             name: "bundle",
             globals: globalModules,
-            entryFileNames: "app.main.js",
-            chunkFileNames: "app.[name].js",
+            entryFileNames: "reguilded.main.js",
+            chunkFileNames: "reguilded.[name].js",
         },
         plugins: [
             root({
                 root: "./src/app"
             }),
-            commonjs(),
             resolve({
-                browser: true,
-                resolveOnly: resolvableModules
+                browser: true
             }),
             configuredPlugins.json,
             configuredPlugins.ts,

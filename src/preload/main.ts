@@ -1,20 +1,26 @@
 import { ReGuildedSettings, ReGuildedSettingsUpdate } from "../common/reguilded-settings";
-import ExtensionManager from "./extension-manager";
 import { contextBridge, ipcRenderer, shell, webFrame } from "electron";
 import getSettingsFile from "./get-settings";
+import AddonManager from "./addon-manager";
+import ThemeManager from "./theme-manager";
 import SettingsManager from "./settings";
-import { join } from "path";
 import { readFileSync } from "fs";
+import { join } from "path";
 
 const settingsPath = join(__dirname, "./settings");
+const addonManager = new AddonManager(join(settingsPath, "addons")),
+    themeManager = new ThemeManager(join(settingsPath, "themes"));
 
-(async() => {
+themeManager.watch();
+addonManager.watch();
+
+(async () => {
     const reGuildedConfigAndSettings = async () => {
         const settingsManager = new SettingsManager(
-            join(__dirname, "./settings"),
+            settingsPath,
             await getSettingsFile(settingsPath)
         );
-    
+
         // Allow reconfiguration of settings
         contextBridge.exposeInMainWorld("ReGuildedConfig", {
             isFirstLaunch: window.isFirstLaunch,
@@ -31,9 +37,8 @@ const settingsPath = join(__dirname, "./settings");
                     await settingsManager.updateSettings(settingsProps);
                 }
             },
-            // TODO: Test if class instances become objects. Otherwise, convert class instances to objects with `new Object` possibly
-            themes: new ExtensionManager(join(settingsPath, "themes")),
-            addons: new ExtensionManager(join(settingsPath, "addons")),
+            themes: themeManager.exportable,
+            addons: addonManager.exportable,
             // Anything else does not need to be exposed
             openItem(path: string): void {
                 shell.openItem(path);
@@ -47,7 +52,11 @@ const settingsPath = join(__dirname, "./settings");
     await reGuildedConfigAndSettings()
         .then(() => {
             const preload = ipcRenderer.sendSync("REGUILDED_GET_PRELOAD");
-            if(preload) import(preload);
-            webFrame.executeJavaScript(`${readFileSync(join(__dirname, "electron.renderer-main.js"))}`);
-        }).catch(console.error);
+            if (preload) import(preload);
+            // Load renderer into Guilded
+            webFrame.executeJavaScript(
+                `${readFileSync(join(__dirname, "reguilded.main.js"))}`
+            );
+        })
+        .catch(console.error);
 })();
