@@ -15,14 +15,11 @@ function setPush(obj) {
     Object.defineProperty(window.webpackJsonp, "push", obj);
 }
 
-console.log("A", window);
 document.addEventListener("readystatechange", () => {
     // To wait for the bundle to be created
     if (document.readyState === "interactive")
         // Wait when bundle loads
         window.bundle.addEventListener("load", () => {
-            console.log("B", window);
-            console.log("C", window.webpackJsonp);
             // Saves the old push
             window.webpackJsonp._push = window.webpackJsonp.push;
 

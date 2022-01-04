@@ -1,4 +1,4 @@
-import { readFileSync, promises as fsPromises } from "fs";
+import { promises as fsPromises } from "fs";
 const { writeFile } = fsPromises;
 import { join } from "path";
 import { ReGuildedSettings } from "../common/reguilded-settings";

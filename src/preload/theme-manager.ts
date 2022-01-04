@@ -42,8 +42,6 @@ export default class ThemeManager extends ExtensionManager<Theme> {
         );
     }
     protected override async onFileChange(metadata: Theme): Promise<void> {
-        console.log("On file change", metadata);
-
         const styleSheets: string[] = [];
 
         const files = typeof metadata.files === "string" ? [metadata.files] : metadata.files;
@@ -53,7 +51,7 @@ export default class ThemeManager extends ExtensionManager<Theme> {
         for (let file of files)
             await fsPromises
                 .readFile(ThemeManager.getCssPath(metadata.dirname, file), "utf8")
-                .then(d => (console.log("Pushing css", metadata.id), styleSheets.push(d)))
+                .then(d => (styleSheets.push(d)))
                 .catch(e =>
                     console.error("Error in '", metadata.id, "' related to CSS files:", e)
                 );
