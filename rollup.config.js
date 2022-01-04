@@ -95,9 +95,28 @@ const config = [
             commonjs(),
             resolve({
                 browser: false,
-                resolveOnly: resolvableModules
+                resolveOnly: resolvableModules,
+                ignoreDynamicRequires: true
             }),
             configuredPlugins.json,
+            configuredPlugins.ts,
+            configuredPlugins.terser
+        ]
+    },
+    {
+        input: "./src/renderer/main.ts",
+        output: {
+            file: join(modPath, "electron.renderer-main.js"),
+            format: "cjs",
+            name: "rendererMain",
+            globals: globalModules
+        },
+        plugins: [
+            commonjs(),
+            resolve({
+                browser: true,
+                resolveOnly: resolvableModules
+            }),
             configuredPlugins.ts,
             configuredPlugins.terser
         ]
@@ -159,6 +178,26 @@ const config = [
             file: "./out/injector.linux-util.js",
             format: "cjs",
             name: "linuxInjector"
+        },
+        plugins: [
+            commonjs({
+                ignoreDynamicRequires: true
+            }),
+            resolve({
+                browser: false
+            }),
+            configuredPlugins.json,
+            configuredPlugins.ts,
+            configuredPlugins.terser
+        ]
+    },
+    {
+        input: "./src/app/core/ReGuilded.tsx",
+        inlineDynamicImports: true,
+        output: {
+            file: "./out/app/electron.core.js",
+            format: "cjs",
+            name: "electronCore"
         },
         plugins: [
             commonjs({

@@ -1,9 +1,10 @@
 import { ReGuildedSettings, ReGuildedSettingsUpdate } from "../common/reguilded-settings";
 import ExtensionManager from "./extension-manager";
-import { contextBridge, ipcRenderer, shell } from "electron";
+import { contextBridge, ipcRenderer, shell, webFrame } from "electron";
 import getSettingsFile from "./get-settings";
 import SettingsManager from "./settings";
 import { join } from "path";
+import { readFileSync } from "fs";
 
 const settingsPath = join(__dirname, "./settings");
 
@@ -42,9 +43,11 @@ const settingsPath = join(__dirname, "./settings");
             }
         });
     };
+
     await reGuildedConfigAndSettings()
         .then(() => {
             const preload = ipcRenderer.sendSync("REGUILDED_GET_PRELOAD");
             if(preload) import(preload);
+            webFrame.executeJavaScript(`${readFileSync(join(__dirname, "electron.renderer-main.js"))}`);
         }).catch(console.error);
 })();

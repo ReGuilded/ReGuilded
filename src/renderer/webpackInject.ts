@@ -1,4 +1,5 @@
-import { WebpackBundle, WebpackJsonp, WebpackRequire } from "./types/webpack";
+import { WebpackBundle, WebpackJsonp, WebpackRequire } from "../app/types/webpack";
+import { webFrame } from "electron";
 
 /**
  * Returns fake SVG module that exposes Webpack's require and calls original SVG module.
