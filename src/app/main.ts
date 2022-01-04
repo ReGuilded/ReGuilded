@@ -34,7 +34,7 @@ document.addEventListener("readystatechange", () => {
 });
 
 // Fetch ReGuilded things
-async () => {
+(async() => {
     // Global badge holders
     await fetch(
         "https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuilded/wwwroot/contributors.json"
@@ -50,4 +50,4 @@ async () => {
             },
             e => console.warn("Failed to fetch ReGuilded badges:", e)
         );
-};
+})();
