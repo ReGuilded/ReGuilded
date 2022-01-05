@@ -5,11 +5,12 @@ import uninjection from "./util/uninjection.js";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { copy } from "fs-extra";
+import platform from "./util/platform";
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 function rootPerms(path, command) {
-    console.warn(`ReGuilded Linux requires root permissions to create, modify or delete '${path}'`);
+    console.warn(`ReGuilded Linux requires root permissions to create, modify or delete '${platform.resourcesDir}'`);
     // FIXME Won't work for non-sudo users
     spawnSync("sudo", command, { stdio: "inherit" });
     process.exit(0);
