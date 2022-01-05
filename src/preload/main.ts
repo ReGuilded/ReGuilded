@@ -16,14 +16,15 @@ addonManager.watch();
 
 (async () => {
     const reGuildedConfigAndSettings = async () => {
-        const settingsManager = new SettingsManager(
-            settingsPath,
-            await getSettingsFile(settingsPath)
-        );
+        const settingsManager = new SettingsManager(settingsPath, await getSettingsFile(settingsPath));
 
         // Allow reconfiguration of settings
         contextBridge.exposeInMainWorld("ReGuildedConfig", {
             isFirstLaunch: window.isFirstLaunch,
+            // TODO: Make fake System js and add that to Rollup
+            demandSettings() {
+                webFrame.executeJavaScript(`(function(require){${readFileSync(join(__dirname, "reguilded.settings.js"), "utf8")}})(()=>{})`);
+            },
             // Settings manager communication
             settings: {
                 getSettings(): ReGuildedSettings {
@@ -54,9 +55,7 @@ addonManager.watch();
             const preload = ipcRenderer.sendSync("REGUILDED_GET_PRELOAD");
             if (preload) import(preload);
             // Load renderer into Guilded
-            webFrame.executeJavaScript(
-                `${readFileSync(join(__dirname, "reguilded.main.js"))}`
-            );
+            webFrame.executeJavaScript(`${readFileSync(join(__dirname, "reguilded.main.js"))}`);
         })
         .catch(console.error);
 })();

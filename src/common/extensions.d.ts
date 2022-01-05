@@ -26,5 +26,12 @@ export declare interface Theme extends Extension<string[]> {
      */
     settingsProps: string[];
 }
-export declare interface Addon extends Extension<string> {}
+export declare interface Addon extends Extension<string> {
+    exports: {
+        load: Function;
+        init?: Function;
+        unload?: Function;
+        [otherExport: string]: any;
+    };
+}
 export type AnyExtension = Extension<string | string[]>;

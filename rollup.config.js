@@ -21,23 +21,44 @@ const globalModules = {
 };
 const resolvableModules = [
     // ReGuilded used
-    "fs", "os", "path", "util", "events", "stream", "module", "tslib", "chokidar",
+    "fs",
+    "os",
+    "path",
+    "util",
+    "events",
+    "stream",
+    "module",
+    "tslib",
+    "chokidar",
     // Dependencies of the dependecies
-    "readdirp", "anymatch", "glob-parent", "is-glob", "braces", "normalize-path", "is-binary-path",
-    "picomatch", "is-extglob", "fill-range", "binary-extensions", "to-regex-range", "is-number"
+    "readdirp",
+    "anymatch",
+    "glob-parent",
+    "is-glob",
+    "braces",
+    "normalize-path",
+    "is-binary-path",
+    "picomatch",
+    "is-extglob",
+    "fill-range",
+    "binary-extensions",
+    "to-regex-range",
+    "is-number"
 ];
 
 // npm run watch -- --environment WATCH_PATH:...
 const watchCopyLocation = process.env.WATCH_PATH,
-      isWatching = Boolean(process.env.ROLLUP_WATCH);
+    isWatching = Boolean(process.env.ROLLUP_WATCH);
 
 const modPath = watchCopyLocation ? watchCopyLocation : "./out/app";
 
 // To not configure it every time
 const configuredPlugins = {
-    terser: !isWatching && terser({
-        compress: true
-    }),
+    terser:
+        !isWatching &&
+        terser({
+            compress: true
+        }),
     json: json({
         compact: true
     }),
@@ -110,11 +131,11 @@ const config = [
         preserveEntrySignatures: false,
         output: {
             dir: modPath,
-            format: "cjs",
-            name: "bundle",
+            format: "iife",
+            name: "reguilded",
             globals: globalModules,
             entryFileNames: "reguilded.main.js",
-            chunkFileNames: "reguilded.[name].js",
+            chunkFileNames: "reguilded.[name].js"
         },
         plugins: [
             root({
@@ -128,8 +149,6 @@ const config = [
             configuredPlugins.terser
         ]
     },
-
-
 
     // ReGuilded Guilded Injection
     {

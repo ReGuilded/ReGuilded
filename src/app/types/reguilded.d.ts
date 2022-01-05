@@ -40,9 +40,6 @@ export interface RGThemeConfig extends RGExtensionConfig<Theme> {
         settings: { [settingsProp: string]: string | number | boolean | undefined }
     ): void;
 }
-export interface RGAddonConfig extends RGExtensionConfig<Addon> {
-    load(addonId: string): void;
-    unload(addonId: string): void;
-}
+export interface RGAddonConfig extends RGExtensionConfig<Addon> {}
 
 export {};

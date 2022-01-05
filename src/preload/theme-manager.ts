@@ -1,7 +1,7 @@
 import { promises as fsPromises, readFile, writeFile } from "fs";
+import { isAbsolute, join, resolve as pathResolve } from "path";
 import ExtensionManager from "./extension-manager";
 import { Theme } from "../common/extensions";
-import { isAbsolute, join } from "path";
 
 // TODO: Checking
 export default class ThemeManager extends ExtensionManager<Theme> {
@@ -33,13 +33,9 @@ export default class ThemeManager extends ExtensionManager<Theme> {
         for (let prop in props) metadata.settings[prop].value = props[prop];
 
         // Write file and let the watcher update the theme
-        writeFile(
-            join(metadata.dirname, "settings.json"),
-            JSON.stringify(metadata.settings),
-            e => {
-                if (e) console.error(e);
-            }
-        );
+        writeFile(join(metadata.dirname, "settings.json"), JSON.stringify(metadata.settings), e => {
+            if (e) console.error(e);
+        });
     }
     protected override async onFileChange(metadata: Theme): Promise<void> {
         const styleSheets: string[] = [];
@@ -50,24 +46,17 @@ export default class ThemeManager extends ExtensionManager<Theme> {
 
         for (let file of files)
             await fsPromises
-                .readFile(ThemeManager.getCssPath(metadata.dirname, file), "utf8")
-                .then(d => (styleSheets.push(d)))
-                .catch(e =>
-                    console.error("Error in '", metadata.id, "' related to CSS files:", e)
-                );
+                .readFile(pathResolve(metadata.dirname, file), "utf8")
+                // JS breaks if you just do .then(styleSheets.push)
+                .then(d => styleSheets.push(d))
+                .catch(e => console.error("Error in '", metadata.id, "' related to CSS files:", e));
 
         this.themeIdToCssList[metadata.id] = styleSheets;
 
         readFile(join(metadata.dirname, "settings.json"), "utf8", (e, d) => {
             if (e)
                 if (e.code === "ENOENT") return;
-                else
-                    return console.error(
-                        "Error reading theme '",
-                        metadata.id,
-                        "' settings file:",
-                        e
-                    );
+                else return console.error("Error reading theme '", metadata.id, "' settings file:", e);
 
             let settings = JSON.parse(d);
 

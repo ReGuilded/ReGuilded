@@ -8,15 +8,13 @@ export default async function addonPreInit(addonApi) {
     try {
         window.__SENTRY__.hub.getClient().close(0);
         window.__SENTRY__.logger.disable();
-    }
-    catch (e) {
+    } catch (e) {
         console.error("ReGuilded Addon SDK", "Failed to disable sentries!", e);
     }
 
-    await import("../core/settings/settings")
-        .then(({ default: SettingsInjector}) => {
-            window.settingsInjector = new SettingsInjector();
-            window.settingsInjector.init();
-        });
-
+    // await import("../core/settings/settings")
+    //     .then(({ default: SettingsInjector}) => {
+    //         window.settingsInjector = new SettingsInjector();
+    //         window.settingsInjector.init();
+    //     });
 }

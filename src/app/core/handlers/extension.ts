@@ -6,10 +6,7 @@ import SettingsHandler from "./settings";
 /**
  * Manages different components of ReGuilded to allow them to be extended.
  */
-export default abstract class ExtensionHandler<
-    T extends AnyExtension,
-    C extends RGExtensionConfig<T>
-> {
+export default abstract class ExtensionHandler<T extends AnyExtension, C extends RGExtensionConfig<T>> {
     static allowedReadmeName: string = "readme.md";
     /**
      * A Regex pattern for determining whether given extension's ID is correct.
@@ -28,11 +25,7 @@ export default abstract class ExtensionHandler<
      * @param settingsHandler The extension settings handler
      * @param config The preload configuration of the extensions
      */
-    constructor(
-        settings: ReGuildedExtensionSettings,
-        settingsHandler: SettingsHandler,
-        config: C
-    ) {
+    constructor(settings: ReGuildedExtensionSettings, settingsHandler: SettingsHandler, config: C) {
         this.config = config;
         this.allLoaded = false;
         this.settings = settings;
@@ -52,9 +45,8 @@ export default abstract class ExtensionHandler<
     /**
      * Unloads the given extension.
      * @param extension The extension to unload
-     * @param hardUnload Whether it's hard unload from a watcher.
      */
-    abstract unload(extension: T, hardUnload?: boolean): void;
+    abstract unload(extension: T): void;
     /**
      * Deletes the given extension.
      * @param extension Extension to delete
@@ -62,8 +54,6 @@ export default abstract class ExtensionHandler<
     async delete(extension: T): Promise<void> {
         // Unload to not bug it out
         this.savedUnload(extension)
-            // Because .rm doesn't exist in Electron's Node.JS apparently
-            // TODO: Use window.ReGuilded blabla delete
             .then(() => this.config.delete(extension.id))
             .then(
                 () => console.log(`Deleted extension by ID '${extension.id}'`),
@@ -78,8 +68,7 @@ export default abstract class ExtensionHandler<
      * @returns Checks identifier's syntax
      */
     static checkId(id: any, path: string): void {
-        if (!(typeof id === "string" && id.match(ExtensionHandler.idRegex)))
-            throw new Error(`Incorrect syntax of the property 'id'. Path: ${path}`);
+        if (!(typeof id === "string" && id.match(ExtensionHandler.idRegex))) throw new Error(`Incorrect syntax of the property 'id'. Path: ${path}`);
     }
 
     /**
@@ -115,7 +104,7 @@ export default abstract class ExtensionHandler<
      * @param extension The extension to unload
      */
     async savedUnload(extension: T): Promise<void> {
-        this.unload(extension, false);
+        this.unload(extension);
         this.settings.enabled = this.settings.enabled.filter(extId => extId != extension.id);
         await this.settingsHandler.save();
     }
@@ -127,14 +116,7 @@ export default abstract class ExtensionHandler<
      * @param path Path to the JSON where property is.
      */
     static checkProperty(name: string, value: any, types: [string | Function], path: string) {
-        if (
-            types.includes(typeof value) &&
-            types.some(x => x instanceof Function && value instanceof x)
-        )
-            throw new TypeError(
-                `Expected '${name}' to be [${types.join(
-                    ", "
-                )}], found ${typeof value} instead in ${path}`
-            );
+        if (types.includes(typeof value) && types.some(x => x instanceof Function && value instanceof x))
+            throw new TypeError(`Expected '${name}' to be [${types.join(", ")}], found ${typeof value} instead in ${path}`);
     }
 }
