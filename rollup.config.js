@@ -188,26 +188,6 @@ const config = [
             configuredPlugins.ts,
             configuredPlugins.terser
         ]
-    },
-    {
-        input: "./src/app/core/ReGuilded.tsx",
-        output: {
-            dir: "./out/app/electron-core",
-            format: "cjs",
-            name: "electronCore",
-            preserveModules: true
-        },
-        plugins: [
-            commonjs({
-                ignoreDynamicRequires: true
-            }),
-            resolve({
-                browser: false
-            }),
-            configuredPlugins.json,
-            configuredPlugins.ts,
-            configuredPlugins.terser
-        ]
     }
 ];
 export default config;
