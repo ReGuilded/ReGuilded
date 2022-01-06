@@ -36,7 +36,7 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
     /**
      * The callback when file change happens in `this.dirname`.
      */
-    watchCallback: (extension: T, loaded: boolean) => void;
+    watchCallback: (extension: T, loaded: boolean, previousId: string) => void;
     /**
      * The properties that will be exported to context bridge.
      */
@@ -88,6 +88,10 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
         // Because .rm doesn't exist in Electron's Node.JS apparently
         await fsPromises.rmdir(this.idsToMetadata[extensionId].dirname, { recursive: true });
     }
+    /**
+     * Manages the extension once its files get changed.
+     * @param extension The extension that has been updated
+     */
     protected abstract onFileChange(extension: T): Promise<void>;
     /**
      * Watches the extension directory for any changes.
@@ -97,7 +101,6 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
         const available = readdirSync(this.dirname, { withFileTypes: true }).length,
             // Split '/' and get its length, to get the name of the extension.
             // The length already gives us +1, so no need to do that.
-            // That's a dumdum way of doing it, but eh.
             relativeIndex = this.dirname.split(path.sep).length;
 
         // Create a loaded dictionary, to replace the old index-based load checker,
@@ -107,8 +110,9 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
         const deBouncers = {};
 
         // Watch the directory for any file changes
-        chokidarWatch(this.dirname).on("all", (_: any, fp: string) => {
-            const extName = fp.split(path.sep)[relativeIndex];
+        chokidarWatch(this.dirname).on("all", (changeType: any, fp: string) => {
+            const splitFp = fp.split(path.sep);
+            const extName = splitFp[relativeIndex];
 
             // Make sure extName exists(this not being `settings/addons` or `settings/themes`)
             // and it's currently not in the process of rebouncing
@@ -118,8 +122,10 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
 
                     // Get the metadata.json file path, and if it doesn't exist, ignore it
                     const metadataPath = path.join(extPath, "metadata.json");
-                    // TODO: Use chokidar type instead
-                    if (!existsSync(metadataPath)) {
+
+                    const changeIsMetadata = fp === metadataPath;
+
+                    if ((changeIsMetadata || fp === extPath) && (changeType === "unlink" || changeType === "unlinkDir")) {
                         const existingExt = this.all.find(metadata => metadata.dirname === extPath);
                         if (existingExt !== undefined) {
                             // Since allIds and all will have the same indexes
@@ -136,34 +142,42 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
                         return;
                     }
 
-                    let metadata: T = this.all.find(metadata => metadata.dirname === extPath);
+                    // For both getting the metadata and removing it
+                    const metadataIndex = this.all.findIndex(metadata => metadata.dirname === extPath);
+
+                    let metadata: T = this.all[metadataIndex],
+                        previousId;
+
+                    const newMetadata = metadata === undefined;
+
+                    if (!newMetadata && changeIsMetadata) {
+                        previousId = metadata.id;
+                        this.all.splice(metadataIndex, 1);
+                    }
                     // Require the metadata file.
-                    if (metadata === undefined) {
-                        metadata = require(metadataPath);
+                    if (newMetadata || changeIsMetadata) {
+                        metadata = await fsPromises.readFile(metadataPath, "utf8").then(JSON.parse);
                         metadata.dirname = extPath;
+                        this.idsToMetadata[metadata.id] = metadata;
                     }
 
                     // Add Readme, etc.
                     addToMetadata(metadata, extPath);
 
+                    const hasBeenLoaded = Boolean(loaded[extName]);
+
                     await this.onFileChange(metadata)
                         // Mark it as loaded
                         .then(
                             () => this.all.push((loaded[extName] = metadata)),
-                            e => console.error("Error in extension by ID '", metadata.id, "':\n", e)
+                            e => console.error(`Error in extension by ID '${metadata.id}':\n`, e)
                         )
                         // Call the renderer callback
-                        .then(() => this.watchCallback(metadata, loaded[extName]))
+                        .then(() => this.watchCallback(metadata, hasBeenLoaded, previousId))
                         .finally(() => {
                             // Ensure this is the last extension and that we haven't already tripped the event
                             if (available == Object.keys(loaded).length && !this.allInit) {
                                 this.allInit = true;
-                                this.idsToMetadata =
-                                    // [ { x: {...} }, { y: {...} } ]
-                                    this.all
-                                        .map(s => ({ [s.id]: s }))
-                                        // { x: {...}, y: {...} }
-                                        .reduce((x, y) => Object.assign(x, y));
 
                                 this.watchDoneCallback(this.all);
                             }
@@ -197,9 +211,7 @@ function addToMetadata<T extends AnyExtension>(extension: T, dirname: string) {
     });
     // Make sure author is an ID
     if (extension.author && (typeof extension.author !== "string" || extension.author.length !== 8)) {
-        console.warn(
-            "Author must be an identifier of the user in Guilded, not their name or anything else"
-        );
+        console.warn("Author must be an identifier of the user in Guilded, not their name or anything else");
         // To not cause errors and stuff
         extension.author = undefined;
     }
