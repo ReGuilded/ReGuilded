@@ -10,9 +10,9 @@ import ThemeView from "./components/extensions/ThemeView";
 export default class SettingsInjector {
     id = "SettingsInjector";
 
-    init() {
+    async init() {
         // Patch the settings renderer
-        patchElementRenderer(".SettingsMenu-container", this.id, "before", this.renderSettings.bind(this))
+        await patchElementRenderer(".SettingsMenu-container", this.id, "before", this.renderSettings.bind(this))
             // Then run this awful nightmare, since forceUpdate doesn't work
             .then(this.forceUpdateOverlay)
             // If an oopsies happens, notify us

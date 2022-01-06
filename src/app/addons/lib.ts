@@ -9,13 +9,11 @@ import patcher from "./patcher";
 export function waitForElement(selector: string): Promise<Element | Node> {
     return new Promise(resolve => {
         const node = document.querySelector(selector);
-        if (node)
-            return node;
+        if (node) return node;
 
         const observer = new MutationObserver(() => {
             const node = document.querySelector(selector);
-            if (!node)
-                return;
+            if (!node) return;
 
             observer.disconnect();
             resolve(node);
@@ -33,18 +31,16 @@ export function patchElementRenderer(
     patchType: "before" | "after" | "instead",
     callback: (thisObject: any, methodArguments: IArguments, returnValue: any) => any
 ): Promise<[Node, React.Component]> {
-
     return new Promise(async resolve => {
         const node = await waitForElement(selector);
+
         const instance: React.Component | void = getOwnerInstance(node);
-        if (instance)
-        {   
-            for (const component of [instance.constructor.prototype, instance])
-            {
+        if (instance) {
+            for (const component of [instance.constructor.prototype, instance]) {
                 patcher[patchType](id, component, "render", callback);
             }
-            
             instance.forceUpdate();
+
             resolve([node, instance]);
         }
     });
@@ -54,21 +50,17 @@ export function patchElementRenderer(
  * @param element The element to get owner instance of.
  */
 export function getOwnerInstance(element: Element | Node): React.Component | void {
-    if (!element)
-        return null;
-    
+    if (!element) return null;
+
     let reactInstance = element[Object.keys(element).find(key => ~key.indexOf("__reactInternalInstance"))];
-    if (!reactInstance)
-        return;
-    
+    if (!reactInstance) return;
+
     let depth = 0;
     while (reactInstance && depth < 1000) {
         reactInstance = reactInstance?.return;
-        if (!reactInstance)
-            break;
-        
-        if (reactInstance.stateNode?.isReactComponent)
-            return reactInstance.stateNode;
+        if (!reactInstance) break;
+
+        if (reactInstance.stateNode?.isReactComponent) return reactInstance.stateNode;
         depth++;
     }
 }

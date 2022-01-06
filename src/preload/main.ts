@@ -1,10 +1,11 @@
 import { ReGuildedSettings, ReGuildedSettingsUpdate } from "../common/reguilded-settings";
 import { contextBridge, ipcRenderer, shell, webFrame } from "electron";
+import { readFileSync, promises as fsPromises } from "fs";
 import getSettingsFile from "./get-settings";
 import AddonManager from "./addon-manager";
 import ThemeManager from "./theme-manager";
 import SettingsManager from "./settings";
-import { readFileSync } from "fs";
+import createSystem from "./fake-system";
 import { join } from "path";
 
 const settingsPath = join(__dirname, "./settings");
@@ -23,7 +24,9 @@ addonManager.watch();
             isFirstLaunch: window.isFirstLaunch,
             // TODO: Make fake System js and add that to Rollup
             demandSettings() {
-                webFrame.executeJavaScript(`(function(require){${readFileSync(join(__dirname, "reguilded.settings.js"), "utf8")}})(()=>{})`);
+                webFrame.executeJavaScript(
+                    `(function(require){${readFileSync(join(__dirname, "reguilded.settings.js"), "utf8")}})(()=>{})`
+                );
             },
             // Settings manager communication
             settings: {
@@ -51,11 +54,40 @@ addonManager.watch();
     };
 
     await reGuildedConfigAndSettings()
-        .then(() => {
+        .then(async () => {
             const preload = ipcRenderer.sendSync("REGUILDED_GET_PRELOAD");
             if (preload) import(preload);
+
             // Load renderer into Guilded
-            webFrame.executeJavaScript(`${readFileSync(join(__dirname, "reguilded.main.js"))}`);
+            // Have to fake the importing and stuff
+            const mainExports = {};
+            const mainSys = createSystem(
+                {
+                    "./reguilded.settings.js": () =>
+                        new Promise(async (resolve, reject) => {
+                            const settingsExports = {};
+                            const settingsSys = createSystem({}, { "./reguilded.main.js": mainExports }, settingsExports);
+
+                            await fsPromises
+                                .readFile(join(__dirname, "reguilded.settings.js"), "utf8")
+                                .then(file => webFrame.executeJavaScript(`(System => {${file}})`))
+                                .then(fn => fn(settingsSys))
+                                .then(() => resolve(settingsExports))
+                                .catch(rejection => reject(rejection));
+                        })
+                },
+                {},
+                mainExports
+            );
+
+            await fsPromises
+                .readFile(join(__dirname, "reguilded.main.js"), "utf8")
+                .then(file => webFrame.executeJavaScript(`(System => {${file}})`))
+                .then(fn => fn(mainSys))
+                .catch(rejection => {
+                    throw rejection;
+                });
+            //webFrame.executeJavaScript(`${readFileSync(join(__dirname, "reguilded.main.js"))}`);
         })
         .catch(console.error);
 })();

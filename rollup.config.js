@@ -131,7 +131,7 @@ const config = [
         preserveEntrySignatures: false,
         output: {
             dir: modPath,
-            format: "iife",
+            format: "system",
             name: "reguilded",
             globals: globalModules,
             entryFileNames: "reguilded.main.js",

@@ -12,9 +12,7 @@ export default async function addonPreInit(addonApi) {
         console.error("ReGuilded Addon SDK", "Failed to disable sentries!", e);
     }
 
-    // await import("../core/settings/settings")
-    //     .then(({ default: SettingsInjector}) => {
-    //         window.settingsInjector = new SettingsInjector();
-    //         window.settingsInjector.init();
-    //     });
+    await import("../core/settings/settings").then(
+        async ({ default: SettingsInjector }) => await (window.settingsInjector = new SettingsInjector()).init()
+    );
 }
