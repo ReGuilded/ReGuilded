@@ -30,15 +30,11 @@ export interface RGExtensionConfig<T extends AnyExtension> {
     getHasLoaded(): boolean;
     delete(extensionId: string): Promise<void>;
     setLoadCallback(callback: (all: T[]) => void): void;
-    setWatchCallback(callback: (extension: T, loaded: boolean) => void): void;
+    setWatchCallback(callback: (extension: T, loaded: boolean, previousId: string) => void): void;
     setDeletionCallback(callback: (extension: T) => void): void;
 }
 export interface RGThemeConfig extends RGExtensionConfig<Theme> {
-    getAllCss(): { [themeId: string]: string[] };
-    setThemeSettings(
-        themeId: string,
-        settings: { [settingsProp: string]: string | number | boolean | undefined }
-    ): void;
+    setThemeSettings(themeId: string, settings: { [settingsProp: string]: string | number | boolean | undefined }): void;
 }
 export interface RGAddonConfig extends RGExtensionConfig<Addon> {}
 

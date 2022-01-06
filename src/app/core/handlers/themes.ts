@@ -8,18 +8,10 @@ import SettingsHandler from "./settings.js";
  * Manager that manages ReGuilded's themes
  */
 export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig> {
-    static allowedSettingsTypes = [
-        undefined,
-        null,
-        "url",
-        "size",
-        "color",
-        "number",
-        "percent"
-    ];
+    static allowedSettingsTypes = [undefined, null, "url", "size", "color", "number", "percent"];
     static allowedSettingsValues = ["string", "boolean", "number", "undefined"];
     megaGroup?: Element;
-    idsToCss: { [extensionId: string]: string[] };
+    //idsToCss: { [extensionId: string]: string[] };
     /**
      * Manager that manages ReGuilded's themes
      * @param themesDir The directory of the ReGuilded themes
@@ -27,14 +19,8 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
      * @param settingsHandler The extension settings handler
      * @param config The preload config for themes
      */
-    constructor(
-        settings: ReGuildedExtensionSettings,
-        settingsHandler: SettingsHandler,
-        config: RGThemeConfig
-    ) {
+    constructor(settings: ReGuildedExtensionSettings, settingsHandler: SettingsHandler, config: RGThemeConfig) {
         super(settings, settingsHandler, config);
-
-        this.idsToCss = {};
     }
     /**
      * Initiates themes for ReGuilded and theme manager.
@@ -54,50 +40,29 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
         );
         document.body.appendChild(this.megaGroup);
 
-        this.all = [];
-
         this.config.setWatchCallback(this._watchCallback.bind(this));
-        this.config.setLoadCallback(this._watchDoneCallback.bind(this));
     }
-    private _watchCallback(metadata: Theme, loaded: boolean): void {
-        // If the theme is already loaded, unload it
-        loaded && this.unload(metadata);
-        // If the theme is in the list of all themes, remove it
-        if (~this.all.indexOf(metadata)) {
-            this.all.splice(this.all.indexOf(metadata, 1));
-            // FIXME: This will always just assign idsToCss as {}, rendering it useless
-            this.idsToCss = this.config.getAllCss();
-        }
+    private _watchCallback(metadata: Theme, loaded: boolean, previousId: string): void {
+        // Since we already have it loaded, we need to update it and unload
+        if (loaded && ~this.enabled.indexOf(previousId)) this.unloadWithId(previousId);
+        // Update its metadata
+        const inAll = this.all.findIndex(other => other.dirname === metadata.dirname);
+        if (~inAll) this.all.splice(inAll, 1);
 
-        const propFiles =
-            typeof metadata.files === "string" ? [metadata.files] : metadata.files;
+        const propFiles = typeof metadata.files === "string" ? [metadata.files] : metadata.files;
         metadata.files = propFiles;
 
         // Since we turned string into single-item array,
         // we don't need to check for both types
         if (!Array.isArray(propFiles))
             return console.error(
-                new TypeError(
-                    `Expected property 'files' to be either a string or an array. In path: ${metadata.dirname}`
-                )
+                new TypeError(`Expected property 'files' to be either a string or an array. In path: ${metadata.dirname}`)
             );
 
-        // If Enabled; Load the theme and add it to loaded dictionary
-        if (this.enabled.includes(metadata.id)) this.load(metadata);
+        // Since we already unloaded it or haven't loaded it at all
+        if (~this.enabled.indexOf(metadata.id)) this.load(metadata);
 
-        // Add theme to all array.
         this.all.push(metadata);
-    }
-    private _watchDoneCallback(): void {
-        this.idsToCss = this.config.getAllCss();
-
-        // FIXME: Have to load all the CSS and theme settings after the watch is done, instead of
-        // when the watch callback is called
-        for (let themeId of this.enabled)
-            this.addStyleSheets(
-                this.all.find(x => x.id === themeId),
-                this.idsToCss[themeId]
-            );
     }
     /**
      * Loads a ReGuilded theme
@@ -106,13 +71,9 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
     load(metadata: Theme) {
         console.log(`Loading theme by ID '${metadata.id}'`);
 
-        const cssList = this.idsToCss[metadata.id];
-
-        // FIXME: CssList is always empty
-        // Add all CSS files to the group
-        if (cssList) this.addStyleSheets(metadata, cssList);
+        this.addStyleSheets(metadata);
     }
-    addStyleSheets(metadata: Theme, cssList: string[]) {
+    addStyleSheets(metadata: Theme) {
         // Creates a new style group element for that theme
         const group = Object.assign(document.createElement("datagroup"), {
             id: `reGl-theme-${metadata.id}`,
@@ -121,7 +82,7 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
 
         this.checkAndDoSettings(metadata, group);
 
-        for (let css of cssList)
+        for (let css of metadata.css)
             group.appendChild(
                 Object.assign(document.createElement("style"), {
                     classList: "reGl-css-theme",
@@ -144,12 +105,7 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
         for (let propId of metadata.settingsProps) {
             // Validate ID
             if (!propId.match(ExtensionHandler.idRegex))
-                return console.warn(
-                    "Incorrect syntax for property",
-                    propId,
-                    ". Theme ID:",
-                    metadata.id
-                );
+                return console.warn("Incorrect syntax for property", propId, ". Theme ID:", metadata.id);
 
             const prop = metadata.settings[propId];
             if (typeof prop !== "object")
@@ -164,23 +120,13 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
 
             // Validate property's type (not JS type)
             if (!~ThemeHandler.allowedSettingsTypes.indexOf(prop.type)) {
-                console.warn(
-                    "Unknown settings property type",
-                    prop.type,
-                    "in theme",
-                    metadata.id
-                );
+                console.warn("Unknown settings property type", prop.type, "in theme", metadata.id);
                 prop.type = undefined;
             }
             // Check value's type
             const valueType = typeof prop.value;
             if (!~ThemeHandler.allowedSettingsValues.indexOf(valueType)) {
-                console.warn(
-                    "Unknown settings property value type",
-                    valueType,
-                    "in theme",
-                    metadata.id
-                );
+                console.warn("Unknown settings property value type", valueType, "in theme", metadata.id);
                 prop.value = prop.value.toString();
             }
         }
@@ -194,9 +140,7 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
                         // If it's of type url, wrap it in url(...)
                         // --id:value
                         // --id:url(value)
-                        return `--${id}:${
-                            prop.type === "url" ? `url(${prop.value})` : prop.value
-                        }`;
+                        return `--${id}:${prop.type === "url" ? `url(${prop.value})` : prop.value}`;
                     })
                     .join(";")}}`
             })
@@ -216,9 +160,12 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
      * @param metadata ID of the theme to unload from Guilded.
      */
     unload(metadata: Theme) {
-        console.log(`Unloading theme by ID '${metadata.id}'`);
+        this.unloadWithId(metadata.id);
+    }
+    private unloadWithId(themeId: string) {
+        console.log(`Unloading theme by ID '${themeId}'`);
 
-        const themeElement = document.getElementById(`reGl-theme-${metadata.id}`);
+        const themeElement = document.getElementById(`reGl-theme-${themeId}`);
         themeElement && themeElement.remove();
     }
 

@@ -11,13 +11,7 @@ type AddonExports = {
     init?: Function;
 };
 
-// TODO: Checking
 export default class AddonManager extends ExtensionManager<Addon> {
-    /**
-     * The list of add-on IDs that were already initialized.
-     */
-    private initialized: string[];
-
     constructor(dirname: string) {
         super(dirname);
     }

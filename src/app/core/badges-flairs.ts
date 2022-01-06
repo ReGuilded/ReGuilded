@@ -1,15 +1,15 @@
 export type Badge = {
-    icon: string,
-    name: string,
-    tooltipText: string,
-    text: string,
+    icon: string;
+    name: string;
+    tooltipText: string;
+    text: string;
     style: {
-        backgroundColor: string
-    } & object
+        backgroundColor: string;
+    } & object;
 };
 export type Flair = {
-    flair: string,
-    amount: number
+    flair: string;
+    amount: number;
 };
 
 export const badges = {
@@ -18,16 +18,11 @@ export const badges = {
      * @param prototype UserModel class prototype
      * @param badgeFn The new getter for the UserModel class' `badges` getter
      */
-    injectBadgeGetter(
-        prototype: { get badges(): Badge[] | void },
-        badgeFn: () => Badge[] | void
-    ) {
-        console.log('Injecting getter')
+    injectBadgeGetter(prototype: { get badges(): Badge[] | void }, badgeFn: () => Badge[] | void) {
         // Defines new `badges` getter for User class
         Object.defineProperty(prototype, "badges", {
-            get: badgeFn,
+            get: badgeFn
         });
-        console.log('Injected')
     },
 
     /**
@@ -50,15 +45,12 @@ export const badges = {
 
             return (globalBadges || []).concat(reguildedBadges);
         }
-}
+};
 
 export const flairs = {
-    injectFlairGetter(
-        prototype,
-        flairFn
-    ) {
+    injectFlairGetter(prototype, flairFn) {
         Object.defineProperty(prototype, "flairInfos", {
-            get: flairFn,
+            get: flairFn
         });
     },
 
@@ -79,7 +71,7 @@ export const flairs = {
 
             return (globalFlairs || []).concat(reguildedFlairs);
         }
-}
+};
 
 /**
  * Badges/Flairs that are visible on ReGuilded client.
@@ -96,18 +88,24 @@ export const all = {
         style: {
             backgroundColor: "#10171F",
             color: "#CC5555"
-        },
+        }
     },
     contrib: {
         // Sets the icon of the flair
-        iconSrcFn: function() { return "https://raw.githubusercontent.com/ReGuilded/ReGuilded/main/logo/ReGuilded_Red.svg" },
+        iconSrcFn: function () {
+            return "https://raw.githubusercontent.com/ReGuilded/ReGuilded/main/logo/ReGuilded_Red.svg";
+        },
         // Sets the stack amount of the flair
-        stackCountFn: function() { return 1 },
+        stackCountFn: function () {
+            return 1;
+        },
         // Sets the title for the Flair.
-        titleFn: function() { return "ReGuilded Contributor"},
+        titleFn: function () {
+            return "ReGuilded Contributor";
+        },
         // Sets the name of the flair
-        name: "ReGuilded Contributor",
-    },
+        name: "ReGuilded Contributor"
+    }
 };
 
 /**

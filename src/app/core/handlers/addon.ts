@@ -30,8 +30,6 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
      */
     init(addonApi: AddonApi) {
         console.log("Initiating addon manager");
-        // Initialize these here instead of getDirs()
-        this.all = [];
         // Try-catch; this should never throw errors
         try {
             // Initialize these
@@ -46,19 +44,33 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
         // If the addon is already loaded, unload it
         AddonHandler._functionExists(metadata, "unload") && loaded && this.unload(metadata);
         // If the addon is in the list of all loaded addons, remove it
-        if (~this.all.indexOf(metadata)) this.all.splice(this.all.indexOf(metadata), 1);
+        if (~this.all.findIndex(other => other.dirname === metadata.dirname))
+            this.all.splice(this.all.indexOf(metadata), 1);
 
         this.all.push(metadata);
         // Load the addon if enabled.
         isEnabled && this.load(metadata);
     }
+    /**
+     * Returns whether the exported function exists. If the export isn't a function or undefined, it returns a warning.
+     * @param addon The add-on to check export function of
+     * @param name The exported function to check
+     * @returns Function exists
+     */
     private static _functionExists(addon: Addon, name: string): boolean {
         if (typeof addon.exports[name] === "function") return true;
         // It doesn't exist, but it's also valid
-        else if (typeof addon.exports[name] === "undefined") return false;
-        // It's invalid
-        else {
-            console.warn("Add-on by ID '", addon.id, "' has invalid export '", name, "': must be a function or undefined.");
+        else if (typeof addon.exports[name] === "undefined") {
+            const { default: def } = addon.exports;
+            const defType = typeof def;
+
+            if ((defType === "function" || defType === "object") && typeof def[name] === "function") {
+                addon.exports[name] = def[name];
+                return true;
+            } else return false;
+        } else {
+            // It's invalid
+            console.warn("Add-on by ID '%s' has invalid export '%s': must be a function or undefined.", addon.id, name);
             addon.exports[name] = undefined;
 
             return false;
@@ -72,7 +84,7 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
     load(metadata: Addon): void {
         // Try-catch errors to prevent conflicts with other plugins
         try {
-            console.log(`Loading addon by ID`, metadata.id);
+            console.log(`Loading addon by ID '${metadata.id}'`);
             // Check if it's first time loading
             if (!~this.initialized.indexOf(metadata.id) && AddonHandler._functionExists(metadata, "init")) {
                 metadata.exports.init();
@@ -81,7 +93,7 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
 
             metadata.exports.load();
         } catch (e) {
-            console.error("Failed to load addon by ID", metadata.id, e);
+            console.error(`Failed to load addon by ID '${metadata.id}':\n`, e);
         }
     }
 
@@ -90,12 +102,11 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
      * @param metadata addon to load onto Guilded
      */
     unload(metadata: Addon) {
-        // TODO: Add-on support
         try {
-            console.log("Unloading addon by ID", metadata.id);
+            console.log(`Unloading addon by ID '${metadata.id}''`);
             metadata.exports.unload(this, this.webpack);
         } catch (e) {
-            console.error("Failed to unload an addon by ID", metadata.id, e);
+            console.error(`Failed to unload an addon by ID '${metadata.id}':\n`, e);
         }
     }
 }

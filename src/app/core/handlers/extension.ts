@@ -7,7 +7,6 @@ import SettingsHandler from "./settings";
  * Manages different components of ReGuilded to allow them to be extended.
  */
 export default abstract class ExtensionHandler<T extends AnyExtension, C extends RGExtensionConfig<T>> {
-    static allowedReadmeName: string = "readme.md";
     /**
      * A Regex pattern for determining whether given extension's ID is correct.
      */
@@ -26,10 +25,26 @@ export default abstract class ExtensionHandler<T extends AnyExtension, C extends
      * @param config The preload configuration of the extensions
      */
     constructor(settings: ReGuildedExtensionSettings, settingsHandler: SettingsHandler, config: C) {
+        this.all = [];
         this.config = config;
         this.allLoaded = false;
         this.settings = settings;
         this.settingsHandler = settingsHandler;
+
+        this.config.setDeletionCallback(this.deleteCallback.bind(this));
+    }
+    /**
+     * Cleans up the extension after it has been deleted.
+     * @param metadata The extension being deleted
+     */
+    protected deleteCallback(metadata: T) {
+        // To not keep CSS or anything add-on injected
+        if (~this.enabled.indexOf(metadata.id)) this.unload(metadata);
+
+        this.all.splice(
+            this.all.findIndex(other => other.id === metadata.id),
+            1
+        );
     }
     /**
      * Gets identifiers of all the enabled extensions.
@@ -68,7 +83,8 @@ export default abstract class ExtensionHandler<T extends AnyExtension, C extends
      * @returns Checks identifier's syntax
      */
     static checkId(id: any, path: string): void {
-        if (!(typeof id === "string" && id.match(ExtensionHandler.idRegex))) throw new Error(`Incorrect syntax of the property 'id'. Path: ${path}`);
+        if (!(typeof id === "string" && id.match(ExtensionHandler.idRegex)))
+            throw new Error(`Incorrect syntax of the property 'id'. Path: ${path}`);
     }
 
     /**
@@ -117,6 +133,8 @@ export default abstract class ExtensionHandler<T extends AnyExtension, C extends
      */
     static checkProperty(name: string, value: any, types: [string | Function], path: string) {
         if (types.includes(typeof value) && types.some(x => x instanceof Function && value instanceof x))
-            throw new TypeError(`Expected '${name}' to be [${types.join(", ")}], found ${typeof value} instead in ${path}`);
+            throw new TypeError(
+                `Expected '${name}' to be [${types.join(", ")}], found ${typeof value} instead in ${path}`
+            );
     }
 }

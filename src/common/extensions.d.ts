@@ -12,6 +12,10 @@ export declare interface Extension<T extends string | string[]> {
 }
 export declare interface Theme extends Extension<string[]> {
     /**
+     * The list of CSS content of this theme.
+     */
+    css: string[];
+    /**
      * The settings of the theme.
      */
     settings: {

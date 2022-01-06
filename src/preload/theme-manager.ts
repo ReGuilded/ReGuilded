@@ -5,30 +5,22 @@ import { Theme } from "../common/extensions";
 
 // TODO: Checking
 export default class ThemeManager extends ExtensionManager<Theme> {
-    themeIdToCssList: { [extensionId: string]: string[] };
     constructor(dirname: string) {
         super(dirname);
 
-        this.themeIdToCssList = {};
-
-        this.exportable.getAllCss = this.getAllCss.bind(this);
         this.exportable.setThemeSettings = this.setThemeSettings.bind(this);
-    }
-    getAllCss() {
-        return this.themeIdToCssList;
     }
     /**
      * Sets the new theme settings value properties.
      * @param themeId The name of the theme
      * @param props The settings property values
      */
-    setThemeSettings(
-        themeId: string,
-        props: { [settingsProp: string]: string | number | boolean | undefined }
-    ) {
+    setThemeSettings(themeId: string, props: { [settingsProp: string]: string | number | boolean | undefined }) {
         const metadata = this.idsToMetadata[themeId];
 
         if (!metadata) throw new Error(`Theme by ID '${themeId}' does not exist.`);
+
+        if (typeof props !== "object") throw new TypeError("Expected 'setThemeSettings' second argument to be object.");
 
         for (let prop in props) metadata.settings[prop].value = props[prop];
 
@@ -51,7 +43,7 @@ export default class ThemeManager extends ExtensionManager<Theme> {
                 .then(d => styleSheets.push(d))
                 .catch(e => console.error("Error in '", metadata.id, "' related to CSS files:", e));
 
-        this.themeIdToCssList[metadata.id] = styleSheets;
+        metadata.css = styleSheets;
 
         readFile(join(metadata.dirname, "settings.json"), "utf8", (e, d) => {
             if (e)
@@ -62,11 +54,7 @@ export default class ThemeManager extends ExtensionManager<Theme> {
 
             // Validate settings
             if (typeof settings !== "object")
-                console.error(
-                    "Expected theme by ID '",
-                    metadata.id,
-                    "' to have object at the root of settings.json."
-                );
+                console.error("Expected theme by ID '", metadata.id, "' to have object at the root of settings.json.");
 
             metadata.settingsProps = Object.keys((metadata.settings = settings));
         });
