@@ -46,7 +46,7 @@ export default abstract class ExtensionItem<P extends AnyExtension, S = {}> exte
     }
     protected abstract onToggle(enabled: boolean): Promise<void>;
     async componentWillMount() {
-        if (this.props.author) {
+        if (this.props.author && window.ReGuilded.settingsHandler.settings.loadAuthors) {
             await restMethods.getUserById(this.props.author)
                 .then(userInfo => this.setState({author: userInfo.user}))
                 .catch(() => {});
@@ -88,7 +88,7 @@ export default abstract class ExtensionItem<P extends AnyExtension, S = {}> exte
                                 </div>
                                 {this.state.author
                                     ? <div><br/><UserBasicInfo size="sm" user={new UserModel(this.state.author)}/></div>
-                                    : <div className="DocSummaryInfo-subtitle">Unknown Author</div>
+                                    : <div className="DocSummaryInfo-subtitle">{this.props.author ? "By user " + this.props.author : "Unknown author"}</div>
                                 }
                             </div>
                             {/* Overflow */}

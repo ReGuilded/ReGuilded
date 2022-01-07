@@ -31,7 +31,7 @@ export default class GeneralSettings extends React.Component {
             // Since we need to convert form values to proper values
             // (E.g., radios always returning { optionName: "xyz" } instead of "xyz")
             const configValues = { loadAuthors: loadAuthors, badge: Badge[badge] }
-            return window.ReGuildedConfig.settings.updateSettings(configValues);
+            return window.ReGuilded.settingsHandler.updateSettings(configValues);
         } else throw new Error("Invalid settings form values");
     }
     render() {
@@ -61,7 +61,7 @@ export default class GeneralSettings extends React.Component {
                                     isOptional: false,
 
                                     label: "Badge handling",
-                                    description: "This determines how to handle ReGuilded maintainer and other badges.",
+                                    description: "(DOESN'T WORK YET) This determines how to handle ReGuilded maintainer and other badges.",
                                     isDescriptionAboveField: true,
 
                                     layout: "vertical",
