@@ -22,12 +22,6 @@ addonManager.watch();
         // Allow reconfiguration of settings
         contextBridge.exposeInMainWorld("ReGuildedConfig", {
             isFirstLaunch: window.isFirstLaunch,
-            // TODO: Make fake System js and add that to Rollup
-            demandSettings() {
-                webFrame.executeJavaScript(
-                    `(function(require){${readFileSync(join(__dirname, "reguilded.settings.js"), "utf8")}})(()=>{})`
-                );
-            },
             // Settings manager communication
             settings: {
                 getSettings(): ReGuildedSettings {
@@ -87,7 +81,6 @@ addonManager.watch();
                 .catch(rejection => {
                     throw rejection;
                 });
-            //webFrame.executeJavaScript(`${readFileSync(join(__dirname, "reguilded.main.js"))}`);
         })
         .catch(console.error);
 })();
