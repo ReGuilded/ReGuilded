@@ -12,9 +12,6 @@ const settingsPath = join(__dirname, "./settings");
 const addonManager = new AddonManager(join(settingsPath, "addons")),
     themeManager = new ThemeManager(join(settingsPath, "themes"));
 
-themeManager.watch();
-addonManager.watch();
-
 (async () => {
     const reGuildedConfigAndSettings = async () => {
         const settingsManager = new SettingsManager(settingsPath, await getSettingsFile(settingsPath));
@@ -48,6 +45,7 @@ addonManager.watch();
     };
 
     await reGuildedConfigAndSettings()
+        .then(() => (themeManager.watch(), addonManager.watch()))
         .then(async () => {
             const preload = ipcRenderer.sendSync("REGUILDED_GET_PRELOAD");
             if (preload) import(preload);

@@ -13,13 +13,7 @@ export default function getSettingsFile(settingsPath: string) {
         fsPromises
             .access(settingsPath)
             // Settings were found, just read the file
-            .then(() =>
-                resolve(
-                    JSON.parse(
-                        readFileSync(join(settingsPath, "settings.json"), { encoding: "utf8" })
-                    )
-                )
-            )
+            .then(() => resolve(JSON.parse(readFileSync(join(settingsPath, "settings.json"), { encoding: "utf8" }))))
             // Settings doesn't exist, create them and give default settings
             .catch(e => {
                 // Reject if file exists, but it's other error
@@ -33,11 +27,7 @@ export default function getSettingsFile(settingsPath: string) {
                     const settingsJson = JSON.stringify(defaultSettings, null, 4);
 
                     await Promise.all([
-                        fsPromises.writeFile(
-                            join(settingsPath, "settings.json"),
-                            settingsJson,
-                            { encoding: "utf-8" }
-                        ),
+                        fsPromises.writeFile(join(settingsPath, "settings.json"), settingsJson, { encoding: "utf-8" }),
                         fsPromises.mkdir(join(settingsPath, "themes")),
                         fsPromises.mkdir(join(settingsPath, "addons"))
                     ]).then(() => resolve(defaultSettings));
