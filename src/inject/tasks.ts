@@ -7,21 +7,38 @@ import { fileURLToPath } from "url";
 import { copy } from "fs-extra";
 import platform from "./util/platform";
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-function rootPerms(path, command) {
+/**
+ * Executes a given command in root permissions.
+ * @param elevator The command that will be used for elavation `sudo` or `doas`
+ * @param command The command to execute in root permissions
+ */
+function rootPerms(command: string[], elevator: string) {
     console.warn(`ReGuilded Linux requires root permissions to create, modify or delete '${platform.resourcesDir}'`);
-    // FIXME Won't work for non-sudo users
-    spawnSync("sudo", command, { stdio: "inherit" });
+
+    try {
+        spawnSync(elevator, command, { stdio: "inherit" });
+    } catch (e) {
+        console.error("Error while prompting root command.");
+
+        if (elevator === "sudo")
+            console.log(
+                "Sudo usage detected. Was it meant to be `doas`? If so, pass the `--doas` or `--elevator command_name` flag."
+            );
+
+        throw e;
+    }
     process.exit(0);
 }
 
 /**
  * Injects ReGuilded into Guilded.
- * @param {{appDir: String}} platformModule Module correlating to User's Platform, used for directories and commands.
- * @param {String} reguildedDir Path to ReGuilded's configuration directory
+ * @param platformModule Module correlating to User's Platform, used for directories and commands.
+ * @param reguildedDir Path to ReGuilded's configuration directory
+ * @param elevator Elevation command on Linux
  */
-export function inject(platformModule, reguildedDir) {
+export function inject(platformModule: { appDir: string; resourcesDir: string }, reguildedDir: string, elevator: string) {
     return new Promise<void>((resolve, reject) => {
         // If there is no injection present, inject
         if (!existsSync(platformModule.appDir)) {
@@ -32,35 +49,48 @@ export function inject(platformModule, reguildedDir) {
 
                 // If this is on Linux and not on root, execute full injection with root perms
                 if (process.platform === "linux" && process.getuid() !== 0)
-                    rootPerms(platformModule, ["node", join(__dirname, "injector.linux-util.js"), "-d", reguildedDir, "-t", "inject"]);
-                else injection(platformModule, reguildedDir).then(resolve).catch((err) => {
-                    // If there was an error, try uninjecting ReGuilded
-                    console.log("There was an error, reverting process more details will follow shortly...");
+                    rootPerms(
+                        ["node", join(__dirname, "injector.linux-util.js"), "-d", reguildedDir, "-t", "inject"],
+                        elevator
+                    );
+                else
+                    injection(platformModule, reguildedDir)
+                        .then(resolve)
+                        .catch(err => {
+                            // If there was an error, try uninjecting ReGuilded
+                            console.log("There was an error, reverting process more details will follow shortly...");
 
-                    if (existsSync(platformModule.appDir))
-                        uninject(platformModule, reguildedDir).catch(reject);
+                            if (existsSync(platformModule.appDir))
+                                uninject(platformModule, reguildedDir, elevator).catch(reject);
 
-                    reject(err);
-                });
+                            reject(err);
+                        });
             });
         } else reject("There is already an injection.");
-    })
+    });
 }
 
 /**
  * Removes any injections present in Guilded.
- * @param {{appDir: String}} platformModule Module correlating to User's Platform, used for directories and commands.
- * @param {String} reguildedDir Path to ReGuilded's configuration directory
+ * @param platformModule Module correlating to User's Platform, used for directories and commands.
+ * @param reguildedDir Path to ReGuilded's configuration directory
+ * @param elevator Elevation command on Linux
  */
-export async function uninject(platformModule, reguildedDir) {
+export async function uninject(
+    platformModule: { appDir: string; resourcesDir: string },
+    reguildedDir: string,
+    elevator: string
+) {
     return new Promise<void>((resolve, reject) => {
         // If there is an injection, then remove the injection
         if (existsSync(platformModule.appDir)) {
             // If this is on Linux, do it in sudo perms
             if (process.platform === "linux" && process.getuid() !== 0)
-                rootPerms(platformModule, ["node", join(__dirname, "injector.linux-util.js"), "-d", reguildedDir, "-t", "uninject"]);
+                rootPerms(
+                    ["node", join(__dirname, "injector.linux-util.js"), "-d", reguildedDir, "-t", "uninject"],
+                    elevator
+                );
             else uninjection(platformModule, reguildedDir).then(resolve).catch(reject);
         } else reject("There is no injection.");
     });
-
 }
