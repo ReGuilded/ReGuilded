@@ -6,7 +6,7 @@ export default function ipcInit() {
     electron.ipcMain.on("REGUILDED_GET_PRELOAD", e => (e.returnValue = e.sender.reguildedPreload));
     electron.ipcMain.handle("OPEN_EXTENSION_DIALOG", async (_, type) => {
         return await electron.dialog
-            .showOpenDialog(null, {
+            .showOpenDialog(electron.BrowserWindow.getFocusedWindow(), {
                 title: `Import ${type}`,
                 buttonLabel: "Import",
                 properties: ["openDirectory", "multiSelections"]

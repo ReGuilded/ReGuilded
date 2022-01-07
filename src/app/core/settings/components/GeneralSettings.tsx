@@ -1,6 +1,7 @@
-﻿import ErrorBoundary from "./ErrorBoundary";
+﻿import reGuildedInfo from "../../../../common/reguilded.json";
+import ErrorBoundary from "./ErrorBoundary";
 
-const { Form, React, SavableSettings, functionUtil: { coroutine } } = window.ReGuildedApi;
+const { Form, React, SavableSettings, functionUtil: { coroutine }, OverlayProvider } = window.ReGuildedApi;
 
 enum Badge {
     None = 0,
@@ -11,21 +12,30 @@ type GeneralSettingsValues = {
     loadAuthors: boolean,
     badge: { optionName: string }
 }
+const FakeUpdateJson = {
+    DownloadZip: "https://github.com/ReGuilded/ReGuilded/archive/refs/tags/v0.0.3-alpha.zip",
+    Sha256Zip: "",
+
+};
 
 @SavableSettings
+@OverlayProvider(["SimpleConfirmationOverlay"])
 export default class GeneralSettings extends React.Component {
     // Number to name map for radio default value
     static badgeNames = ["None", "Flair", "Badge"];
 
-    SaveChanges: (...args: object[]) => any;
-    // Defined by SavableSettings
-    _handleOptionsChange: () => void;
+    private SaveChanges: (...args: object[]) => any;
+    private Update: () => Promise<void>;
+    // Defined by SavableSettings & OverlayProvider
+    protected _handleOptionsChange: () => void;
+    protected SimpleConfirmationOverlay: { Open: (settings: any) => Promise<{ confirmed: boolean}> };
 
     constructor(props, context) {
         super(props, context);
         this.SaveChanges = coroutine(this.onSaveChanges);
+        this.Update = this.onUpdate.bind(this);
     }
-    *onSaveChanges({ values, isValid }) {
+    private *onSaveChanges({ values, isValid }) {
         if(isValid) {
             const { loadAuthors, badge: { optionName: badge } }: GeneralSettingsValues = values;
             // Since we need to convert form values to proper values
@@ -33,6 +43,16 @@ export default class GeneralSettings extends React.Component {
             const configValues = { loadAuthors: loadAuthors, badge: Badge[badge] }
             return window.ReGuilded.settingsHandler.updateSettings(configValues);
         } else throw new Error("Invalid settings form values");
+    }
+    private async onUpdate() {
+        await window.ReGuildedConfig.doUpdateIfPossible((newVersion) =>
+            this.SimpleConfirmationOverlay.Open({
+                header: "Update ReGuilded",
+                text: `Version '${newVersion}' of ReGuilded has been found. Do you want to update to it?`,
+                confirmText: "Update",
+                confirmType: "success"
+            }).then(({ confirmed }) => confirmed)
+        ).catch(e => console.error("Error while trying to update", e));
     }
     render() {
         const { settings } = window.ReGuilded.settingsHandler;
@@ -91,6 +111,16 @@ export default class GeneralSettings extends React.Component {
                                         },
                                     ],
                                     defaultValue: { optionName: GeneralSettings.badgeNames[settings.badge] }
+                                }
+                            ]
+                        },
+                        {
+                            fieldSpecs: [
+                                {
+                                    type: "Button",
+                                    buttonText: "Check for updates",
+                                    description: `Current installed versison: ${reGuildedInfo.version}`,
+                                    onClick: this.Update
                                 }
                             ]
                         }

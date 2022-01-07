@@ -12,7 +12,7 @@ export default class AddonView extends ExtensionView<Addon> {
     override renderContent(addon: Addon) {
         return (
             <div className="ReGuildedExtensionPage-configuration">
-                <WordDividerLine word="Configuration" />
+                {/* <WordDividerLine word="Configuration" /> */}
             </div>
         );
     }

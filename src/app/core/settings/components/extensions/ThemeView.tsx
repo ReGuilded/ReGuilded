@@ -12,8 +12,9 @@ export default class ThemeView extends ExtensionView<Theme> {
     }
     override renderContent(theme: Theme) {
         return (
-            theme.settings && <div className="ReGuildedExtensionPage-configuration">
-                <WordDividerLine word="Configuration" wordStyle="chat" />
+            //theme.settings &&
+            <div className="ReGuildedExtensionPage-configuration">
+                {/* <WordDividerLine word="Configuration" wordStyle="chat" />
                 <Form formSpecs={{
                     header: "Settings",
                     sections: [
@@ -32,7 +33,7 @@ export default class ThemeView extends ExtensionView<Theme> {
                             ]
                         }
                     ]
-                }}/>
+                }}/> */}
             </div>
         );
     }

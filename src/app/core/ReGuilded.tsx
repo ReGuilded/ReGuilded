@@ -31,6 +31,12 @@ export default class ReGuilded {
      * @param webpackRequire A function that gets Guilded modules.
      */
     init(webpackRequire: WebpackRequire) {
+        // TODO
+        window.ReGuildedConfig.doUpdateIfPossible(async _ => {
+            console.log("Auto-updating ReGuilded");
+            return true;
+        });
+
         this.webpack = new WebpackHandler(webpackRequire);
         this.addonApi = new AddonApi(this.webpack, this.addons);
 

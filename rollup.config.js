@@ -19,6 +19,26 @@ const globalModules = {
     electron: 'require("electron")',
     child_process: 'require("child_process")'
 };
+/**
+ * NPM package dependency tree be like:
+ * "multiply"
+ * |-"add-numbers"
+ * | |-"two-plus-two"
+ * | | |-"number-two"
+ * | |   |-"numbers"
+ * | |-"chokidar"
+ * | |-"node-watch"
+ * |-"atom-editor"
+ * | |-"electron"
+ * |-"visual-studio-community"
+ *
+ * I love how Node community creates packages for something that is built into Node.js
+ * instead of... I don't know, fixing Node.js itself instead?
+ *
+ * I blame Node community for bloating ReGuilded.
+ *
+ * This goes to electron-dl and chokidar in particular
+ */
 const resolvableModules = [
     // ReGuilded used
     "fs",
@@ -31,12 +51,17 @@ const resolvableModules = [
     "tslib",
     "chokidar",
     "fs-extra",
+    "yauzl",
     // Dependencies of the dependecies
+    // Yauzl
+    "fd-slicer",
+    "pend",
+    "buffer-crc32",
     // fs-extra
     "universalify",
     "graceful-fs",
     "jsonfile",
-    // chokidar
+    // chokidar // Thank you for bloat, chokidar
     "readdirp",
     "anymatch",
     "glob-parent",
