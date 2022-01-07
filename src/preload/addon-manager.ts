@@ -13,7 +13,7 @@ type AddonExports = {
 
 export default class AddonManager extends ExtensionManager<Addon> {
     constructor(dirname: string) {
-        super(dirname);
+        super("add-on", dirname);
     }
     protected override onFileChange(addon: Addon) {
         // TODO: Unload & load add-on

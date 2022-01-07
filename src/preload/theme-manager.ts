@@ -6,7 +6,7 @@ import { Theme } from "../common/extensions";
 // TODO: Checking
 export default class ThemeManager extends ExtensionManager<Theme> {
     constructor(dirname: string) {
-        super(dirname);
+        super("theme", dirname);
 
         this.exportable.setThemeSettings = this.setThemeSettings.bind(this);
     }

@@ -1,6 +1,8 @@
-import { promises as fsPromises, existsSync, readdirSync, readdir, readFile } from "fs";
+import { promises as fsPromises, stat, readdirSync, readdir, readFile } from "fs";
 import { AnyExtension } from "../common/extensions";
 import { watch as chokidarWatch } from "chokidar";
+import { ipcRenderer } from "electron";
+import { copy } from "fs-extra";
 import path from "path";
 
 // TODO: Checking
@@ -41,13 +43,18 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
      * The properties that will be exported to context bridge.
      */
     exportable: { [prop: string]: any };
+    /**
+     * The type of extension it is (theme, add-on).
+     */
+    extensionType: string;
 
-    constructor(dirname: string) {
+    constructor(extensionType: string, dirname: string) {
         this.all = [];
         this.allIds = [];
         this.dirname = dirname;
         this.allInit = false;
         this.idsToMetadata = {};
+        this.extensionType = extensionType;
 
         let empty = () => {};
         this.onDeletion = empty;
@@ -73,6 +80,28 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
             },
             setDeletionCallback(callback: (extension: T) => void) {
                 self.onDeletion = callback;
+            },
+            async openImportPrompt() {
+                await ipcRenderer.invoke("OPEN_EXTENSION_DIALOG", self.extensionType).then(({ filePaths, canceled }) => {
+                    if (!canceled)
+                        // Copy only directories with metadata.json
+                        for (let importedDir of filePaths) {
+                            stat(path.join(importedDir, "metadata.json"), async (e, d) => {
+                                if (e)
+                                    if (e.code === "ENOENT")
+                                        return console.warn(
+                                            "Directory '%s' cannot be imported as an extension: it has no metadata.json file."
+                                        );
+                                    else return console.error("Error while importing extension:", e);
+
+                                await copy(importedDir, path.join(self.dirname, path.basename(importedDir)), {
+                                    overwrite: true,
+                                    recursive: true,
+                                    errorOnExist: false
+                                });
+                            });
+                        }
+                });
             }
         };
     }

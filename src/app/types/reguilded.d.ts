@@ -28,6 +28,7 @@ export interface RGExtensionConfig<T extends AnyExtension> {
     dirname: string;
     getAll(): T[];
     getHasLoaded(): boolean;
+    openImportPrompt(): Promise<void>;
     delete(extensionId: string): Promise<void>;
     setLoadCallback(callback: (all: T[]) => void): void;
     setWatchCallback(callback: (extension: T, loaded: boolean, previousId: string) => void): void;

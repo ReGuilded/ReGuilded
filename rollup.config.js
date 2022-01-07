@@ -30,7 +30,13 @@ const resolvableModules = [
     "module",
     "tslib",
     "chokidar",
+    "fs-extra",
     // Dependencies of the dependecies
+    // fs-extra
+    "universalify",
+    "graceful-fs",
+    "jsonfile",
+    // chokidar
     "readdirp",
     "anymatch",
     "glob-parent",

@@ -1,4 +1,5 @@
-﻿import ExtensionSettings from "./ExtensionSettings.jsx";
+﻿import ThemeHandler from "../../../handlers/themes.js";
+import ExtensionSettings from "./ExtensionSettings.jsx";
 import ThemeItem from "./ThemeItem.jsx";
 
 export default class ThemeSettings extends ExtensionSettings {
@@ -8,9 +9,6 @@ export default class ThemeSettings extends ExtensionSettings {
     constructor(props, context) {
         super(props, context);
 
-        this.state = {
-            dirname: window.ReGuildedConfig.themes.dirname,
-            all: window.ReGuilded.themes.all
-        };
+        this.extensionHandler = window.ReGuilded.themes;
     }
 }

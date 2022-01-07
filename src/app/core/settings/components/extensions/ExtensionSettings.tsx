@@ -1,18 +1,24 @@
 import { ChildTabProps } from "../TabbedSettings";
 import ErrorBoundary from "../ErrorBoundary.jsx";
+import ExtensionHandler from "../../../handlers/extension";
+import { AnyExtension } from "../../../../../common/extensions";
+import { RGExtensionConfig } from "../../../../types/reguilded";
 
 const { React, NullState, HorizontalTabs, GuildedText } = window.ReGuildedApi;
+
+type AnyExtensionHandler = ExtensionHandler<AnyExtension, RGExtensionConfig<AnyExtension>>;
 
 export default class ExtensionSettings extends React.Component<ChildTabProps, { dirname: string, all: object[] }> {
     protected name: string;
     protected type: string;
     protected ItemTemplate: any; // TODO: Change this to typeof ExtensionItem child
+    protected extensionHandler: AnyExtensionHandler;
 
     constructor(props: ChildTabProps, context?: any) {
         super(props, context);
     }
     render() {
-        const { name, type, ItemTemplate, state: { dirname, all }, props: { switchTab } } = this;
+        const { name, type, ItemTemplate, extensionHandler: { config, all }, props: { switchTab } } = this;
 
         return (
             <ErrorBoundary>
@@ -32,7 +38,7 @@ export default class ExtensionSettings extends React.Component<ChildTabProps, { 
                                         </div>
                                     :
                                         // buttonText="" onClick={e => ...}
-                                        <NullState type="nothing-here" title={"There are no " + type + "s installed"} subtitle={"You have not installed any ReGuilded " + type + "s yet. To install it, put it in the " + type + "s folder."} buttonText="Open folder" onClick={() => window.ReGuildedConfig.openItem(dirname)} alignment="center"/>
+                                        <NullState type="nothing-here" title={"There are no " + type + "s installed"} subtitle={"You have not installed any ReGuilded " + type + "s yet. To install it, put it in the " + type + "s folder."} buttonText="Open folder" onClick={() => window.ReGuildedConfig.openItem(config.dirname)} alignment="center"/>
                                     }
                                 </div>
                             </div>
@@ -41,7 +47,8 @@ export default class ExtensionSettings extends React.Component<ChildTabProps, { 
                             <NullState type="not-found" title="Work in Progress" subtitle="Add-on and theme browser has not been done yet. Come back later." alignment="center" />
                         </div>
                         <div className="ReGuildedExtensions-wrapper ReGuildedExtensions-tab-import">
-                            <NullState type="empty-search" title={"Import " + type} subtitle={"Import any " + type + " by selecting a folder with metadata.json file. Zips and archives are not supported at this time."} buttonText="Import" onClick={() => {}} alignment="center"/>
+                            {/* onClick={config.openImportDialog} results in "An object cannot be cloned"... */}
+                            <NullState type="empty-search" title={"Import " + type} subtitle={"Import any " + type + " by selecting a folder with metadata.json file. Zips and archives are not supported at this time."} buttonText="Import" onClick={async () => await config.openImportPrompt()} alignment="center"/>
                         </div>
                     </HorizontalTabs>
                 </div>

@@ -8,9 +8,6 @@ export default class AddonSettings extends ExtensionSettings {
     constructor(props, context) {
         super(props, context);
 
-        this.state = {
-            dirname: window.ReGuildedConfig.addons.dirname,
-            all: window.ReGuilded.addons.all
-        };
+        this.extensionHandler = window.ReGuilded.addons;
     }
 }
