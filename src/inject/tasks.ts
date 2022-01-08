@@ -144,7 +144,7 @@ export async function uninject(
         if (existsSync(platformModule.appDir)) {
             spawnSync("npm", ["run", "build"], { stdio: "inherit" });
             spawnSync("npm", ["run", "uninjectbare", "--", `--elevator=${elevator}`], { stdio: "inherit" });
-            spawnSync("npm", ["run", "inject", "--", `--elevator=${elevator}`], { stdio: "inherit" });
+            spawnSync("npm", ["run", "injectbare", "--", `--elevator=${elevator}`], { stdio: "inherit" });
         } else reject("There is no injection.")
     });
 }
