@@ -15,21 +15,24 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
  * @param command The command to execute in root permissions
  */
 function rootPerms(command: string[], elevator: string) {
-    console.warn(`ReGuilded Linux requires root permissions to create, modify or delete '${platform.resourcesDir}'`);
+    return new Promise<void>(async (resolve, reject) => {
+        console.warn(`ReGuilded Linux requires root permissions to create, modify or delete '${platform.resourcesDir}'`);
 
-    try {
-        spawnSync(elevator, command, { stdio: "inherit" });
-    } catch (e) {
-        console.error("Error while prompting root command.");
+        try {
+            spawnSync(elevator, command, { stdio: "inherit" });
+        } catch (e) {
+            console.error("Error while prompting root command.");
 
-        if (elevator === "sudo")
-            console.log(
-                "Sudo usage detected. Was it meant to be `doas`? If so, pass the `--doas` or `--elevator command_name` flag."
-            );
+            if (elevator === "sudo")
+                console.log(
+                    "Sudo usage detected. Was it meant to be `doas`? If so, pass the `--doas` or `--elevator command_name` flag."
+                );
 
-        throw e;
-    }
-    process.exit(0);
+            throw e;
+        }
+        resolve();
+        process.exit(0);
+    })
 }
 
 /**
@@ -52,7 +55,7 @@ export function inject(platformModule: { appDir: string; resourcesDir: string },
                     rootPerms(
                         ["node", join(__dirname, "injector.linux-util.js"), "-d", reguildedDir, "-t", "inject"],
                         elevator
-                    );
+                    ).then(resolve);
                 else
                     injection(platformModule, reguildedDir)
                         .then(resolve)
@@ -85,12 +88,12 @@ export async function uninject(
         // If there is an injection, then remove the injection
         if (existsSync(platformModule.appDir)) {
             // If this is on Linux, do it in sudo perms
-            if (process.platform === "linux" && process.getuid() !== 0) {
+            if (process.platform === "linux" && process.getuid() !== 0)
                 rootPerms(
                     ["node", join(__dirname, "injector.linux-util.js"), "-d", reguildedDir, "-t", "uninject"],
                     elevator
-                );
-            } else uninjection(platformModule, reguildedDir).then(resolve).catch(reject);
+                ).then(resolve);
+            else uninjection(platformModule, reguildedDir).then(resolve).catch(reject);
         } else reject("There is no injection.");
     });
 }
@@ -146,9 +149,8 @@ export async function uninject(
     return new Promise<void>((resolve, reject) => {
         if (existsSync(platformModule.appDir)) {
             spawnSync("npm", ["run", "build"], { stdio: "inherit" });
-            uninject(platformModule, reguildedDir, elevator);
-            // FIXME: Not sure why it's not reaching the inject function
-            inject(platformModule, reguildedDir, elevator);
+            uninject(platformModule, reguildedDir, elevator)
+                .then(() => inject(platformModule, reguildedDir, elevator));
         } else reject("There is no injection.")
     });
 }
