@@ -1,20 +1,18 @@
 import { ReGuildedSettings, ReGuildedSettingsUpdate } from "../common/reguilded-settings";
 import { contextBridge, ipcRenderer, shell, webFrame } from "electron";
-import { promises as fsPromises } from "fs";
-import reGuildedInfo from "../common/reguilded.json";
+import handleUpdate, { checkForUpdate, VersionJson } from "./update";
 import getSettingsFile from "./get-settings";
+import { promises as fsPromises } from "fs";
 import AddonManager from "./addon-manager";
 import ThemeManager from "./theme-manager";
 import SettingsManager from "./settings";
 import createSystem from "./fake-system";
 import { join } from "path";
-import handleUpdate from "./handle-update";
 
 const settingsPath = join(__dirname, "./settings");
 const addonManager = new AddonManager(join(settingsPath, "addons")),
     themeManager = new ThemeManager(join(settingsPath, "themes"));
 
-let updateFailed = false;
 (async () => {
     const reGuildedConfigAndSettings = async () => {
         const settingsManager = new SettingsManager(settingsPath, await getSettingsFile(settingsPath));
@@ -37,24 +35,18 @@ let updateFailed = false;
             },
             themes: themeManager.exportable,
             addons: addonManager.exportable,
-            async doUpdateIfPossible(updateExistsCallback: (version: string) => Promise<boolean>): Promise<void> {
-                // Get JSON that holds the latest update's info
-                return new Promise<{ version: string; downloadUrl: string; sha256sum: string }>(resolve =>
-                    resolve({
-                        version: "0.0.5",
-                        downloadUrl: "http://github.com/ReGuilded/ReGuilded/archive/refs/tags/v0.0.3-alpha.zip",
-                        sha256sum: ""
-                    })
-                )
-                    .then(async json => {
-                        if (json.version !== reGuildedInfo.version) {
-                            const shouldUpdate = await updateExistsCallback(json.version);
-                            console.log("Callback return", shouldUpdate);
-                            // Allow it to be rejected in settings
-                            if (shouldUpdate) await handleUpdate(json.downloadUrl, json.sha256sum);
-                        } else console.log("No version mismatch; no updates.");
-                    })
-                    .catch(e => ((updateFailed = true), console.error("Error while updating:", e)));
+            /**
+             * Checks if an update exists and returns its information.
+             */
+            checkForUpdate: checkForUpdate,
+            /**
+             * Does a ReGuilded update if it exists.
+             */
+            async doUpdateIfPossible(): Promise<void> {
+                // If its info was already fetched, don't refetch it
+                return await (window.updateExists !== undefined
+                    ? doUpdate([window.updateExists, window.latestVersionInfo])
+                    : checkForUpdate().then(doUpdate));
             },
             // Anything else does not need to be exposed
             openItem(path: string): void {
@@ -104,3 +96,7 @@ let updateFailed = false;
         })
         .catch(console.error);
 })();
+
+async function doUpdate([updateExists, updateInfo]: [boolean, VersionJson]) {
+    updateExists && (await handleUpdate(updateInfo.downloadUrl, updateInfo.sha256));
+}

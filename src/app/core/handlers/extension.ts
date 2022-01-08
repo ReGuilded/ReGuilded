@@ -12,7 +12,7 @@ export default abstract class ExtensionHandler<T extends AnyExtension, C extends
      */
     static idRegex: RegExp = /^[A-Za-z0-9]+$/g;
 
-    all?: T[];
+    all: T[];
     config: C;
     allLoaded: boolean;
     settingsHandler: SettingsHandler;

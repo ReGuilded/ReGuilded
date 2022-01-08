@@ -17,7 +17,7 @@ export default class AddonManager extends ExtensionManager<Addon> {
     }
     protected override onFileChange(addon: Addon) {
         // TODO: Unload & load add-on
-        return new Promise<AddonExports>(async (resolve, reject) => {
+        return new Promise<void>(async resolve => {
             // Because we can't have multiple entry points
             if (Array.isArray(addon.files)) {
                 console.warn(
@@ -28,16 +28,16 @@ export default class AddonManager extends ExtensionManager<Addon> {
                 addon.files = addon.files[0];
             }
 
-            await AddonManager._executeFile<AddonExports>(pathResolve(addon.dirname, addon.files)).then(exported => {
-                // Make sure it's appropriate
-                if (typeof exported !== "object" || typeof exported.load !== "function")
-                    reject(
-                        "Add-on's main file's exports must be an object containing at least load function and optionally init and unload."
-                    );
-                else resolve(exported);
-            });
-        }).then(exported => {
-            addon.exports = exported;
+            addon.execute = async () =>
+                await AddonManager._executeFile<AddonExports>(pathResolve(addon.dirname, addon.files)).then(exported => {
+                    // Make sure it's appropriate
+                    if (typeof exported !== "object" || typeof exported.load !== "function") {
+                        throw new Error(
+                            "Add-on's main file's exports must be an object containing at least load function and optionally init and unload."
+                        );
+                    } else return exported;
+                });
+            resolve();
         });
     }
     /**

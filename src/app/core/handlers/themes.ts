@@ -41,6 +41,11 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
         document.body.appendChild(this.megaGroup);
 
         this.config.setWatchCallback(this._watchCallback.bind(this));
+
+        for (let theme of this.config.getAll()) {
+            this.all.push(theme);
+            ~this.enabled.indexOf(theme.id) && this.load(theme);
+        }
     }
     private _watchCallback(metadata: Theme, loaded: boolean, previousId: string): void {
         // Since we already have it loaded, we need to update it and unload

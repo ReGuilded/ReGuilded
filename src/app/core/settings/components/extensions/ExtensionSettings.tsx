@@ -4,10 +4,11 @@ import ExtensionHandler from "../../../handlers/extension";
 import { AnyExtension } from "../../../../../common/extensions";
 import { RGExtensionConfig } from "../../../../types/reguilded";
 
-const { React, NullState, HorizontalTabs, GuildedText } = window.ReGuildedApi;
+const { React, NullState, HorizontalTabs, GuildedText, DefaultContextProvider } = window.ReGuildedApi;
 
 type AnyExtensionHandler = ExtensionHandler<AnyExtension, RGExtensionConfig<AnyExtension>>;
 
+@DefaultContextProvider
 export default class ExtensionSettings extends React.Component<ChildTabProps, { dirname: string, all: object[] }> {
     protected name: string;
     protected type: string;

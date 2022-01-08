@@ -30,28 +30,30 @@ export default class ReGuilded {
      * Initiates ReGuilded
      * @param webpackRequire A function that gets Guilded modules.
      */
-    init(webpackRequire: WebpackRequire) {
-        // TODO
-        window.ReGuildedConfig.doUpdateIfPossible(async _ => {
-            console.log("Auto-updating ReGuilded");
-            return true;
-        });
+    async init(webpackRequire: WebpackRequire) {
+        return new Promise<void>(
+            async (resolve, reject) => {
+                console.log("Start ReGuilded")
+                this.webpack = new WebpackHandler(webpackRequire);
 
-        this.webpack = new WebpackHandler(webpackRequire);
-        this.addonApi = new AddonApi(this.webpack, this.addons);
+                // Load ReGuilded developer badges & contributor flairs
+                this.loadUser(this.addonApi.UserModel);
 
-        window.ReGuildedApi = this.addonApi;
+                // Initialize both Theme & Addon handlers, pass both enabled arrays into such
+                this.themes.init();
+                this.addons.webpack = this.webpack;
+                this.addons.init(window.ReGuildedApi = this.addonApi = new AddonApi(this.webpack, this.addons));
 
-        // Load ReGuilded developer badges & contributor flairs
-        this.loadUser(this.addonApi.UserModel);
+                if (window.isFirstLaunch)
+                    await this.handleFirstLaunch().catch(reject);
 
-        // Initialize both Theme & Addon handlers, pass both enabled arrays into such
-        this.themes.init();
-        this.addons.webpack = this.webpack;
-        this.addons.init(this.addonApi);
-
-        if (window.isFirstLaunch)
-            this.handleFirstLaunch();
+                resolve();
+                console.log("End ReGuilded")
+            }
+        ).then(async () =>
+            await window.ReGuildedConfig.doUpdateIfPossible()
+                .catch(e => console.error("Error while trying to auto-update", e))
+        );
     }
 
 

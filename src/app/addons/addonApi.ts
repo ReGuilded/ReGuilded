@@ -1,4 +1,4 @@
-import { SvgIcon, ItemManager, NullState, WordDividerLine } from "../guilded/content";
+import { SvgIcon, ItemManager, NullState, WordDividerLine, BannerWithButton } from "../guilded/components/content";
 import { getOwnerInstance, patchElementRenderer, waitForElement } from "./lib";
 import AddonHandler from "../core/handlers/addon";
 import { OverflowButton } from "../guilded/menu";
@@ -41,10 +41,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     portal: webpack => webpack.withProperty("Portals"),
     layerContext: webpack => webpack.allWithProperty("object")[1],
     OverlayStack: webpack => webpack.withProperty("addPortal"),
-    transientMenuPortal: _ =>
-        getOwnerInstance(
-            document.querySelector(".TransientMenuPortalContext-portal-container")
-        ),
+    transientMenuPortal: _ => getOwnerInstance(document.querySelector(".TransientMenuPortalContext-portal-container")),
 
     OverlayProvider: webpack => webpack.withCode("OverlayProvider"),
     TeamContextProvider: webpack => webpack.withCode("EnforceTeamData"),
@@ -107,6 +104,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     WordDividerLine: webpack => webpack.withCode("WordDividerLine"),
     Button: webpack => webpack.withClassProperty("useHoverContext"),
     ItemManager: webpack => webpack.withClassProperty("ItemManager"),
+    BannerWithButton: webpack => webpack.withClassProperty("hasText"),
     HorizontalTabs: webpack => webpack.withClassProperty("tabOptions"),
     ProfilePicture: webpack => webpack.withClassProperty("borderType"),
     MarkdownRenderer: webpack => webpack.withClassProperty("plainText"),
@@ -141,8 +139,7 @@ export default class AddonApi {
         return ~this._cachedList.indexOf(name)
             ? this._cached[name]
             : // Honestly, the only convenient thing about JS
-              (this._cachedList.push(name),
-              (this._cached[name] = cacheFns[name](this.webpackManager)));
+              (this._cachedList.push(name), (this._cached[name] = cacheFns[name](this.webpackManager)));
     }
     /**
      * Removes the item with the given name from the cached list to be racached later.
@@ -255,6 +252,9 @@ export default class AddonApi {
      */
     get AnnouncementModel() {
         return this.getCached("AnnouncementModel")?.default;
+    }
+    get BannerWithButton(): typeof BannerWithButton {
+        return this.getCached("BannerWithButton");
     }
     /**
      * A clickable Guilded button.
@@ -640,9 +640,7 @@ export default class AddonApi {
     get sounds() {
         return this.getCached("sounds")?.default;
     }
-    get styleGenerator(): (
-        e: boolean
-    ) => [number, string, ""][] & { toString(): string; i(e, t, a): any; local: object } {
+    get styleGenerator(): (e: boolean) => [number, string, ""][] & { toString(): string; i(e, t, a): any; local: object } {
         return this.getCached("styleGenerator")?.default;
     }
     get stylePusher(): (

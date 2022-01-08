@@ -67,6 +67,7 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
             dirname,
             delete: this.delete.bind(this),
             getAll() {
+                console.log("Giving all", self.all);
                 return self.all;
             },
             getHasLoaded() {
@@ -89,8 +90,8 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
                             stat(path.join(importedDir, "metadata.json"), async (e, d) => {
                                 if (e)
                                     if (e.code === "ENOENT")
-                                        return console.warn(
-                                            "Directory '%s' cannot be imported as an extension: it has no metadata.json file."
+                                        throw new Error(
+                                            `Directory '${importedDir}' cannot be imported as an extension: it has no metadata.json file.`
                                         );
                                     else return console.error("Error while importing extension:", e);
 
@@ -198,7 +199,7 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
                     await this.onFileChange(metadata)
                         // Mark it as loaded
                         .then(
-                            () => this.all.push((loaded[extName] = metadata)),
+                            () => (console.log("Pushing", metadata.id), this.all.push((loaded[extName] = metadata))),
                             e => console.error(`Error in extension by ID '${metadata.id}':\n`, e)
                         )
                         // Call the renderer callback

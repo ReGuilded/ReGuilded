@@ -17,7 +17,8 @@ declare global {
             themes: RGThemeConfig;
             openItem(path: string): void;
             openExternal(path: string): void;
-            doUpdateIfPossible(updateExistsCallback: (version: string) => Promise<boolean>): Promise<void>;
+            checkForUpdate(): Promise<[boolean, { version: string; downloadUrl: string; sha256: string }]>;
+            doUpdateIfPossible(): Promise<void>;
         };
         // Client
         ReGuildedApi: AddonApi;

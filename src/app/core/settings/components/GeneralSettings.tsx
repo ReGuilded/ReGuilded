@@ -1,7 +1,7 @@
 ﻿import reGuildedInfo from "../../../../common/reguilded.json";
 import ErrorBoundary from "./ErrorBoundary";
 
-const { Form, React, SavableSettings, functionUtil: { coroutine }, OverlayProvider } = window.ReGuildedApi;
+const { Form, React, SavableSettings, functionUtil: { coroutine }, OverlayProvider, DefaultContextProvider } = window.ReGuildedApi;
 
 enum Badge {
     None = 0,
@@ -19,6 +19,7 @@ const FakeUpdateJson = {
 };
 
 @SavableSettings
+@DefaultContextProvider
 @OverlayProvider(["SimpleConfirmationOverlay"])
 export default class GeneralSettings extends React.Component {
     // Number to name map for radio default value
@@ -29,6 +30,7 @@ export default class GeneralSettings extends React.Component {
     // Defined by SavableSettings & OverlayProvider
     protected _handleOptionsChange: () => void;
     protected SimpleConfirmationOverlay: { Open: (settings: any) => Promise<{ confirmed: boolean}> };
+    protected statusContext;
 
     constructor(props, context) {
         super(props, context);
@@ -45,17 +47,35 @@ export default class GeneralSettings extends React.Component {
         } else throw new Error("Invalid settings form values");
     }
     private async onUpdate() {
-        await window.ReGuildedConfig.doUpdateIfPossible((newVersion) =>
-            this.SimpleConfirmationOverlay.Open({
-                header: "Update ReGuilded",
-                text: `Version '${newVersion}' of ReGuilded has been found. Do you want to update to it?`,
-                confirmText: "Update",
-                confirmType: "success"
-            }).then(({ confirmed }) => confirmed)
-        ).catch(e => console.error("Error while trying to update", e));
+        const { statusContext } = this;
+
+        await window.ReGuildedConfig
+            .checkForUpdate().then(async ([ updateExists, updateInfo ]) =>
+                // Allow the update to be cancelled
+                updateExists && await this.SimpleConfirmationOverlay.Open({
+                    header: "Update ReGuilded",
+                    text: `Version '${updateInfo.version}' of ReGuilded has been found. Do you want to update to it?`,
+                    confirmText: "Update",
+                    confirmType: "success"
+                })
+                    .then(async ({ confirmed }) =>
+                        // Display ephermal status messages for users to see
+                        confirmed && await window.ReGuildedConfig.doUpdateIfPossible()
+                            .then(() => statusContext.displayStatus({
+                                text: "ReGuilded update finished. CTRL + R to refresh",
+                                type: "success"
+                            }))
+                            .catch(e => {
+                                if (typeof e === "string")
+                                    statusContext.displayError({ message: e, error: e });
+                                else statusContext.displayError({ message: e.message, error: e });
+                            })
+                    )
+            );
     }
     render() {
         const { settings } = window.ReGuilded.settingsHandler;
+
         // TODO: Make badge radio functional with onChange
         return (
             <ErrorBoundary>
