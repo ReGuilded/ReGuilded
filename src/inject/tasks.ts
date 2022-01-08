@@ -24,7 +24,7 @@ function rootPerms(command: string[], elevator: string) {
 
         if (elevator === "sudo")
             console.log(
-                "Sudo usage detected. Was it meant to be `doas`? If so, pass the `--doas` or `--elevator command_name` flag."
+                "Sudo usage detected. Was it meant to be `doas`? If so, pass the `--doas` or `--elevator=command_name` flag."
             );
 
         throw e;
