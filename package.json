@@ -8,9 +8,9 @@
     "uninjectbare": "node out/injector.main.js uninject",
     "build": "rollup -c rollup.config.js",
     "watch": "rollup -c rollup.config.js -w",
-    "inject": "npm run build && npm run injectbare",
-    "uninject": "npm run build && npm run uninjectbare",
-    "reinject": "npm run build && npm run uninjectbare && npm run injectbare"
+    "inject": "node out/injector.main.js injectAndBuild",
+    "uninject": "node out/injector.main.js uninjectAndBuild",
+    "reinject": "node out/injector.main.js reinjectAndBuild"
   },
   "repository": {
     "type": "git",

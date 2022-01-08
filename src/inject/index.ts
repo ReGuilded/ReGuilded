@@ -35,9 +35,7 @@ const argv: { _: string[]; d?: string; dir?: string; e?: string; doas?: boolean;
                     );
 
                     // Open the app Again after the injection task is done
-                    exec(platform.open).on("exit", () => {
-                        process.exit();
-                    });
+                    exec(platform.open);
                 })
                 .catch(err => {
                     console.error("Failed to do task", taskArg, ":", err);
