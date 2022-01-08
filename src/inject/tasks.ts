@@ -107,8 +107,11 @@ export async function uninject(
     elevator: string
 ) {
     return new Promise<void>((resolve, reject) => {
+        const injectArgs = ["run", "injectbare"];
+        const linuxArgs = ["--", `--elevator=${elevator}`];
+        if (process.platform === "linux") injectArgs.push( ...linuxArgs );
         spawnSync("npm", ["run", "build"], { stdio: "inherit" });
-        spawnSync("npm", ["run", "injectbare", "--", `--elevator=${elevator}`],  { stdio: "inherit" });
+        spawnSync("npm", injectArgs,  { stdio: "inherit" });
     });
 }
 
@@ -124,8 +127,11 @@ export async function uninject(
     elevator: string
 ) {
     return new Promise<void>((resolve, reject) => {
+        const uninjectArgs = ["run", "uninjectbare"];
+        const linuxArgs = ["--", `--elevator=${elevator}`];
+        if (process.platform === "linux") uninjectArgs.push( ...linuxArgs );
         spawnSync("npm", ["run", "build"], { stdio: "inherit" });
-        spawnSync("npm", ["run", "uninjectbare", "--", `--elevator=${elevator}`],  { stdio: "inherit" });
+        spawnSync("npm", uninjectArgs,  { stdio: "inherit" });
     });
 }
 
@@ -142,9 +148,16 @@ export async function uninject(
 ) {
     return new Promise<void>((resolve, reject) => {
         if (existsSync(platformModule.appDir)) {
+            const uninjectArgs = ["run", "uninjectbare"];
+            const injectArgs = ["run", "injectbare"];
+            const linuxArgs = ["--", `--elevator=${elevator}`];
+            if(process.platform === "linux") {
+                uninjectArgs.push( ...linuxArgs );
+                injectArgs.push( ...linuxArgs );
+            };
             spawnSync("npm", ["run", "build"], { stdio: "inherit" });
-            spawnSync("npm", ["run", "uninjectbare", "--", `--elevator=${elevator}`], { stdio: "inherit" });
-            spawnSync("npm", ["run", "injectbare", "--", `--elevator=${elevator}`], { stdio: "inherit" });
+            spawnSync("npm", uninjectArgs, { stdio: "inherit" });
+            spawnSync("npm", injectArgs, { stdio: "inherit" });
         } else reject("There is no injection.")
     });
 }
