@@ -24,7 +24,7 @@ function rootPerms(command: string[], elevator: string) {
 
         if (elevator === "sudo")
             console.log(
-                "Sudo usage detected. Was it meant to be `doas`? If so, pass the `--doas` or `--elevator command_name` flag."
+                "Sudo usage detected. Was it meant to be `doas` or something else? If so, pass the `--doas` or `--elevator=command_name` flag."
             );
 
         throw e;
@@ -96,55 +96,65 @@ export async function uninject(
 }
 
 /**
- * Builds ReGuilded & Injects ReGuilded into Guilded.
+ * Injects ReGuilded into Guilded (wrapper).
  * @param platformModule Module correlating to User's Platform, used for directories and commands.
  * @param reguildedDir Path to ReGuilded's configuration directory
  * @param elevator Elevation command on Linux
  */
- export async function injectAndBuild(
+ export async function injectWrapper(
     platformModule: { appDir: string; resourcesDir: string },
     reguildedDir: string,
     elevator: string
 ) {
     return new Promise<void>((resolve, reject) => {
-        spawnSync("npm", ["run", "build"], { stdio: "inherit" });
-        spawnSync("npm", ["run", "injectbare", "--", `--elevator=${elevator}`],  { stdio: "inherit" });
+        const injectArgs = ["run", "injectbare"];
+        const linuxArgs = ["--", `--elevator=${elevator}`];
+        if (process.platform === "linux") injectArgs.push( ...linuxArgs );
+        spawnSync("npm", injectArgs,  { stdio: "inherit" });
     });
 }
 
 /**
- * Builds ReGuilded & Removes any injections present in Guilded.
+ * Removes any injections present in Guilded (wrapper).
  * @param platformModule Module correlating to User's Platform, used for directories and commands.
  * @param reguildedDir Path to ReGuilded's configuration directory
  * @param elevator Elevation command on Linux
  */
- export async function uninjectAndBuild(
+ export async function uninjectWrapper(
     platformModule: { appDir: string; resourcesDir: string },
     reguildedDir: string,
     elevator: string
 ) {
     return new Promise<void>((resolve, reject) => {
-        spawnSync("npm", ["run", "build"], { stdio: "inherit" });
-        spawnSync("npm", ["run", "uninjectbare", "--", `--elevator=${elevator}`],  { stdio: "inherit" });
+        const uninjectArgs = ["run", "uninjectbare"];
+        const linuxArgs = ["--", `--elevator=${elevator}`];
+        if (process.platform === "linux") uninjectArgs.push( ...linuxArgs );
+        spawnSync("npm", uninjectArgs,  { stdio: "inherit" });
     });
 }
 
 /**
- * Builds ReGuilded & Re-injects ReGuilded into Guilded.
+ * Builds ReGuilded & Re-injects ReGuilded into Guilded (wrapper).
  * @param platformModule Module correlating to User's Platform, used for directories and commands.
  * @param reguildedDir Path to ReGuilded's configuration directory
  * @param elevator Elevation command on Linux
  */
- export async function reinjectAndBuild(
+ export async function reinjectWrapper(
     platformModule: { appDir: string; resourcesDir: string },
     reguildedDir: string,
     elevator: string
 ) {
     return new Promise<void>((resolve, reject) => {
         if (existsSync(platformModule.appDir)) {
-            spawnSync("npm", ["run", "build"], { stdio: "inherit" });
-            spawnSync("npm", ["run", "uninjectbare", "--", `--elevator=${elevator}`], { stdio: "inherit" });
-            spawnSync("npm", ["run", "injectbare", "--", `--elevator=${elevator}`], { stdio: "inherit" });
+            const uninjectArgs = ["run", "uninjectbare"];
+            const injectArgs = ["run", "injectbare"];
+            const linuxArgs = ["--", `--elevator=${elevator}`];
+            if(process.platform === "linux") {
+                uninjectArgs.push( ...linuxArgs );
+                injectArgs.push( ...linuxArgs );
+            };
+            spawnSync("npm", uninjectArgs, { stdio: "inherit" });
+            spawnSync("npm", injectArgs, { stdio: "inherit" });
         } else reject("There is no injection.")
     });
 }
