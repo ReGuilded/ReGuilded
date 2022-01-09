@@ -67,7 +67,6 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
             dirname,
             delete: this.delete.bind(this),
             getAll() {
-                console.log("Giving all", self.all);
                 return self.all;
             },
             getHasLoaded() {
@@ -199,7 +198,7 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
                     await this.onFileChange(metadata)
                         // Mark it as loaded
                         .then(
-                            () => (console.log("Pushing", metadata.id), this.all.push((loaded[extName] = metadata))),
+                            () => this.all.push((loaded[extName] = metadata)),
                             e => console.error(`Error in extension by ID '${metadata.id}':\n`, e)
                         )
                         // Call the renderer callback

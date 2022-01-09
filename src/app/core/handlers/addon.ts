@@ -28,7 +28,7 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
      * Initiates addons for ReGuilded and addon manager
      * @param addonApi ReGuilded Addon API.
      */
-    init(addonApi: AddonApi) {
+    async init(addonApi: AddonApi): Promise<void> {
         console.log("Initiating addon manager");
         // Try-catch; this should never throw errors
         try {
@@ -36,19 +36,18 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
         } catch (e) {
             console.error("Failed to initialize the ReGuilded addon API!", e);
         }
-        console.log("Watch");
         this.config.setWatchCallback(this._watchCallback.bind(this));
-        console.log("Get all");
-        const newAll = this.config.getAll();
-        console.log("New all", newAll);
-        // Load any existing addons
-        for (let addon of newAll) {
-            console.log("Adding loaded addon", addon);
-            this.all.push(addon);
-            ~this.enabled.indexOf(addon.id) && this.load(addon);
-        }
+
+        // Load addons that weren't catched by setWatchCallback
+        // Preload can be too fast for addon handler
+        await Promise.allSettled(
+            this.config.getAll().map(addon => {
+                this.all.push(addon);
+                return ~this.enabled.indexOf(addon.id) && this.load(addon);
+            })
+        );
     }
-    private _watchCallback(metadata: Addon, loaded: boolean, previousId: string) {
+    private async _watchCallback(metadata: Addon, loaded: boolean, previousId: string): Promise<void> {
         const isEnabled = ~this.enabled.indexOf(metadata.id);
         // If the addon is already loaded, unload it
         AddonHandler._functionExists(metadata, "unload") && loaded && this.unload(metadata);
@@ -58,7 +57,7 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
 
         this.all.push(metadata);
         // Load the addon if enabled.
-        isEnabled && this.load(metadata);
+        isEnabled && (await this.load(metadata));
     }
     /**
      * Returns whether the exported function exists. If the export isn't a function or undefined, it returns a warning.
@@ -67,7 +66,8 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
      * @returns Function exists
      */
     private static _functionExists(addon: Addon, name: string): boolean {
-        if (typeof addon.exports[name] === "function") return true;
+        if (typeof addon.exports === "undefined") return false;
+        else if (typeof addon.exports[name] === "function") return true;
         // It doesn't exist, but it's also valid
         else if (typeof addon.exports[name] === "undefined") {
             const { default: def } = addon.exports;
@@ -90,16 +90,19 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
      * Loads a ReGuilded addon.
      * @param metadata addon to load onto Guilded
      */
-    load(metadata: Addon): void {
+    async load(metadata: Addon): Promise<void> {
         // Try-catch errors to prevent conflicts with other plugins
         try {
             console.log(`Loading addon by ID '${metadata.id}'`);
             // Check if it's first time loading
-            if (!~this.initialized.indexOf(metadata.id) && AddonHandler._functionExists(metadata, "init")) {
-                metadata
+            if (!~this.initialized.indexOf(metadata.id)) {
+                await metadata
                     .execute()
                     .then(exports => {
-                        (metadata.exports = exports).init();
+                        metadata.exports = exports;
+                        // One-time `init` function
+                        AddonHandler._functionExists(metadata, "init") && metadata.exports.init();
+
                         this.initialized.push(metadata.id);
                         metadata.exports.load();
                     })

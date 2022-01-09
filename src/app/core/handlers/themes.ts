@@ -29,8 +29,7 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
         console.log("Initiating theme manager");
 
         // Make sure <datagroup> elements are ignored
-        this.megaGroup = document.createElement("datagroup");
-        this.megaGroup.id = "reGl-main";
+        this.megaGroup = Object.assign(document.createElement("datagroup"), { id: "reGl-main" });
 
         this.megaGroup.appendChild(
             Object.assign(document.createElement("styles"), {
@@ -73,19 +72,19 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
      * Loads a ReGuilded theme
      * @param metadata The ReGuilded theme to load
      */
-    load(metadata: Theme) {
+    async load(metadata: Theme) {
         console.log(`Loading theme by ID '${metadata.id}'`);
 
-        this.addStyleSheets(metadata);
+        await this.addStyleSheets(metadata);
     }
-    addStyleSheets(metadata: Theme) {
+    async addStyleSheets(metadata: Theme) {
         // Creates a new style group element for that theme
         const group = Object.assign(document.createElement("datagroup"), {
             id: `reGl-theme-${metadata.id}`,
             classList: "reGl-theme"
         });
 
-        this.checkAndDoSettings(metadata, group);
+        await this.checkAndDoSettings(metadata, group);
 
         for (let css of metadata.css)
             group.appendChild(

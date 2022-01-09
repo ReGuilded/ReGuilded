@@ -33,27 +33,31 @@ export default class ReGuilded {
     async init(webpackRequire: WebpackRequire) {
         return new Promise<void>(
             async (resolve, reject) => {
-                console.log("Start ReGuilded")
                 this.webpack = new WebpackHandler(webpackRequire);
 
-                // Load ReGuilded developer badges & contributor flairs
-                this.loadUser(this.addonApi.UserModel);
+                window.ReGuildedApi = this.addonApi = new AddonApi(this.webpack, this.addons);
 
-                // Initialize both Theme & Addon handlers, pass both enabled arrays into such
-                this.themes.init();
                 this.addons.webpack = this.webpack;
-                this.addons.init(window.ReGuildedApi = this.addonApi = new AddonApi(this.webpack, this.addons));
 
-                if (window.isFirstLaunch)
-                    await this.handleFirstLaunch().catch(reject);
-
-                resolve();
-                console.log("End ReGuilded")
+                await this.addons.init(this.addonApi)
+                    // TODO: Perhaps async init for themes and then Promise.all?
+                    .then(this.themes.init.bind(this.themes))
+                    .then(resolve)
+                    .catch(reject);
             }
-        ).then(async () =>
-            await window.ReGuildedConfig.doUpdateIfPossible()
-                .catch(e => console.error("Error while trying to auto-update", e))
-        );
+        )
+            .catch(e => console.error("ReGuilded failed to initialize:", e))
+            .then(async () =>
+                // Tasks that aren't critical
+                await Promise.allSettled([
+                    window.isFirstLaunch && this.handleFirstLaunch(),
+
+                    window.ReGuildedConfig.doUpdateIfPossible()
+                        .catch(e => console.error("Error while trying to auto-update:", e)),
+                ])
+                    // I don't know where to put this dumdum sync method
+                    .then(() => this.loadUserBadges(this.addonApi.UserModel))
+            );
     }
 
 
@@ -70,7 +74,7 @@ export default class ReGuilded {
      * Loads ReGuilded developer badges & contributor flairs.
      * @param UserModel The class that represents user object.
      */
-    loadUser(UserModel): void {
+    loadUserBadges(UserModel): void {
         if (!UserModel) return;
 
         // Pushes RG Contributor Flair into the Global Flairs array, along with a Duplication Tooltip Handler from the Gil Gang flair.

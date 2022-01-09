@@ -46,32 +46,31 @@ export default class AddonManager extends ExtensionManager<Addon> {
      * @param path The path module requires
      * @returns File's exports
      */
-    private static _require(dirname: string, path: string): any {
+    private static async _require(dirname: string, path: string): Promise<any> {
+        // No idea how to do require properly while it being synchronous.
         // For recursive purposes
-        return AddonManager._requireWholePath(pathResolve(dirname, path));
+        return await AddonManager._requireWholePath(pathResolve(dirname, path));
     }
     /**
      * Requires the file in the given absolute path.
      * @param path The absolute path to require
      * @returns File's exports
      */
-    private static _requireWholePath(path: string): any {
+    private static async _requireWholePath(path: string): Promise<any> {
         try {
             const stats = statSync(path);
 
             // Require dir/index.js like require does
             return stats.isDirectory()
-                ? this._requireWholePath(join(path, "index.js"))
-                : this._executeFile(path).catch(e => {
-                      throw e;
-                  });
+                ? await this._requireWholePath(join(path, "index.js"))
+                : await this._executeFile(path);
         } catch (_) {
-            let ext = extname(path);
+            const ext = extname(path);
             const jsPath = ext ? path : path + ".js";
 
-            return ext.toLowerCase() === "json"
-                ? JSON.parse(readFileSync(path, { encoding: "utf8" }))
-                : this._executeFile(jsPath);
+            return ext.toLowerCase() === ".json"
+                ? JSON.parse(await fsPromises.readFile(path, { encoding: "utf8" }))
+                : await this._executeFile(jsPath);
         }
     }
     /**
@@ -79,26 +78,27 @@ export default class AddonManager extends ExtensionManager<Addon> {
      * @param filename The file to execute
      * @returns File's exports
      */
-    private static _executeFile<T>(filename: string): Promise<T> {
+    private static async _executeFile<T>(filename: string): Promise<T> {
         const dirname = join(filename, ".."),
             require = this._require.bind(this, dirname);
 
-        return fsPromises
+        return await fsPromises
             .readFile(filename, "utf8")
-            .then(fileData =>
-                /*   // It is more convenient passing `require` this way rather than executing it immediately
-                 *   ((__filename, __dirname, require) => {
-                 *       const module = { exports: {}, filename: __filename };
-                 *       const { exports } = module;
-                 *       // We don't want it tinkering with the return
-                 *       (() => { ${fileData} })();
-                 *       // Since executeJavaScript doesn't pass any module/exports updates to this context
-                 *       return exports;
-                 *   })
-                 */
-                webFrame.executeJavaScript(
-                    `((__filename,__dirname,require)=>{const module={exports:{},filename:__filename};const{exports}=module;(()=>{${fileData}})();return module.exports;})`
-                )
+            .then(
+                async fileData =>
+                    /*   // It is more convenient passing `require` this way rather than executing it immediately
+                     *   ((__filename, __dirname, require) => {
+                     *       const module = { exports: {}, filename: __filename };
+                     *       const { exports } = module;
+                     *       // We don't want it tinkering with the return
+                     *       (() => { ${fileData} })();
+                     *       // Since executeJavaScript doesn't pass any module/exports updates to this context
+                     *       return exports;
+                     *   })
+                     */
+                    await webFrame.executeJavaScript(
+                        `(async (__filename,__dirname,require)=>{const module={exports:{},filename:__filename};const{exports}=module;return await (async ()=>{${fileData}})().then(() => module.exports);})`
+                    )
             )
             .then((m: ExecutableModule<T>) => m(filename, dirname, require));
     }
