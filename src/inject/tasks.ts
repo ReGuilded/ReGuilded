@@ -96,12 +96,12 @@ export async function uninject(
 }
 
 /**
- * Builds ReGuilded & Injects ReGuilded into Guilded.
+ * Injects ReGuilded into Guilded (wrapper).
  * @param platformModule Module correlating to User's Platform, used for directories and commands.
  * @param reguildedDir Path to ReGuilded's configuration directory
  * @param elevator Elevation command on Linux
  */
- export async function injectAndBuild(
+ export async function injectWrapper(
     platformModule: { appDir: string; resourcesDir: string },
     reguildedDir: string,
     elevator: string
@@ -110,18 +110,17 @@ export async function uninject(
         const injectArgs = ["run", "injectbare"];
         const linuxArgs = ["--", `--elevator=${elevator}`];
         if (process.platform === "linux") injectArgs.push( ...linuxArgs );
-        spawnSync("npm", ["run", "build"], { stdio: "inherit" });
         spawnSync("npm", injectArgs,  { stdio: "inherit" });
     });
 }
 
 /**
- * Builds ReGuilded & Removes any injections present in Guilded.
+ * Removes any injections present in Guilded (wrapper).
  * @param platformModule Module correlating to User's Platform, used for directories and commands.
  * @param reguildedDir Path to ReGuilded's configuration directory
  * @param elevator Elevation command on Linux
  */
- export async function uninjectAndBuild(
+ export async function uninjectWrapper(
     platformModule: { appDir: string; resourcesDir: string },
     reguildedDir: string,
     elevator: string
@@ -130,18 +129,17 @@ export async function uninject(
         const uninjectArgs = ["run", "uninjectbare"];
         const linuxArgs = ["--", `--elevator=${elevator}`];
         if (process.platform === "linux") uninjectArgs.push( ...linuxArgs );
-        spawnSync("npm", ["run", "build"], { stdio: "inherit" });
         spawnSync("npm", uninjectArgs,  { stdio: "inherit" });
     });
 }
 
 /**
- * Builds ReGuilded & Re-injects ReGuilded into Guilded.
+ * Builds ReGuilded & Re-injects ReGuilded into Guilded (wrapper).
  * @param platformModule Module correlating to User's Platform, used for directories and commands.
  * @param reguildedDir Path to ReGuilded's configuration directory
  * @param elevator Elevation command on Linux
  */
- export async function reinjectAndBuild(
+ export async function reinjectWrapper(
     platformModule: { appDir: string; resourcesDir: string },
     reguildedDir: string,
     elevator: string
@@ -155,7 +153,6 @@ export async function uninject(
                 uninjectArgs.push( ...linuxArgs );
                 injectArgs.push( ...linuxArgs );
             };
-            spawnSync("npm", ["run", "build"], { stdio: "inherit" });
             spawnSync("npm", uninjectArgs, { stdio: "inherit" });
             spawnSync("npm", injectArgs, { stdio: "inherit" });
         } else reject("There is no injection.")
