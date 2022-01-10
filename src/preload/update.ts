@@ -1,25 +1,22 @@
 import reGuildedInfo from "../common/reguilded.json";
 import { stream } from "got";
-import { createReadStream, createWriteStream, unlink } from "fs-extra";
+import { createWriteStream } from "fs-extra";
 import { join } from "path";
-import { Extract } from "unzipper";
 
 export default async function handleUpdate(updateInfo: VersionJson) {
-    const downloadUrl = updateInfo.assets[0].url;
+    const downloadUrl = updateInfo.assets[0].browser_download_url;
     const zipPath = join(__dirname, "ReGuilded.zip");
 
     return new Promise<void>(async (resolve, reject) => {
         await new Promise<void>((zipResolve) => {
             stream(downloadUrl)
                 .pipe(createWriteStream(zipPath))
-                .on("finish", function() {
-                    createReadStream(zipPath)
-                        .pipe(Extract({ path: __dirname })).on("close", function () {
-                            unlink(zipPath, (err) => {
-                                if (err) reject(err);
-                                else zipResolve();
-                            });
-                        });
+                .on("finish", async function () {
+                    console.log("Download Finished")
+
+                    // UNZIP LOGIC HERE.
+
+                    zipResolve();
                 });
         });
 
@@ -28,7 +25,7 @@ export default async function handleUpdate(updateInfo: VersionJson) {
 }
 
 export type AssetObj = {
-    url: string,
+    browser_download_url: string,
     name: string
 }
 
