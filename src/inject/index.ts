@@ -26,7 +26,7 @@ const argv: { _: string[]; d?: string; dir?: string; e?: string; doas?: boolean;
         // Close Guilded, then continue, because we need to make sure Guilded is closed for the new injection.
         exec(platform.close).on("exit", () => {
             // Creates path for ReGuilded
-            const reguildedPath = resolve(dir || join(process.env.APPDATA || process.env.HOME, ".reguilded"));
+            const reguildedPath = resolve(dir || process.platform === "linux" ? "/usr/local/share/ReGuilded" : join(process.env.APPDATA || process.env.HOME, ".reguilded"));
 
             tasks[taskArg](platform, reguildedPath, elevator)
                 .then(() => {
