@@ -158,5 +158,3 @@ export async function uninject(
         } else reject("There is no injection.")
     });
 }
-
-// second test
