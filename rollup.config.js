@@ -52,6 +52,8 @@ const resolvableModules = [
     "chokidar",
     "fs-extra",
     "yauzl",
+    "unzipper",
+    "got",
     // Dependencies of the dependecies
     // Yauzl
     "fd-slicer",
@@ -74,7 +76,29 @@ const resolvableModules = [
     "fill-range",
     "binary-extensions",
     "to-regex-range",
-    "is-number"
+    "is-number",
+    // unzipper
+    "big-integer",
+    "binary",
+    "bluebird",
+    "buffer-indexof-polyfill",
+    "duplexer2",
+    "fstream",
+    "listenercount",
+    "readable-stream",
+    "setimmediate",
+    // got
+    "@sindresorhus/is",
+    "@szmarczak/http-timer",
+    "@types/cacheable-request",
+    "@types/responselike",
+    "cacheable-lookup",
+    "cacheable-request",
+    "decompress-response",
+    "http2-wrapper",
+    "lowercase-keys",
+    "p-cancelable",
+    "responselike"
 ];
 
 // npm run watch -- --environment WATCH_PATH:...
