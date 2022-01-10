@@ -38,7 +38,7 @@ export default abstract class ExtensionHandler<T extends AnyExtension, C extends
      * @param metadata The extension being deleted
      */
     protected deleteCallback(metadata: T) {
-        // To not keep CSS or anything add-on injected
+        // To not keep CSS or anything addon injected
         if (~this.enabled.indexOf(metadata.id)) this.unload(metadata);
 
         this.all.splice(

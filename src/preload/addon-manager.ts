@@ -13,15 +13,15 @@ type AddonExports = {
 
 export default class AddonManager extends ExtensionManager<Addon> {
     constructor(dirname: string) {
-        super("add-on", dirname);
+        super("addon", dirname);
     }
     protected override onFileChange(addon: Addon) {
-        // TODO: Unload & load add-on
+        // TODO: Unload & load addon
         return new Promise<void>(async resolve => {
             // Because we can't have multiple entry points
             if (Array.isArray(addon.files)) {
                 console.warn(
-                    "Expected add-on by ID '",
+                    "Expected addon by ID '",
                     addon.id,
                     "' to have string 'files' in files property. Using first array item."
                 );
@@ -33,7 +33,7 @@ export default class AddonManager extends ExtensionManager<Addon> {
                     // Make sure it's appropriate
                     if (typeof exported !== "object" || typeof exported.load !== "function") {
                         throw new Error(
-                            "Add-on's main file's exports must be an object containing at least load function and optionally init and unload."
+                            "Addon's main file's exports must be an object containing at least load function and optionally init and unload."
                         );
                     } else return exported;
                 });

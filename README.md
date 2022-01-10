@@ -14,7 +14,7 @@
   </a>
 </p>
 
-**ReGuilded** is a client injector/client mod that allows you to extend the functionality of Guilded's client by providing theme and add-on support.
+**ReGuilded** is a client injector/client mod that allows you to extend the functionality of Guilded's client by providing theme and addon support.
 
 > **NOTE:** ReGuilded isn't fully stable and you may encounter some bugs or short-comings. We are looking for more contributors working on ReGuilded.
 

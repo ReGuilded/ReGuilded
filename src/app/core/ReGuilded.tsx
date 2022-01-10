@@ -104,9 +104,9 @@ export default class ReGuilded {
                 // TODO: Link to settings "Themes"
                 "theme settings",
                 " or ",
-                // TODO: Link to settings "Add-ons"
-                "add-on settings",
-                " to install any themes or add-ons you would like."
+                // TODO: Link to settings "Addons"
+                "addon settings",
+                " to install any themes or addons you would like."
             ]
         });
     }
