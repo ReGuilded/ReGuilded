@@ -111,5 +111,5 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
 })();
 
 async function doUpdate([updateExists, updateInfo]: [boolean, VersionJson]) {
-    updateExists && (await handleUpdate(updateInfo.downloadUrl, updateInfo.sha256));
+    updateExists && (await handleUpdate(updateInfo));
 }
