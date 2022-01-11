@@ -10,18 +10,24 @@ export default async function handleUpdate(updateInfo: VersionJson) {
 
     return new Promise<void>(async (resolve, reject) => {
         await new Promise<void>((zipResolve) => {
+            const unzip = () => {
+
+                // UNZIP LOGIC HERE.
+
+            };
             if (process.platform === "linux")
                 sudoExec(`wget -O ${zipPath} ${downloadUrl}`, { name: "ReGuilded Updater" }, (error, stdout, stderr) => {
                     if(error) reject(error)
-                    else zipResolve();
+                    else {
+                        unzip();
+                        zipResolve();
+                    };
                 });
             stream(downloadUrl)
                 .pipe(createWriteStream(zipPath))
                 .on("finish", async function () {
-                    console.log("Download Finished")
-
-                    // UNZIP LOGIC HERE.
-
+                    console.log("Download Finished");
+                    unzip();
                     zipResolve();
                 });
         });
