@@ -2,6 +2,7 @@ import reGuildedInfo from "../common/reguilded.json";
 import { stream } from "got";
 import { createWriteStream } from "fs-extra";
 import { join } from "path";
+import { exec as sudoExec } from "sudo-prompt";
 
 export default async function handleUpdate(updateInfo: VersionJson) {
     const downloadUrl = updateInfo.assets[0].browser_download_url;
@@ -9,6 +10,11 @@ export default async function handleUpdate(updateInfo: VersionJson) {
 
     return new Promise<void>(async (resolve, reject) => {
         await new Promise<void>((zipResolve) => {
+            if (process.platform === "linux")
+                sudoExec(`wget -O ${zipPath} ${downloadUrl}`, { name: "ReGuilded Updater" }, (error, stdout, stderr) => {
+                    if(error) reject(error)
+                    else zipResolve();
+                });
             stream(downloadUrl)
                 .pipe(createWriteStream(zipPath))
                 .on("finish", async function () {
