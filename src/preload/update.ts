@@ -1,6 +1,6 @@
 import reGuildedInfo from "../common/reguilded.json";
 import { stream } from "got";
-import { createWriteStream } from "fs-extra";
+import { createWriteStream, statSync, constants, accessSync } from "fs-extra";
 import { join } from "path";
 import { exec as sudoExec } from "sudo-prompt";
 
@@ -10,26 +10,35 @@ export default async function handleUpdate(updateInfo: VersionJson) {
 
     return new Promise<void>(async (resolve, reject) => {
         await new Promise<void>((zipResolve) => {
-            const unzip = () => {
-
-                // UNZIP LOGIC HERE.
-
-            };
-            if (process.platform === "linux")
-                sudoExec(`wget -O ${zipPath} ${downloadUrl}`, { name: "ReGuilded Updater" }, (error, stdout, stderr) => {
-                    if(error) reject(error)
-                    else {
-                        unzip();
-                        zipResolve();
-                    };
-                });
-            stream(downloadUrl)
+            const download = (downloadUrl) => {
+                stream(downloadUrl)
                 .pipe(createWriteStream(zipPath))
                 .on("finish", async function () {
                     console.log("Download Finished");
                     unzip();
                     zipResolve();
                 });
+            };
+            const unzip = () => {
+
+                // UNZIP LOGIC HERE.
+
+            };
+            if (process.platform === "linux") {
+                try {
+                    accessSync(__dirname, constants.W_OK);
+                    download(downloadUrl);
+                } catch(e) {
+                    if(statSync(__dirname).uid !== 0) reject(e);
+                    sudoExec(`wget -O ${zipPath} ${downloadUrl}`, { name: "ReGuilded Updater" }, (error, stdout, stderr) => {
+                        if(error) reject(error)
+                        else {
+                            unzip();
+                            zipResolve();
+                        };
+                    });
+                };
+            } else download(downloadUrl);
         });
 
         resolve()
