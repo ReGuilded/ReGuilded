@@ -39,43 +39,95 @@ const globalModules = {
  *
  * This goes to electron-dl and chokidar in particular
  */
-const resolvableModules = [
-    // ReGuilded used
-    "fs",
-    "os",
-    "path",
-    "util",
-    "events",
-    "stream",
-    "module",
-    "tslib",
-    "chokidar",
-    "fs-extra",
-    "yauzl",
-    // Dependencies of the dependecies
-    // Yauzl
-    "fd-slicer",
-    "pend",
-    "buffer-crc32",
-    // fs-extra
-    "universalify",
-    "graceful-fs",
-    "jsonfile",
-    // chokidar // Thank you for bloat, chokidar
-    "readdirp",
-    "anymatch",
-    "glob-parent",
-    "is-glob",
-    "braces",
-    "normalize-path",
-    "is-binary-path",
-    "picomatch",
-    "is-extglob",
-    "fill-range",
-    "binary-extensions",
-    "to-regex-range",
-    "is-number"
-];
+const resolvableModules = [/^(?!electron$).*$/];
+// const resolvableModules = [
+//     // ReGuilded used
+//     "fs",
+//     "os",
+//     "path",
+//     "util",
+//     "events",
+//     "stream",
+//     "module",
+//     "tslib",
+//     "chokidar",
+//     "fs-extra",
+//     "yauzl",
+//     "unzipper",
+//     "got",
+//     // Dependencies of the dependecies
+//     // Yauzl
+//     "fd-slicer",
+//     "pend",
+//     "buffer-crc32",
+//     // fs-extra
+//     "universalify",
+//     "graceful-fs",
+//     "jsonfile",
+//     // chokidar // Thank you for bloat, chokidar
+//     "readdirp",
+//     "anymatch",
+//     "glob-parent",
+//     "is-glob",
+//     "braces",
+//     "normalize-path",
+//     "is-binary-path",
+//     "picomatch",
+//     "is-extglob",
+//     "fill-range",
+//     "binary-extensions",
+//     "to-regex-range",
+//     "is-number",
+//     // unzipper
+//     "big-integer",
+//     "binary",
+//     "chainsaw",
+//     "traverse",
+//     "buffers",
+//     "bluebird",
+//     "buffer-indexof-polyfill",
+//     "duplexer2",
+//     "duplexer3",
+//     "fstream",
+//     "listenercount",
+//     "readable-stream",
+//     "process-nextick-args",
+//     "isarray",
+//     "safe-buffer",
+//     "core-util-is",
+//     "inherits",
+//     "util-deprecate",
+//     "string_decoder",
+//     "rimraf",
+//     "mkdirp",
+//     "setimmediate",
+//     // got // MORE BLOAT! D:<
+//     "@sindresorhus/is",
+//     "@szmarczak/http-timer",
+//     "responselike",
+//     "cacheable-lookup",
+//     "cacheable-request",
+//     "decompress-response",
+//     "normalize-url",
+//     "get-stream",
+//     "pump",
+//     "once",
+//     "end-of-stream",
+//     "wrappy",
+//     "http-cache-semantics",
+//     "clone-response",
+//     "mimic-response",
+//     "keyv",
+//     "json-buffer",
+//     "http2-wrapper",
+//     "lowercase-keys",
+//     "p-cancelable",
+//     "responselike",
+//     "to-readable-stream",
+//     "defer-to-connect",
+//     "url-parse-lax",
+//     "prepend-http"
+// ];
 
 // npm run watch -- --environment WATCH_PATH:...
 const watchCopyLocation = process.env.WATCH_PATH,
@@ -119,7 +171,7 @@ const config = [
         ]
     },
     {
-        input: "./src/splash/main.js",
+        input: "./src/splash/preload/main.js",
         output: {
             file: join(modPath, "electron.preload-splash.js"),
             format: "cjs",
