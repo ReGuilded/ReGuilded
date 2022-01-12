@@ -7,12 +7,12 @@ import * as electron from "electron";
 import { readFileSync } from "fs";
 import { _load } from "module";
 import ipc from "./ipc";
-import { platform, getuid } from "process";
+import { platform, getuid, exit } from "process";
 
 // Ensures application isn't ran as root on linux
 if(platform === "linux" && getuid() === 0) {
-    console.log("Seems this application was ran as root, it has been closed, run as a regular user instead!");
-    electron.app.quit();
+    console.warn("\x1b[1m\x1b[33m%s\x1b[0m", "Seems this application was ran as root, it has been closed by ReGuilded to prevent issues, run as a regular user instead!");
+    exit(1);
 };
 
 // Electron
