@@ -7,6 +7,13 @@ import * as electron from "electron";
 import { readFileSync } from "fs";
 import { _load } from "module";
 import ipc from "./ipc";
+import { platform, getuid } from "process";
+
+// Ensures application isn't ran as root on linux
+if(platform === "linux" && getuid() === 0) {
+    console.log("Seems this application was ran as root, it has been closed, run as a regular user instead!");
+    electron.app.quit();
+};
 
 // Electron
 const electronPath = require.resolve("electron");
