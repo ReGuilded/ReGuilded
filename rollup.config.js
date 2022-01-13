@@ -165,15 +165,33 @@ const config = [
             commonjs(),
             resolve({
                 browser: true,
+                resolveOnly: resolvableModules,
+                ignoreDynamicRequires: true
+            }),
+            configuredPlugins.terser
+        ]
+    },
+    {
+        input: "./src/splash/preload/main.ts",
+        output: {
+            file: join(modPath, "electron.preload-splash.js"),
+            format: "cjs",
+            name: "splash",
+            globals: globalModules
+        },
+        plugins: [
+            commonjs(),
+            resolve({
+                browser: true,
                 resolveOnly: resolvableModules
             }),
             configuredPlugins.terser
         ]
     },
     {
-        input: "./src/splash/main.js",
+        input: "./src/splash/main.ts",
         output: {
-            file: join(modPath, "electron.preload-splash.js"),
+            file: join(modPath, "electron.splash.js"),
             format: "cjs",
             name: "splash",
             globals: globalModules
