@@ -17,7 +17,7 @@ if (process.platform === "linux") {
         settingsParentDir = __dirname;
     } catch {
         const configDir = join(process.env.HOME, ".reguilded");
-        if(!existsSync(configDir)) mkdirSync(configDir);
+        if (!existsSync(configDir)) mkdirSync(configDir);
         settingsParentDir = configDir;
     }
 } else settingsParentDir = __dirname;
@@ -74,7 +74,7 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
     await reGuildedConfigAndSettings()
         .then(() => (themeManager.watch(), addonManager.watch()))
         .then(async () => {
-            const preload = ipcRenderer.sendSync("REGUILDED_GET_PRELOAD");
+            const preload = ipcRenderer.sendSync("reguilded-preload");
             if (preload) import(preload);
 
             // Load renderer into Guilded

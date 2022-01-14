@@ -4,7 +4,7 @@ import webpackPush from "./webpackInject";
 
 //import { ipcRenderer } from "electron";
 
-// const preload = ipcRenderer.sendSync("REGUILDED_GET_PRELOAD");
+// const preload = ipcRenderer.sendSync("reguilded-preload");
 // if (preload) {
 //     require(preload);
 // }
@@ -31,11 +31,9 @@ document.addEventListener("readystatechange", () => {
 });
 
 // Fetch ReGuilded things
-(async() => {
+(async () => {
     // Global badge holders
-    await fetch(
-        "https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuilded/wwwroot/contributors.json"
-    )
+    await fetch("https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuilded/wwwroot/contributors.json")
         .then(
             response => response.json(),
             e => console.warn("Failed to fetch ReGuilded badges:", e)

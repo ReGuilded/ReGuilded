@@ -82,26 +82,28 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
                 self.onDeletion = callback;
             },
             async openImportPrompt() {
-                await ipcRenderer.invoke("OPEN_EXTENSION_DIALOG", self.extensionType).then(({ filePaths, canceled }) => {
-                    if (!canceled)
-                        // Copy only directories with metadata.json
-                        for (let importedDir of filePaths) {
-                            stat(path.join(importedDir, "metadata.json"), async (e, d) => {
-                                if (e)
-                                    if (e.code === "ENOENT")
-                                        throw new Error(
-                                            `Directory '${importedDir}' cannot be imported as an extension: it has no metadata.json file.`
-                                        );
-                                    else return console.error("Error while importing extension:", e);
+                await ipcRenderer
+                    .invoke("reguilded-extension-dialog", self.extensionType)
+                    .then(({ filePaths, canceled }) => {
+                        if (!canceled)
+                            // Copy only directories with metadata.json
+                            for (let importedDir of filePaths) {
+                                stat(path.join(importedDir, "metadata.json"), async (e, d) => {
+                                    if (e)
+                                        if (e.code === "ENOENT")
+                                            throw new Error(
+                                                `Directory '${importedDir}' cannot be imported as an extension: it has no metadata.json file.`
+                                            );
+                                        else return console.error("Error while importing extension:", e);
 
-                                await copy(importedDir, path.join(self.dirname, path.basename(importedDir)), {
-                                    overwrite: true,
-                                    recursive: true,
-                                    errorOnExist: false
+                                    await copy(importedDir, path.join(self.dirname, path.basename(importedDir)), {
+                                        overwrite: true,
+                                        recursive: true,
+                                        errorOnExist: false
+                                    });
                                 });
-                            });
-                        }
-                });
+                            }
+                    });
             }
         };
     }
