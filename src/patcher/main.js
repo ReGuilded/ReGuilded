@@ -1,3 +1,11 @@
+/**
+ * WE DEEPLY APOLOGIZE FOR NOT GIVING CREDIT WHERE CREDIT IS DUE BEFORE:
+ * THIS PATCHER CODE IS HIGHLY BUILT OFF OF POWERCORD'S PATCHER
+ * PERMISSION HASN'T BEEN GIVEN, BUT WE'RE CURRENTLY SEEKING OUT PERMISSION.
+ *
+ * https://github.com/powercord-org/powercord/blob/v2/src/patcher.js
+ */
+
 // Modules
 import PatchedBrowserWindow from "./patchedBrowserWindow";
 import mimicGuilded from "./mimicGuilded";
