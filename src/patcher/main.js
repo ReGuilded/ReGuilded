@@ -1,9 +1,10 @@
 /**
- * WE DEEPLY APOLOGIZE FOR NOT GIVING CREDIT WHERE CREDIT IS DUE BEFORE:
- * THIS PATCHER CODE IS HIGHLY BUILT OFF OF POWERCORD'S PATCHER
- * PERMISSION HASN'T BEEN GIVEN, BUT WE'RE CURRENTLY SEEKING OUT PERMISSION.
+ * Code here can be originally be found from Powercord, Discord Client Mod.
  *
- * https://github.com/powercord-org/powercord/blob/v2/src/patcher.js
+ * This credit goes to all module files that may seem the same as well.
+ *
+ * Original:
+ * https://github.com/powercord-org/powercord/blob/1bf24bf87b417d22851a77d1e009d25cba493818/src/patcher.js
  */
 
 // Modules

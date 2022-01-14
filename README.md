@@ -1,11 +1,3 @@
-> **NOTE:** Due to some mistakes *NATHANIEL* made while developing ReGuilded, we're dealing with some legal issues we would like to avoid. Contriubting to ReGuilded outside of the Organization has now been disabled. It will be enabled once we can resolve these issues.
->
-> To the developers of Powercord from Nathaniel:<br>
-> I'm deeply sorry for my actions, and not asking for permission to use your Patcher code most noticeable [here](https://github.com/ReGuilded/ReGuilded/blob/main/src/patcher/main.js).
-> I would like to resolve this as peacefully possible, with little-to-no damage done. This mistake is entirely my own, and none of the other Contributors to ReGuilded.<br>
->
-> You can reach me on Discord: Nathaniel.#0001<br>
-> I also already have a message out to you all.
 <p align="center">
   <img src="https://raw.githubusercontent.com/ReGuilded/ReGuilded/main/logo/banner.png" alt="ReGuilded Logo" />
   <a href="https://guilded.gg/ReGuilded">
@@ -44,6 +36,10 @@ Pull requests and Issues are welcome. You may want to coordinate with us on our 
 ## Project Status
 
 As mentioned at the top of this document, ReGuilded is currently under active development and is not fully stable yet. Please leave suggestions and ideas in the Community Tab or on our [Guilded Server](https://guilded.gg/ReGuilded). Contributions are welcome.
+
+## Credits
+
+Our Patcher code is influence by [Powercord's Patcher Code](https://github.com/powercord-org/powercord/blob/1bf24bf87b417d22851a77d1e009d25cba493818/src/patcher.js), all credit goes to them for this file.
 
 ## License
 
