@@ -49,7 +49,7 @@ export default class SettingsInjector {
                 },
                 {
                     id: "rgAddons",
-                    label: "Add-ons",
+                    label: "Addons",
                     Component: TabbedSettings,
                     hasNestedOptionsMenuPage: true,
                     props: {

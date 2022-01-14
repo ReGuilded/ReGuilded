@@ -44,7 +44,7 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
      */
     exportable: { [prop: string]: any };
     /**
-     * The type of extension it is (theme, add-on).
+     * The type of extension it is (theme, addon).
      */
     extensionType: string;
 

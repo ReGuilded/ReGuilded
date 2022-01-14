@@ -45,7 +45,7 @@ export default class ExtensionSettings extends React.Component<ChildTabProps, { 
                             </div>
                         </div>
                         <div className="ReGuildedExtensions-wrapper ReGuildedExtensions-tab-browse">
-                            <NullState type="not-found" title="Work in Progress" subtitle="Add-on and theme browser has not been done yet. Come back later." alignment="center" />
+                            <NullState type="not-found" title="Work in Progress" subtitle="Addon and theme browser has not been done yet. Come back later." alignment="center" />
                         </div>
                         <div className="ReGuildedExtensions-wrapper ReGuildedExtensions-tab-import">
                             {/* onClick={config.openImportDialog} results in "An object cannot be cloned"... */}

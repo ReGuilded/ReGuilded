@@ -16,9 +16,9 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
     /**
      * Manager that manages ReGuilded's addons
      * @param addonsDir Path to the directory that holds addons
-     * @param settings The settings of the add-ons
+     * @param settings The settings of the addons
      * @param settingsHandler The extension settings handler
-     * @param config The preload configuration for add-ons
+     * @param config The preload configuration for addons
      */
     constructor(settings: ReGuildedExtensionSettings, settingsHandler: SettingsHandler, config: RGAddonConfig) {
         super(settings, settingsHandler, config);
@@ -61,7 +61,7 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
     }
     /**
      * Returns whether the exported function exists. If the export isn't a function or undefined, it returns a warning.
-     * @param addon The add-on to check export function of
+     * @param addon The addon to check export function of
      * @param name The exported function to check
      * @returns Function exists
      */
@@ -79,7 +79,7 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
             } else return false;
         } else {
             // It's invalid
-            console.warn("Add-on by ID '%s' has invalid export '%s': must be a function or undefined.", addon.id, name);
+            console.warn("Addon by ID '%s' has invalid export '%s': must be a function or undefined.", addon.id, name);
             addon.exports[name] = undefined;
 
             return false;

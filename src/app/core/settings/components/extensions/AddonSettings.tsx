@@ -2,8 +2,8 @@
 import AddonItem from "./AddonItem.jsx";
 
 export default class AddonSettings extends ExtensionSettings {
-    protected name = "Add-ons";
-    protected type = "add-on";
+    protected name = "Addons";
+    protected type = "addon";
     ItemTemplate = AddonItem;
     constructor(props, context) {
         super(props, context);

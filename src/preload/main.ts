@@ -2,16 +2,27 @@ import { ReGuildedSettings, ReGuildedSettingsUpdate } from "../common/reguilded-
 import { contextBridge, ipcRenderer, shell, webFrame } from "electron";
 import handleUpdate, { checkForUpdate, VersionJson } from "./update";
 import getSettingsFile from "./get-settings";
-import { promises as fsPromises } from "fs";
+import { promises as fsPromises, accessSync, constants, existsSync, mkdirSync } from "fs";
 import AddonManager from "./addon-manager";
 import ThemeManager from "./theme-manager";
 import SettingsManager from "./settings";
 import createSystem from "./fake-system";
 import { join } from "path";
 
-console.log("Preload Normal");
+let settingsParentDir;
 
-const settingsPath = join(__dirname, "./settings");
+if (process.platform === "linux") {
+    try {
+        accessSync(__dirname, constants.W_OK);
+        settingsParentDir = __dirname;
+    } catch {
+        const configDir = join(process.env.HOME, ".reguilded");
+        if (!existsSync(configDir)) mkdirSync(configDir);
+        settingsParentDir = configDir;
+    }
+} else settingsParentDir = __dirname;
+
+const settingsPath = join(settingsParentDir, "./settings");
 const addonManager = new AddonManager(join(settingsPath, "addons")),
     themeManager = new ThemeManager(join(settingsPath, "themes"));
 

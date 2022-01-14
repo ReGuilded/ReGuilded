@@ -91,7 +91,7 @@ export default class GeneralSettings extends React.Component {
                                     fieldName: "loadAuthors",
 
                                     label: "Load Extension Authors",
-                                    description: "Loads add-on and theme authors.",
+                                    description: "Loads addon and theme authors.",
 
                                     defaultValue: settings.loadAuthors
                                 },
