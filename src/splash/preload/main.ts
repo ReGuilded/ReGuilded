@@ -2,9 +2,9 @@ import * as electron from "electron";
 import * as fs from "fs";
 import { join, dirname } from "path";
 
-electron.ipcRenderer.invoke("REGUILDED_BLOCK_SPLASH_CLOSE");
+electron.ipcRenderer.invoke("reguilded-no-splash-close");
 
-const preload = electron.ipcRenderer.sendSync("REGUILDED_GET_PRELOAD");
+const preload = electron.ipcRenderer.sendSync("reguilded-preload");
 
 if (preload) {
     require(preload);
