@@ -9,6 +9,8 @@ import SettingsManager from "./settings";
 import createSystem from "./fake-system";
 import { join } from "path";
 
+console.log("Preload Normal");
+
 const settingsPath = join(__dirname, "./settings");
 const addonManager = new AddonManager(join(settingsPath, "addons")),
     themeManager = new ThemeManager(join(settingsPath, "themes"));
@@ -61,7 +63,7 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
     await reGuildedConfigAndSettings()
         .then(() => (themeManager.watch(), addonManager.watch()))
         .then(async () => {
-            const preload = ipcRenderer.sendSync("REGUILDED_GET_PRELOAD");
+            const preload = ipcRenderer.sendSync("reguilded-preload");
             if (preload) import(preload);
 
             // Load renderer into Guilded
