@@ -80,7 +80,12 @@ export function inject(platformModule: { appDir: string; resourcesDir: string },
                 else
                     injection(platformModule, reguildedDir)
                         .then(() => {
-                            if(protectedInstallFolder) chmodSync(reguildedDir, 0o777)
+                            if(protectedInstallFolder) {
+                                if(process.platform === "linux") chmodSync(reguildedDir, 0o777);
+                                
+                                // Perm changing logic for other platforms here
+
+                            }
                         })
                         .then(resolve)
                         .catch(err => {
