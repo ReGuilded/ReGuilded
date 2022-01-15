@@ -11,6 +11,6 @@ const dir: string = argv.d || argv.dir;
 const task: string = argv.t || argv.task;
 
 if (dir && task == "inject") injection(platform, dir)
-else if (dir && task == "injectInProtectedFolder") inject(platform, dir)
+else if (dir && task == "injectInProtectedFolder") inject(platform, dir, null, true);
 else if (dir && task === "uninject") uninjection(platform, dir)
 else throw new Error("Expected -d or --dir flag with ReGuilded's directory");

@@ -9,17 +9,13 @@ import SettingsManager from "./settings";
 import createSystem from "./fake-system";
 import { join } from "path";
 
+const userDataDir = process.env.APPDATA || process.env.HOME;
 let settingsParentDir;
 
-if (process.platform === "linux") {
-    try {
-        accessSync(__dirname, constants.W_OK);
-        settingsParentDir = __dirname;
-    } catch {
-        const configDir = join(process.env.HOME, ".reguilded");
-        if (!existsSync(configDir)) mkdirSync(configDir);
-        settingsParentDir = configDir;
-    }
+if(!__dirname.startsWith(userDataDir)) {
+    const configDir = join(userDataDir, ".reguilded");
+    if(!existsSync(configDir)) mkdirSync(configDir);
+    settingsParentDir = configDir;
 } else settingsParentDir = __dirname;
 
 const settingsPath = join(settingsParentDir, "./settings");

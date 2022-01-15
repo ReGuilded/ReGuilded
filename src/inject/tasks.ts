@@ -4,9 +4,8 @@ import injection from "./util/injection.js";
 import uninjection from "./util/uninjection.js";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { copy, accessSync, constants, statSync } from "fs-extra";
+import { copy, accessSync, constants, statSync, chmodSync } from "fs-extra";
 import platform from "./util/platform";
-import { fstat } from "original-fs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -42,7 +41,7 @@ function rootPerms(command: string[], elevator: string, reguildedDir?: string, p
  * @param reguildedDir Path to ReGuilded's install directory
  * @param elevator Elevation command on Linux
  */
-export function inject(platformModule: { appDir: string; resourcesDir: string }, reguildedDir: string, elevator?: string) {
+export function inject(platformModule: { appDir: string; resourcesDir: string }, reguildedDir: string, elevator?: string, protectedInstallFolder?: boolean) {
     return new Promise<void>((resolve, reject) => {
         // If there is no injection present, inject
         if (!existsSync(platformModule.appDir)) {
@@ -80,6 +79,9 @@ export function inject(platformModule: { appDir: string; resourcesDir: string },
                     )
                 else
                     injection(platformModule, reguildedDir)
+                        .then(() => {
+                            if(protectedInstallFolder) chmodSync(reguildedDir, 0o777)
+                        })
                         .then(resolve)
                         .catch(err => {
                             // If there was an error, try uninjecting ReGuilded
