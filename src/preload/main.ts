@@ -85,9 +85,9 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
 
                             await fsPromises
                                 .readFile(join(__dirname, "reguilded.settings.js"), "utf8")
+                                .then(() => resolve(settingsExports)) // Moved to before script execution
                                 .then(file => webFrame.executeJavaScript(`(System => {${file}})`))
                                 .then(fn => fn(settingsSys))
-                                .then(() => resolve(settingsExports))
                                 .catch(rejection => reject(rejection));
                         })
                 },
