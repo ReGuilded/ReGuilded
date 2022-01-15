@@ -26,7 +26,8 @@
         "chmodr": "^1.2.0",
         "chokidar": "^3.5.2",
         "fs-extra": "^8.1.0",
-        "minimist": "^1.2.5"
+        "minimist": "^1.2.5",
+        "yauzl": "^2.10.0"
     },
     "devDependencies": {
         "@rollup/plugin-commonjs": "^22.0.0-4",

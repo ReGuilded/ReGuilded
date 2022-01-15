@@ -2,6 +2,7 @@ import reGuildedInfo from "../common/reguilded.json";
 import { stream } from "got";
 import { createWriteStream, statSync, constants, accessSync } from "fs-extra";
 import { join } from "path";
+import yauzl from "yauzl";
 
 export default async function handleUpdate(updateInfo: VersionJson) {
     const downloadUrl = updateInfo.assets[0].browser_download_url;
@@ -13,9 +14,31 @@ export default async function handleUpdate(updateInfo: VersionJson) {
                 .pipe(createWriteStream(zipPath))
                 .on("finish", async function () {
                     console.log("Download Finished");
-                    
-                    // UNZIP LOGIC HERE.
-
+                    yauzl.open(zipPath, (err, zipFile) => {
+                        if(err) {
+                            zipFile.close;
+                            reject(err);
+                            return;
+                        };
+                        zipFile.readEntry();
+                        zipFile.on("entry", entry => {
+                            if (/\/$/.test(entry.fileName))
+                                zipFile.readEntry();
+                            else
+                                zipFile.openReadStream(entry, (err, readStream) => {
+                                    if(err) {
+                                        zipFile.close;
+                                        reject(err);
+                                        return;
+                                    };
+                                    const unzippedStream = createWriteStream(join(__dirname, entry.fileName));
+                                    readStream.on("end", () => {
+                                        zipFile.readEntry();
+                                    });
+                                    readStream.pipe(unzippedStream);
+                                })
+                        })
+                    })
                     zipResolve();
                 });
         });
@@ -36,7 +59,7 @@ export type VersionJson = {
 
 export async function checkForUpdate(): Promise<[boolean, VersionJson]> {
     return new Promise<VersionJson>((resolve, reject) => {
-        fetch("https://api.github.com/repos/ItzNxthaniel/ReGuilded/releases/latest").then(response => response.json(), e => reject(e)).then(json => {
+        fetch("https://api.github.com/repos/ReGuilded/ReGuilded/releases/latest").then(response => response.json(), e => reject(e)).then(json => {
             resolve({
                 version: json.tag_name,
                 assets: json.assets
