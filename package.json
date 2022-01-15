@@ -23,6 +23,7 @@
     },
     "homepage": "https://github.com/ReGuilded/ReGuilded#readme",
     "dependencies": {
+        "chmodr": "^1.2.0",
         "chokidar": "^3.5.2",
         "fs-extra": "^8.1.0",
         "minimist": "^1.2.5"
@@ -32,6 +33,7 @@
         "@rollup/plugin-json": "^4.1.0",
         "@rollup/plugin-node-resolve": "^13.0.6",
         "@rollup/plugin-typescript": "^8.3.0",
+        "@types/chmodr": "^1.0.0",
         "@types/electron": "^1.6.10",
         "@types/fs-extra": "^9.0.13",
         "@types/got": "^9.6.12",

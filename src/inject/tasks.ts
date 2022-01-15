@@ -4,8 +4,9 @@ import injection from "./util/injection.js";
 import uninjection from "./util/uninjection.js";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { copy, accessSync, constants, statSync, chmodSync } from "fs-extra";
+import { copy, accessSync, constants, statSync } from "fs-extra";
 import platform from "./util/platform";
+import chmodr from "chmodr";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -81,7 +82,7 @@ export function inject(platformModule: { appDir: string; resourcesDir: string },
                     injection(platformModule, reguildedDir)
                         .then(() => {
                             if(protectedInstallFolder) {
-                                if(process.platform === "linux") chmodSync(reguildedDir, 0o777);
+                                if(process.platform === "linux") chmodr(reguildedDir, 0o777, err => reject(err));
                                 
                                 // Perm changing logic for other platforms here
 
