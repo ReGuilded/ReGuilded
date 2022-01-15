@@ -1,6 +1,6 @@
 import reGuildedInfo from "../common/reguilded.json";
 import { stream } from "got";
-import { createWriteStream, statSync, constants, accessSync } from "fs-extra";
+import { createWriteStream, unlinkSync } from "fs-extra";
 import { join } from "path";
 import yauzl from "yauzl";
 
@@ -14,7 +14,7 @@ export default async function handleUpdate(updateInfo: VersionJson) {
                 .pipe(createWriteStream(zipPath))
                 .on("finish", async function () {
                     console.log("Download Finished");
-                    yauzl.open(zipPath, (err, zipFile) => {
+                    yauzl.open(zipPath, { lazyEntries: true }, (err, zipFile) => {
                         if(err) {
                             zipFile.close;
                             reject(err);
@@ -36,13 +36,15 @@ export default async function handleUpdate(updateInfo: VersionJson) {
                                         zipFile.readEntry();
                                     });
                                     readStream.pipe(unzippedStream);
-                                })
-                        })
-                    })
+                                });
+                        });
+                    });
+                    console.log("Unzipping Finished");
                     zipResolve();
                 });
         });
-
+        unlinkSync(zipPath);
+        console.log("Update Complete");
         resolve()
     });
 }
