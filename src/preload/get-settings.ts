@@ -13,7 +13,10 @@ export default function getSettingsFile(settingsPath: string) {
         fsPromises
             .access(settingsPath)
             // Settings were found, just read the file
-            .then(() => resolve(JSON.parse(readFileSync(join(settingsPath, "settings.json"), { encoding: "utf8" }))))
+            .then(() => {
+                window.isFirstLaunch = false;
+                resolve(JSON.parse(readFileSync(join(settingsPath, "settings.json"), { encoding: "utf8" })));
+            })
             // Settings doesn't exist, create them and give default settings
             .catch(e => {
                 // Reject if file exists, but it's other error
