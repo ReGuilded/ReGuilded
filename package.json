@@ -6,7 +6,7 @@
     "scripts": {
         "injectbare": "node out/injector.main.js inject",
         "uninjectbare": "node out/injector.main.js uninject",
-        "build": "rollup -c rollup.config.js",
+        "build": "npm install && rollup -c rollup.config.js",
         "watch": "rollup -c rollup.config.js -w",
         "inject": "npm run build && node out/injector.main.js injectWrapper",
         "uninject": "npm run build && node out/injector.main.js uninjectWrapper",
