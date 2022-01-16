@@ -28,6 +28,15 @@ export default class ReGuildedWindow extends electron.BrowserWindow {
 
         super(options);
 
+        // This prevents Guilded from crashing when clicking on non-Guilded links
+        // Apparently, ReGuilded's preload gets loaded when link is clicked and the renderer's webFrame
+        // gets immediately disposed
+        this.webContents.setWindowOpenHandler(({ url }) => {
+            // Replace the default window opener with openExternal
+            electron.shell.openExternal(url);
+            return { action: "deny" };
+        });
+
         this.webContents.guildedPreload = oldPreload;
     }
 }
