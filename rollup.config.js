@@ -202,6 +202,7 @@ const config = [
                 browser: true,
                 resolveOnly: resolvableModules
             }),
+            configuredPlugins.json,
             configuredPlugins.terser
         ]
     },
