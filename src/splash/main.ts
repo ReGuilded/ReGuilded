@@ -1,21 +1,21 @@
-/* const setCustomSplash = () => document.querySelector('body').innerHTML =
-`
-    <body class="Transparent-Background">
-    <div id="splashscreenContainer" class="Guilded-Background">
-    <img id="splashAnimatedLogo" src="splashscreenloadinganimation.webp">
-    </div>
-    <div id="splashTextContainer">
-    <div id="splashTextBlock">
-        <br>
-        <br>
-        <hr width="150em" color="a3a3ac" border-radius="5px">
-        <br>
-        <a id="splashText">ReGuilded is starting...</a>
-        <div id="splashText"></div>
-        <div id="splashProgress"></div>
-    </div>
-    </div>
-    </body>
-`;
+import reGuildedInfo from "../common/reguilded.json";
 
-document.addEventListener('DOMContentLoaded', setCustomSplash); */
+let reGuildedSplashFooter = document.createElement("div");
+reGuildedSplashFooter.innerText = reGuildedInfo.version + " - ReGuilded";
+reGuildedSplashFooter.id = "reguildedSplashFooter"
+
+const cssText = "color: #a3a3ac;" +
+    "   position: fixed;" +
+    "   bottom: 0;" +
+    "   margin: 8px;" +
+    "   font-family: GothamNarrowSSm;" +
+    "   font-size: 18px;" +
+    "   text-align: center"
+reGuildedSplashFooter.setAttribute("style", cssText);
+
+const elementExists = setInterval(function() {
+    if (document.getElementById("splashTextBlock") != null) {
+        document.getElementById("splashTextBlock").append(reGuildedSplashFooter);
+        clearInterval(elementExists);
+    }
+}, 250);
