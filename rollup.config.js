@@ -263,7 +263,8 @@ const config = [
         plugins: [
             commonjs(),
             resolve({
-                browser: false
+                browser: false,
+                ignoreDynamicRequires: true
             }),
             configuredPlugins.json,
             configuredPlugins.ts,
