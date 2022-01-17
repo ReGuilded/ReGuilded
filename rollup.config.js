@@ -261,9 +261,7 @@ const config = [
             name: "injector"
         },
         plugins: [
-            commonjs({
-                ignoreDynamicRequires: true
-            }),
+            commonjs(),
             resolve({
                 browser: false
             }),
