@@ -1,5 +1,5 @@
 import { existsSync } from "fs";
-import { spawn } from "child_process";
+import { spawnSync } from "child_process";
 import injection from "./util/injection.js";
 import uninjection from "./util/uninjection.js";
 import { join, dirname } from "path";
@@ -18,24 +18,22 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
  * @param protectedInstallFolder Whether ReGuilded has it's files in a protected folder or not
  */
 function rootPerms(command: string[], elevator: string, reguildedDir?: string, protectedInstallFolder?: boolean) {
-    return new Promise<void>((resolve, reject) => {
-        if(protectedInstallFolder) console.warn(`ReGuilded Linux requires root permissions to write in '${join(reguildedDir, "..")}'`);
-        else console.warn(`ReGuilded Linux requires root permissions to create, modify or delete '${platform.resourcesDir}'`);
+    if(protectedInstallFolder) console.warn(`ReGuilded Linux requires root permissions to write in '${join(reguildedDir, "..")}'`);
+    else console.warn(`ReGuilded Linux requires root permissions to create, modify or delete '${platform.resourcesDir}'`);
 
-        try {
-            const cmd = spawn(elevator, command, { stdio: "inherit" });
-            cmd.on("exit", () => resolve());
-        } catch (e) {
-            console.error("Error while prompting root command.");
+    try {
+        spawnSync(elevator, command, { stdio: "inherit" });
+    } catch (e) {
+        console.error("Error while prompting root command.");
 
-            if (elevator === "sudo")
-                console.log(
-                    "Sudo usage detected. Was it meant to be `doas` or something else? If so, pass the `--doas` or `--elevator=command_name` flag."
-                );
+        if (elevator === "sudo")
+            console.log(
+                "Sudo usage detected. Was it meant to be `doas` or something else? If so, pass the `--doas` or `--elevator=command_name` flag."
+            );
 
-            reject(e);
-        }
-    });
+        throw e;
+    }
+    process.exit(0)
 }
 
 /**
@@ -79,7 +77,7 @@ export function inject(platformModule: { appDir: string; resourcesDir: string },
                     rootPerms(
                         ["node", join(__dirname, "injector.linux-util.js"), "-d", reguildedDir, "-t", "inject"],
                         elevator
-                    ).then(resolve)
+                    )
                 else
                     injection(platformModule, reguildedDir)
                         .then(() => {
@@ -114,7 +112,7 @@ export function inject(platformModule: { appDir: string; resourcesDir: string },
 export async function uninject(
     platformModule: { appDir: string; resourcesDir: string },
     reguildedDir: string,
-    elevator?: string
+    elevator: string
 ) {
     return new Promise<void>((resolve, reject) => {
         // If there is an injection, then remove the injection
@@ -124,7 +122,7 @@ export async function uninject(
                 rootPerms(
                     ["node", join(__dirname, "injector.linux-util.js"), "-d", reguildedDir, "-t", "uninject"],
                     elevator
-                ).then(resolve);
+                );
             } else uninjection(platformModule, reguildedDir).then(resolve).catch(reject);
         } else reject("There is no injection.");
     });
@@ -142,19 +140,10 @@ export async function uninject(
     elevator: string
 ) {
     return new Promise<void>((resolve, reject) => {
-        /* const injectArgs = ["run", "injectbare"];
+        const injectArgs = ["run", "injectbare"];
         const linuxArgs = ["--", `--elevator=${elevator}`];
         if (process.platform === "linux") injectArgs.push( ...linuxArgs );
-        spawnSync("npm", injectArgs,  { stdio: "inherit" }); */
-        if(process.platform === "linux")
-            inject(platformModule, reguildedDir, elevator)
-                .then(resolve)
-                .catch(err => reject(err));
-        else {
-            inject(platformModule, reguildedDir)
-                .then(resolve)
-                .catch(err => reject(err));
-        }
+        spawnSync("npm", injectArgs,  { stdio: "inherit" });
     });
 }
 
@@ -170,19 +159,10 @@ export async function uninject(
     elevator: string
 ) {
     return new Promise<void>((resolve, reject) => {
-        /* const uninjectArgs = ["run", "uninjectbare"];
+        const uninjectArgs = ["run", "uninjectbare"];
         const linuxArgs = ["--", `--elevator=${elevator}`];
         if (process.platform === "linux") uninjectArgs.push( ...linuxArgs );
-        spawnSync("npm", uninjectArgs,  { stdio: "inherit" }); */
-        if(process.platform === "linux")
-            uninject(platformModule, reguildedDir, elevator)
-                .then(resolve)
-                .catch(err => reject(err));
-        else {
-            uninject(platformModule, reguildedDir)
-                .then(resolve)
-                .catch(err => reject(err));
-        }
+        spawnSync("npm", uninjectArgs,  { stdio: "inherit" });
     });
 }
 
@@ -195,18 +175,19 @@ export async function uninject(
  export async function reinjectWrapper(
     platformModule: { appDir: string; resourcesDir: string },
     reguildedDir: string,
-    elevator?: string
+    elevator: string
 ) {
-    try {
-        if (process.platform === "linux") {
-            await uninject(platformModule, reguildedDir, elevator);
-            await inject(platformModule, reguildedDir, elevator);
-        } else {
-            await uninject(platformModule, reguildedDir);
-            await inject(platformModule, reguildedDir);
-        }
-    } catch(err) {
-        throw err;
-    };
-    return;
+    return new Promise<void>((resolve, reject) => {
+        if (existsSync(platformModule.appDir)) {
+            const uninjectArgs = ["run", "uninjectbare"];
+            const injectArgs = ["run", "injectbare"];
+            const linuxArgs = ["--", `--elevator=${elevator}`];
+            if(process.platform === "linux") {
+                uninjectArgs.push( ...linuxArgs );
+                injectArgs.push( ...linuxArgs );
+            };
+            spawnSync("npm", uninjectArgs, { stdio: "inherit" });
+            spawnSync("npm", injectArgs, { stdio: "inherit" });
+        } else reject("There is no injection.")
+    });
 }
