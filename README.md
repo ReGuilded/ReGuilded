@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/ReGuilded/ReGuilded/main/logo/banner.png" alt="ReGuilded Logo" />
   <a href="https://guilded.gg/ReGuilded">
-    <img src="https://img.shields.io/static/v1?label=Chat%20on&message=Guilded&style=flat-square&color=F5C400&logo=guilded" alt="Chat on Guilded" />
+    <img src="https://img.shields.io/static/v1?label=Chat%20on&message=Guilded&style=flat-square&color=F5C400&logo=guilded&logoColor=white" alt="Chat on Guilded" />
   </a>
   <a href="https://github.com/ReGuilded/ReGuilded/issues">
     <img alt="Open Issues" src="https://img.shields.io/github/issues-raw/ReGuilded/ReGuilded?style=flat-square">
