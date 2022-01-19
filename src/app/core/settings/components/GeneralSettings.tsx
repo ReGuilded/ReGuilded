@@ -12,11 +12,6 @@ type GeneralSettingsValues = {
     loadAuthors: boolean,
     badge: { optionName: string }
 }
-const FakeUpdateJson = {
-    DownloadZip: "https://github.com/ReGuilded/ReGuilded/archive/refs/tags/v0.0.3-alpha.zip",
-    Sha256Zip: "",
-
-};
 
 @SavableSettings
 @DefaultContextProvider
