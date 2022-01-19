@@ -202,6 +202,7 @@ const config = [
                 browser: true,
                 resolveOnly: resolvableModules
             }),
+            configuredPlugins.json,
             configuredPlugins.terser
         ]
     },
@@ -260,11 +261,10 @@ const config = [
             name: "injector"
         },
         plugins: [
-            commonjs({
-                ignoreDynamicRequires: true
-            }),
+            commonjs(),
             resolve({
-                browser: false
+                browser: false,
+                ignoreDynamicRequires: true
             }),
             configuredPlugins.json,
             configuredPlugins.ts,

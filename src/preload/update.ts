@@ -1,7 +1,7 @@
 import reGuildedInfo from "../common/reguilded.json";
 import { stream } from "got";
-import { createWriteStream, unlinkSync } from "fs-extra";
-import { join } from "path";
+import { createWriteStream, unlink, mkdirp, pathExists } from "fs-extra";
+import { dirname, join } from "path";
 import yauzl from "yauzl";
 
 export default async function handleUpdate(updateInfo: VersionJson) {
@@ -22,20 +22,34 @@ export default async function handleUpdate(updateInfo: VersionJson) {
                         };
                         zipFile.readEntry();
                         zipFile.on("entry", entry => {
-                            if (/\/$/.test(entry.fileName))
+                            const ensureDirectories = () => new Promise<void>(dirResolve => {
+                                console.log(entry.fileName);
+                                const dir = dirname(join(__dirname, entry.fileName));
+                                pathExists(dir)
+                                    .then(value => {
+                                        if(!value)  mkdirp(dir).then(resolve)
+                                    })
+                                    .then(dirResolve);
+                                    
+                            });
+                            if (/\/$/.test(entry.fileName)) {
+                                // Directory only entries
                                 zipFile.readEntry();
-                            else
+                            } else
                                 zipFile.openReadStream(entry, (err, readStream) => {
-                                    if(err) {
-                                        zipFile.close;
-                                        reject(err);
-                                        return;
-                                    };
-                                    const unzippedStream = createWriteStream(join(__dirname, entry.fileName));
-                                    readStream.on("end", () => {
-                                        zipFile.readEntry();
-                                    });
-                                    readStream.pipe(unzippedStream);
+                                    ensureDirectories()
+                                        .then(() => {
+                                            if(err) {
+                                                zipFile.close();
+                                                reject(err);
+                                                return;
+                                            };
+                                            const unzippedStream = createWriteStream(join(__dirname, entry.fileName));
+                                            readStream.on("end", () => {
+                                                zipFile.readEntry();
+                                            });
+                                            readStream.pipe(unzippedStream);
+                                        })
                                 });
                         });
                     });
@@ -43,7 +57,7 @@ export default async function handleUpdate(updateInfo: VersionJson) {
                     zipResolve();
                 });
         });
-        unlinkSync(zipPath);
+        await unlink(zipPath);
         console.log("Update Complete");
         resolve()
     });
@@ -67,5 +81,5 @@ export async function checkForUpdate(): Promise<[boolean, VersionJson]> {
                 assets: json.assets
             });
         });
-    }).then(json => [(window.updateExists = json.version !== reGuildedInfo.version), (window.latestVersionInfo = json)])
+    }).then(json => [(window.updateExists = (json.assets.length !== 0 && json.version !== reGuildedInfo.version)), (window.latestVersionInfo = json)])
 }
