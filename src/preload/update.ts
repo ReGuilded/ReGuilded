@@ -67,5 +67,5 @@ export async function checkForUpdate(): Promise<[boolean, VersionJson]> {
                 assets: json.assets
             });
         });
-    }).then(json => [(window.updateExists = json.version !== reGuildedInfo.version), (window.latestVersionInfo = json)])
+    }).then(json => [(window.updateExists = (json.assets.length !== 0 && json.version !== reGuildedInfo.version)), (window.latestVersionInfo = json)])
 }
