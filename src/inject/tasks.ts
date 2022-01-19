@@ -18,7 +18,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
  * @param protectedInstallFolder Whether ReGuilded has it's files in a protected folder or not
  */
 function rootPerms(command: string[], elevator: string, reguildedDir?: string, protectedInstallFolder?: boolean) {
-    if(protectedInstallFolder) console.warn(`ReGuilded Linux requires root permissions to write in '${join(reguildedDir, "..")}'`);
+    if (protectedInstallFolder)
+        console.warn(`ReGuilded Linux requires root permissions to write in '${join(reguildedDir, "..")}'`);
     else console.warn(`ReGuilded Linux requires root permissions to create, modify or delete '${platform.resourcesDir}'`);
 
     try {
@@ -33,7 +34,7 @@ function rootPerms(command: string[], elevator: string, reguildedDir?: string, p
 
         throw e;
     }
-    process.exit(0)
+    process.exit(0);
 }
 
 /**
@@ -42,63 +43,81 @@ function rootPerms(command: string[], elevator: string, reguildedDir?: string, p
  * @param reguildedDir Path to ReGuilded's install directory
  * @param elevator Elevation command on Linux
  */
-export function inject(platformModule: { appDir: string; resourcesDir: string }, reguildedDir: string, elevator?: string, protectedInstallFolder?: boolean) {
+export function inject(
+    platformModule: { appDir: string; resourcesDir: string },
+    reguildedDir: string,
+    elevator?: string,
+    protectedInstallFolder?: boolean
+) {
     return new Promise<void>((resolve, reject) => {
         // If there is no injection present, inject
         if (!existsSync(platformModule.appDir)) {
-            const src = join(__dirname, "./app");
+            const src = join(__dirname, "./reguilded.asar");
 
-            if(process.platform === "linux") {
-                const parentDir = join(reguildedDir, "..")
+            if (process.platform === "linux") {
+                const parentDir = join(reguildedDir, "..");
                 try {
-                    if(!existsSync(parentDir)) {
+                    if (!existsSync(parentDir)) {
                         reject(`${parentDir} does not exists, injection can't proceed!`);
                         return; // stops injection before attempting w/ non existent directory
-                    };
+                    }
                     accessSync(parentDir, constants.W_OK);
-                } catch(err) {
-                    if(statSync(parentDir).uid === 0)
+                } catch (err) {
+                    if (statSync(parentDir).uid === 0)
                         rootPerms(
-                            ["node", join(__dirname, "injector.linux-util.js"), "-d", reguildedDir, "-t", "injectInProtectedFolder"],
-                            elevator, reguildedDir, true
+                            [
+                                "node",
+                                join(__dirname, "injector.linux-util.js"),
+                                "-d",
+                                reguildedDir,
+                                "-t",
+                                "injectInProtectedFolder"
+                            ],
+                            elevator,
+                            reguildedDir,
+                            true
                         );
                     else {
                         reject(`Can't safely inject due to no access on '${parentDir}' and it's not owned by root!`);
                         return; // ensures injection is stopped before any possible damage
                     }
-                };
-            };
+                }
+            }
 
-            copy(src, reguildedDir, { recursive: true, errorOnExist: false, overwrite: true }, err => {
-                if (err) reject(err);
+            copy(
+                src,
+                join(reguildedDir, "reguilded.asar"),
+                { recursive: true, errorOnExist: false, overwrite: true },
+                err => {
+                    if (err) reject(err);
 
-                // If this is on Linux and not on root, execute full injection with root perms
-                if (process.platform === "linux" && process.getuid() !== 0)
-                    rootPerms(
-                        ["node", join(__dirname, "injector.linux-util.js"), "-d", reguildedDir, "-t", "inject"],
-                        elevator
-                    )
-                else
-                    injection(platformModule, reguildedDir)
-                        .then(() => {
-                            if(protectedInstallFolder) {
-                                if(process.platform === "linux") chmodr(reguildedDir, 0o777, err => reject(err));
-                                
-                                // Perm changing logic for other platforms here
+                    // If this is on Linux and not on root, execute full injection with root perms
+                    if (process.platform === "linux" && process.getuid() !== 0)
+                        rootPerms(
+                            ["node", join(__dirname, "injector.linux-util.js"), "-d", reguildedDir, "-t", "inject"],
+                            elevator
+                        );
+                    else
+                        injection(platformModule, reguildedDir)
+                            .then(() => {
+                                if (protectedInstallFolder) {
+                                    if (process.platform === "linux") chmodr(reguildedDir, 0o777, err => reject(err));
 
-                            }
-                        })
-                        .then(resolve)
-                        .catch(err => {
-                            // If there was an error, try uninjecting ReGuilded
-                            console.log("There was an error, reverting process more details will follow shortly...");
+                                    // Perm changing logic for other platforms here
+                                }
+                            })
+                            .then(resolve)
+                            .catch(err => {
+                                // If there was an error, try uninjecting ReGuilded
+                                console.log("There was an error, reverting process more details will follow shortly...");
 
-                            if (existsSync(platformModule.appDir))
-                                uninject(platformModule, reguildedDir, elevator).catch(reject);
+                                if (existsSync(platformModule.appDir))
+                                    uninject(platformModule, reguildedDir, elevator).catch(reject);
 
-                            reject(err);
-                        });
-            });
+                                reject(err);
+                            });
+                }
+            );
         } else reject("There is already an injection.");
     });
 }
@@ -134,7 +153,7 @@ export async function uninject(
  * @param reguildedDir Path to ReGuilded's install directory
  * @param elevator Elevation command on Linux
  */
- export async function injectWrapper(
+export async function injectWrapper(
     platformModule: { appDir: string; resourcesDir: string },
     reguildedDir: string,
     elevator: string
@@ -142,8 +161,8 @@ export async function uninject(
     return new Promise<void>((resolve, reject) => {
         const injectArgs = ["run", "injectbare"];
         const linuxArgs = ["--", `--elevator=${elevator}`];
-        if (process.platform === "linux") injectArgs.push( ...linuxArgs );
-        spawnSync("npm", injectArgs,  { stdio: "inherit" });
+        if (process.platform === "linux") injectArgs.push(...linuxArgs);
+        spawnSync("npm", injectArgs, { stdio: "inherit" });
     });
 }
 
@@ -153,7 +172,7 @@ export async function uninject(
  * @param reguildedDir Path to ReGuilded's install directory
  * @param elevator Elevation command on Linux
  */
- export async function uninjectWrapper(
+export async function uninjectWrapper(
     platformModule: { appDir: string; resourcesDir: string },
     reguildedDir: string,
     elevator: string
@@ -161,8 +180,8 @@ export async function uninject(
     return new Promise<void>((resolve, reject) => {
         const uninjectArgs = ["run", "uninjectbare"];
         const linuxArgs = ["--", `--elevator=${elevator}`];
-        if (process.platform === "linux") uninjectArgs.push( ...linuxArgs );
-        spawnSync("npm", uninjectArgs,  { stdio: "inherit" });
+        if (process.platform === "linux") uninjectArgs.push(...linuxArgs);
+        spawnSync("npm", uninjectArgs, { stdio: "inherit" });
     });
 }
 
@@ -172,7 +191,7 @@ export async function uninject(
  * @param reguildedDir Path to ReGuilded's install directory
  * @param elevator Elevation command on Linux
  */
- export async function reinjectWrapper(
+export async function reinjectWrapper(
     platformModule: { appDir: string; resourcesDir: string },
     reguildedDir: string,
     elevator: string
@@ -182,12 +201,12 @@ export async function uninject(
             const uninjectArgs = ["run", "uninjectbare"];
             const injectArgs = ["run", "injectbare"];
             const linuxArgs = ["--", `--elevator=${elevator}`];
-            if(process.platform === "linux") {
-                uninjectArgs.push( ...linuxArgs );
-                injectArgs.push( ...linuxArgs );
-            };
+            if (process.platform === "linux") {
+                uninjectArgs.push(...linuxArgs);
+                injectArgs.push(...linuxArgs);
+            }
             spawnSync("npm", uninjectArgs, { stdio: "inherit" });
             spawnSync("npm", injectArgs, { stdio: "inherit" });
-        } else reject("There is no injection.")
+        } else reject("There is no injection.");
     });
 }
