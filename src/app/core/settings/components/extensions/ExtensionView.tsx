@@ -5,7 +5,7 @@ import { ChildTabProps } from "../TabbedSettings";
 import ErrorBoundary from "../ErrorBoundary";
 import { ReactElement } from "react";
 
-const { React, SvgIcon, GuildedText, Form, OverlayProvider } = window.ReGuildedApi;
+const { React, SvgIcon, GuildedText, Form, OverlayProvider, CarouselList, MediaRenderer } = window.ReGuildedApi;
 
 type Props<T> = ChildTabProps & { extension: T };
 
@@ -113,7 +113,7 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
         const { switchTab, extension } = this.props;
         return (
             <ErrorBoundary>
-                <div className="OptionsMenuPageWrapper-container ReGuildedExtensionPage-wrapper" style={{ paddingLeft: "32px", paddingRight: "32px" }}>
+                <div className="OptionsMenuPageWrapper-container ReGuildedExtensionPage-wrapper" style={{ paddingLeft: 32, paddingRight: 32, maxWidth: "100%" }}>
                     <div className="ReGuildedExtensionPage-container">
                         <header className="ReGuildedExtensionPage-header DocsDisplayV2-title">
                             {/* <| */}
@@ -126,6 +126,15 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
                         <div className="ReGuildedExtensionPage-content">
                             {/* Description */}
                             { extension.readme?.length ? window.ReGuildedApi.renderMarkdown(extension.readme) : null }
+                            {/* Preview images carousel */}
+                            { extension.images &&
+                                <div className="ReGuildedExtensionImages-container">
+                                    <GuildedText className="ReGuildedExtensionImages-heading" type="heading2">Previews</GuildedText>
+                                    <CarouselList scrollOnChildrenChange={true} arrowSize="lg" className="ReGuildedExtensionImages-list" minHeight={108}>
+                                        { extension.images.map(dataUrl => <MediaRenderer className="MediaRenderer-content MediaRenderer-content-editor-simple" src={dataUrl}/>) }
+                                    </CarouselList>
+                                </div>
+                            }
                             { this.renderContent(extension) }
                             { this.renderActionForm() }
                         </div>

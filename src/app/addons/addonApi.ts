@@ -1,4 +1,11 @@
-import { SvgIcon, ItemManager, NullState, WordDividerLine, BannerWithButton } from "../guilded/components/content";
+import {
+    SvgIcon,
+    ItemManager,
+    NullState,
+    WordDividerLine,
+    BannerWithButton,
+    MediaRenderer
+} from "../guilded/components/content";
 import { getOwnerInstance, patchElementRenderer, waitForElement } from "./lib";
 import AddonHandler from "../core/handlers/addon";
 import { OverflowButton } from "../guilded/menu";
@@ -7,6 +14,7 @@ import WebpackManager from "./webpack";
 import { Form } from "../guilded/form";
 import _ReactDOM from "react-dom";
 import _React from "react";
+import { Carousel as CarouselList } from "../guilded/components/sections";
 
 // Provides API for addons to interact with Guilded.
 // TODO: Better documentation and probably TS declaration files.
@@ -107,6 +115,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     BannerWithButton: webpack => webpack.withClassProperty("hasText"),
     HorizontalTabs: webpack => webpack.withClassProperty("tabOptions"),
     ProfilePicture: webpack => webpack.withClassProperty("borderType"),
+    CarouselList: webpack => webpack.withClassProperty("overflowRight"),
     MarkdownRenderer: webpack => webpack.withClassProperty("plainText"),
     SvgIcon: webpack => webpack.withClassProperty("iconComponentProps"),
     ActionMenuSection: webpack => webpack.withCode("ActionMenu-section"),
@@ -114,7 +123,8 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     ActionMenuItem: webpack => webpack.withClassProperty("useRowWrapper"),
     ToggleField: webpack => webpack.withCode("ToggleFieldWrapper-container"),
     inputFieldValidations: webpack => webpack.withProperty("ValidateUserUrl"),
-    UserBasicInfo: webpack => webpack.withClassProperty("userPresenceContext")
+    UserBasicInfo: webpack => webpack.withClassProperty("userPresenceContext"),
+    MediaRenderer: webpack => webpack.withClassProperty("progressiveImageHasLoaded")
 };
 
 export default class AddonApi {
@@ -267,6 +277,12 @@ export default class AddonApi {
      */
     get CalloutBadge() {
         return this.getCached("CalloutBadge")?.default;
+    }
+    /**
+     * The list of items that can overflow in certain direction and can be scrolled.
+     */
+    get CarouselList(): typeof CarouselList {
+        return this.getCached("CarouselList")?.default;
     }
     /**
      * Methods related to channel management.
@@ -483,6 +499,12 @@ export default class AddonApi {
     get MarkdownRenderer(): typeof _React.Component {
         //typeof React.Component<{ plainText: string, grammar: PrismGrammar }, {}>
         return this.getCached("MarkdownRenderer")?.default;
+    }
+    /**
+     * Renderable chat image.
+     */
+    get MediaRenderer(): typeof MediaRenderer {
+        return this.getCached("MediaRenderer")?.default;
     }
     /**
      * Model class for team members.

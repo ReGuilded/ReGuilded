@@ -1,7 +1,7 @@
 import { promises as fsPromises, stat, readdirSync, readdir, readFile } from "fs";
 import { AnyExtension } from "../common/extensions";
 import { watch as chokidarWatch } from "chokidar";
-import { ipcRenderer } from "electron";
+import { ipcRenderer, nativeImage } from "electron";
 import { copy } from "fs-extra";
 import path from "path";
 
@@ -240,6 +240,20 @@ function addToMetadata<T extends AnyExtension>(extension: T, dirname: string) {
             });
         }
     });
+    if (extension.images) {
+        if (Array.isArray(extension.images))
+            // Since renderer has no way to access to images, we have to convert image paths to `data:...`
+            extension.images = extension.images.map(imagePath =>
+                nativeImage.createFromPath(path.resolve(extension.dirname, imagePath)).toDataURL()
+            );
+        else {
+            console.warn(
+                "Extension metadata property 'images' must be a string array in extension by ID '%s'",
+                extension.id
+            );
+            extension.images = undefined;
+        }
+    }
     // Make sure author is an ID
     if (extension.author && (typeof extension.author !== "string" || extension.author.length !== 8)) {
         console.warn("Author must be an identifier of the user in Guilded, not their name or anything else");

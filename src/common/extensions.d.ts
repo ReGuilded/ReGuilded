@@ -8,6 +8,7 @@ export declare interface Extension<T extends string | string[]> {
     contributors?: string[];
     version?: string;
     repoUrl?: string;
+    images?: string[];
     readme?: string;
 }
 export declare interface Theme extends Extension<string[]> {

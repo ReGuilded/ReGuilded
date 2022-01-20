@@ -44,6 +44,20 @@ export declare class GuildedText extends React.Component<GuildedTextProps> {
 }
 //#endregion
 
+//#region MediaRenderer
+type MediaRendererProps = {
+    className?: string;
+    progressiveImageSrc?: string;
+    src: string;
+    onClick?: () => void;
+    onError?: Function;
+};
+export declare class MediaRenderer extends React.Component<MediaRendererProps> {
+    constructor(props: MediaRendererProps, context?: any);
+    get progressiveImageHasLoaded(): boolean;
+}
+//#endregion
+
 //#region NullState
 type NullStateProps = {
     className?: string;
