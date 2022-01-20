@@ -16,7 +16,7 @@ if(!__dirname.startsWith(userDataDir)) {
     const configDir = join(userDataDir, ".reguilded");
     if(!existsSync(configDir)) mkdirSync(configDir);
     settingsParentDir = configDir;
-} else settingsParentDir = __dirname;
+} else settingsParentDir = join(__dirname, "..");
 
 const settingsPath = join(settingsParentDir, "./settings");
 const addonManager = new AddonManager(join(settingsPath, "addons")),
