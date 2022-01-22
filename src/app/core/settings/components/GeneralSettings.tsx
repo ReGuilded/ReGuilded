@@ -10,7 +10,8 @@ enum Badge {
 }
 type GeneralSettingsValues = {
     loadAuthors: boolean,
-    badge: { optionName: string }
+    badge: { optionName: string },
+    autoUpdate: boolean
 }
 
 @SavableSettings
@@ -34,10 +35,10 @@ export default class GeneralSettings extends React.Component {
     }
     private *onSaveChanges({ values, isValid }) {
         if(isValid) {
-            const { loadAuthors, badge: { optionName: badge } }: GeneralSettingsValues = values;
+            const { loadAuthors, badge: { optionName: badge }, autoUpdate }: GeneralSettingsValues = values;
             // Since we need to convert form values to proper values
             // (E.g., radios always returning { optionName: "xyz" } instead of "xyz")
-            const configValues = { loadAuthors: loadAuthors, badge: Badge[badge] }
+            const configValues = { loadAuthors, badge: Badge[badge], autoUpdate }
             return window.ReGuilded.settingsHandler.updateSettings(configValues);
         } else throw new Error("Invalid settings form values");
     }
@@ -45,28 +46,31 @@ export default class GeneralSettings extends React.Component {
         const { statusContext } = this;
 
         await window.ReGuildedConfig
-            .checkForUpdate().then(async ([ updateExists, updateInfo ]) =>
+            .checkForUpdate().then(async ([ updateExists, updateInfo ]) => {
                 // Allow the update to be cancelled
-                updateExists && await this.SimpleConfirmationOverlay.Open({
-                    header: "Update ReGuilded",
-                    text: `Version '${updateInfo.version}' of ReGuilded has been found. Do you want to update to it?`,
-                    confirmText: "Update",
-                    confirmType: "success"
-                })
-                    .then(async ({ confirmed }) =>
-                        // Display ephermal status messages for users to see
-                        confirmed && await window.ReGuildedConfig.doUpdateIfPossible()
-                            .then(() => statusContext.displayStatus({
-                                text: "ReGuilded update finished. CTRL + R to refresh",
-                                type: "success"
-                            }))
-                            .catch(e => {
-                                if (typeof e === "string")
-                                    statusContext.displayError({ message: e, error: e });
-                                else statusContext.displayError({ message: e.message, error: e });
-                            })
-                    )
-            );
+                if (updateExists)
+                    await this.SimpleConfirmationOverlay.Open({
+                        header: "Update ReGuilded",
+                        text: `Version '${updateInfo.version}' of ReGuilded has been found. Do you want to update to it?`,
+                        confirmText: "Update",
+                        confirmType: "success"
+                    })
+                        .then(async ({ confirmed }) =>
+                            // Display ephermal status messages for users to see
+                            confirmed && await window.ReGuildedConfig.doUpdateIfPossible()
+                                .then(() => statusContext.displayStatus({
+                                    text: "ReGuilded update finished. CTRL + R to refresh",
+                                    type: "success"
+                                }))
+                                .catch(e => {
+                                    if (typeof e === "string")
+                                        statusContext.displayError({ message: e, error: e });
+                                    else statusContext.displayError({ message: e.message, error: e });
+                                })
+                        )
+                // Notify that there is no update
+                else statusContext.displayStatus({ text: "No ReGuilded update has been found", type: "info" });
+            });
     }
     render() {
         const { settings } = window.ReGuilded.settingsHandler;
@@ -79,6 +83,32 @@ export default class GeneralSettings extends React.Component {
                     sectionStyle: "border",
                     sections: [
                         {
+                            rowMarginSize: "lg",
+                            fieldSpecs: [
+                                {
+                                    type: "Switch",
+                                    fieldName: "autoUpdate",
+
+                                    label: "Auto-Update",
+                                    description: "Every time Guilded is launched or gets refreshed, ReGuilded checks for its own updates and installs them if they exists.",
+
+                                    defaultValue: settings.autoUpdate
+                                }
+                            ]
+                        },
+                        {
+                            fieldSpecs: [
+                                {
+                                    type: "Button",
+                                    buttonText: "Check for updates",
+                                    description: `Currently installed version: ${reGuildedInfo.version}`,
+                                    onClick: this.Update
+                                }
+                            ]
+                        },
+                        {
+                            header: "Advanced",
+                            isCollapsible: true,
                             rowMarginSize: "lg",
                             fieldSpecs: [
                                 {
@@ -96,7 +126,7 @@ export default class GeneralSettings extends React.Component {
                                     isOptional: false,
 
                                     label: "Badge handling",
-                                    description: "(DOESN'T WORK YET) This determines how to handle ReGuilded maintainer and other badges.",
+                                    description: "This determines how to handle ReGuilded maintainer and other badges.",
                                     isDescriptionAboveField: true,
 
                                     layout: "vertical",
@@ -115,7 +145,7 @@ export default class GeneralSettings extends React.Component {
                                             layout: "horizontal",
                                             label: "Show as a flair",
                                             shortLabel: "Flair",
-                                            description: "Shows ReGuilded badges as global flairs like stonks flair."
+                                            description: "(DOESN'T WORK YET) Shows ReGuilded badges as global flairs like stonks flair."
                                         },
                                         {
                                             optionName: "None",
@@ -126,16 +156,6 @@ export default class GeneralSettings extends React.Component {
                                         },
                                     ],
                                     defaultValue: { optionName: GeneralSettings.badgeNames[settings.badge] }
-                                }
-                            ]
-                        },
-                        {
-                            fieldSpecs: [
-                                {
-                                    type: "Button",
-                                    buttonText: "Check for updates",
-                                    description: `Current installed versison: ${reGuildedInfo.version}`,
-                                    onClick: this.Update
                                 }
                             ]
                         }

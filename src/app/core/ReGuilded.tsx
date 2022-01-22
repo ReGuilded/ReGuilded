@@ -5,6 +5,7 @@ import WebpackHandler from "../addons/webpack";
 import ThemeHandler from "./handlers/themes";
 import AddonHandler from "./handlers/addon";
 import AddonApi from "../addons/addonApi";
+import { FormSpecs } from "../guilded/form";
 
 /**
  * ReGuilded's full manager's class.
@@ -62,13 +63,15 @@ export default class ReGuilded {
             .then(async () =>
                 // Tasks that aren't critical
                 await Promise.allSettled([
-                    window.isFirstLaunch && this.handleFirstLaunch(),
+                    window.ReGuildedConfig.isFirstLaunch && this.handleFirstLaunch(),
 
-                    window.ReGuildedConfig.doUpdateIfPossible()
-                        .catch(e => console.error("Error while trying to auto-update:", e)),
+                    // Only do it if user has enabled auto-update
+                    this.settingsHandler.settings.autoUpdate &&
+                        window.ReGuildedConfig.doUpdateIfPossible()
+                            .catch(e => console.error("Error while trying to auto-update:", e)),
                 ])
                     // I don't know where to put this dumdum sync method
-                    .then(() => this.loadUserBadges(this.addonApi.UserModel))
+                    .then(() => this.settingsHandler.settings.badge && this.loadUserBadges(this.addonApi.UserModel))
             );
     }
 
@@ -109,17 +112,57 @@ export default class ReGuilded {
     async handleFirstLaunch() {
         const { transientMenuPortalUnmaskedContext: portalContext, RouteLink, React } = this.addonApi;
 
-        await portalContext.SimpleContinueOverlay.Open(portalContext, {
-            heading: "Successfully Installed",
-            subText: [
-                "ReGuilded has successfully installed! You can now open ",
-                // TODO: Link to settings "Themes"
-                "theme settings",
-                " or ",
-                // TODO: Link to settings "Addons"
-                "addon settings",
-                " to install any themes or addons you would like."
-            ]
+        const formSpecs: FormSpecs =
+            {
+                description: [
+                    "ReGuilded has successfully installed! You can now open ",
+                    // TODO: Link to settings "Themes"
+                    "theme settings",
+                    " or ",
+                    // TODO: Link to settings "Addons"
+                    "addon settings",
+                    " to install any themes or addons you would like. If you would like to receive ReGuilded updates out of the box, be sure to check the checkbox below:"
+                ],
+                sections: [
+                    {
+                        fieldSpecs: [
+                            {
+                                type: "Checkboxes",
+                                fieldName: "settings",
+
+                                isOptional: true,
+
+                                options: [
+                                    {
+                                        optionName: "autoUpdate",
+                                        label: "Auto-Update ReGuilded",
+                                        description: "Any time Guilded gets refreshed or launches, ReGuilded will check for its own updates and install them if they exist."
+                                    }
+                                ],
+                                defaultValue: [
+                                    {
+                                        optionName: "autoUpdate",
+                                        value: false
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+        const { values, isChanged } = await portalContext.SimpleFormOverlay.Open(portalContext, {
+            header: "Successfully Installed",
+            confirmText: "Continue",
+            controlConfiguration: "Confirm",
+            formSpecs
         });
+
+        // Only apply settings if any of the settings were modified
+        if (isChanged) {
+            // Use mapping if more options appear
+            const [ { optionName, value } ] = values.settings;
+            this.settingsHandler.updateSettings({ [optionName]: value });
+        }
     }
 };

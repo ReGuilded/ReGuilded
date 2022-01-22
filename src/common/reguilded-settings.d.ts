@@ -4,12 +4,14 @@ export declare enum BadgeHandling {
     Badge = 2
 }
 export type ReGuildedSettings = {
+    autoUpdate: boolean;
     badge: BadgeHandling;
     loadAuthors: boolean;
     addons: ReGuildedExtensionSettings;
     themes: ReGuildedExtensionSettings;
 };
 export type ReGuildedSettingsUpdate = {
+    autoUpdate?: boolean;
     badge?: BadgeHandling;
     loadAuthors?: boolean;
     addons?: ReGuildedExtensionSettings;

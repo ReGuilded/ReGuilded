@@ -9,6 +9,7 @@ import { ReGuildedSettings } from "../common/reguilded-settings";
  * Default ReGuilded settings.
  */
 export const defaultSettings: ReGuildedSettings = {
+    autoUpdate: false,
     badge: 2,
     loadAuthors: true,
     addons: { enabled: [] },
