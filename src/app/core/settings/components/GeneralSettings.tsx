@@ -140,13 +140,13 @@ export default class GeneralSettings extends React.Component {
                                             shortLabel: "Badge",
                                             description: "Shows ReGuilded badges as global badges like partner badge."
                                         },
-                                        {
-                                            optionName: "Flair",
-                                            layout: "horizontal",
-                                            label: "Show as a flair",
-                                            shortLabel: "Flair",
-                                            description: "(DOESN'T WORK YET) Shows ReGuilded badges as global flairs like stonks flair."
-                                        },
+                                        // {
+                                        //     optionName: "Flair",
+                                        //     layout: "horizontal",
+                                        //     label: "Show as a flair",
+                                        //     shortLabel: "Flair",
+                                        //     description: "Shows ReGuilded badges as global flairs like stonks flair."
+                                        // },
                                         {
                                             optionName: "None",
                                             layout: "horizontal",

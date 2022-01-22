@@ -9,7 +9,6 @@ import {
 import { getOwnerInstance, patchElementRenderer, waitForElement } from "./lib";
 import AddonHandler from "../core/handlers/addon";
 import { OverflowButton } from "../guilded/menu";
-import overlayWrapper from "./overlayWrapper";
 import WebpackManager from "./webpack";
 import { Form } from "../guilded/form";
 import _ReactDOM from "react-dom";
@@ -173,41 +172,6 @@ export default class AddonApi {
             plainText,
             grammar: this.markdownGrammars.WebhookEmbed
         }).render();
-    }
-    /**
-     * Wraps around the element to make it available to be rendered into a portal.
-     * @param component The React element to wrap into a full overlay
-     * @param onClose What to do when the overlay gets clicked outside
-     * @returns Wrapped overlay as DOM Element
-     */
-    wrapOverlay(component: _React.Component, onClose: () => void): Element {
-        // FIXME: Normal approach to context
-        component.context = { layerContext: this.layerContext.object };
-
-        return overlayWrapper({
-            component,
-            onClose,
-            ReactDOM: this.ReactDOM
-        });
-    }
-    /**
-     * Creates a new portal and renders the given overlay in it.
-     * @param element Element to render as overlay
-     * @param portalName The name of the portal that will be rendered on
-     * @returns The identifier of the portal created
-     */
-    renderOverlay(element: Element, portalName: string): string {
-        const portalId = this.OverlayStack.addPortal(element, portalName);
-
-        // Render overlay onto the created portal
-        setImmediate(() => {
-            const portalElem = this.portal.Portals[portalId];
-
-            portalElem.appendChild(element);
-        });
-
-        // For it to be available for destruction
-        return portalId;
     }
     /**
      * Gets the React component instance that owns given element.

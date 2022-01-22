@@ -23,7 +23,7 @@ export default class ExtensionSettings extends React.Component<ChildTabProps, { 
 
         return (
             <ErrorBoundary>
-                <div className="OptionsMenuPageWrapper-container ReGuildedSettings-container" style={{ paddingLeft: "32px", paddingRight: "32px" }}>
+                <div className="OptionsMenuPageWrapper-container ReGuildedSettings-container ReGuildedSettings-container-padded">
                     <GuildedText type="heading3" block={true} className="SettingsHeaderWithButton-header">{ name }</GuildedText>
                     <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: [{ name: "Installed" }, { name: "Browse" }, { name: "Import" }] }}>
                         <div className="ReGuildedExtensions-wrapper ReGuildedExtensions-tab-installed">
@@ -38,7 +38,6 @@ export default class ExtensionSettings extends React.Component<ChildTabProps, { 
                                             </div>
                                         </div>
                                     :
-                                        // buttonText="" onClick={e => ...}
                                         <NullState type="nothing-here" title={"There are no " + type + "s installed"} subtitle={"You have not installed any ReGuilded " + type + "s yet. To install it, put it in the " + type + "s folder."} buttonText="Open folder" onClick={() => window.ReGuildedConfig.openItem(config.dirname)} alignment="center"/>
                                     }
                                 </div>
