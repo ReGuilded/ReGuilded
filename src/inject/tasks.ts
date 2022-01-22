@@ -237,7 +237,7 @@ export async function prepareAndPackResources() {
                 `{"name":"reguilded","main":"electron.patcher.js"}`,
                 {encoding: "utf-8"}
             );
-        spawn("asar", ["pack", "./out/app", "./out/reguilded.asar"], { stdio: "inherit" });
+        exec("asar pack ./out/app ./out/reguilded.asar");
     }
     catch(err) {
         return new Error(err);
