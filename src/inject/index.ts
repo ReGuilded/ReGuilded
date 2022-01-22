@@ -34,12 +34,19 @@ const argv: { _: string[]; d?: string; dir?: string; e?: string; doas?: boolean;
 
             await tasks[taskArg](platform, reguildedPath, elevator)
                 .then(() => {
-                    console.info(
-                        "Relaunching Guilded (If not opened in 10 minutes after this please manually execute the app)"
-                    );
-
-                    // Open the app Again after the injection task is done
-                    exec(platform.open);
+                    if(taskArg === (
+                        "injectbare" ||
+                        "inject" ||
+                        "uninjectbare" ||
+                        "uninject"
+                    )) {
+                        console.info(
+                            "Relaunching Guilded (If not opened in 10 minutes after this please manually execute the app)"
+                        );
+    
+                        // Open the app Again after the injection task is done
+                        exec(platform.open);
+                    };
                 })
                 .catch(err => {
                     console.error("Failed to do task", taskArg, ":", err);

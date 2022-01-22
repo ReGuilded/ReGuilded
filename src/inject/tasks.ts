@@ -161,13 +161,10 @@ export async function injectWrapper(
     elevator: string
 ) {
     return new Promise<void>((resolve, reject) => {
-        // assume mac os doesn't have the same hanging problem windows did
-        if (process.platform !== "win32") {
-            const injectArgs = ["run", "injectbare"];
-            const linuxArgs = ["--", `--elevator=${elevator}`];
-            if (process.platform === "linux") injectArgs.push(...linuxArgs);
-            spawnSync("npm", injectArgs, { stdio: "inherit" });
-        } else inject(platformModule, reguildedDir, elevator).then(resolve);
+        const injectArgs = ["run", "injectbare"];
+        const linuxArgs = ["--", `--elevator=${elevator}`];
+        if (process.platform === "linux") injectArgs.push(...linuxArgs);
+        spawnSync("npm", injectArgs, { stdio: "inherit" });
     });
 }
 
@@ -183,13 +180,10 @@ export async function uninjectWrapper(
     elevator: string
 ) {
     return new Promise<void>((resolve, reject) => {
-        // assume mac os doesn't have the same hanging problem windows did
-        if (process.platform !== "win32") {
-            const uninjectArgs = ["run", "uninjectbare"];
-            const linuxArgs = ["--", `--elevator=${elevator}`];
-            if (process.platform === "linux") uninjectArgs.push(...linuxArgs);
-            spawnSync("npm", uninjectArgs, { stdio: "inherit" });
-        } else uninject(platformModule, reguildedDir, elevator).then(resolve);
+        const uninjectArgs = ["run", "uninjectbare"];
+        const linuxArgs = ["--", `--elevator=${elevator}`];
+        if (process.platform === "linux") uninjectArgs.push(...linuxArgs);
+        spawnSync("npm", uninjectArgs, { stdio: "inherit" });
     });
 }
 
@@ -206,21 +200,15 @@ export async function reinjectWrapper(
 ) {
     return new Promise<void>((resolve, reject) => {
         if (existsSync(platformModule.appDir)) {
-            // assume mac os doesn't have the same hanging problem windows did
-            if (process.platform !== "win32") {
-                const uninjectArgs = ["run", "uninjectbare"];
-                const injectArgs = ["run", "injectbare"];
-                const linuxArgs = ["--", `--elevator=${elevator}`];
-                if (process.platform === "linux") {
-                    uninjectArgs.push(...linuxArgs);
-                    injectArgs.push(...linuxArgs);
-                }
-                spawnSync("npm", uninjectArgs, { stdio: "inherit" });
-                spawnSync("npm", injectArgs, { stdio: "inherit" });
-            } else
-                inject(platformModule, reguildedDir)
-                    .then(() => uninject(platformModule, reguildedDir))
-                    .then(resolve);
+            const uninjectArgs = ["run", "uninjectbare"];
+            const injectArgs = ["run", "injectbare"];
+            const linuxArgs = ["--", `--elevator=${elevator}`];
+            if (process.platform === "linux") {
+                uninjectArgs.push(...linuxArgs);
+                injectArgs.push(...linuxArgs);
+            }
+            spawnSync("npm", uninjectArgs, { stdio: "inherit" });
+            spawnSync("npm", injectArgs, { stdio: "inherit" });
         } else reject("There is no injection.");
     });
 }
