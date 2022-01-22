@@ -1,10 +1,10 @@
 import { existsSync } from "fs";
-import { spawnSync } from "child_process";
+import { spawnSync, spawn, exec } from "child_process";
 import injection from "./util/injection.js";
 import uninjection from "./util/uninjection.js";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { copy, accessSync, constants, statSync } from "fs-extra";
+import { copy, accessSync, constants, statSync, writeFile } from "fs-extra";
 import platform from "./util/platform";
 import chmodr from "chmodr";
 
@@ -210,3 +210,20 @@ export async function reinjectWrapper(
         } else reject("There is no injection.");
     });
 }
+
+/**
+ * Writes 'package.json' & Packs Asar
+ */
+export async function prepareAndPackResources() {
+    try {
+        await writeFile(join(
+                __dirname, "app", "package.json"),
+                `{"name":"reguilded","main":"electron.patcher.js"}`,
+                {encoding: "utf-8"}
+            );
+        spawn("asar", ["pack", "./out/app", "./out/reguilded.asar"], { stdio: "inherit" });
+    }
+    catch(err) {
+        return new Error(err);
+    };
+};
