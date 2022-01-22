@@ -6,6 +6,7 @@ import WebpackManager from "../../addons/webpack";
 import AddonApi from "../../addons/addonApi";
 import ExtensionHandler from "./extension";
 import SettingsHandler from "./settings";
+import ReGuilded from "../ReGuilded";
 
 /**
  * Manager that manages ReGuilded's addons
@@ -15,13 +16,19 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
     webpack?: WebpackManager;
     /**
      * Manager that manages ReGuilded's addons
+     * @param parent The parent ReGuilded instance
      * @param addonsDir Path to the directory that holds addons
      * @param settings The settings of the addons
      * @param settingsHandler The extension settings handler
      * @param config The preload configuration for addons
      */
-    constructor(settings: ReGuildedExtensionSettings, settingsHandler: SettingsHandler, config: RGAddonConfig) {
-        super(settings, settingsHandler, config);
+    constructor(
+        parent: ReGuilded,
+        settings: ReGuildedExtensionSettings,
+        settingsHandler: SettingsHandler,
+        config: RGAddonConfig
+    ) {
+        super(parent, settings, settingsHandler, config);
     }
 
     /**

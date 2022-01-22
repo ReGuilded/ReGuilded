@@ -2,6 +2,7 @@ import { ReGuildedExtensionSettings } from "../../../common/reguilded-settings";
 import { AnyExtension } from "../../../common/extensions";
 import { RGExtensionConfig } from "../../types/reguilded";
 import SettingsHandler from "./settings";
+import ReGuilded from "../ReGuilded";
 
 /**
  * Manages different components of ReGuilded to allow them to be extended.
@@ -14,19 +15,22 @@ export default abstract class ExtensionHandler<T extends AnyExtension, C extends
 
     all: T[];
     config: C;
+    parent: ReGuilded;
     allLoaded: boolean;
     settingsHandler: SettingsHandler;
     settings: ReGuildedExtensionSettings;
     idsToMetadata: { [extensionId: string]: T };
     /**
-     * Manages different components of ReGuilded to allow them to be extended.
+     * Creates a new manager for any kind of extension.
+     * @param parent The parent ReGuilded instance
      * @param settings The reference of extension settings manager
      * @param settingsHandler The extension settings handler
      * @param config The preload configuration of the extensions
      */
-    constructor(settings: ReGuildedExtensionSettings, settingsHandler: SettingsHandler, config: C) {
+    constructor(parent: ReGuilded, settings: ReGuildedExtensionSettings, settingsHandler: SettingsHandler, config: C) {
         this.all = [];
         this.config = config;
+        this.parent = parent;
         this.allLoaded = false;
         this.settings = settings;
         this.settingsHandler = settingsHandler;

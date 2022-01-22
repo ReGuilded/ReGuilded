@@ -1,11 +1,10 @@
 import { badges, flairs, all } from "./badges-flairs";
-import SettingsManager from "../../preload/settings";
+import { WebpackRequire } from "../types/webpack";
+import SettingsHandler from "./handlers/settings";
 import WebpackHandler from "../addons/webpack";
 import ThemeHandler from "./handlers/themes";
 import AddonHandler from "./handlers/addon";
 import AddonApi from "../addons/addonApi";
-import { WebpackRequire } from "../types/webpack";
-import SettingsHandler from "./handlers/settings";
 
 /**
  * ReGuilded's full manager's class.
@@ -16,14 +15,15 @@ export default class ReGuilded {
     settingsHandler: SettingsHandler;
     webpack?: WebpackHandler;
     addonApi?: AddonApi;
+    styling?: Element;
     /**
      * A class that contains all of ReGuilded's configurations and settings.
      */
     constructor() {
         this.settingsHandler = new SettingsHandler();
         // Creates Themes & Addons manager
-        this.themes = new ThemeHandler(this.settingsHandler.settings.themes, this.settingsHandler, window.ReGuildedConfig.themes);
-        this.addons = new AddonHandler(this.settingsHandler.settings.addons, this.settingsHandler, window.ReGuildedConfig.addons);
+        this.themes = new ThemeHandler(this, this.settingsHandler.settings.themes, this.settingsHandler, window.ReGuildedConfig.themes);
+        this.addons = new AddonHandler(this, this.settingsHandler.settings.addons, this.settingsHandler, window.ReGuildedConfig.addons);
     }
 
     /**
@@ -34,6 +34,18 @@ export default class ReGuilded {
         return new Promise<void>(
             async (resolve, reject) => {
                 this.webpack = new WebpackHandler(webpackRequire);
+
+                // For add-on and theme CSS
+                this.styling = Object.assign(document.createElement("datagroup"), {
+                    id: "ReGuildedStyle-container"
+                });
+                this.styling.append(
+                    Object.assign(document.createElement("style"), {
+                        id: "ReGuildedStyle-datagroup",
+                        innerHTML: "datagroup{display:none;}"
+                    })
+                );
+                document.body.appendChild(this.styling);
 
                 window.ReGuildedApi = this.addonApi = new AddonApi(this.webpack, this.addons);
 

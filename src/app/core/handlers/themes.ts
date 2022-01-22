@@ -3,6 +3,7 @@ import { RGThemeConfig } from "../../types/reguilded.js";
 import { Theme } from "../../../common/extensions.js";
 import ExtensionHandler from "./extension.js";
 import SettingsHandler from "./settings.js";
+import ReGuilded from "../ReGuilded.js";
 
 /**
  * Manager that manages ReGuilded's themes
@@ -14,13 +15,19 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
     //idsToCss: { [extensionId: string]: string[] };
     /**
      * Manager that manages ReGuilded's themes
+     * @param parent The parent ReGuilded instance
      * @param themesDir The directory of the ReGuilded themes
      * @param settings The settings of the themes
      * @param settingsHandler The extension settings handler
      * @param config The preload config for themes
      */
-    constructor(settings: ReGuildedExtensionSettings, settingsHandler: SettingsHandler, config: RGThemeConfig) {
-        super(settings, settingsHandler, config);
+    constructor(
+        parent: ReGuilded,
+        settings: ReGuildedExtensionSettings,
+        settingsHandler: SettingsHandler,
+        config: RGThemeConfig
+    ) {
+        super(parent, settings, settingsHandler, config);
     }
     /**
      * Initiates themes for ReGuilded and theme manager.
@@ -28,16 +35,12 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
     init() {
         console.log("Initiating theme manager");
 
-        // Make sure <datagroup> elements are ignored
-        this.megaGroup = Object.assign(document.createElement("datagroup"), { id: "reGl-main" });
-
-        this.megaGroup.appendChild(
-            Object.assign(document.createElement("styles"), {
-                id: "reGl-datagroup",
-                innerHTML: "datagroup{display:none;}"
-            })
+        // For themes
+        this.parent.styling.appendChild(
+            (this.megaGroup = Object.assign(document.createElement("datagroup"), {
+                id: "ReGuildedStyle-themes"
+            }))
         );
-        document.body.appendChild(this.megaGroup);
 
         this.config.setWatchCallback(this._watchCallback.bind(this));
 
@@ -80,8 +83,8 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
     async addStyleSheets(metadata: Theme) {
         // Creates a new style group element for that theme
         const group = Object.assign(document.createElement("datagroup"), {
-            id: `reGl-theme-${metadata.id}`,
-            classList: "reGl-theme"
+            id: `ReGuildedStyleTheme-theme-${metadata.id}`,
+            classList: "ReGuildedStyle-theme"
         });
 
         await this.checkAndDoSettings(metadata, group);
@@ -89,7 +92,7 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
         for (let css of metadata.css)
             group.appendChild(
                 Object.assign(document.createElement("style"), {
-                    classList: "reGl-css-theme",
+                    classList: "ReGuildedStyleTheme-css",
                     innerHTML: css
                 })
             );
@@ -136,7 +139,7 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
         }
         group.appendChild(
             Object.assign(document.createElement("style"), {
-                id: `reGl-variables-${metadata.id}`,
+                id: "ReGuildedStyleTheme-settings",
                 // #app { --a: b; --c: d }
                 innerHTML: `#app{${metadata.settingsProps
                     .map(id => {
