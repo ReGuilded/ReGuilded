@@ -1,65 +1,29 @@
 import reGuildedInfo from "../common/reguilded.json";
-import { stream } from "got";
-import { createWriteStream, unlink, mkdirp, pathExists } from "fs-extra";
-import { dirname, join } from "path";
-import yauzl from "yauzl";
+import { createWriteStream } from "fs-extra";
+import { join } from "path";
+import { get } from "https";
 
 export default async function handleUpdate(updateInfo: VersionJson) {
     const downloadUrl = updateInfo.assets[0].browser_download_url;
-    const zipPath = join(__dirname, "ReGuilded.zip");
+    const downloadPath = join(__dirname);
 
+    console.log(downloadUrl, downloadPath)
+
+    /**
+     * Per comment here: https://github.com/electron/electron/issues/9304#issuecomment-297628476
+     * Using the process.noAsar solution it does allow the asar to download, but the file is completely empty.
+     */
+
+    process.noAsar = true
     return new Promise<void>(async (resolve, reject) => {
-        await new Promise<void>((zipResolve) => {
-            stream(downloadUrl)
-                .pipe(createWriteStream(zipPath))
-                .on("finish", async function () {
-                    console.log("Download Finished");
-                    yauzl.open(zipPath, { lazyEntries: true }, (err, zipFile) => {
-                        if(err) {
-                            zipFile.close;
-                            reject(err);
-                            return;
-                        };
-                        zipFile.readEntry();
-                        zipFile.on("entry", entry => {
-                            const ensureDirectories = () => new Promise<void>(dirResolve => {
-                                console.log(entry.fileName);
-                                const dir = dirname(join(__dirname, entry.fileName));
-                                pathExists(dir)
-                                    .then(value => {
-                                        if(!value)  mkdirp(dir).then(resolve)
-                                    })
-                                    .then(dirResolve);
-                                    
-                            });
-                            if (/\/$/.test(entry.fileName)) {
-                                // Directory only entries
-                                zipFile.readEntry();
-                            } else
-                                zipFile.openReadStream(entry, (err, readStream) => {
-                                    ensureDirectories()
-                                        .then(() => {
-                                            if(err) {
-                                                zipFile.close();
-                                                reject(err);
-                                                return;
-                                            };
-                                            const unzippedStream = createWriteStream(join(__dirname, entry.fileName));
-                                            readStream.on("end", () => {
-                                                zipFile.readEntry();
-                                            });
-                                            readStream.pipe(unzippedStream);
-                                        })
-                                });
-                        });
-                    });
-                    console.log("Unzipping Finished");
-                    zipResolve();
-                });
+        get(downloadUrl, (response) => {
+            response.pipe(createWriteStream(downloadPath)).on("finish", () => {
+                console.log("Download Finished");
+
+                process.noAsar = false;
+                resolve();
+            });
         });
-        await unlink(zipPath);
-        console.log("Update Complete");
-        resolve()
     });
 }
 
