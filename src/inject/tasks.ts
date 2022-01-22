@@ -19,7 +19,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
  */
 function rootPerms(command: string[], elevator: string, reguildedDir?: string, protectedInstallFolder?: boolean) {
     if (protectedInstallFolder)
-        console.warn(`ReGuilded Linux requires root permissions to write in '${join(reguildedDir, "..")}'`);
+        console.warn(
+            `ReGuilded Linux requires root permissions to create, modify or delete '${join(reguildedDir, "..")}'`
+        );
     else console.warn(`ReGuilded Linux requires root permissions to create, modify or delete '${platform.resourcesDir}'`);
 
     try {
@@ -165,9 +167,7 @@ export async function injectWrapper(
             const linuxArgs = ["--", `--elevator=${elevator}`];
             if (process.platform === "linux") injectArgs.push(...linuxArgs);
             spawnSync("npm", injectArgs, { stdio: "inherit" });
-        } else
-            inject(platformModule, reguildedDir, elevator)
-                .then(resolve);
+        } else inject(platformModule, reguildedDir, elevator).then(resolve);
     });
 }
 
@@ -189,9 +189,7 @@ export async function uninjectWrapper(
             const linuxArgs = ["--", `--elevator=${elevator}`];
             if (process.platform === "linux") uninjectArgs.push(...linuxArgs);
             spawnSync("npm", uninjectArgs, { stdio: "inherit" });
-        } else
-            uninject(platformModule, reguildedDir, elevator)
-                .then(resolve);
+        } else uninject(platformModule, reguildedDir, elevator).then(resolve);
     });
 }
 
@@ -213,7 +211,7 @@ export async function reinjectWrapper(
                 const uninjectArgs = ["run", "uninjectbare"];
                 const injectArgs = ["run", "injectbare"];
                 const linuxArgs = ["--", `--elevator=${elevator}`];
-                if(process.platform === "linux") {
+                if (process.platform === "linux") {
                     uninjectArgs.push(...linuxArgs);
                     injectArgs.push(...linuxArgs);
                 }
@@ -231,15 +229,9 @@ export async function reinjectWrapper(
  * Writes 'package.json' & Packs Asar
  */
 export async function prepareAndPackResources() {
-    try {
-        await writeFile(join(
-                __dirname, "app", "package.json"),
-                `{"name":"reguilded","main":"electron.patcher.js"}`,
-                {encoding: "utf-8"}
-            );
-        exec("asar pack ./out/app ./out/reguilded.asar");
-    }
-    catch(err) {
-        return new Error(err);
-    };
-};
+    await writeFile(
+        join(__dirname, "app", "package.json"),
+        `{"name":"reguilded","main":"electron.patcher.js"}`,
+        "utf8"
+    ).then(() => exec("asar pack ./out/app ./out/reguilded.asar"));
+}

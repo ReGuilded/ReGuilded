@@ -24,11 +24,15 @@ const argv: { _: string[]; d?: string; dir?: string; e?: string; doas?: boolean;
         console.log("Force closing Guilded");
 
         // Close Guilded, then continue, because we need to make sure Guilded is closed for the new injection.
-        exec(platform.close).on("exit", () => {
+        exec(platform.close).on("exit", async () => {
             // Creates path for ReGuilded
-            const reguildedPath = resolve(dir || process.platform === "linux" ? "/usr/local/share/ReGuilded" : join(process.env.APPDATA || process.env.HOME, ".reguilded"));
+            const reguildedPath = resolve(
+                dir || process.platform === "linux"
+                    ? "/usr/local/share/ReGuilded"
+                    : join(process.env.APPDATA || process.env.HOME, ".reguilded")
+            );
 
-            tasks[taskArg](platform, reguildedPath, elevator)
+            await tasks[taskArg](platform, reguildedPath, elevator)
                 .then(() => {
                     console.info(
                         "Relaunching Guilded (If not opened in 10 minutes after this please manually execute the app)"

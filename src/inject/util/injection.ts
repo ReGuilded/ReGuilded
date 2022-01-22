@@ -2,9 +2,9 @@ import { writeFile, mkdir, rename } from "fs";
 import { join, sep } from "path";
 
 export default function (platformModule: { appDir: string; resourcesDir: string }, reguildedDir: string) {
-    return new Promise<void>(async (resolve, reject) => {
-        await new Promise<void>(appResolve => {
-            // Creates the "app" directory in Guilded's "resources" directory
+    return Promise.all([
+        // Creates the "app" directory in Guilded's "resources" directory for the injection
+        new Promise<void>((resolve, reject) => {
             mkdir(platformModule.appDir, err => {
                 if (err) reject(err);
                 const patcherPath = join(reguildedDir, "reguilded.asar").replace(RegExp(sep.repeat(2), "g"), "/");
@@ -19,14 +19,14 @@ export default function (platformModule: { appDir: string; resourcesDir: string 
                         err => {
                             if (err) reject(err);
 
-                            appResolve();
+                            resolve();
                         }
                     );
                 });
             });
-        });
-
-        await new Promise<void>(_guildedResolve => {
+        }),
+        // Move app.asar and app.asar.unpacked to _guilded, since Electron checks app.asar first and then app second
+        new Promise<void>((resolve, reject) => {
             // Makes the "_guilded" directory in Guilded's "resources" directory
             mkdir(join(platformModule.resourcesDir, "_guilded"), err => {
                 if (err) reject(err);
@@ -43,13 +43,11 @@ export default function (platformModule: { appDir: string; resourcesDir: string 
                         err => {
                             if (err) reject(err);
 
-                            _guildedResolve();
+                            resolve();
                         }
                     );
                 });
             });
-        });
-
-        resolve();
-    });
+        })
+    ]);
 }
