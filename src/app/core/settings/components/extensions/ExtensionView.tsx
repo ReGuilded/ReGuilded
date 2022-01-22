@@ -131,7 +131,7 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
                                 <div className="ReGuildedExtensionImages-container">
                                     <GuildedText className="ReGuildedExtensionImages-heading" type="heading2">Previews</GuildedText>
                                     <CarouselList scrollOnChildrenChange={true} arrowSize="lg" className="ReGuildedExtensionImages-list" minHeight={108}>
-                                        { extension.images.map(dataUrl => <MediaRenderer className="MediaRenderer-content MediaRenderer-content-editor-simple" src={dataUrl}/>) }
+                                        { extension.images.map(dataUrl => <div className="ReGuildedExtensionImages-image"><MediaRenderer className="MediaRenderer-content MediaRenderer-content-editor-simple" src={dataUrl}/></div>) }
                                     </CarouselList>
                                 </div>
                             }

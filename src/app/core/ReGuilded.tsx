@@ -44,6 +44,10 @@ export default class ReGuilded {
                     Object.assign(document.createElement("style"), {
                         id: "ReGuildedStyle-datagroup",
                         innerHTML: "datagroup{display:none;}"
+                    }),
+                    Object.assign(document.createElement("style"), {
+                        id: "ReGuildedStyle-reguilded",
+                        innerHTML: `.ReGuildedExtensionImages-image{position:relative;min-width:250px;height:250px}`
                     })
                 );
                 document.body.appendChild(this.styling);
