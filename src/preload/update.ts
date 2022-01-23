@@ -19,8 +19,10 @@ export default async function handleUpdate(updateInfo: VersionJson) {
 };
 
 export type VersionJson = {
-    version: string;
-    assets: Array<{
+    noRelease?: boolean;
+
+    version?: string;
+    assets?: Array<{
         browser_download_url: string,
         name: string,
     }>;
@@ -31,12 +33,20 @@ export type VersionJson = {
  * @param forceUpdate Whether to force the update or not.
  */
 export async function checkForUpdate(forceUpdate: boolean = false): Promise<[boolean, VersionJson]> {
-    return new Promise<VersionJson>((resolve, reject) => {
-        fetch("https://api.github.com/repos/ReGuilded/ReGuilded/releases/latest").then(response => response.json(), e => reject(e)).then(json => {
-            resolve({
-                version: json.tag_name,
-                assets: json.assets
-            });
-        });
-    }).then(json => [(window.updateExists = (json.assets.length !== 0 && (forceUpdate || json.version !== reGuildedInfo.version))), (window.latestVersionInfo = json)])
+    return new Promise<VersionJson>((resolve) => {
+        fetch("https://api.github.com/repos/ReGuilded/ReGuilded/releases/latest").then(response => {
+            if (!response.ok) {
+                resolve({
+                    noRelease: true
+                });
+            } else {
+                response.json().then(json => {
+                    resolve({
+                        version: json.tag_name,
+                        assets: json.assets
+                    });
+                });
+            }
+        })
+    }).then(json => [(window.updateExists = !json.noRelease && (json.assets.length !== 0 && (forceUpdate || json.version !== reGuildedInfo.version))), (window.latestVersionInfo = json)])
 }
