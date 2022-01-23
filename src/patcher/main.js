@@ -58,20 +58,29 @@ app.whenReady().then(() => {
         session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
             const patchedCallback = headers => {
                 callback({
-                    cancel:false,
+                    cancel: false,
                     responseHeaders: headers
                 })
             }
             const csp = {
                 permissive: details.responseHeaders["content-security-policy-report-only"],
                 enforcing: details.responseHeaders["content-security-policy"],
-                patch: async policy => {
+                patch: async (policy, enforcing) => {
                     const originalPolicy = policy;
                     let modifiedPolicyStr = originalPolicy[0];
                     modifiedPolicyStr = modifiedPolicyStr
                         .replace(/\s?report\-uri.*?;/, "");
                     const modifiedPolicy = [modifiedPolicyStr];
-                    policy = modifiedPolicy;
+
+                    if(enforcing) {
+                        delete details.responseHeaders["content-security-policy"];
+                        details.responseHeaders["content-security-policy"] = modifiedPolicy;
+                    } else {
+                        delete details.responseHeaders["content-security-policy-report-only"]
+                        details.responseHeaders["content-security-policy-report-only"] = modifiedPolicy;
+                    }
+                    
+                    return details.responseHeaders;
                 }
             };
 
@@ -81,17 +90,17 @@ app.whenReady().then(() => {
             ) return callback({ cancel: false });
 
             if (csp.permissive)
-                csp.patch(csp.permissive)
-                    .then(patchedCallback(details.responseHeaders));
-                    
+                csp.patch(csp.permissive, false)
+                    .then(patchedHeaders => patchedCallback(patchedHeaders));
+
             if (csp.enforcing)
-                csp.patch(csp.enforcing)
-                    .then(patchedCallback(details.responseHeaders));
+                csp.patch(csp.enforcing, true)
+                    .then(patchedHeaders => patchedCallback(patchedHeaders));
         });
     } catch(err) {
         console.error(err);
     }
-})
+});
 
 // Create Electron clone with modified BrowserWindow to inject ReGuilded preload
 const overridenElectron = Object.assign(Object.assign({}, electron));
