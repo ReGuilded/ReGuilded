@@ -12,7 +12,7 @@ import ReGuildedWindow from "./reguilded-window";
 import { platform, getuid, exit } from "process";
 import { join, dirname } from "path";
 import * as electron from "electron";
-import { ipcMain } from "electron";
+import { ipcMain, app, session } from "electron";
 import { readFileSync } from "fs";
 import { _load } from "module";
 
@@ -51,6 +51,47 @@ ipcMain.handle("reguilded-no-splash-close", () => {
         join(dirname(require.main.filename), "electron", "electronAppLoader.js")
     ].exports.default.loaderWindow.close = () => {};
 });
+
+// Patch CSP (Content-Security-Policy)
+app.whenReady().then(() => {
+    try {
+        session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+            const patchedCallback = headers => {
+                callback({
+                    cancel:false,
+                    responseHeaders: headers
+                })
+            }
+            const csp = {
+                permissive: details.responseHeaders["content-security-policy-report-only"],
+                enforcing: details.responseHeaders["content-security-policy"],
+                patch: async policy => {
+                    const originalPolicy = policy;
+                    let modifiedPolicyStr = originalPolicy[0];
+                    modifiedPolicyStr = modifiedPolicyStr
+                        .replace(/\s?report\-uri.*?;/, "");
+                    const modifiedPolicy = [modifiedPolicyStr];
+                    policy = modifiedPolicy;
+                }
+            };
+
+            if (
+                !csp.permissive &&
+                !csp.enforcing
+            ) return callback({ cancel: false });
+
+            if (csp.permissive)
+                csp.patch(csp.permissive)
+                    .then(patchedCallback(details.responseHeaders));
+                    
+            if (csp.enforcing)
+                csp.patch(csp.enforcing)
+                    .then(patchedCallback(details.responseHeaders));
+        });
+    } catch(err) {
+        console.error(err);
+    }
+})
 
 // Create Electron clone with modified BrowserWindow to inject ReGuilded preload
 const overridenElectron = Object.assign(Object.assign({}, electron));
