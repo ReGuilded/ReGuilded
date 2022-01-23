@@ -38,7 +38,7 @@ const argv: { _: string[]; d?: string; dir?: string; e?: string; doas?: boolean;
                     : join(process.env.APPDATA || process.env.HOME, ".reguilded")
             );
 
-            tasks[taskArg](platform, reguildedPath, elevator)
+            tasks[taskArg](platform, reguildedPath, "sudo") // Custom elevator support disabled
                 .then(() => {
                     if (restartNeeded) {
                         console.info(`Task ${taskArg} is complete, and you can now relaunch Guilded.`)
