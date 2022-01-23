@@ -41,7 +41,7 @@ const argv: { _: string[]; d?: string; dir?: string; e?: string; doas?: boolean;
             tasks[taskArg](platform, reguildedPath, elevator)
                 .then(() => {
                     if (restartNeeded) {
-                        console.info(`Task ${taskArg} is complete, and you can restart your guilded.`)
+                        console.info(`Task ${taskArg} is complete, and Guilded should be restarted shortly.`)
                     }
                 })
                 .catch(err => {
