@@ -21,36 +21,32 @@ const argv: { _: string[]; d?: string; dir?: string; e?: string; doas?: boolean;
     if (dir !== undefined && typeof dir !== "string") throw new TypeError("Argument -d or --dir must be a string");
 
     if (tasks[taskArg] !== null) {
-        const restartNeeded = taskArg === (
-            "injectbare" ||
-            "inject" ||
-            "uninjectbare" ||
-            "uninject"
-        );
+        const requiredRestartArgs = ["injectbare", "inject", "uninjectbare", "uninject"]
+        const restartNeeded = requiredRestartArgs.includes(taskArg);
 
         // Only close Guilded if the arguments are Injection or Uninjection related.
-        await new Promise<void>((resolve) => {
+        new Promise<void>((resolve) => {
             if (restartNeeded) {
                 console.log("Force closing Guilded");
                 exec(platform.close).on("exit", resolve);
             } else resolve()
-        });
+        }).then(() => {
+            // Creates path for ReGuilded
+            const reguildedPath = resolve(
+                dir || process.platform === "linux"
+                    ? "/usr/local/share/ReGuilded"
+                    : join(process.env.APPDATA || process.env.HOME, ".reguilded")
+            );
 
-        // Creates path for ReGuilded
-        const reguildedPath = resolve(
-            dir || process.platform === "linux"
-                ? "/usr/local/share/ReGuilded"
-                : join(process.env.APPDATA || process.env.HOME, ".reguilded")
-        );
-
-        await tasks[taskArg](platform, reguildedPath, elevator)
-            .then(() => {
-                if (restartNeeded) {
-                    console.info("The task is done, and you can restart your guilded.")
-                }
-            })
-            .catch(err => {
-                console.error("Failed to do task", taskArg, ":", err);
-            });
+            tasks[taskArg](platform, reguildedPath, elevator)
+                .then(() => {
+                    if (restartNeeded) {
+                        console.info(`Task ${taskArg} is complete, and you can restart your guilded.`)
+                    }
+                })
+                .catch(err => {
+                    console.error("Failed to do task", taskArg, ":", err);
+                });
+        })
     } else console.error("Unknown task", taskArg);
 })();
