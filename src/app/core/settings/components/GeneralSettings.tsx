@@ -10,6 +10,7 @@ enum Badge {
 }
 type GeneralSettingsValues = {
     loadAuthors: boolean,
+    keepSplash: boolean,
     badge: { optionName: string },
     autoUpdate: boolean
 }
@@ -35,10 +36,10 @@ export default class GeneralSettings extends React.Component {
     }
     private *onSaveChanges({ values, isValid }) {
         if(isValid) {
-            const { loadAuthors, badge: { optionName: badge }, autoUpdate }: GeneralSettingsValues = values;
+            const { loadAuthors, badge: { optionName: badge }, keepSplash, autoUpdate }: GeneralSettingsValues = values;
             // Since we need to convert form values to proper values
             // (E.g., radios always returning { optionName: "xyz" } instead of "xyz")
-            const configValues = { loadAuthors, badge: Badge[badge], autoUpdate }
+            const configValues = { loadAuthors, badge: Badge[badge], keepSplash, autoUpdate }
             return window.ReGuilded.settingsHandler.updateSettings(configValues);
         } else throw new Error("Invalid settings form values");
     }
@@ -103,6 +104,21 @@ export default class GeneralSettings extends React.Component {
                                     buttonText: "Check for updates",
                                     description: `Currently installed version: ${reGuildedInfo.version}`,
                                     onClick: this.Update
+                                }
+                            ]
+                        },
+                        {
+                            header: "Developer Options",
+                            isCollapsible: true,
+                            rowMarginSize: "lg",
+                            fieldSpecs: [
+                                {
+                                    type: "Switch",
+                                    fieldName: "keepSplash",
+                                    label: "Keep Loading Screen",
+                                    description: "Keeps Splash/Loading Screen Open",
+
+                                    defaultValue: settings.keepSplash
                                 }
                             ]
                         },
