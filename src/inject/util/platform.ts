@@ -39,7 +39,7 @@ const platforms = {
         },
     }
 }
-const current: { resourcesDir: string, close: string, reguildedDir: string, appDir: string, open: string } | undefined
+const current: { resourcesDir: string, close: string, appName: string, reguildedDir: string, appDir: string, open: string } | undefined
              = platforms[process.platform];
 if (!current)
     // TODO: Possible make it so this also opens a window on the default browser with a prefilled out issue on GitHub.
