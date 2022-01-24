@@ -1,13 +1,13 @@
 import { writeFile, mkdir, rename } from "fs";
 import { join, sep } from "path";
 
-export default function (platformModule: { appDir: string; resourcesDir: string }, reguildedDir: string) {
+export default function (platformModule: { appDir: string; resourcesDir: string, reguildedDir: string }) {
     return Promise.all([
         // Creates the "app" directory in Guilded's "resources" directory for the injection
         new Promise<void>((resolve, reject) => {
             mkdir(platformModule.appDir, err => {
                 if (err) reject(err);
-                const patcherPath = join(reguildedDir, "reguilded.asar").replace(RegExp(sep.repeat(2), "g"), "/");
+                const patcherPath = join(platformModule.reguildedDir, "reguilded.asar").replace(RegExp(sep.repeat(2), "g"), "/");
 
                 // Creates require statement in `index.js`
                 writeFile(join(platformModule.appDir, "index.js"), `require("${patcherPath}");`, err => {
@@ -25,6 +25,7 @@ export default function (platformModule: { appDir: string; resourcesDir: string 
                 });
             });
         }),
+
         // Move app.asar and app.asar.unpacked to _guilded, since Electron checks app.asar first and then app second
         new Promise<void>((resolve, reject) => {
             // Makes the "_guilded" directory in Guilded's "resources" directory

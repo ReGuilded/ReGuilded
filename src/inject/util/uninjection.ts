@@ -1,8 +1,8 @@
-import { rename, promises as fsPromises } from "fs";
+import { promises as fsPromises } from "fs";
 import { join } from "path";
 
-export default function (platformModule: { appDir: string; resourcesDir: string }, reguildedDir: string) {
-    return new Promise<void>(async (resolve, reject) => {
+export default function (platformModule: { appDir: string; resourcesDir: string }) {
+    return new Promise<void>(async (resolve) => {
         const _guildedPath = join(platformModule.resourcesDir, "_guilded");
 
         await Promise.all([
