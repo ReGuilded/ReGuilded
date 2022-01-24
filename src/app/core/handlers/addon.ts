@@ -37,7 +37,7 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
      * @param addonApi ReGuilded Addon API.
      */
     async init(addonApi: AddonApi): Promise<void> {
-        console.log("Initiating addon manager");
+        this.settingsHandler.settings.debugMode && console.log("Initiating addon manager");
         this.addonApi = addonApi;
 
         this.importable = (path: string) => [path in addonApi, addonApi[path]];
@@ -101,7 +101,7 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
     async load(metadata: Addon): Promise<void> {
         // Try-catch errors to prevent conflicts with other plugins
         try {
-            console.log(`Loading addon by ID '${metadata.id}'`);
+            this.settingsHandler.settings.debugMode && console.log(`Loading addon by ID '${metadata.id}'`);
             // Check if it's first time loading
             if (!~this.initialized.indexOf(metadata.id)) {
                 await metadata
@@ -127,7 +127,7 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
      */
     unload(metadata: Addon) {
         try {
-            console.log(`Unloading addon by ID '${metadata.id}''`);
+            this.settingsHandler.settings.debugMode && console.log(`Unloading addon by ID '${metadata.id}''`);
             metadata.exports.unload(this, this.webpack);
         } catch (e) {
             console.error(`Failed to unload an addon by ID '${metadata.id}':\n`, e);

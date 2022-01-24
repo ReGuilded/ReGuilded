@@ -184,6 +184,14 @@ export default class GeneralSettings extends React.Component {
                                     description: "Keeps Splash/Loading Screen Open",
 
                                     defaultValue: settings.keepSplash
+                                },
+                                {
+                                    type: "Switch",
+                                    fieldName: "debugMode",
+                                    label: "Debug Mode",
+                                    description: "Enabled Debug Mode, meaning ReGuilded will output debug lines to Dev Tools.",
+
+                                    defaultValue: settings.debugMode
                                 }
                             ]
                         }
