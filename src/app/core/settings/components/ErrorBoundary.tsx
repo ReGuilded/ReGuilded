@@ -1,6 +1,9 @@
 import _React from "react";
 
-const { React, NullState } = window.ReGuildedApi;
+const {
+    react: React,
+    "guilded/components/NullState": { default: NullState }
+} = window.ReGuildedApi;
 
 export default class ErrorBoundary extends React.Component<{ }, { hasErrored: boolean, error: Error | null }> {
     constructor(props, context) {

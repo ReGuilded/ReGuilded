@@ -6,7 +6,7 @@ import { WebpackBundle, WebpackRequire, WebpackModule, WebpackExports } from "..
 export default class WebpackManager {
     _webpackRequire: WebpackRequire;
     _webpackExports: {
-        [moduleId: number]: WebpackExports
+        [moduleId: number]: WebpackExports;
     };
     _webpackModules: WebpackModule[];
     _chunkBreadcrumb: RegExp;
@@ -20,12 +20,12 @@ export default class WebpackManager {
         this._webpackRequire = webpackRequire;
         this._webpackExports = webpackRequire.c;
         this._webpackModules = webpackRequire.m;
-        this._chunkBreadcrumb = webpackRequire.p; 
+        this._chunkBreadcrumb = webpackRequire.p;
         this.asEsModule = webpackRequire(0);
 
         this._webpackExportList = Object.values(this._webpackExports);
         // Patch WebpackJsonp's push to update export list
-        window.webpackJsonp.push = mod => {
+        window.webpackJsonp.push = (mod: WebpackBundle) => {
             let n = window.webpackJsonp._push(mod);
 
             // Wait for its exports to be a thing(that could still lead to undefined exports)
@@ -82,7 +82,7 @@ export default class WebpackManager {
      * @param name The name of the property
      * @returns Webpack Module Exports
      */
-    allWithProperty(name: string): object | Function | { default: object | Function; } | void {
+    allWithProperty(name: string): object | Function | { default: object | Function } | void {
         return this.allWithFilter(x => {
             const { default: obj, ...rest } = this.asEsModule(x.exports);
 
@@ -95,7 +95,7 @@ export default class WebpackManager {
      * @param name The name of the property
      * @returns Webpack Module Exports
      */
-    withProperty(name: string): object | Function | { default: object | Function; } | void {
+    withProperty(name: string): object | Function | { default: object | Function } | void {
         return this.withFilter(x => {
             const { default: obj, ...rest } = this.asEsModule(x.exports);
 
@@ -115,8 +115,8 @@ export default class WebpackManager {
 
             if (!current) return false;
 
-            for(let name of path) {
-                if(!(current[name])) return false;
+            for (let name of path) {
+                if (!current[name]) return false;
 
                 // Go deeper
                 current = current[name];
@@ -135,7 +135,12 @@ export default class WebpackManager {
             const { default: type } = this.asEsModule(x?.exports);
 
             // Checks if it's a function with property in prototypes
-            return typeof type === "function" && (type.prototype !== void 0 && type.prototype !== null && name in type.prototype);
+            return (
+                typeof type === "function" &&
+                type.prototype !== void 0 &&
+                type.prototype !== null &&
+                name in type.prototype
+            );
         });
     }
     /**
@@ -166,4 +171,4 @@ export default class WebpackManager {
     //     window.webpackJsonp = filtered;
     //     return filtered;
     // }
-};
+}

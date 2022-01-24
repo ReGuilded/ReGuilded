@@ -1,5 +1,9 @@
 // @ts-ignore
-const { inputFieldValidations: { validateIsUrl } }: { inputFieldValidations: { validateIsUrl: (raw: string) => undefined | string } } = window.ReGuildedApi;
+const {
+    "guilded/components/formValidations": {
+        default: { validateIsUrl }
+    }
+} = window.ReGuildedApi;
 
 export default {
     /**
@@ -8,7 +12,7 @@ export default {
      * #AAAA
      * #AAAAAA
      * #AAAAAAAA
-     * 
+     *
      * rgb(123, 123, 123)
      * rgba(123, 123, 123)
      * rgb(123, 123, 123, 0.123)
@@ -17,11 +21,11 @@ export default {
      * rgba(123, 123, 123, 0)
      * hsl(123, 100%, 100%)
      * hsla(123, 100%, 100%, 0.3)
-     * 
+     *
      * Invalid:
      * #AAAAA
      * #AAAAAAA
-     * 
+     *
      * rgba(123, 123, 123, 1.2)
      * rgb(1233, 123, 123)
      */
@@ -35,11 +39,11 @@ export default {
     percent: validationFactory(/^([01]|0?\.[0-9]+|(?:100|[0-9]{1,2}(?:\.[0-9]+)|\.[0-9]+)\%)$/),
     // Guilded validators
     url: validateIsUrl
-}
+};
 
 function validationFactory(regex: RegExp) {
     // Validator
     return function validate(raw: string): undefined | string {
         if (!regex.test(raw)) return "Invalid syntax";
-    }
+    };
 }

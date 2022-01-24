@@ -1,4 +1,4 @@
-const { React } = window.ReGuildedApi;
+const { react: React } = window.ReGuildedApi;
 
 type Props = {
     tabs: {

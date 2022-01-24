@@ -2,7 +2,11 @@ import { Theme } from "../../../../../common/extensions";
 import ExtensionView from "./ExtensionView";
 import ThemeItem from "./ThemeItem";
 
-const { React, Form, WordDividerLine } = window.ReGuildedApi;
+const {
+    react: React,
+    // "guilded/components/Form": { default: Form },
+    // "guilded/components/WordDividerLine": { default: WordDividerLine }
+} = window.ReGuildedApi;
 
 export default class ThemeView extends ExtensionView<Theme> {
     protected type = "theme";

@@ -6,6 +6,7 @@ import ThemeHandler from "./handlers/themes";
 import AddonHandler from "./handlers/addon";
 import AddonApi from "../addons/addonApi";
 import { FormSpecs } from "../guilded/form";
+import SettingsInjector from "./settings/settings";
 
 /**
  * ReGuilded's full manager's class.
@@ -54,6 +55,14 @@ export default class ReGuilded {
 
                 window.ReGuildedApi = this.addonApi = new AddonApi(this.webpack, this.addons);
 
+                // I don't even have any idea why they are being disabled
+                try {
+                    window.__SENTRY__.hub.getClient().close(0);
+                    window.__SENTRY__.logger.disable();
+                } catch(e) {
+                    console.warn("Failed to disable sentries:", e);
+                }
+
                 this.addons.webpack = this.webpack;
 
                 await this.addons.init(this.addonApi)
@@ -67,6 +76,8 @@ export default class ReGuilded {
             .then(async () =>
                 // Tasks that aren't critical
                 await Promise.allSettled([
+                    import("./settings/settings").then(async ({ default: SettingsInjector }) => await (window.settingsInjector = new SettingsInjector()).init()),
+
                     window.ReGuildedConfig.isFirstLaunch && this.handleFirstLaunch(),
 
                     // Only do it if user has enabled auto-update
@@ -75,7 +86,7 @@ export default class ReGuilded {
                             .catch(e => console.error("Error while trying to auto-update:", e)),
                 ])
                     // I don't know where to put this dumdum sync method
-                    .then(() => this.settingsHandler.settings.badge && this.loadUserBadges(this.addonApi.UserModel))
+                    .then(() => this.settingsHandler.settings.badge && this.loadUserBadges(this.addonApi["guilded/users"].UserModel))
             );
     }
 
@@ -97,8 +108,8 @@ export default class ReGuilded {
         if (!UserModel) return;
 
         // Pushes RG Contributor Flair into the Global Flairs array, along with a Duplication Tooltip Handler from the Gil Gang flair.
-        const globalFlairsInfo = this.addonApi.globalFlairsDisplayInfo;
-        const globalFlairsTooltipInfo = this.addonApi.globalFlairsTooltipInfo;
+        const globalFlairsInfo = this.addonApi["guilded/users/flairs/displayInfo"];
+        const globalFlairsTooltipInfo = this.addonApi["guilded/users/flairs/tooltipInfo"];
         globalFlairsInfo.default["rg_contrib"] = all.contrib;
         globalFlairsTooltipInfo.default["rg_contrib"] = globalFlairsTooltipInfo.default["gil_gang"];
 
@@ -114,7 +125,7 @@ export default class ReGuilded {
     }
 
     async handleFirstLaunch() {
-        const { transientMenuPortalUnmaskedContext: portalContext, RouteLink, React } = this.addonApi;
+        const { transientMenuPortalUnmaskedContext: portalContext, "guilded/components/RouteLink": RouteLink, react: React } = this.addonApi;
 
         const formSpecs: FormSpecs =
             {

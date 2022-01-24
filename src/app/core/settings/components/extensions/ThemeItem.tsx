@@ -3,9 +3,9 @@ import { Theme } from "../../../../../common/extensions";
 import ExtensionItem from "./ExtensionItem";
 import validations from "../../validation";
 
-const { OverlayProvider } = window.ReGuildedApi;
+const { "guilded/overlays/overlayProvider": { default: overlayProvider } } = window.ReGuildedApi;
 
-@OverlayProvider(["SimpleFormOverlay"])
+@overlayProvider(["SimpleFormOverlay"])
 export default class ThemeItem extends ExtensionItem<Theme, { settings: object, settingsProps: string[] }> {
     SimpleFormOverlay;
     constructor(props, context) {

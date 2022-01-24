@@ -1,7 +1,11 @@
 import { Addon } from "../../../../../common/extensions";
 import ExtensionView from "./ExtensionView";
 
-const { React, WordDividerLine, Form } = window.ReGuildedApi;
+const {
+    react: React,
+    // "guilded/components/WordDividerLine": { default: WordDividerLine },
+    // "guilded/components/Form": { default: Form }
+} = window.ReGuildedApi;
 
 export default class AddonView extends ExtensionView<Addon> {
     protected type = "addon";

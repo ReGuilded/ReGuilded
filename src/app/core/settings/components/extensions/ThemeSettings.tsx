@@ -1,6 +1,5 @@
-﻿import ThemeHandler from "../../../handlers/themes.js";
-import ExtensionSettings from "./ExtensionSettings.jsx";
-import ThemeItem from "./ThemeItem.jsx";
+﻿import ExtensionSettings from "./ExtensionSettings";
+import ThemeItem from "./ThemeItem";
 
 export default class ThemeSettings extends ExtensionSettings {
     protected name = "Themes";

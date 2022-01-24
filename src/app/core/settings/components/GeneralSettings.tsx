@@ -1,7 +1,14 @@
 ﻿import reGuildedInfo from "../../../../common/reguilded.json";
 import ErrorBoundary from "./ErrorBoundary";
 
-const { Form, React, SavableSettings, functionUtil: { coroutine }, OverlayProvider, DefaultContextProvider } = window.ReGuildedApi;
+const {
+    "guilded/components/Form": { default: Form },
+    react: React,
+    "guilded/settings/savableSettings": { default: savableSettings },
+    "guilded/util/functions": { coroutine },
+    "guilded/overlays/overlayProvider": { default: overlayProvider },
+    "guilded/context/defaultContextProvider": { default: defaultContextProvider }
+} = window.ReGuildedApi;
 
 enum Badge {
     None = 0,
@@ -14,9 +21,9 @@ type GeneralSettingsValues = {
     autoUpdate: boolean
 }
 
-@SavableSettings
-@DefaultContextProvider
-@OverlayProvider(["SimpleConfirmationOverlay"])
+@savableSettings
+@defaultContextProvider
+@overlayProvider(["SimpleConfirmationOverlay"])
 export default class GeneralSettings extends React.Component {
     // Number to name map for radio default value
     static badgeNames = ["None", "Flair", "Badge"];

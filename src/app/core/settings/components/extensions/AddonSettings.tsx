@@ -1,5 +1,5 @@
-﻿import ExtensionSettings from "./ExtensionSettings.js";
-import AddonItem from "./AddonItem.jsx";
+﻿import ExtensionSettings from "./ExtensionSettings";
+import AddonItem from "./AddonItem";
 
 export default class AddonSettings extends ExtensionSettings {
     protected name = "Addons";

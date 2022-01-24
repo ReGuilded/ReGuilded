@@ -4,671 +4,672 @@ import {
     NullState,
     WordDividerLine,
     BannerWithButton,
-    MediaRenderer
+    MediaRenderer,
+    GuildedText
 } from "../guilded/components/content";
 import { getOwnerInstance, patchElementRenderer, waitForElement } from "./lib";
+import { Carousel as CarouselList } from "../guilded/components/sections";
+import * as prismjsComponents from "prismjs/components";
 import AddonHandler from "../core/handlers/addon";
 import { OverflowButton } from "../guilded/menu";
+import { Button } from "../guilded/input";
 import WebpackManager from "./webpack";
 import { Form } from "../guilded/form";
+import * as prismjs from "prismjs";
 import _ReactDOM from "react-dom";
+import { Grammar } from "prismjs";
 import _React from "react";
-import { Carousel as CarouselList } from "../guilded/components/sections";
 
 // Provides API for addons to interact with Guilded.
 // TODO: Better documentation and probably TS declaration files.
 
-// I wanted to do a Proxy, but I don't want it to be slow af and I am in the mood to spam same
-// code over and over again. Also, all my homies hate proxies /s
+// I wanted to do a Proxy, but I don't want it to be slower.
 
 const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     // React
-    React: webpack => webpack.withProperty("createElement"),
-    ReactDOM: webpack => webpack.withProperty("createPortal"),
-    ReactElement: webpack => webpack.withCode("react.element"),
+    react: webpack => webpack.withProperty("createElement"),
+    "react-dom": webpack => webpack.withProperty("createPortal"),
+    "react-element": webpack => webpack.withCode("react.element"),
 
     // HTTP and WS
-    restMethods: webpack => webpack.withProperty("getMe"),
+    "guilded/http/rest": webpack => webpack.withProperty("getMe"),
+    "guilded/http/cookies": webpack => webpack.withProperty("cookie"),
 
-    // Management
-    channelManagement: webpack => webpack.withProperty("GetChannels"),
+    // Teams / Servers
+    "guilded/teams/games": webpack => webpack.withProperty("SearchableGames"),
+    "guilded/teams/TeamModel": webpack => webpack.withClassProperty("_teamInfo"),
 
-    // Guilded
-    domainUri: webpack => webpack.withProperty("WebClient"),
-    globalBadges: webpack => webpack.withProperty("Webhook"),
-    functionUtil: webpack => webpack.withProperty("coroutine"),
-    externalSiteInfo: webpack => webpack.withProperty("reddit"),
-    gameList: webpack => webpack.withProperty("SearchableGames"),
-    guildedArticles: webpack => webpack.withProperty("aboutURL"),
-    globalFlairsDisplayInfo: webpack => webpack.allWithProperty("guilded_gold_v1")[0],
-    globalFlairsTooltipInfo: webpack => webpack.allWithProperty("guilded_gold_v1")[1],
-    socialMedia: webpack => webpack.withProperty("SocialMediaTypes"),
-    externalSites: webpack => webpack.withProperty("ExternalSiteTypes"),
+    // Users / Members
+    "guilded/users": webpack => webpack.withProperty("UserModel"),
+    "guilded/users/badges": webpack => webpack.withProperty("Webhook"),
+    "guilded/users/members": webpack => webpack.withProperty("MemberModel"),
+    "guilded/users/flairs/displayInfo": webpack => webpack.allWithProperty("guilded_gold_v1")[0],
+    "guilded/users/flairs/tooltipInfo": webpack => webpack.allWithProperty("guilded_gold_v1")[1],
+    "guilded/profile/PostModel": webpack => webpack.withClassProperty("_profilePostInfo"),
+    "guilded/profile/socialLinks": webpack => webpack.withProperty("SOCIAL_LINK_CONSTS_BY_TYPE"),
 
-    portal: webpack => webpack.withProperty("Portals"),
-    layerContext: webpack => webpack.allWithProperty("object")[1],
-    OverlayStack: webpack => webpack.withProperty("addPortal"),
-    transientMenuPortal: _ => getOwnerInstance(document.querySelector(".TransientMenuPortalContext-portal-container")),
+    // Roles
+    "guilded/roles/membership": webpack => webpack.withProperty("CaptainRoleName"),
 
-    OverlayProvider: webpack => webpack.withCode("OverlayProvider"),
-    TeamContextProvider: webpack => webpack.withCode("EnforceTeamData"),
-    DefaultContextProvider: webpack => webpack.withCode("defaultContext"),
-    SavableSettings: webpack => webpack.withCode("handleSaveChanges"),
+    // Groups
+    "guilded/groups": webpack => webpack.withProperty("GroupModel"),
 
-    // Settings and this user
-    cookies: webpack => webpack.withProperty("cookie"),
-    sounds: webpack => webpack.withProperty("IncomingCall"),
-    stylePusher: webpack => webpack.withProperty("singleton"),
-    chatContext: webpack => webpack.withProperty("chatContext"),
-    styleGenerator: webpack => webpack.withProperty("sourceURL"),
-    settingsTabs: webpack => webpack.withProperty("Notifications"),
+    // Channels
+    "guilded/channels": webpack => webpack.withProperty("ChannelModel"),
+    "guilded/channels/types": webpack => webpack.withProperty("Overview"),
+    "guilded/channels/management": webpack => webpack.withProperty("GetChannels"),
+    "guilded/channels/settings": webpack => webpack.withProperty("channelSettingsInfo"),
+    "guilded/channels/content/AnnouncementModel": webpack => webpack.withClassProperty("_announcementInfo"),
+    "guilded/channels/content/DocumentModel": webpack => webpack.withClassProperty("docInfo"),
+    "guilded/channels/content/EventModel": webpack => webpack.withClassProperty("_eventInfo"),
+    "guilded/channels/content/ListItemModel": webpack => webpack.withClassProperty("listItemInfo"),
+    "guilded/channels/content/MessageModel": webpack => webpack.withClassProperty("chatMessageInfo"),
+    "guilded/channels/content/eventInfo": webpack => webpack.withProperty("EVENT_COLOR_LABEL_OPTIONS"),
 
-    // Team/server
-    channelTypes: webpack => webpack.withProperty("Overview"),
-    eventConfig: webpack => webpack.withProperty("EVENT_COLOR_LABEL_OPTIONS"),
-    channelSettingsInfo: webpack => webpack.withProperty("channelSettingsInfo"),
-
-    // User/profile
-    membershipRoles: webpack => webpack.withProperty("CaptainRoleName"),
-    profileSocialLinks: webpack => webpack.withProperty("SOCIAL_LINK_CONSTS_BY_TYPE"),
-
-    // Models
-    TeamModel: webpack => webpack.withClassProperty("_teamInfo"),
-    GroupModel: webpack => webpack.withProperty("GroupModel"),
-    ChannelModel: webpack => webpack.withProperty("ChannelModel"),
-
-    UserModel: webpack => webpack.withProperty("UserModel"),
-    MemberModel: webpack => webpack.withProperty("MemberModel"),
-    ProfilePostModel: webpack => webpack.withClassProperty("_profilePostInfo"),
-
-    EventModel: webpack => webpack.withClassProperty("_eventInfo"),
-    DocumentModel: webpack => webpack.withClassProperty("docInfo"),
-    ListItemModel: webpack => webpack.withClassProperty("listItemInfo"),
-    MessageModel: webpack => webpack.withClassProperty("chatMessageInfo"),
-    AnnouncementModel: webpack => webpack.withClassProperty("_announcementInfo"),
+    // URLs
+    "guilded/urls/domain": webpack => webpack.withProperty("WebClient"),
+    "guilded/urls/externalSites": webpack => webpack.withProperty("ExternalSiteTypes"),
+    "guilded/urls/externalSiteInfos": webpack => webpack.withProperty("reddit"),
+    "guilded/urls/articles": webpack => webpack.withProperty("aboutURL"),
+    "guilded/urls/socialMedia": webpack => webpack.withProperty("SocialMediaTypes"),
 
     // Editor and Rich text
     prism: webpack => webpack.withProperty("highlightElement"),
-    editorNodes: webpack => webpack.allWithProperty("editorTypes"),
-    prismSettings: webpack => webpack.withProperty("PrismPlugins"),
-    editorNodeInfos: webpack => webpack.withProperty("InsertPlugins"),
-    markdownGrammars: webpack => webpack.withProperty("WebhookEmbed"),
-    languageCodes: webpack => webpack.withProperty("availableLanguageCodes"),
+    "prism/info": webpack => webpack.withProperty("prismComponents"),
+    "guilded/editor/nodes": webpack => webpack.allWithProperty("editorTypes"),
+    "guilded/editor/nodeInfos": webpack => webpack.withProperty("InsertPlugins"),
+    "guilded/editor/grammars": webpack => webpack.withProperty("WebhookEmbed"),
+    "guilded/editor/languageCodes": webpack => webpack.withProperty("availableLanguageCodes"),
+
+    // Settings
+    "guilded/settings/savableSettings": webpack => webpack.withCode("handleSaveChanges"),
+    "guilded/settings/tabs": webpack => webpack.withProperty("Notifications"),
+
+    // App stuff
+    "guilded/app/sounds": webpack => webpack.withProperty("IncomingCall"),
+
+    // Overlays
+    "guilded/overlays/portal": webpack => webpack.withProperty("Portals"),
+    "guilded/overlays/OverlayStack": webpack => webpack.withProperty("addPortal"),
+    "guilded/overlays/overlayProvider": webpack => webpack.withCode("OverlayProvider"),
+    transientMenuPortal: _ => getOwnerInstance(document.querySelector(".TransientMenuPortalContext-portal-container")),
+
+    // Context
+    "guilded/context/layerContext": webpack => webpack.allWithProperty("object")[1],
+    "guilded/context/teamContextProvider": webpack => webpack.withCode("EnforceTeamData"),
+    "guilded/context/defaultContextProvider": webpack => webpack.withCode("defaultContext"),
+    "guilded/context/chatContext": webpack => webpack.withProperty("chatContext"),
+
+    // Util
+    "guilded/util/functions": webpack => webpack.withProperty("coroutine"),
 
     // Components
-    GuildedText: webpack => webpack.withCode("GuildedText"),
-    RouteLink: webpack => webpack.withClassProperty("href"),
-    Form: webpack => webpack.withClassProperty("formValues"),
-    Modal: webpack => webpack.withClassProperty("hasConfirm"),
-    MarkRenderer: webpack => webpack.withClassProperty("mark"),
-    SimpleToggle: webpack => webpack.withClassProperty("input"),
-    CalloutBadge: webpack => webpack.withClassProperty("style"),
-    formFieldTypes: webpack => webpack.withProperty("Dropdown"),
-    NullState: webpack => webpack.withClassProperty("imageSrc"),
-    SearchBar: webpack => webpack.withClassProperty("_inputRef"),
-    draggable: webpack => webpack.withProperty("DraggableTypes"),
-    OverflowButton: webpack => webpack.withClassProperty("isOpen"),
-    WordDividerLine: webpack => webpack.withCode("WordDividerLine"),
-    Button: webpack => webpack.withClassProperty("useHoverContext"),
-    ItemManager: webpack => webpack.withClassProperty("ItemManager"),
-    BannerWithButton: webpack => webpack.withClassProperty("hasText"),
-    HorizontalTabs: webpack => webpack.withClassProperty("tabOptions"),
-    ProfilePicture: webpack => webpack.withClassProperty("borderType"),
-    CarouselList: webpack => webpack.withClassProperty("overflowRight"),
-    MarkdownRenderer: webpack => webpack.withClassProperty("plainText"),
-    SvgIcon: webpack => webpack.withClassProperty("iconComponentProps"),
-    ActionMenuSection: webpack => webpack.withCode("ActionMenu-section"),
-    ActionMenu: webpack => webpack.withClassProperty("actionMenuHeight"),
-    ActionMenuItem: webpack => webpack.withClassProperty("useRowWrapper"),
-    ToggleField: webpack => webpack.withCode("ToggleFieldWrapper-container"),
-    inputFieldValidations: webpack => webpack.withProperty("ValidateUserUrl"),
-    UserBasicInfo: webpack => webpack.withClassProperty("userPresenceContext"),
-    MediaRenderer: webpack => webpack.withClassProperty("progressiveImageHasLoaded")
+    "guilded/components/Form": webpack => webpack.withClassProperty("formValues"),
+    "guilded/components/formFieldTypes": webpack => webpack.withProperty("Dropdown"),
+    "guilded/components/formValidations": webpack => webpack.withProperty("ValidateUserUrl"),
+    "guilded/componentsMarkdownRenderer": webpack => webpack.withClassProperty("plainText"),
+    "guilded/components/CalloutBadge": webpack => webpack.withClassProperty("style"),
+    "guilded/components/GuildedText": webpack => webpack.withCode("GuildedText"),
+    "guilded/components/RouteLink": webpack => webpack.withClassProperty("href"),
+    "guilded/components/Button": webpack => webpack.withClassProperty("useHoverContext"),
+    "guilded/components/SvgIcon": webpack => webpack.withClassProperty("iconComponentProps"),
+    "guilded/components/NullState": webpack => webpack.withClassProperty("imageSrc"),
+    "guilded/components/HorizontalTabs": webpack => webpack.withClassProperty("tabOptions"),
+    "guilded/components/ToggleField": webpack => webpack.withCode("ToggleFieldWrapper-container"),
+    "guilded/components/SimpleToggle": webpack => webpack.withClassProperty("input"),
+    "guilded/components/MediaRenderer": webpack => webpack.withClassProperty("progressiveImageHasLoaded"),
+    "guilded/components/SearchBar": webpack => webpack.withClassProperty("_inputRef"),
+    "guilded/components/ItemManager": webpack => webpack.withClassProperty("ItemManager"),
+    "guilded/components/OverflowButton": webpack => webpack.withClassProperty("isOpen"),
+    "guilded/components/BannerWithButton": webpack => webpack.withClassProperty("hasText"),
+    "guilded/components/UserBasicInfo": webpack => webpack.withClassProperty("userPresenceContext"),
+    "guilded/components/ProfilePicture": webpack => webpack.withClassProperty("borderType"),
+    "guilded/components/CarouselList": webpack => webpack.withClassProperty("overflowRight"),
+    "guilded/components/WordDividerLine": webpack => webpack.withCode("WordDividerLine"),
+    "guilded/components/ActionMenu": webpack => webpack.withClassProperty("actionMenuHeight"),
+    "guilded/components/ActionMenuSection": webpack => webpack.withCode("ActionMenu-section"),
+    "guilded/components/ActionMenuItem": webpack => webpack.withClassProperty("useRowWrapper"),
+    "guilded/components/Modal": webpack => webpack.withClassProperty("hasConfirm"),
+    "guilded/components/MarkRenderer": webpack => webpack.withClassProperty("mark"),
+    "guilded/components/draggable": webpack => webpack.withProperty("DraggableTypes")
 };
 
 export default class AddonApi {
     // Values cached from getters
-    _cached: { [prop: string]: any } = {};
+    static _cached: { [prop: string]: any } = {};
     // Don't fetch the module 100 times if the module is undefined
-    _cachedList: string[] = [];
-    webpackManager: WebpackManager;
-    addonManager: AddonHandler;
+    static _cachedList: string[] = [];
+    // Make it break less
+    static _moduleNotFound = { default: undefined };
+
+    // Don't allow addons to fetch this with `require("webpackManager")`
+    #webpackManager: WebpackManager;
+    #addonManager: AddonHandler;
+
+    // If addon needs it
+    ["reguilded/util"] = {
+        getOwnerInstance,
+        patchElementRenderer,
+        waitForElement,
+        renderMarkdown(plainText: string): _React.ReactNode {
+            return new this["guilded/components/MarkdownRenderer"].default({
+                plainText,
+                grammar: this["guilded/editor/grammars"].WebhookEmbed
+            }).render();
+        }
+    };
     constructor(webpackManager: WebpackManager, addonManager: AddonHandler) {
-        this.webpackManager = webpackManager;
-        this.addonManager = addonManager;
+        this.#webpackManager = webpackManager;
+        this.#addonManager = addonManager;
     }
     /**
      * Caches the value if it's not already cached and returns it.
      * @param name The name of cachable value
      * @returns The cached value
      */
-    getCached(name: string): any {
+    #getCached(name: string): any {
         // If cached object exists, get it. Else, add it to cached array,
         // cache it and return cached value.
-        return ~this._cachedList.indexOf(name)
-            ? this._cached[name]
+        return ~AddonApi._cachedList.indexOf(name)
+            ? AddonApi._cached[name]
             : // Honestly, the only convenient thing about JS
-              (this._cachedList.push(name), (this._cached[name] = cacheFns[name](this.webpackManager)));
+              (AddonApi._cachedList.push(name),
+              (AddonApi._cached[name] = cacheFns[name](this.#webpackManager)) ?? AddonApi._moduleNotFound);
     }
     /**
      * Removes the item with the given name from the cached list to be racached later.
      * @param name The name of the cached value
      * @returns The cached value
      */
-    uncache(name: string): any | void {
-        const i = this._cachedList.indexOf(name);
+    static uncache(name: string): any | void {
+        const i = AddonApi._cachedList.indexOf(name);
 
-        if (~i) return this._cachedList.splice(i, 1)[0];
-    }
-
-    // Additional stuff(ReGuilded only)
-    /**
-     * Renders provided Markdown plain text as a React element.
-     * @param plainText Plain text formatted in Guilded-flavoured Markdown
-     * @returns Rendered Markdown
-     */
-    renderMarkdown(plainText: string): _React.ReactNode {
-        return new this.MarkdownRenderer({
-            plainText,
-            grammar: this.markdownGrammars.WebhookEmbed
-        }).render();
-    }
-    /**
-     * Gets the React component instance that owns given element.
-     * @returns React owner instance
-     */
-    get getOwnerInstance(): (element: Element) => React.Component | void {
-        return getOwnerInstance;
-    }
-    /**
-     *
-     */
-    get patchElementRenderer() {
-        return patchElementRenderer;
-    }
-    /**
-     * Waits for the given DOM element to get created.
-     * @returns Created element
-     */
-    get waitForElement(): (query: string) => Promise<Element | Node> {
-        return waitForElement;
+        if (~i) return AddonApi._cachedList.splice(i, 1)[0];
     }
 
     // Private
     get transientMenuPortal() {
-        return this.getCached("transientMenuPortal");
+        return this.#getCached("transientMenuPortal");
     }
     get transientMenuPortalUnmaskedContext() {
         return this.transientMenuPortal.__reactInternalMemoizedUnmaskedChildContext;
     }
 
-    // Alphabetical, not categorized
-    /**
-     * Provides a component for action menu button/item.
-     */
-    get ActionMenuItem() {
-        return this.getCached("ActionMenuItem")?.default;
-    }
-    /**
-     * Provides action menu component for rendering Guilded right click, overflow and other kinds of menus.
-     */
-    get ActionMenu() {
-        return this.getCached("ActionMenu")?.default;
-    }
-    /**
-     * Provides an action menu section that categorizes menu items.
-     */
-    get ActionMenuSection() {
-        return this.getCached("ActionMenuSection")?.default;
-    }
-    /**
-     * Model class for announcement posts.
-     */
-    get AnnouncementModel() {
-        return this.getCached("AnnouncementModel")?.default;
-    }
-    get BannerWithButton(): typeof BannerWithButton {
-        return this.getCached("BannerWithButton");
-    }
-    /**
-     * A clickable Guilded button.
-     */
-    get Button() {
-        return this.getCached("Button")?.default;
-    }
-    /**
-     * A badge or a flair for anything.
-     */
-    get CalloutBadge() {
-        return this.getCached("CalloutBadge")?.default;
-    }
-    /**
-     * The list of items that can overflow in certain direction and can be scrolled.
-     */
-    get CarouselList(): typeof CarouselList {
-        return this.getCached("CarouselList")?.default;
-    }
-    /**
-     * Methods related to channel management.
-     */
-    get channelManagement() {
-        return this.getCached("channelManagement")?.default;
-    }
-    /**
-     * Model class for channels.
-     */
-    get ChannelModel() {
-        return this.getCached("ChannelModel")?.ChannelModel;
-    }
-    /**
-     * The lengths of channel names, IDs and other things related to channel settings.
-     */
-    get channelSettingsInfo() {
-        return this.getCached("channelSettingsInfo");
-    }
-    /**
-     * The list of all channel and section types.
-     */
-    get channelTypes() {
-        return this.getCached("channelTypes");
-    }
-    /**
-     * Module with context of what channel client is looking at, channel messages, etc.
-     */
-    get chatContext() {
-        return this.getCached("chatContext")?.default;
-    }
-    /**
-     * A custom embed in a chat.
-     */
-    get ChatEmbed() {
-        return this.getCached("ChatEmbed")?.default;
-    }
-    /**
-     * Various methods related to cookies in the client.
-     */
-    get cookies() {
-        return this.getCached("cookies")?.default;
-    }
-    get DefaultContextProvider(): <T>(cls: T) => T {
-        return this.getCached("DefaultContextProvider")?.default;
-    }
-    /**
-     * Gets the default title message for new documents.
-     */
-    get defaultDocTitle(): string {
-        return this.getCached("DocumentModel")?.DefaultDocTitle;
-    }
-    /**
-     * Model class for document channel documents.
-     */
-    get DocumentModel() {
-        return this.getCached("DocumentModel")?.default;
-    }
-    /**
-     * Links and information about guilded.gg domain.
-     */
-    get domainUri() {
-        return this.getCached("domainUri")?.default;
-    }
-    /**
-     * Draggable element names and infos.
-     */
-    get draggable() {
-        return this.getCached("draggable");
-    }
-
-    /**
-     * The list of nodes sorted by reactions, bare, etc.
-     */
-    get editorNodeInfos() {
-        return this.getCached("editorNodeInfos");
-    }
-    /**
-     * The list of all Slate nodes.
-     */
-    get editorNodes() {
-        return this.getCached("editorNodes");
-    }
-    /**
-     * Gets event configuration limitations.
-     */
-    get eventConfig() {
-        return this.getCached("eventConfig");
-    }
-    /**
-     * Model class for calendar events.
-     */
-    get EventModel() {
-        return this.getCached("EventModel")?.default;
-    }
-    /**
-     * The list of all external sites Guilded embeds support.
-     */
-    get externalSites() {
-        return this.getCached("externalSites")?.default;
-    }
-    /**
-     * Information about external sites Guilded embeds support, such as colours and icons.
-     */
-    get externalSiteInfo() {
-        return this.getCached("externalSiteInfo")?.default;
-    }
-    get Form(): typeof Form {
-        return this.getCached("Form")?.default;
-    }
-    /**
-     * The list of available field types in forms.
-     */
-    get formFieldTypes() {
-        return this.getCached("formFieldTypes")?.default;
-    }
-    /**
-     * The utilities related to functions.
-     */
-    get functionUtil(): Function & { coroutine: <T extends Function>(fn: T) => any } {
-        return this.getCached("functionUtil");
-    }
-    /**
-     * The list of supported games.
-     */
-    get gameList() {
-        return this.getCached("gameList")?.default;
-    }
-    /**
-     * Fetches a model for the given member.
-     */
-    get getMemberModel(): (memberInfo: { teamId: string; userId: string }) => object {
-        return this.getCached("MemberModel")?.getMemberModel;
-    }
-    /**
-     * The list of all global badges.
-     */
-    get globalBadges() {
-        return this.getCached("globalBadges")?.default;
-    }
-    /**
-     * The list of all global flairs display info.
-     */
-    get globalFlairsDisplayInfo() {
-        return this.getCached("globalFlairsDisplayInfo");
-    }
-    /**
-     * The list of all global flairs tooltip info.
-     */
-    get globalFlairsTooltipInfo() {
-        return this.getCached("globalFlairsTooltipInfo");
-    }
-    /**
-     * Model class for groups.
-     */
-    get GroupModel() {
-        return this.getCached("GroupModel")?.GroupModel;
-    }
-    /**
-     * Links to various Guilded help-center articles.
-     */
-    get guildedArticles() {
-        return this.getCached("guildedArticles")?.default;
-    }
-    get GuildedText() {
-        return this.getCached("GuildedText")?.default;
-    }
-    /**
-     * The component that creates horizontal selectable content tabs.
-     */
-    get HorizontalTabs() {
-        return this.getCached("HorizontalTabs")?.default;
-    }
-    /**
-     * Returns the class that contains a set of validators, which either return string (error message) or void.
-     */
-    get inputFieldValidations() {
-        return this.getCached("inputFieldValidations")?.default;
-    }
-    /**
-     * Returns a searchable table with filtering and other features.
-     */
-    get ItemManager(): typeof ItemManager {
-        return this.getCached("ItemManager")?.default;
-    }
-    /**
-     * The list of language identifiers and their display names.
-     */
-    get languageCodes(): { [languageId: string]: string } {
-        return this.getCached("languageCodes");
-    }
-    /**
-     * Provides layer context for Guilded portals.
-     */
-    get layerContext() {
-        return this.getCached("layerContext");
-    }
-    /**
-     * Model class for list channel items/tasks.
-     */
-    get ListItemModel() {
-        return this.getCached("ListItemModel")?.default;
-    }
-
-    /**
-     * A dictionary of Markdown grammars.
-     */
-    get markdownGrammars() {
-        return this.getCached("markdownGrammars")?.default;
-    }
-    /**
-     * Provides a component that displays Markdown plain text.
-     */
-    get MarkdownRenderer(): typeof _React.Component {
-        //typeof React.Component<{ plainText: string, grammar: PrismGrammar }, {}>
-        return this.getCached("MarkdownRenderer")?.default;
-    }
-    /**
-     * Renderable chat image.
-     */
-    get MediaRenderer(): typeof MediaRenderer {
-        return this.getCached("MediaRenderer")?.default;
-    }
-    /**
-     * Model class for team members.
-     */
-    get MemberModel() {
-        return this.getCached("MemberModel")?.MemberModel;
-    }
-    /**
-     * Captain, former member, admin, etc. infos and names.
-     */
-    get membershipRoles() {
-        return this.getCached("membershipRoles");
-    }
-    /**
-     * Model class for chat messages.
-     */
-    get MessageModel() {
-        return this.getCached("MessageModel")?.default;
-    }
-    /**
-     * Provides a component to render a Modal. Does not provide full Modal overlay.
-     */
-    get Modal() {
-        return this.getCached("Modal")?.default;
-    }
-    /**
-     * Provides a null-state screen component.
-     */
-    get NullState(): typeof NullState {
-        return this.getCached("NullState")?.default;
-    }
-    /**
-     * Returns an overflow button component that opens a menu.
-     */
-    get OverflowButton(): typeof OverflowButton {
-        return this.getCached("OverflowButton")?.default;
-    }
-    /**
-     * Provides a container that displays a set of overlays.
-     */
-    get OverlayStack() {
-        return this.getCached("OverlayStack")?.default;
-    }
-    /**
-     * Decorator for getting specific set of overlays.
-     */
-    get OverlayProvider() {
-        return this.getCached("OverlayProvider")?.default;
-    }
-    /**
-     * Provides overlay portal.
-     */
-    get portal() {
-        return this.getCached("portal")?.default;
-    }
-    /**
-     * Gets Prism library.
-     */
-    get prism() {
-        return this.getCached("prism");
-    }
-    /**
-     * Gets the plugins and language settings of Prism.js.
-     */
-    get prismSettings() {
-        return this.getCached("prismSettings");
-    }
-    /**
-     * Profile picture of someone.
-     */
-    get ProfilePicture() {
-        return this.getCached("ProfilePicture")?.default;
-    }
-    /**
-     * Model class for users' profile posts.
-     */
-    get ProfilePostModel() {
-        return this.getCached("ProfilePostModel")?.default;
-    }
-    /**
-     * The list of social links that can be put under profile.
-     */
-    get profileSocialLinks() {
-        return this.getCached("profileSocialLinks");
-    }
+    // React
     /**
      * React.JS framework stuff.
      */
-    get React(): typeof _React {
-        return this.getCached("React");
+    get react(): typeof _React {
+        return this.#getCached("react");
     }
     /**
      * React.JS framework DOM-related things.
      */
-    get ReactDOM(): typeof _ReactDOM {
-        return this.getCached("ReactDOM");
+    get ["react-dom"](): typeof _ReactDOM {
+        return this.#getCached("react-dom");
     }
     /**
      * Method for creating React elements.
      */
-    get ReactElement() {
-        return this.getCached("ReactElement");
+    get ["react-element"]() {
+        return this.#getCached("react-element");
     }
+
+    // HTTPS and WS
     /**
      * The list of REST methods for interacting with Guilded API.
      */
-    get restMethods() {
-        return this.getCached("restMethods")?.default;
+    get ["guilded/http/rest"]() {
+        return this.#getCached("guilded/http/rest");
     }
     /**
-     * A clickable hyperlink component.
+     * Various methods related to cookies in the client.
      */
-    get RouteLink() {
-        return this.getCached("RouteLink")?.default;
+    get ["guilded/http/cookies"]() {
+        return this.#getCached("guilded/http/cookies");
     }
-    get SavableSettings(): <T>(settings: T) => T {
-        return this.getCached("SavableSettings")?.default;
-    }
+
+    // Teams / Servers
     /**
-     * An input made for searching.
+     * The list of supported games.
      */
-    get SearchBar() {
-        return this.getCached("SearchBar")?.default;
-    }
-    /**
-     * The list of settings tabs.
-     */
-    get settingsTabs(): {
-        [tabName: string]: {
-            id: string;
-            label: string;
-            calloutBadgeProps?: { text: string; color: string };
-        };
-    } {
-        return this.getCached("settingsTabs")?.default;
-    }
-    /**
-     * Provides a simple Guilded toggle with optional label.
-     */
-    get SimpleToggle() {
-        return this.getCached("SimpleToggle")?.default;
-    }
-    /**
-     * All of the social medias that Guilded client recognizes.
-     */
-    get socialMedia(): {
-        SocialMediaTypes: { [socialMediaName: string]: string };
-        default: { [socialMediaName: string]: { label: string; icon: string; href?: string } };
-    } {
-        return this.getCached("socialMedia");
-    }
-    /**
-     * The list of all client sounds.
-     */
-    get sounds() {
-        return this.getCached("sounds")?.default;
-    }
-    get styleGenerator(): (e: boolean) => [number, string, ""][] & { toString(): string; i(e, t, a): any; local: object } {
-        return this.getCached("styleGenerator")?.default;
-    }
-    get stylePusher(): (
-        style: [number, [number, string, ""][], ""],
-        config: { insert: "head" | "body"; singleton: boolean }
-    ) => Function {
-        return this.getCached("stylePusher")?.default;
-    }
-    get SvgIcon(): typeof SvgIcon {
-        return this.getCached("SvgIcon")?.default;
-    }
-    get TeamContextProvider(): <T>(cls: T) => T {
-        return this.getCached("TeamContextProvider")?.default;
+    get ["guilded/teams/games"]() {
+        return this.#getCached("guilded/teams/games");
     }
     /**
      * Model class for teams.
      */
-    get TeamModel() {
-        return this.getCached("TeamModel")?.default;
+    get ["guilded/teams/TeamModel"](): { default: typeof Object } {
+        return this.#getCached("guilded/teams/TeamModel");
+    }
+
+    // Users / Members
+    /**
+     * The list of all global badges.
+     */
+    get ["guilded/users/badges"]() {
+        return this.#getCached("guilded/users/badges");
     }
     /**
-     * Component that renders user's name, profile picture, badges and other things in a line.
+     * The list of all global flairs display info.
      */
-    get UserBasicInfo() {
-        return this.getCached("UserBasicInfo")?.default;
+    get ["guilded/users/flairs/displayInfo"]() {
+        return this.#getCached("guilded/users/flairs/displayInfo");
+    }
+    /**
+     * The list of all global flairs tooltip info.
+     */
+    get ["guilded/users/flairs/tooltipInfo"]() {
+        return this.#getCached("guilded/users/flairs/tooltipInfo");
     }
     /**
      * Model class for users.
      */
-    get UserModel() {
-        return this.getCached("UserModel")?.UserModel;
+    get ["guilded/users"](): { UserModel: typeof Object } {
+        return this.#getCached("guilded/users");
     }
     /**
-     * Utilities related to user model.
+     * Fetches a model for the given member.
      */
-    get UserModelHelper() {
-        return this.getCached("UserModel")?.default;
+    get ["guilded/users/members"](): {
+        MemberModel: typeof Object;
+        getMemberModel: (memberInfo: { teamId: string; userId: string }) => object;
+    } {
+        return this.#getCached("guilded/users/members");
+    }
+    /**
+     * Model class for users' profile posts.
+     */
+    get ["guilded/profile/PostModel"]() {
+        return this.#getCached("guilded/profile/PostModel");
+    }
+    /**
+     * The list of social links that can be put under profile.
+     */
+    get ["guilded/profile/socialLinks"]() {
+        return this.#getCached("guilded/profile/socialLinks");
+    }
+
+    // Roles
+    /**
+     * Captain, former member, admin, etc. infos and names.
+     */
+    get ["guilded/roles/membership"]() {
+        return this.#getCached("guilded/roles/membership");
+    }
+
+    // Groups
+    /**
+     * Model class for groups.
+     */
+    get ["guilded/groups"](): { GroupModel: typeof Object } {
+        return this.#getCached("guilded/groups");
+    }
+
+    // Channels
+    /**
+     * Model class for channels.
+     */
+    get ["guilded/channels"](): { ChannelModel: typeof Object } {
+        return this.#getCached("guilded/channels");
+    }
+    /**
+     * The list of all channel and section types.
+     */
+    get ["guilded/channels/types"]() {
+        return this.#getCached("guilded/channels/types");
+    }
+    /**
+     * Methods related to channel management.
+     */
+    get ["guilded/channels/management"]() {
+        return this.#getCached("guilded/channels/management");
+    }
+    /**
+     * The lengths of channel names, IDs and other things related to channel settings.
+     */
+    get ["guilded/channels/settings"]() {
+        return this.#getCached("guilded/channels/settings");
+    }
+    /**
+     * Model class for announcement posts.
+     */
+    get ["guilded/channels/content/AnnouncementModel"](): { default: typeof Object } {
+        return this.#getCached("guilded/channels/content/AnnouncementModel");
+    }
+    /**
+     * Model class for document channel documents.
+     */
+    get ["guilded/channels/content/DocumentModel"](): { default: typeof Object } {
+        return this.#getCached("guilded/channels/content/DocumentModel");
+    }
+    /**
+     * Model class for calendar events.
+     */
+    get ["guilded/channels/content/EventModel"](): { default: typeof Object } {
+        return this.#getCached("guilded/channels/content/EventModel");
+    }
+    /**
+     * Model class for list channel items/tasks.
+     */
+    get ["guilded/channels/content/ListItemModel"](): { default: typeof Object } {
+        return this.#getCached("guilded/channels/content/ListItemModel");
+    }
+    /**
+     * Model class for chat messages.
+     */
+    get ["guilded/channels/content/MessageModel"](): { default: typeof Object } {
+        return this.#getCached("guilded/channels/content/MessageModel");
+    }
+    /**
+     * Gets event configuration limitations.
+     */
+    get ["guilded/channels/content/eventInfo"]() {
+        return this.#getCached("guilded/channels/content/eventInfo");
+    }
+
+    // URLs
+    /**
+     * Links to various Guilded help-center articles.
+     */
+    get ["guilded/urls/articles"]() {
+        return this.#getCached("guilded/urls/articles");
+    }
+    /**
+     * Links and information about guilded.gg domain.
+     */
+    get ["guilded/urls/domain"]() {
+        return this.#getCached("guilded/urls/domain");
+    }
+    /**
+     * The list of all external sites Guilded embeds support.
+     */
+    get ["guilded/urls/externalSites"]() {
+        return this.#getCached("guilded/urls/externalSites");
+    }
+    /**
+     * Information about external sites Guilded embeds support, such as colours and icons.
+     */
+    get ["guilded/urls/externalSiteInfos"]() {
+        return this.#getCached("guilded/urls/externalSiteInfos");
+    }
+    /**
+     * All of the social medias that Guilded client recognizes.
+     */
+    get ["guilded/urls/socialMedia"](): {
+        SocialMediaTypes: { [socialMediaName: string]: string };
+        default: { [socialMediaName: string]: { label: string; icon: string; href?: string } };
+    } {
+        return this.#getCached("guilded/urls/socialMedia");
+    }
+
+    // Editors and Markdown
+    /**
+     * Gets Prism library.
+     */
+    get prism(): typeof prismjs {
+        return this.#getCached("prism");
+    }
+    /**
+     * Gets the plugins and language settings of Prism.js.
+     */
+    get ["prism/components"](): typeof prismjsComponents {
+        return this.#getCached("prism/info")?.prismComponents;
+    }
+    /**
+     * The list of all Slate nodes.
+     */
+    get ["guilded/editor/nodes"]() {
+        return this.#getCached("guilded/editor/nodes");
+    }
+    /**
+     * The list of nodes sorted by reactions, bare, etc.
+     */
+    get ["guilded/editor/nodeInfos"]() {
+        return this.#getCached("guilded/editor/nodeInfos");
+    }
+    /**
+     * A dictionary of Markdown grammars.
+     */
+    get ["guilded/editor/grammars"](): { WebhookEmbed: Grammar } {
+        return this.#getCached("guilded/editor/grammars");
+    }
+    /**
+     * The list of language identifiers and their display names.
+     */
+    get ["guilded/editor/languageCodes"](): { default: { [languageId: string]: string } } {
+        return this.#getCached("guilded/editor/languageCodes");
+    }
+    /**
+     * The list of all client sounds.
+     */
+    get ["guilded/app/sounds"]() {
+        return this.#getCached("guilded/app/sounds");
+    }
+
+    // Settings
+    get ["guilded/settings/savableSettings"](): { default: <T>(settings: T) => T } {
+        return this.#getCached("guilded/settings/savableSettings");
+    }
+    /**
+     * The list of settings tabs.
+     */
+    get ["guilded/settings/tabs"](): {
+        default: {
+            [tabName: string]: {
+                id: string;
+                label: string;
+                calloutBadgeProps?: { text: string; color: string };
+            };
+        };
+    } {
+        return this.#getCached("guilded/settings/tabs");
+    }
+
+    // Overlays
+    /**
+     * Provides overlay portal.
+     */
+    get ["guilded/overlays/portal"]() {
+        return this.#getCached("guilded/overlays/portal");
+    }
+    /**
+     * Provides a container that displays a set of overlays.
+     */
+    get ["guilded/overlays/OverlayStack"]() {
+        return this.#getCached("guilded/overlays/OverlayStack");
+    }
+    /**
+     * Decorator for getting specific set of overlays.
+     */
+    get ["guilded/overlays/overlayProvider"](): { default: (overlays: string | string[]) => <T>(type: T) => T } {
+        return this.#getCached("guilded/overlays/overlayProvider");
+    }
+
+    // Context
+    /**
+     * Module with context of what channel client is looking at, channel messages, etc.
+     */
+    get ["guilded/context/chatContext"]() {
+        return this.#getCached("guilded/context/chatContext");
+    }
+    /**
+     * Provides layer context for Guilded portals.
+     */
+    get ["guilded/context/layerContext"]() {
+        return this.#getCached("guilded/context/layerContext");
+    }
+    get ["guilded/context/teamContextProvider"](): { default: <T>(cls: T) => T } {
+        return this.#getCached("guilded/context/teamContextProvider");
+    }
+    get ["guilded/context/defaultContextProvider"](): { default: <T>(cls: T) => T } {
+        return this.#getCached("guilded/context/defaultContextProvider");
+    }
+
+    // Util
+    /**
+     * The utilities related to functions.
+     */
+    get ["guilded/util/functions"](): Function & { coroutine: <T extends Function>(fn: T) => any } {
+        return this.#getCached("guilded/util/functions");
+    }
+
+    // Components
+    get ["guilded/components/Form"](): { default: typeof Form } {
+        return this.#getCached("guilded/components/Form");
+    }
+    /**
+     * The list of available field types in forms.
+     */
+    get ["guilded/components/formFieldTypes"](): { Dropdown: "Dropdown" } {
+        return this.#getCached("guilded/components/formFieldTypes");
+    }
+    /**
+     * Returns the class that contains a set of validators, which either return string (error message) or void.
+     */
+    get ["guilded/components/formValidations"](): {
+        default: {
+            ValidateUserUrl: (input: string) => string | undefined;
+            validateIsUrl: (input: string) => string | undefined;
+        };
+    } {
+        return this.#getCached("guilded/components/formValidations");
+    }
+
+    /**
+     * Provides a component that displays Markdown plain text.
+     */
+    get ["guilded/components/MarkdownRenderer"](): { default: typeof _React.Component } {
+        //typeof React.Component<{ plainText: string, grammar: PrismGrammar }, {}>
+        return this.#getCached("guilded/components/MarkdownRenderer");
+    }
+    /**
+     * A badge or a flair for anything.
+     */
+    get ["guilded/components/CalloutBadge"](): { default } {
+        return this.#getCached("guilded/components/CalloutBadge");
+    }
+    get ["guilded/components/GuildedText"](): { default: typeof GuildedText } {
+        return this.#getCached("guilded/components/GuildedText");
+    }
+    /**
+     * A clickable hyperlink component.
+     */
+    get ["guilded/components/RouteLink"](): { default } {
+        return this.#getCached("guilded/components/RouteLink");
+    }
+    /**
+     * A clickable Guilded button.
+     */
+    get ["guilded/components/Button"](): { default: typeof Button } {
+        return this.#getCached("Button");
+    }
+    get ["guilded/components/SvgIcon"](): { default: typeof SvgIcon } {
+        return this.#getCached("SvgIcon");
+    }
+    /**
+     * Provides a null-state screen component.
+     */
+    get ["guilded/components/NullState"](): { default: typeof NullState } {
+        return this.#getCached("guilded/components/NullState");
+    }
+    /**
+     * The component that creates horizontal selectable content tabs.
+     */
+    get ["guilded/components/HorizontalTabs"](): { default } {
+        return this.#getCached("guilded/components/HorizontalTabs");
+    }
+    get ["guilded/components/ToggleField"](): { default } {
+        return this.#getCached("guilded/components/ToggleField");
+    }
+    /**
+     * Provides a simple Guilded toggle with optional label.
+     */
+    get ["guilded/components/SimpleToggle"](): { default } {
+        return this.#getCached("guilded/components/SimpleToggle");
+    }
+    /**
+     * Renderable chat image.
+     */
+    get ["guilded/components/MediaRenderer"](): { default: typeof MediaRenderer } {
+        return this.#getCached("guilded/components/MediaRenderer");
+    }
+    /**
+     * An input made for searching.
+     */
+    get ["guilded/components/SearchBar"](): { default } {
+        return this.#getCached("guilded/components/SearchBar");
+    }
+    /**
+     * Returns a searchable table with filtering and other features.
+     */
+    get ["guilded/components/ItemManager"](): { default: typeof ItemManager } {
+        return this.#getCached("guilded/components/ItemManager");
+    }
+    /**
+     * Returns an overflow button component that opens a menu.
+     */
+    get ["guilded/components/OverflowButton"](): { default: typeof OverflowButton } {
+        return this.#getCached("guilded/components/OverflowButton");
+    }
+    get ["guilded/components/BannerWithButton"](): { default: typeof BannerWithButton } {
+        return this.#getCached("BannerWithButton");
+    }
+    /**
+     * Component that renders user's name, profile picture, badges and other things in a line.
+     */
+    get ["guilded/components/UserBasicInfo"](): { default } {
+        return this.#getCached("guilded/components/UserBasicInfo");
+    }
+    /**
+     * Profile picture of someone.
+     */
+    get ["guilded/components/ProfilePicture"](): { default } {
+        return this.#getCached("guilded/components/ProfilePicture");
+    }
+    /**
+     * The list of items that can overflow in certain direction and can be scrolled.
+     */
+    get ["guilded/components/CarouselList"](): { default: typeof CarouselList } {
+        return this.#getCached("guilded/components/CarouselList");
     }
     /**
      * Divider that separates content with a line and a text in the middle.
      */
-    get WordDividerLine(): typeof WordDividerLine {
-        return this.getCached("WordDividerLine")?.default;
+    get ["guilded/components/WordDividerLine"](): { default: typeof WordDividerLine } {
+        return this.#getCached("guilded/component/WordDividerLine");
+    }
+    /**
+     * Draggable element names and infos.
+     */
+    get ["guilded/components/draggable"]() {
+        return this.#getCached("guilded/components/draggable");
+    }
+    /**
+     * Provides action menu component for rendering Guilded right click, overflow and other kinds of menus.
+     */
+    get ["guilded/components/ActionMenu"](): { default } {
+        return this.#getCached("guilded/components/ActionMenu");
+    }
+    /**
+     * Provides an action menu section that categorizes menu items.
+     */
+    get ["guilded/components/ActionMenuSection"](): { default } {
+        return this.#getCached("guilded/components/ActionMenuSection");
+    }
+    /**
+     * Provides a component for action menu button/item.
+     */
+    get ["guilded/components/ActionMenuItem"](): { default } {
+        return this.#getCached("guilded/components/ActionMenuItem");
+    }
+    /**
+     * Provides a component to render a Modal. Does not provide full Modal overlay.
+     */
+    get ["guilded/components/Modal"](): { default } {
+        return this.#getCached("guilded/components/Modal");
+    }
+    get ["guilded/components/MarkRenderer"](): { default } {
+        return this.#getCached("guilded/components/MarkRenderer");
     }
 }

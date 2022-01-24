@@ -1,9 +1,17 @@
-﻿import { AnyExtension } from "../../../../../common/extensions.js";
-import { MenuSpecs } from "../../../../guilded/menu.js";
-import ErrorBoundary from "../ErrorBoundary.jsx";
-import { SwitchTab } from "../TabbedSettings.jsx";
+﻿import { AnyExtension } from "../../../../../common/extensions";
+import { MenuSpecs } from "../../../../guilded/menu";
+import ErrorBoundary from "../ErrorBoundary";
+import { SwitchTab } from "../TabbedSettings";
 
-const { OverflowButton, Form, UserBasicInfo, UserModel, restMethods, React } = window.ReGuildedApi;
+const {
+    react: React,
+    "guilded/components/OverflowButton": { default: OverflowButton },
+    "guilded/components/Form": { default: Form },
+    "guilded/components/UserBasicInfo": { default: UserBasicInfo },
+    "guilded/users": { UserModel },
+    "guilded/http/rest": restMethods,
+    "reguilded/util": reUtil
+} = window.ReGuildedApi;
 
 type AdditionalProps = {
     type: string,
@@ -63,7 +71,7 @@ export default abstract class ExtensionItem<P extends AnyExtension, S = {}> exte
                             {/* Description */}
                             <div className="DocDisplayItem-preview ReGuildedExtension-preview">
                                 <p className="ReGuildedExtension-description">
-                                    {readme?.length ? window.ReGuildedApi.renderMarkdown(readme) : "No description provided."}
+                                    {readme?.length ? reUtil.renderMarkdown(readme) : "No description provided."}
                                 </p>
                             </div>
                             {/* Footer */}

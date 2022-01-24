@@ -38,6 +38,8 @@ type GuildedTextProps = {
         | "gray";
     weight?: "normal" | "semibold" | "bold";
     color?: "bodyWhite" | "white" | "gray" | "gilded1" | "errorRed";
+    className?: string;
+    block?: boolean;
 };
 export declare class GuildedText extends React.Component<GuildedTextProps> {
     constructor(props: GuildedTextProps, context?: object);

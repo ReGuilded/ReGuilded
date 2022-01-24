@@ -5,11 +5,20 @@ import { ChildTabProps } from "../TabbedSettings";
 import ErrorBoundary from "../ErrorBoundary";
 import { ReactElement } from "react";
 
-const { React, SvgIcon, GuildedText, Form, OverlayProvider, CarouselList, MediaRenderer } = window.ReGuildedApi;
+const {
+    react: React,
+    "guilded/components/SvgIcon": { default: SvgIcon },
+    "guilded/components/GuildedText": { default: GuildedText },
+    "guilded/components/Form": { default: Form },
+    "guilded/overlays/overlayProvider": { default: overlayProvider },
+    "guilded/components/CarouselList": { default: CarouselList },
+    "guilded/components/MediaRenderer": { default: MediaRenderer },
+    "reguilded/util": reUtil
+} = window.ReGuildedApi;
 
 type Props<T> = ChildTabProps & { extension: T };
 
-@OverlayProvider(["DeleteConfirmationOverlay"])
+@overlayProvider(["DeleteConfirmationOverlay"])
 export default abstract class ExtensionView<T extends AnyExtension> extends React.Component<ChildTabProps, { enabled: boolean | number }> {
     // Class functions with proper `this` to not rebind every time
     private _onToggleBinded: () => Promise<void>;
@@ -125,7 +134,7 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
                         </header>
                         <div className="ReGuildedExtensionPage-content">
                             {/* Description */}
-                            { extension.readme?.length ? window.ReGuildedApi.renderMarkdown(extension.readme) : null }
+                            { extension.readme?.length ? reUtil.renderMarkdown(extension.readme) : null }
                             {/* Preview images carousel */}
                             { extension.images &&
                                 <div className="ReGuildedExtensionImages-container">

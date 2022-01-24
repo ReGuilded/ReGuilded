@@ -1,5 +1,4 @@
 import { ReGuildedExtensionSettings } from "../../../common/reguilded-settings";
-import initializeApi from "../../addons/initializeApi";
 import { RGAddonConfig } from "../../types/reguilded";
 import { Addon } from "../../../common/extensions";
 import WebpackManager from "../../addons/webpack";
@@ -14,6 +13,8 @@ import ReGuilded from "../ReGuilded";
 export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig> {
     initialized: string[] = [];
     webpack?: WebpackManager;
+    addonApi?: AddonApi;
+    importable?: (path: string) => [boolean, any?];
     /**
      * Manager that manages ReGuilded's addons
      * @param parent The parent ReGuilded instance
@@ -37,12 +38,10 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
      */
     async init(addonApi: AddonApi): Promise<void> {
         console.log("Initiating addon manager");
-        // Try-catch; this should never throw errors
-        try {
-            initializeApi(addonApi);
-        } catch (e) {
-            console.error("Failed to initialize the ReGuilded addon API!", e);
-        }
+        this.addonApi = addonApi;
+
+        this.importable = (path: string) => [path in addonApi, addonApi[path]];
+
         this.config.setWatchCallback(this._watchCallback.bind(this));
 
         // Load addons that weren't catched by setWatchCallback
@@ -104,7 +103,7 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
             // Check if it's first time loading
             if (!~this.initialized.indexOf(metadata.id)) {
                 await metadata
-                    .execute()
+                    .execute(this.importable)
                     .then(exports => {
                         metadata.exports = exports;
                         // One-time `init` function
@@ -113,7 +112,7 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
                         this.initialized.push(metadata.id);
                         metadata.exports.load();
                     })
-                    .catch(e => console.error(`Error while getting exports of addon by ID '${metadata.exports}':`, e));
+                    .catch(e => console.error(`Error while getting exports of addon by ID '${metadata.id}':`, e));
             } else metadata.exports.load();
         } catch (e) {
             console.error(`Failed to load addon by ID '${metadata.id}':\n`, e);
