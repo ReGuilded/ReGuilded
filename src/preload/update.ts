@@ -7,24 +7,26 @@ export default async function handleUpdate(updateInfo: VersionJson) {
     const downloadUrl = updateInfo.assets[0].browser_download_url;
     const downloadPath = join(__dirname);
 
-    process.noAsar = true
-    return new Promise<void>(async (resolve) => {
-        stream(downloadUrl).pipe(createWriteStream(downloadPath)).on("finish", () => {
-            console.log("Download Finished");
+    process.noAsar = true;
+    return new Promise<void>(async resolve => {
+        stream(downloadUrl)
+            .pipe(createWriteStream(downloadPath))
+            .on("finish", () => {
+                console.log("Download Finished");
 
-            process.noAsar = false;
-            resolve();
-        });
+                process.noAsar = false;
+                resolve();
+            });
     });
-};
+}
 
 export type VersionJson = {
     noRelease?: boolean;
 
     version?: string;
     assets?: Array<{
-        browser_download_url: string,
-        name: string,
+        browser_download_url: string;
+        name: string;
     }>;
 };
 
@@ -33,7 +35,7 @@ export type VersionJson = {
  * @param forceUpdate Whether to force the update or not.
  */
 export async function checkForUpdate(forceUpdate: boolean = false): Promise<[boolean, VersionJson]> {
-    return new Promise<VersionJson>((resolve) => {
+    return new Promise<VersionJson>(resolve => {
         fetch("https://api.github.com/repos/ReGuilded/ReGuilded/releases/latest").then(response => {
             if (!response.ok) {
                 resolve({
@@ -47,6 +49,10 @@ export async function checkForUpdate(forceUpdate: boolean = false): Promise<[boo
                     });
                 });
             }
-        })
-    }).then(json => [(window.updateExists = !json.noRelease && (json.assets.length !== 0 && (forceUpdate || json.version !== reGuildedInfo.version))), (window.latestVersionInfo = json)])
+        });
+    }).then(json => [
+        (window.updateExists =
+            !json.noRelease && json.assets.length !== 0 && (forceUpdate || json.version !== reGuildedInfo.version)),
+        (window.latestVersionInfo = json)
+    ]);
 }

@@ -10,6 +10,8 @@
         "jsxFactory": "React.createElement",
 
         "removeComments": true,
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "resolveJsonModule": true,
+        "allowSyntheticDefaultImports": true
     }
 }
