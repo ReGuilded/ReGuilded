@@ -7,6 +7,7 @@ export type ReGuildedSettings = {
     autoUpdate: boolean;
     badge: BadgeHandling;
     loadAuthors: boolean;
+    keepSplash: boolean;
     addons: ReGuildedExtensionSettings;
     themes: ReGuildedExtensionSettings;
 };
@@ -14,6 +15,7 @@ export type ReGuildedSettingsUpdate = {
     autoUpdate?: boolean;
     badge?: BadgeHandling;
     loadAuthors?: boolean;
+    keepSplash?: boolean;
     addons?: ReGuildedExtensionSettings;
     themes?: ReGuildedExtensionSettings;
 };

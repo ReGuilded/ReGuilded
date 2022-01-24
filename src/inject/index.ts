@@ -21,10 +21,16 @@ const argv: { _: string[]; d?: string; dir?: string; e?: string; doas?: boolean;
     if (dir !== undefined && typeof dir !== "string") throw new TypeError("Argument -d or --dir must be a string");
 
     if (tasks[taskArg] !== null) {
-        console.log("Force closing Guilded");
+        const requiredRestartArgs = ["injectbare", "inject", "uninjectbare", "uninject"]
+        const restartNeeded = requiredRestartArgs.includes(taskArg);
 
-        // Close Guilded, then continue, because we need to make sure Guilded is closed for the new injection.
-        exec(platform.close).on("exit", async () => {
+        // Only close Guilded if the arguments are Injection or Uninjection related.
+        new Promise<void>((resolve) => {
+            if (restartNeeded) {
+                console.log("Force closing Guilded");
+                exec(platform.close).on("exit", resolve);
+            } else resolve()
+        }).then(() => {
             // Creates path for ReGuilded
             const reguildedPath = resolve(
                 dir || process.platform === "linux"
@@ -32,25 +38,15 @@ const argv: { _: string[]; d?: string; dir?: string; e?: string; doas?: boolean;
                     : join(process.env.APPDATA || process.env.HOME, ".reguilded")
             );
 
-            await tasks[taskArg](platform, reguildedPath, elevator)
+            tasks[taskArg](platform, reguildedPath, "sudo") // Custom elevator support disabled
                 .then(() => {
-                    if(taskArg === (
-                        "injectbare" ||
-                        "inject" ||
-                        "uninjectbare" ||
-                        "uninject"
-                    )) {
-                        console.info(
-                            "Relaunching Guilded (If not opened in 10 minutes after this please manually execute the app)"
-                        );
-    
-                        // Open the app Again after the injection task is done
-                        exec(platform.open);
-                    };
+                    if (restartNeeded) {
+                        console.info(`Task ${taskArg} is complete, and you can now relaunch Guilded.`)
+                    }
                 })
                 .catch(err => {
                     console.error("Failed to do task", taskArg, ":", err);
                 });
-        });
+        })
     } else console.error("Unknown task", taskArg);
 })();

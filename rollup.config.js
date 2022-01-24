@@ -176,7 +176,7 @@ const config = [
         output: {
             file: join(modPath, "electron.preload-splash.js"),
             format: "cjs",
-            name: "splash",
+            name: "preloadSplash",
             globals: globalModules
         },
         plugins: [
@@ -185,6 +185,8 @@ const config = [
                 browser: true,
                 resolveOnly: resolvableModules
             }),
+            configuredPlugins.json,
+            configuredPlugins.ts,
             configuredPlugins.terser
         ]
     },
