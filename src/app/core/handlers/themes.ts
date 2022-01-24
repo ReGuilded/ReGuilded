@@ -172,7 +172,7 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
     private unloadWithId(themeId: string) {
         console.log(`Unloading theme by ID '${themeId}'`);
 
-        const themeElement = document.getElementById(`reGl-theme-${themeId}`);
+        const themeElement = document.getElementById(`ReGuildedStyleTheme-theme-${themeId}`);
         themeElement && themeElement.remove();
     }
 
