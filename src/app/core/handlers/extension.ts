@@ -75,7 +75,7 @@ export default abstract class ExtensionHandler<T extends AnyExtension, C extends
         this.savedUnload(extension)
             .then(() => this.config.delete(extension.id))
             .then(
-                () => console.log(`Deleted extension by ID '${extension.id}'`),
+                () => this.settingsHandler.settings.debugMode && console.log(`Deleted extension by ID '${extension.id}'`),
                 e => console.error(`Failed to delete extension by ID '${extension.id}':\n`, e)
             );
     }

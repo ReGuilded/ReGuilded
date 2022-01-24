@@ -117,7 +117,7 @@ export default class ReGuilded {
         const badgeGetter = badges.genBadgeGetter(UserModel.prototype.__lookupGetter__("badges"));
         const flairGetter = flairs.genFlairGetter(UserModel.prototype.__lookupGetter__("flairInfos"));
 
-        console.log('Injecting');
+        this.settingsHandler.settings.debugMode && console.log('Injecting');
 
         // Adds ReGuilded developer badges
         badges.injectBadgeGetter(UserModel.prototype, badgeGetter);
