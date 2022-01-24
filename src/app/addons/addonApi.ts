@@ -562,10 +562,10 @@ export default class AddonApi {
      * A clickable Guilded button.
      */
     get ["guilded/components/Button"](): { default: typeof Button } {
-        return this.#getCached("Button");
+        return this.#getCached("guilded/components/Button");
     }
     get ["guilded/components/SvgIcon"](): { default: typeof SvgIcon } {
-        return this.#getCached("SvgIcon");
+        return this.#getCached("guilded/components/SvgIcon");
     }
     /**
      * Provides a null-state screen component.
@@ -613,7 +613,7 @@ export default class AddonApi {
         return this.#getCached("guilded/components/OverflowButton");
     }
     get ["guilded/components/BannerWithButton"](): { default: typeof BannerWithButton } {
-        return this.#getCached("BannerWithButton");
+        return this.#getCached("guilded/components/BannerWithButton");
     }
     /**
      * Component that renders user's name, profile picture, badges and other things in a line.

@@ -46,12 +46,14 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
 
         // Load addons that weren't catched by setWatchCallback
         // Preload can be too fast for addon handler
-        await Promise.allSettled(
+        await Promise.all(
             this.config.getAll().map(addon => {
                 this.all.push(addon);
                 return ~this.enabled.indexOf(addon.id) && this.load(addon);
             })
-        );
+        ).catch(e => {
+            console.error("Error while loading an addon:", e);
+        });
     }
     private async _watchCallback(metadata: Addon, loaded: boolean, previousId: string): Promise<void> {
         const isEnabled = ~this.enabled.indexOf(metadata.id);

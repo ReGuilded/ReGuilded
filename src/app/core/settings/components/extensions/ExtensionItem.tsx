@@ -9,7 +9,7 @@ const {
     "guilded/components/Form": { default: Form },
     "guilded/components/UserBasicInfo": { default: UserBasicInfo },
     "guilded/users": { UserModel },
-    "guilded/http/rest": restMethods,
+    "guilded/http/rest": { default: restMethods },
     "reguilded/util": reUtil
 } = window.ReGuildedApi;
 

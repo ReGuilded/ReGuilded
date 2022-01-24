@@ -11,6 +11,7 @@ export default class SettingsInjector {
     id = "SettingsInjector";
 
     async init() {
+        console.log("SettingsInjector init called")
         // Patch the settings renderer
         await patchElementRenderer(".SettingsMenu-container", this.id, "before", this.renderSettings.bind(this))
             // Then run this awful nightmare, since forceUpdate doesn't work
@@ -93,3 +94,4 @@ export default class SettingsInjector {
         patcher.unpatchAll(this.id);
     }
 }
+console.log("SettingsInjector module")

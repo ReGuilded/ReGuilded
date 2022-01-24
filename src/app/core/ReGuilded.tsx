@@ -75,8 +75,11 @@ export default class ReGuilded {
             .catch(e => console.error("ReGuilded failed to initialize:", e))
             .then(async () =>
                 // Tasks that aren't critical
-                await Promise.allSettled([
-                    import("./settings/settings").then(async ({ default: SettingsInjector }) => await (window.settingsInjector = new SettingsInjector()).init()),
+                await Promise.all([
+                    import("./settings/settings").then(async ({ default: SettingsInjector }) => {
+                        console.log("SettingsInjector received", SettingsInjector);
+                        await (window.settingsInjector = new SettingsInjector()).init();
+                    }),
 
                     window.ReGuildedConfig.isFirstLaunch && this.handleFirstLaunch(),
 
