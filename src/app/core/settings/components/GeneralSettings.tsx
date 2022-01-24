@@ -106,26 +106,16 @@ export default class GeneralSettings extends React.Component {
                                     onClick: this.Update
                                 }
                             ]
-                        },
-                        {
-                            header: "Developer Options",
-                            isCollapsible: true,
-                            rowMarginSize: "lg",
-                            fieldSpecs: [
-                                {
-                                    type: "Switch",
-                                    fieldName: "keepSplash",
-                                    label: "Keep Loading Screen",
-                                    description: "Keeps Splash/Loading Screen Open",
-
-                                    defaultValue: settings.keepSplash
-                                }
-                            ]
-                        },
+                        }
+                    ]
+                }}/>
+                <Form onChange={this._handleOptionsChange} formSpecs={{
+                    sectionStyle: "indented-padded",
+                    sections: [
                         {
                             header: "Advanced",
                             isCollapsible: true,
-                            rowMarginSize: "lg",
+                            rowMarginSize: "md",
                             fieldSpecs: [
                                 {
                                     type: "Switch",
@@ -172,6 +162,21 @@ export default class GeneralSettings extends React.Component {
                                         },
                                     ],
                                     defaultValue: { optionName: GeneralSettings.badgeNames[settings.badge] }
+                                }
+                            ]
+                        },
+                        {
+                            header: "Developer Options",
+                            isCollapsible: true,
+                            rowMarginSize: "md",
+                            fieldSpecs: [
+                                {
+                                    type: "Switch",
+                                    fieldName: "keepSplash",
+                                    label: "Keep Loading Screen",
+                                    description: "Keeps Splash/Loading Screen Open",
+
+                                    defaultValue: settings.keepSplash
                                 }
                             ]
                         }
