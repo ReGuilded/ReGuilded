@@ -272,25 +272,6 @@ const config = [
             configuredPlugins.ts,
             configuredPlugins.terser
         ]
-    },
-    {
-        input: "./src/inject/helper/linux-util.ts",
-        output: {
-            file: "./out/injector.linux-util.js",
-            format: "cjs",
-            name: "linuxInjector"
-        },
-        plugins: [
-            commonjs({
-                ignoreDynamicRequires: true
-            }),
-            resolve({
-                browser: false
-            }),
-            configuredPlugins.json,
-            configuredPlugins.ts,
-            configuredPlugins.terser
-        ]
     }
 ];
 export default config;
