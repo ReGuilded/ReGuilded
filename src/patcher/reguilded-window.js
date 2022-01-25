@@ -39,6 +39,7 @@ export default class ReGuildedWindow extends electron.BrowserWindow {
 
         // Implements devtools warning
         this.webContents.on('devtools-opened', () => {
+            if (window.ReGuilded.settingsHandler.settings.debugMode) return;
             this.webContents.executeJavaScript(`
                 console.log("%cCAUTION!", "font-weight: bold; text-decoration: underline;");
                 console.log("DO NOT PASTE OR WRITE ANYTHING HERE IF YOU DON'T KNOW WHAT YOU ARE DOING. THIS MAY BE USED BY ATTACKERS FOR ANY MALICIOUS ACT.");
