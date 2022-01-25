@@ -41,8 +41,8 @@ export default class ReGuildedWindow extends electron.BrowserWindow {
         this.webContents.on('devtools-opened', () => {
             this.webContents.executeJavaScript(`
                 (async () => {
-                    const warningStyles = "color: #cd3534;";
                     if (window.ReGuilded.settingsHandler.settings.debugMode) return;
+                    const warningStyles = "color: #cd3534;";
                     console.log("%cCAUTION!", \`\${warningStyles} text-decoration: underline; font-weight:bold; font-size: 32px;\`);
                     console.log("%cDO NOT PASTE OR WRITE ANYTHING HERE IF YOU DON'T KNOW WHAT YOU ARE DOING. THIS MAY BE USED BY ATTACKERS FOR ANY MALICIOUS ACT.", \`\${warningStyles} font-size: 24px;\`);
                 })();
