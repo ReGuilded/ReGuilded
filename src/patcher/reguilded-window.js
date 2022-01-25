@@ -9,6 +9,8 @@ if(!__dirname.startsWith(userDataDir)) {
     settingsParentDir = configDir;
 } else settingsParentDir = join(__dirname, "..");
 
+const devToolsForceEnable = process.argv[1] === "--reguilded-enable-devtools-i-know-what-im-doing";
+
 const settingsPath = join(settingsParentDir, "./settings");
 
 const settings = JSON.parse(readFileSync(join(settingsPath, "settings.json"), { encoding: "utf8" }))
@@ -21,7 +23,9 @@ const preloads = {
 export default class ReGuildedWindow extends electron.BrowserWindow {
     /** @param {import("electron").BrowserWindowConstructorOptions} options  */
     constructor(options) {
-        options.webPreferences.devTools = settings.devTools || false;
+        // Blocks devtools by default
+        options.webPreferences.devTools = devToolsForceEnable || settings.devTools || false;
+
         // Save old Guilded preload to later use it
         let oldPreload;
 
