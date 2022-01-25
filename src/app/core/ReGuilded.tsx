@@ -76,10 +76,9 @@ export default class ReGuilded {
             .then(async () =>
                 // Tasks that aren't critical
                 await Promise.all([
-                    import("./settings/settings").then(async ({ default: SettingsInjector }) => {
-                        console.log("SettingsInjector received", SettingsInjector);
-                        await (window.settingsInjector = new SettingsInjector()).init();
-                    }),
+                    import("./settings/settings").then(async ({ default: SettingsInjector }) =>
+                        await (window.settingsInjector = new SettingsInjector()).init()
+                    ),
 
                     window.ReGuildedConfig.isFirstLaunch && this.handleFirstLaunch(),
 

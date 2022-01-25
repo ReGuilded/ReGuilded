@@ -12,9 +12,9 @@ import { join } from "path";
 const userDataDir = process.env.APPDATA || process.env.HOME;
 let settingsParentDir;
 
-if(!__dirname.startsWith(userDataDir)) {
+if (!__dirname.startsWith(userDataDir)) {
     const configDir = join(userDataDir, ".reguilded");
-    if(!existsSync(configDir)) mkdirSync(configDir);
+    if (!existsSync(configDir)) mkdirSync(configDir);
     settingsParentDir = configDir;
 } else settingsParentDir = join(__dirname, "..");
 

@@ -4,6 +4,7 @@ import ExtensionHandler from "../../../handlers/extension";
 import { ChildTabProps } from "../TabbedSettings";
 import ErrorBoundary from "../ErrorBoundary";
 import { ReactElement } from "react";
+import PreviewCarousel from "./PreviewCarousel";
 
 const {
     react: React,
@@ -26,7 +27,7 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
     private _openDirectory: () => Promise<void>;
     // Configuration
     protected type: string;
-    protected extensionManager: ExtensionHandler<T, RGExtensionConfig<T>>;
+    protected extensionHandler: ExtensionHandler<T, RGExtensionConfig<T>>;
     // From overlay provider
     protected DeleteConfirmationOverlay: { Open: ({ name: string }) => Promise<{ confirmed: boolean }> };
     constructor(props: Props<T>, context?: any) {
@@ -44,7 +45,7 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
      * @param enabled The new extension state
      */
     private async _onToggle(): Promise<void> {
-        await this.extensionManager[this.state.enabled ? "savedUnload" : "savedLoad"](this.props.extension)
+        await this.extensionHandler[this.state.enabled ? "savedUnload" : "savedLoad"](this.props.extension)
             .then(() => this.setState({ enabled: !this.state.enabled }));
     }
     /**
@@ -52,7 +53,7 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
      */
     private async _onDelete(): Promise<void> {
         await this.DeleteConfirmationOverlay.Open({ name: this.type })
-            .then(async ({ confirmed }) => confirmed && await this.extensionManager.delete(this.props.extension))
+            .then(async ({ confirmed }) => confirmed && await this.extensionHandler.delete(this.props.extension))
             // To not stay in the screen and break something
             .then(() => this.props.switchTab('list', { extension: {} }));
     }
@@ -120,6 +121,7 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
     }
     render() {
         const { switchTab, extension } = this.props;
+
         return (
             <ErrorBoundary>
                 <div className="OptionsMenuPageWrapper-container ReGuildedExtensionPage-wrapper" style={{ paddingLeft: 32, paddingRight: 32, maxWidth: "100%" }}>
@@ -137,12 +139,7 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
                             { extension.readme?.length ? reUtil.renderMarkdown(extension.readme) : null }
                             {/* Preview images carousel */}
                             { extension.images &&
-                                <div className="ReGuildedExtensionImages-container">
-                                    <GuildedText className="ReGuildedExtensionImages-heading" type="heading2">Previews</GuildedText>
-                                    <CarouselList scrollOnChildrenChange={true} arrowSize="lg" className="ReGuildedExtensionImages-list" minHeight={108}>
-                                        { extension.images.map(dataUrl => <div className="ReGuildedExtensionImages-image"><MediaRenderer className="MediaRenderer-content MediaRenderer-content-editor-simple" src={dataUrl}/></div>) }
-                                    </CarouselList>
-                                </div>
+                                <PreviewCarousel extensionId={extension.id} extensionHandler={this.extensionHandler} />
                             }
                             { this.renderContent(extension) }
                             { this.renderActionForm() }

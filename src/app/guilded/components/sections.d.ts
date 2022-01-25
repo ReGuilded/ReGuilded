@@ -6,7 +6,7 @@ type CarouselProps = {
     size?: Size;
     arrowSize?: Size;
     scrollOnChildrenChange?: boolean;
-    children: ReactNode[];
+    children: ReactNode | ReactNode[];
     minHeight?: number;
     useMask?: boolean;
 };

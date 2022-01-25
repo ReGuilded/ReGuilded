@@ -9,7 +9,7 @@ const {
 
 export default class AddonView extends ExtensionView<Addon> {
     protected type = "addon";
-    protected extensionManager = window.ReGuilded.addons;
+    protected extensionHandler = window.ReGuilded.addons;
     constructor(props, context?) {
         super(props, context);
     }

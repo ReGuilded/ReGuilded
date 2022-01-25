@@ -19,6 +19,11 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
      * The map of extension IDs to their metadata.
      */
     idsToMetadata: { [extensionId: string]: T };
+
+    /**
+     * The memory of already loaded preview images in an extension.
+     */
+    idsToImages: { [extensionId: string]: string[] };
     /**
      * Whether every extension has been initiated.
      */
@@ -54,6 +59,7 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
         this.dirname = dirname;
         this.allInit = false;
         this.idsToMetadata = {};
+        this.idsToImages = {};
         this.extensionType = extensionType;
 
         let empty = () => {};
@@ -71,6 +77,30 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
             },
             getHasLoaded() {
                 return self.allInit;
+            },
+            // Loading them in `addToMetadata` contributes to reduced performance
+            fetchImagesOf(extensionId: string, callback: (images: string[]) => void) {
+                // Don't reduce performance again
+                // TODO: Image refetch as an option in settings?
+                const imageCache = self.idsToImages[extensionId];
+
+                if (imageCache) callback(imageCache);
+                else {
+                    // Otherwise, it was never fetched
+                    const { images, dirname } = self.idsToMetadata[extensionId];
+
+                    let fetchedImages = [];
+
+                    if (images) {
+                        fetchedImages = images.map(imagePath =>
+                            nativeImage.createFromPath(path.resolve(dirname, imagePath)).toDataURL()
+                        );
+
+                        // Save it for later reuse, until the extension's metadata gets changed
+                        self.idsToImages[extensionId] = fetchedImages;
+                    }
+                    callback(fetchedImages);
+                }
             },
             setWatchCallback(callback: (extension: T, loaded: boolean) => void) {
                 self.watchCallback = callback;
@@ -184,6 +214,7 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
                     if (!newMetadata && changeIsMetadata) {
                         previousId = metadata.id;
                         this.all.splice(metadataIndex, 1);
+                        delete this.idsToImages[metadata.id];
                     }
                     // Require the metadata file.
                     if (newMetadata || changeIsMetadata) {
@@ -226,33 +257,16 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
  * @param dirname The path to the extension
  */
 function addToMetadata<T extends AnyExtension>(extension: T, dirname: string) {
-    readdir(dirname, (err, files) => {
-        if (err) throw err;
+    readFile(path.join(dirname, "README.md"), "utf8", (err, d) => {
+        if (err)
+            if (err.code === "ENOENT") return;
+            else throw err;
 
-        // Add readme to metadata if one of the readme file names exist
-        const readmeName = files.find(f => f.toLowerCase() === "readme.md");
-
-        if (readmeName) {
-            readFile(path.join(dirname, readmeName), { encoding: "utf8" }, (err, d) => {
-                if (err) throw err;
-
-                extension.readme = d;
-            });
-        }
+        extension.readme = d;
     });
-    if (extension.images) {
-        if (Array.isArray(extension.images))
-            // Since renderer has no way to access to images, we have to convert image paths to `data:...`
-            extension.images = extension.images.map(imagePath =>
-                nativeImage.createFromPath(path.resolve(extension.dirname, imagePath)).toDataURL()
-            );
-        else {
-            console.warn(
-                "Extension metadata property 'images' must be a string array in extension by ID '%s'",
-                extension.id
-            );
-            extension.images = undefined;
-        }
+    if (extension.images && !Array.isArray(extension.images)) {
+        console.warn("Extension metadata property 'images' must be a string array in extension by ID '%s'", extension.id);
+        extension.images = undefined;
     }
     // Make sure author is an ID
     if (extension.author && (typeof extension.author !== "string" || extension.author.length !== 8)) {

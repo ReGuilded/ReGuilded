@@ -30,6 +30,7 @@ export interface RGExtensionConfig<T extends AnyExtension> {
     dirname: string;
     getAll(): T[];
     getHasLoaded(): boolean;
+    fetchImagesOf(extensionId: string, callback: (images: string[]) => void): void;
     openImportPrompt(): Promise<void>;
     delete(extensionId: string): Promise<void>;
     setLoadCallback(callback: (all: T[]) => void): void;

@@ -107,7 +107,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/components/Form": webpack => webpack.withClassProperty("formValues"),
     "guilded/components/formFieldTypes": webpack => webpack.withProperty("Dropdown"),
     "guilded/components/formValidations": webpack => webpack.withProperty("ValidateUserUrl"),
-    "guilded/componentsMarkdownRenderer": webpack => webpack.withClassProperty("plainText"),
+    "guilded/components/MarkdownRenderer": webpack => webpack.withClassProperty("plainText"),
     "guilded/components/CalloutBadge": webpack => webpack.withClassProperty("style"),
     "guilded/components/GuildedText": webpack => webpack.withCode("GuildedText"),
     "guilded/components/RouteLink": webpack => webpack.withClassProperty("href"),
@@ -125,6 +125,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/components/UserBasicInfo": webpack => webpack.withClassProperty("userPresenceContext"),
     "guilded/components/ProfilePicture": webpack => webpack.withClassProperty("borderType"),
     "guilded/components/CarouselList": webpack => webpack.withClassProperty("overflowRight"),
+    "guilded/components/LoadingPage": webpack => webpack.withCode("LoadingPage"),
     "guilded/components/WordDividerLine": webpack => webpack.withCode("WordDividerLine"),
     "guilded/components/ActionMenu": webpack => webpack.withClassProperty("actionMenuHeight"),
     "guilded/components/ActionMenuSection": webpack => webpack.withCode("ActionMenu-section"),
@@ -146,21 +147,30 @@ export default class AddonApi {
     #webpackManager: WebpackManager;
     #addonManager: AddonHandler;
 
-    // If addon needs it
-    ["reguilded/util"] = {
-        getOwnerInstance,
-        patchElementRenderer,
-        waitForElement,
-        renderMarkdown(plainText: string): _React.ReactNode {
-            return new this["guilded/components/MarkdownRenderer"].default({
-                plainText,
-                grammar: this["guilded/editor/grammars"].WebhookEmbed
-            }).render();
-        }
+    ["reguilded/util"]: {
+        getOwnerInstance: typeof getOwnerInstance;
+        patchElementRenderer: typeof patchElementRenderer;
+        waitForElement: typeof waitForElement;
+        renderMarkdown: (plainText: string) => _React.ReactNode;
     };
+
+    // If addon needs it
     constructor(webpackManager: WebpackManager, addonManager: AddonHandler) {
         this.#webpackManager = webpackManager;
         this.#addonManager = addonManager;
+
+        this["reguilded/util"] = {
+            getOwnerInstance,
+            patchElementRenderer,
+            waitForElement,
+            renderMarkdown: (plainText: string) => (
+                console.log("This", this),
+                new this["guilded/components/MarkdownRenderer"].default({
+                    plainText,
+                    grammar: this["guilded/editor/grammars"].default.WebhookEmbed
+                }).render()
+            )
+        };
     }
     /**
      * Caches the value if it's not already cached and returns it.
@@ -431,7 +441,7 @@ export default class AddonApi {
     /**
      * A dictionary of Markdown grammars.
      */
-    get ["guilded/editor/grammars"](): { WebhookEmbed: Grammar } {
+    get ["guilded/editor/grammars"](): { default: { WebhookEmbed: Grammar } } {
         return this.#getCached("guilded/editor/grammars");
     }
     /**
@@ -632,6 +642,9 @@ export default class AddonApi {
      */
     get ["guilded/components/CarouselList"](): { default: typeof CarouselList } {
         return this.#getCached("guilded/components/CarouselList");
+    }
+    get ["guilded/components/LoadingPage"](): { default: typeof _React.Component } {
+        return this.#getCached("guilded/components/LoadingPage");
     }
     /**
      * Divider that separates content with a line and a text in the middle.

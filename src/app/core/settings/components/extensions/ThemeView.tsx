@@ -10,7 +10,7 @@ const {
 
 export default class ThemeView extends ExtensionView<Theme> {
     protected type = "theme";
-    protected extensionManager = window.ReGuilded.themes;
+    protected extensionHandler = window.ReGuilded.themes;
     constructor(props, context?) {
         super(props, context);
     }
