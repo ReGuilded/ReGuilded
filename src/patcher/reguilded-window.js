@@ -13,7 +13,12 @@ const devToolsForceEnable = process.argv[1] === "--reguilded-enable-devtools-i-k
 
 const settingsPath = join(settingsParentDir, "./settings");
 
-const settings = JSON.parse(readFileSync(join(settingsPath, "settings.json"), { encoding: "utf8" }))
+let settings = {};
+try {
+    settings = JSON.parse(readFileSync(join(settingsPath, "settings.json"), { encoding: "utf8" }))
+} catch(err) {
+    console.log("Settings doesn't exists yet, must be first time.");
+};
 
 const preloads = {
     main: join(__dirname, "./electron.preload.js"),
