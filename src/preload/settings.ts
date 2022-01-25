@@ -14,7 +14,6 @@ export const defaultSettings: ReGuildedSettings = {
     loadAuthors: true,
     keepSplash: false,
     debugMode: false,
-    devTools: false,
     addons: { enabled: [] },
     themes: { enabled: [] }
 };

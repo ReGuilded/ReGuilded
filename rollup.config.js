@@ -168,8 +168,6 @@ const config = [
                 resolveOnly: resolvableModules,
                 ignoreDynamicRequires: true
             }),
-            configuredPlugins.json,
-            configuredPlugins.ts,
             configuredPlugins.terser
         ]
     },

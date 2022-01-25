@@ -4,6 +4,7 @@ import { join } from "path";
 import { existsSync, mkdirSync } from "fs";
 import getSettingsFile from "../../preload/get-settings";
 
+// TODO: Add in check for a launch argument and then if it exists, then hang the close.
 const userDataDir = process.env.APPDATA || process.env.HOME;
 let settingsParentDir;
 if(!__dirname.startsWith(userDataDir)) {
