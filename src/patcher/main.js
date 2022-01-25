@@ -56,6 +56,8 @@ ipcMain.handle("reguilded-no-splash-close", () => {
 app.whenReady().then(() => {
     try {
         session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+            if (!details.url.includes("guilded.gg")) return callback({cancel: false});
+            
             const patchedCallback = headers => {
                 callback({
                     cancel: false,
