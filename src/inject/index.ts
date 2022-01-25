@@ -32,7 +32,7 @@ const specialTasks = ["inject", "uninject"];
         if (requireElevate) {
             console.error(`Task ${taskArg}, requires elevated privileges, please complete the prompt that has opened.`);
 
-            sudoExec(process.argv.join(" "), {name: "ReGuilded"}, (error, stdout) => {
+            sudoExec(process.argv.map(x => JSON.stringify(x)).join(" "), {name: "ReGuilded"}, (error, stdout) => {
                 if (error) throw error
                 console.log(stdout);
             });
