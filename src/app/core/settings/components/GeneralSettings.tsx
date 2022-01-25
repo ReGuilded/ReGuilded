@@ -18,6 +18,7 @@ enum Badge {
 type GeneralSettingsValues = {
     loadAuthors: boolean,
     keepSplash: boolean,
+    devTools: boolean,
     badge: { optionName: string },
     autoUpdate: boolean
 }
@@ -43,10 +44,10 @@ export default class GeneralSettings extends React.Component {
     }
     private *onSaveChanges({ values, isValid }) {
         if(isValid) {
-            const { loadAuthors, badge: { optionName: badge }, keepSplash, autoUpdate }: GeneralSettingsValues = values;
+            const { loadAuthors, badge: { optionName: badge }, keepSplash, devTools, autoUpdate }: GeneralSettingsValues = values;
             // Since we need to convert form values to proper values
             // (E.g., radios always returning { optionName: "xyz" } instead of "xyz")
-            const configValues = { loadAuthors, badge: Badge[badge], keepSplash, autoUpdate }
+            const configValues = { loadAuthors, badge: Badge[badge], keepSplash, devTools, autoUpdate }
             return window.ReGuilded.settingsHandler.updateSettings(configValues);
         } else throw new Error("Invalid settings form values");
     }
@@ -184,6 +185,14 @@ export default class GeneralSettings extends React.Component {
                                     description: "Keeps Splash/Loading Screen Open",
 
                                     defaultValue: settings.keepSplash
+                                },
+                                {
+                                    type: "Switch",
+                                    fieldName: "devTools",
+                                    label: "Enable Devtools",
+                                    description: "[ONLY ENABLE IF YOU REALLY KNOW WHAT YOU ARE DOING WITH THEM] Re-enables devtools access which ReGuilded blocked by default for user safety.",
+                                    
+                                    defaultValue: settings.devTools
                                 },
                                 {
                                     type: "Switch",

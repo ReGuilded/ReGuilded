@@ -1,5 +1,17 @@
 import * as electron from "electron";
 import { join } from "path";
+import { readFileSync } from "fs";
+
+const userDataDir = process.env.APPDATA || process.env.HOME;
+let settingsParentDir;
+if(!__dirname.startsWith(userDataDir)) {
+    const configDir = join(userDataDir, ".reguilded");
+    settingsParentDir = configDir;
+} else settingsParentDir = join(__dirname, "..");
+
+const settingsPath = join(settingsParentDir, "./settings");
+
+const settings = JSON.parse(readFileSync(join(settingsPath, "settings.json"), { encoding: "utf8" }))
 
 const preloads = {
     main: join(__dirname, "./electron.preload.js"),
@@ -9,6 +21,7 @@ const preloads = {
 export default class ReGuildedWindow extends electron.BrowserWindow {
     /** @param {import("electron").BrowserWindowConstructorOptions} options  */
     constructor(options) {
+        options.webPreferences.devTools = settings.devTools || false;
         // Save old Guilded preload to later use it
         let oldPreload;
 

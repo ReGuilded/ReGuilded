@@ -9,6 +9,7 @@ export type ReGuildedSettings = {
     loadAuthors: boolean;
     keepSplash: boolean;
     debugMode: boolean;
+    devTools: boolean;
     addons: ReGuildedExtensionSettings;
     themes: ReGuildedExtensionSettings;
 };
@@ -18,6 +19,7 @@ export type ReGuildedSettingsUpdate = {
     loadAuthors?: boolean;
     keepSplash?: boolean;
     debugMode?: boolean;
+    devTools?: boolean;
     addons?: ReGuildedExtensionSettings;
     themes?: ReGuildedExtensionSettings;
 };
