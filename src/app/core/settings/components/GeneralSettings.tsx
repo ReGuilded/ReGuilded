@@ -18,6 +18,7 @@ enum Badge {
 type GeneralSettingsValues = {
     loadAuthors: boolean,
     keepSplash: boolean,
+    debugMode: boolean,
     badge: { optionName: string },
     autoUpdate: boolean
 }
@@ -43,10 +44,10 @@ export default class GeneralSettings extends React.Component {
     }
     private *onSaveChanges({ values, isValid }) {
         if(isValid) {
-            const { loadAuthors, badge: { optionName: badge }, keepSplash, autoUpdate }: GeneralSettingsValues = values;
+            const { loadAuthors, badge: { optionName: badge }, keepSplash, debugMode, autoUpdate }: GeneralSettingsValues = values;
             // Since we need to convert form values to proper values
             // (E.g., radios always returning { optionName: "xyz" } instead of "xyz")
-            const configValues = { loadAuthors, badge: Badge[badge], keepSplash, autoUpdate }
+            const configValues = { loadAuthors, badge: Badge[badge], keepSplash, debugMode, autoUpdate }
             return window.ReGuilded.settingsHandler.updateSettings(configValues);
         } else throw new Error("Invalid settings form values");
     }
