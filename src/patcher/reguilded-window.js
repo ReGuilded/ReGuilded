@@ -39,11 +39,14 @@ export default class ReGuildedWindow extends electron.BrowserWindow {
 
         // Implements devtools warning
         this.webContents.on('devtools-opened', () => {
-            if (window.ReGuilded.settingsHandler.settings.debugMode) return;
             this.webContents.executeJavaScript(`
-                console.log("%cCAUTION!", "font-weight: bold; text-decoration: underline;");
-                console.log("DO NOT PASTE OR WRITE ANYTHING HERE IF YOU DON'T KNOW WHAT YOU ARE DOING. THIS MAY BE USED BY ATTACKERS FOR ANY MALICIOUS ACT.");
-            `);
+                (async () => {
+                    const warningStyles = "color: #cd3534;";
+                    if (window.ReGuilded.settingsHandler.settings.debugMode) return;
+                    console.log("%cCAUTION!", \`\${warningStyles} text-decoration: underline; font-weight:bold; font-size: 32px;\`);
+                    console.log("%cDO NOT PASTE OR WRITE ANYTHING HERE IF YOU DON'T KNOW WHAT YOU ARE DOING. THIS MAY BE USED BY ATTACKERS FOR ANY MALICIOUS ACT.", \`\${warningStyles} font-size: 24px;\`);
+                })();
+            `).catch(err => console.error(err));
         });
 
         this.webContents.guildedPreload = oldPreload;
