@@ -10,7 +10,7 @@ import { ReGuildedSettings } from "../common/reguilded-settings";
  */
 export const defaultSettings: ReGuildedSettings = {
     autoUpdate: false,
-    badge: 2,
+    badge: 0,
     loadImages: true,
     loadAuthors: true,
     keepSplash: false,
