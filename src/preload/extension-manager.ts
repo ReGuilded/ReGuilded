@@ -84,23 +84,24 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
                 // TODO: Image refetch as an option in settings?
                 const imageCache = self.idsToImages[extensionId];
 
-                if (imageCache) callback(imageCache);
-                else {
-                    // Otherwise, it was never fetched
-                    const { images, dirname } = self.idsToMetadata[extensionId];
-
-                    let fetchedImages = [];
-
-                    if (images) {
-                        fetchedImages = images.map(imagePath =>
-                            nativeImage.createFromPath(path.resolve(dirname, imagePath)).toDataURL()
-                        );
-
-                        // Save it for later reuse, until the extension's metadata gets changed
-                        self.idsToImages[extensionId] = fetchedImages;
-                    }
-                    callback(fetchedImages);
+                if (imageCache) {
+                    callback(imageCache);
+                    return;
                 }
+                // Otherwise, it was never fetched
+                const { images, dirname } = self.idsToMetadata[extensionId];
+
+                let fetchedImages = [];
+
+                if (images) {
+                    fetchedImages = images.map(imagePath =>
+                        nativeImage.createFromPath(path.resolve(dirname, imagePath)).toDataURL()
+                    );
+
+                    // Save it for later reuse, until the extension's metadata gets changed
+                    self.idsToImages[extensionId] = fetchedImages;
+                }
+                callback(fetchedImages);
             },
             setWatchCallback(callback: (extension: T, loaded: boolean) => void) {
                 self.watchCallback = callback;

@@ -354,7 +354,9 @@ declare interface FieldDropdownSpecs extends FieldSpecs<"Dropdown", OptionSpecs 
  *
  * Present in custom forms (normal version) and everywhere else (panel checkboxes).
  */
-declare interface FieldRadioSpecs extends FieldSpecs<"Radios", { optionName: string }>, FieldHasOptions<OptionRadioSpecs> {
+declare interface FieldRadioSpecs
+    extends FieldSpecs<"Radios", { optionName: string | number | boolean }>,
+        FieldHasOptions<OptionRadioSpecs> {
     labelFlavor?: "subtle";
     labelMarginSize?: Size;
     numColumns?: number;
@@ -635,7 +637,7 @@ declare interface FieldReactionSpecs extends FieldSpecs<"Reaction", number> {
 
 //#region Option definitions
 declare interface OptionBaseSpecs {
-    optionName: string;
+    optionName: string | number | boolean;
 }
 declare interface OptionSpecs extends OptionBaseSpecs {
     label?: string;

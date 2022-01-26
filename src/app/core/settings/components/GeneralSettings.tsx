@@ -10,16 +10,12 @@ const {
     "guilded/context/defaultContextProvider": { default: defaultContextProvider }
 } = window.ReGuildedApi;
 
-enum Badge {
-    None = 0,
-    Flair = 1,
-    Badge = 2
-}
 type GeneralSettingsValues = {
+    loadImages: boolean,
     loadAuthors: boolean,
     keepSplash: boolean,
     debugMode: boolean,
-    badge: { optionName: string },
+    badge: { optionName: number },
     autoUpdate: boolean
 }
 
@@ -27,8 +23,6 @@ type GeneralSettingsValues = {
 @defaultContextProvider
 @overlayProvider(["SimpleConfirmationOverlay"])
 export default class GeneralSettings extends React.Component {
-    // Number to name map for radio default value
-    static badgeNames = ["None", "Flair", "Badge"];
 
     private SaveChanges: (...args: object[]) => any;
     private Update: () => Promise<void>;
@@ -44,10 +38,10 @@ export default class GeneralSettings extends React.Component {
     }
     private *onSaveChanges({ values, isValid }) {
         if(isValid) {
-            const { loadAuthors, badge: { optionName: badge }, keepSplash, debugMode, autoUpdate }: GeneralSettingsValues = values;
+            const { loadAuthors, loadImages, badge: { optionName: badge }, keepSplash, debugMode, autoUpdate }: GeneralSettingsValues = values;
             // Since we need to convert form values to proper values
             // (E.g., radios always returning { optionName: "xyz" } instead of "xyz")
-            const configValues = { loadAuthors, badge: Badge[badge], keepSplash, debugMode, autoUpdate }
+            const configValues = { loadAuthors, loadImages, badge: badge, keepSplash, debugMode, autoUpdate }
             return window.ReGuilded.settingsHandler.updateSettings(configValues);
         } else throw new Error("Invalid settings form values");
     }
@@ -102,37 +96,6 @@ export default class GeneralSettings extends React.Component {
                                     description: "Every time Guilded is launched or gets refreshed, ReGuilded checks for its own updates and installs them if they exists.",
 
                                     defaultValue: settings.autoUpdate
-                                }
-                            ]
-                        },
-                        {
-                            fieldSpecs: [
-                                {
-                                    type: "Button",
-                                    buttonText: "Check for updates",
-                                    description: `Currently installed version: ${reGuildedInfo.version}`,
-                                    onClick: this.Update
-                                }
-                            ]
-                        }
-                    ]
-                }}/>
-                <Form onChange={this._handleOptionsChange} formSpecs={{
-                    sectionStyle: "indented-padded",
-                    sections: [
-                        {
-                            header: "Advanced",
-                            isCollapsible: true,
-                            rowMarginSize: "md",
-                            fieldSpecs: [
-                                {
-                                    type: "Switch",
-                                    fieldName: "loadAuthors",
-
-                                    label: "Load Extension Authors",
-                                    description: "Loads addon and theme authors.",
-
-                                    defaultValue: settings.loadAuthors
                                 },
                                 {
                                     type: "Radios",
@@ -148,7 +111,7 @@ export default class GeneralSettings extends React.Component {
                                     isCheckbox: true,
                                     options: [
                                         {
-                                            optionName: "Badge",
+                                            optionName: 2,
                                             layout: "horizontal",
                                             label: "Show as a badge",
                                             shortLabel: "Badge",
@@ -162,14 +125,50 @@ export default class GeneralSettings extends React.Component {
                                         //     description: "Shows ReGuilded badges as global flairs like stonks flair."
                                         // },
                                         {
-                                            optionName: "None",
+                                            optionName: 0,
                                             layout: "horizontal",
                                             label: "Don't show",
                                             shortLabel: "Hide",
                                             description: "This hides all ReGuilded badges."
                                         },
                                     ],
-                                    defaultValue: { optionName: GeneralSettings.badgeNames[settings.badge] }
+                                    defaultValue: { optionName: settings.badge }
+                                }
+                            ]
+                        },
+                        {
+                            fieldSpecs: [
+                                {
+                                    type: "Button",
+                                    buttonText: "Check for updates",
+                                    description: `Currently installed version: ${reGuildedInfo.version}`,
+                                    onClick: this.Update
+                                }
+                            ]
+                        },
+                        {
+                            header: "Advanced",
+                            isCollapsible: true,
+                            rowMarginSize: "md",
+                            sectionStyle: "indented-padded",
+                            fieldSpecs: [
+                                {
+                                    type: "Switch",
+                                    fieldName: "loadAuthors",
+
+                                    label: "Load Extension Authors",
+                                    description: "Loads addon and theme authors.",
+
+                                    defaultValue: settings.loadAuthors
+                                },
+                                {
+                                    type: "Switch",
+                                    fieldName: "loadImages",
+
+                                    label: "Load Extension Images",
+                                    description: "Loads addon and theme previews and banner.",
+
+                                    defaultValue: settings.loadImages
                                 }
                             ]
                         },
@@ -177,6 +176,7 @@ export default class GeneralSettings extends React.Component {
                             header: "Developer Options",
                             isCollapsible: true,
                             rowMarginSize: "md",
+                            sectionStyle: "indented-padded",
                             fieldSpecs: [
                                 {
                                     type: "Switch",

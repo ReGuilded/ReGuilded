@@ -138,7 +138,7 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
                             {/* Description */}
                             { extension.readme?.length ? reUtil.renderMarkdown(extension.readme) : null }
                             {/* Preview images carousel */}
-                            { extension.images &&
+                            { extension.images && window.ReGuilded.settingsHandler.settings.loadImages &&
                                 <PreviewCarousel extensionId={extension.id} extensionHandler={this.extensionHandler} />
                             }
                             { this.renderContent(extension) }
