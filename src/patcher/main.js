@@ -52,12 +52,16 @@ ipcMain.handle("reguilded-no-splash-close", () => {
     ].exports.default.loaderWindow.close = () => {};
 });
 
-// Patch CSP (Content-Security-Policy)
 app.whenReady().then(() => {
+    const _webRequest = session.defaultSession.webRequest;
+    const filter = {
+        urls: [
+            "*://www.guilded.gg/*"
+        ]
+    };
+    // Patch CSP (Content-Security-Policy)
     try {
-        session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-            if (!details.url.includes("guilded.gg")) return callback({cancel: false});
-            
+        _webRequest.onHeadersReceived(filter, (details, callback) => {
             const patchedCallback = headers => {
                 callback({
                     cancel: false,
@@ -101,7 +105,7 @@ app.whenReady().then(() => {
         });
     } catch(err) {
         console.error(err);
-    }
+    };
 });
 
 // Create Electron clone with modified BrowserWindow to inject ReGuilded preload

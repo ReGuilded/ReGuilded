@@ -19,8 +19,10 @@ export default class ReGuildedWindow extends electron.BrowserWindow {
             !options.resizable &&
             "maximizable" in options &&
             !options.maximizable
-        )
+        ) {
+            oldPreload = options.webPreferences.preload;
             options.webPreferences.preload = preloads.splash;
+        }
         else if (options.webPreferences?.preload) {
             oldPreload = options.webPreferences.preload;
             options.webPreferences.preload = preloads.main;
