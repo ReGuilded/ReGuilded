@@ -70,7 +70,7 @@ app.whenReady().then(() => {
         imgSrc: [],
         mediaSrc: [],
         scriptSrc: [],
-        styleSrcElem: [
+        styleSrc: [
             "https://*.github.io"
         ]
     };
@@ -89,15 +89,60 @@ app.whenReady().then(() => {
                 patch: async (policy, enforcing) => {
                     const originalPolicy = policy;
                     let modifiedPolicyStr = originalPolicy[0];
+
+
                     modifiedPolicyStr = modifiedPolicyStr
-                        .replace(/\s?report\-uri.*?;/, " ")
-                        .replace(/\s?connect\-src/, `connect-src ${cspWhitelist.connectSrc.join(" ")}`)
-                        .replace(/\s?default\-src/, `default-src ${cspWhitelist.defaultSrc.join(" ")}`)
-                        .replace(/\s?font\-src/, `font-src ${cspWhitelist.fontSrc.join(" ")}`)
-                        .replace(/\s?img\-src/, `img-src ${cspWhitelist.imgSrc.join(" ")}`)
-                        .replace(/\s?media\-src/, `media-src ${cspWhitelist.mediaSrc.join(" ")}`)
-                        .replace(/\s?script\-src/, `script-src ${cspWhitelist.scriptSrc.join(" ")}`)
-                        .replace(/\s?style\-src\-elem/, `style-src-elem ${cspWhitelist.styleSrcElem.join(" ")}`);
+                        .replace(/\s?report\-uri.*?;/, " ");
+
+                    if(/\s?connect\-src/.test(modifiedPolicyStr))
+                        modifiedPolicyStr = modifiedPolicyStr
+                            .replace(/\s?connect\-src/, `connect-src ${cspWhitelist.connectSrc.join(" ")}`)
+                    else
+                        modifiedPolicyStr.concat([` connect-src ${cspWhitelist.connectSrc.join(" ")};`]);
+
+
+                    if(/\s?default\-src/.test(modifiedPolicyStr))
+                        modifiedPolicyStr = modifiedPolicyStr
+                            .replace(/\s?default\-src/, `default-src ${cspWhitelist.defaultSrc.join(" ")}`)
+                    else
+                        modifiedPolicyStr.concat([` default-src ${cspWhitelist.defaultSrc.join(" ")};`]);
+
+                    if(/\s?font\-src/.test(modifiedPolicyStr))
+                        modifiedPolicyStr = modifiedPolicyStr
+                            .replace(/\s?font\-src/, `font-src ${cspWhitelist.fontSrc.join(" ")}`)
+                    else
+                        modifiedPolicyStr.concat([` font-src ${cspWhitelist.fontSrc.join(" ")};`]);
+
+
+                    if(/s?img-src/.test(modifiedPolicyStr))
+                        modifiedPolicyStr = modifiedPolicyStr
+                            .replace(/\s?img\-src/, `img-src ${cspWhitelist.imgSrc.join(" ")}`)
+                    else
+                        modifiedPolicyStr.concat([` img-src ${cspWhitelist.imgSrc.join(" ")};`]);
+
+
+                    if(/s?media-src/.test(modifiedPolicyStr))
+                        modifiedPolicyStr = modifiedPolicyStr
+                            .replace(/\s?media\-src/, `media-src ${cspWhitelist.mediaSrc.join(" ")}`)
+                    else
+                        modifiedPolicyStr.concat([` media-src ${cspWhitelist.mediaSrc.join(" ")};`]);
+
+
+                    if(/s?script-src/.test(modifiedPolicyStr))
+                        modifiedPolicyStr = modifiedPolicyStr
+                            .replace(/\s?script\-src/, `script-src ${cspWhitelist.scriptSrc.join(" ")}`)
+                    else
+                        modifiedPolicyStr.concat([` script-src ${cspWhitelist.scriptSrc.join(" ")};`]);
+
+
+                    if(/s?style-src/.test(modifiedPolicyStr))
+                        modifiedPolicyStr = modifiedPolicyStr
+                            .replace(/\s?style\-src/, `style-src ${cspWhitelist.styleSrc.join(" ")}`)
+                    else
+                        modifiedPolicyStr.concat([` style-src ${cspWhitelist.styleSrc.join(" ")};`]);
+                    
+                    
+                    
                     const modifiedPolicy = [modifiedPolicyStr];
 
                     if(enforcing) {
