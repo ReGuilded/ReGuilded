@@ -60,10 +60,10 @@ app.whenReady().then(() => {
         ]
     };
     const cspWhitelist = {
-        connectSrc: [],
-        defaultSrc: [
+        connectSrc: [
             "https://*.reguilded.dev"
         ],
+        defaultSrc: [],
         fontSrc: [
             "https://fonts.googleapis.com",
             "https://*.github.io"
@@ -78,7 +78,9 @@ app.whenReady().then(() => {
         mediaSrc: [],
         scriptSrc: [],
         styleSrc: [
-            "https://*.github.io"
+            "https://fonts.googleapis.com",
+            "https://*.github.io",
+            "https://raw.githack.com"
         ]
     };
     // Patch CSP (Content-Security-Policy)
@@ -108,11 +110,11 @@ app.whenReady().then(() => {
                         modifiedPolicyStr.concat([` connect-src ${cspWhitelist.connectSrc.join(" ")};`]);
 
 
-                    if(/\s?default\-src/.test(modifiedPolicyStr))
+                    /* if(/\s?default\-src/.test(modifiedPolicyStr))
                         modifiedPolicyStr = modifiedPolicyStr
                             .replace(/\s?default\-src/, `default-src ${cspWhitelist.defaultSrc.join(" ")}`)
                     else
-                        modifiedPolicyStr.concat([` default-src ${cspWhitelist.defaultSrc.join(" ")};`]);
+                        modifiedPolicyStr.concat([` default-src 'self' ${cspWhitelist.defaultSrc.join(" ")};`]); */
 
                     if(/\s?font\-src/.test(modifiedPolicyStr))
                         modifiedPolicyStr = modifiedPolicyStr
