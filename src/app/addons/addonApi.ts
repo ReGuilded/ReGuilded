@@ -119,6 +119,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/components/ToggleField": webpack => webpack.withCode("ToggleFieldWrapper-container"),
     "guilded/components/SimpleToggle": webpack => webpack.withClassProperty("input"),
     "guilded/components/MediaRenderer": webpack => webpack.withClassProperty("progressiveImageHasLoaded"),
+    "guilded/components/CodeContainer": webpack => webpack.withClassProperty("tokenCodeLines"),
     "guilded/components/SearchBar": webpack => webpack.withClassProperty("_inputRef"),
     "guilded/components/ItemManager": webpack => webpack.withClassProperty("ItemManager"),
     "guilded/components/OverflowButton": webpack => webpack.withClassProperty("isOpen"),
@@ -128,11 +129,11 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/components/CarouselList": webpack => webpack.withClassProperty("overflowRight"),
     "guilded/components/LoadingPage": webpack => webpack.withCode("LoadingPage"),
     "guilded/components/WordDividerLine": webpack => webpack.withCode("WordDividerLine"),
+    "guilded/components/StretchFadeBackground": webpack => webpack.withCode("StretchFadeBackground"),
     "guilded/components/ActionMenu": webpack => webpack.withClassProperty("actionMenuHeight"),
     "guilded/components/ActionMenuSection": webpack => webpack.withCode("ActionMenu-section"),
     "guilded/components/ActionMenuItem": webpack => webpack.withClassProperty("useRowWrapper"),
     "guilded/components/Modal": webpack => webpack.withClassProperty("hasConfirm"),
-    "guilded/components/CodeContainer": webpack => webpack.withClassProperty("tokenCodeLines"),
     "guilded/components/MarkRenderer": webpack => webpack.withClassProperty("mark"),
     "guilded/components/draggable": webpack => webpack.withProperty("DraggableTypes")
 };
@@ -654,6 +655,12 @@ export default class AddonApi {
      */
     get ["guilded/components/LoadingPage"](): { default: typeof _React.Component } {
         return this.#getCached("guilded/components/LoadingPage");
+    }
+    /**
+     * Static image that fades into background.
+     */
+    get ["guilded/components/StretchFadeBackground"](): { default } {
+        return this.#getCached("guilded/components/StretchFadeBackground");
     }
     /**
      * Divider that separates content with a line and a text in the middle.
