@@ -41,15 +41,15 @@ else document.addEventListener("readystatechange", setUpWebpackInjection);
 // Fetch ReGuilded things
 (async () => {
     // Global badge holders
-    await fetch("https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuilded/wwwroot/contributors.json")
+    await fetch("https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuilded/wwwroot/contributorIds.json")
         .then(
             response => response.json(),
             e => console.warn("Failed to fetch ReGuilded badges:", e)
         )
         .then(
             json => {
-                members.dev = json.filter(user => user.isCoreDeveloper);
-                members.contrib = json.filter(user => user.isContributor);
+                members.dev = json.dev;
+                members.contrib = json.contrib;
             },
             e => console.warn("Failed to fetch ReGuilded badges:", e)
         );
