@@ -59,6 +59,21 @@ app.whenReady().then(() => {
             "*://www.guilded.gg/*"
         ]
     };
+    const cspWhitelist = {
+        connectSrc: [],
+        defaultSrc: [
+            "https://*.reguilded.dev"
+        ],
+        fontSrc: [
+            "https://fonts.googleapis.com"
+        ],
+        imgSrc: [],
+        mediaSrc: [],
+        scriptSrc: [],
+        styleSrc: [
+            "https://*.github.io"
+        ]
+    };
     // Patch CSP (Content-Security-Policy)
     try {
         _webRequest.onHeadersReceived(filter, (details, callback) => {
@@ -75,12 +90,20 @@ app.whenReady().then(() => {
                     const originalPolicy = policy;
                     let modifiedPolicyStr = originalPolicy[0];
                     modifiedPolicyStr = modifiedPolicyStr
-                        .replace(/\s?report\-uri.*?;/, "");
+                        .replace(/\s?report\-uri.*?;/, " ")
+                        .replace(/\s?connect\-src/, `connect-src ${cspWhitelist.connectSrc.join(" ")}`)
+                        .replace(/\s?default\-src/, `default-src ${cspWhitelist.defaultSrc.join(" ")}`)
+                        .replace(/\s?font\-src/, `font-src ${cspWhitelist.fontSrc.join(" ")}`)
+                        .replace(/\s?img\-src/, `img-src ${cspWhitelist.imgSrc.join(" ")}`)
+                        .replace(/\s?media\-src/, `media-src ${cspWhitelist.mediaSrc.join(" ")}`)
+                        .replace(/\s?script\-src/, `script-src ${cspWhitelist.scriptSrc.join(" ")}`)
+                        .replace(/\s?style\-src/, `style-src ${cspWhitelist.styleSrc.join(" ")}`);
                     const modifiedPolicy = [modifiedPolicyStr];
 
                     if(enforcing) {
                         delete details.responseHeaders["content-security-policy"];
-                        details.responseHeaders["content-security-policy"] = modifiedPolicy;
+                        //details.responseHeaders["content-security-policy"] = modifiedPolicy;
+                        details.responseHeaders["content-security-policy-report-only"] = modifiedPolicy;
                     } else {
                         delete details.responseHeaders["content-security-policy-report-only"]
                         details.responseHeaders["content-security-policy-report-only"] = modifiedPolicy;
