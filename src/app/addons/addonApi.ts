@@ -165,13 +165,11 @@ export default class AddonApi {
             getOwnerInstance,
             patchElementRenderer,
             waitForElement,
-            renderMarkdown: (plainText: string) => (
-                console.log("This", this),
+            renderMarkdown: (plainText: string) =>
                 new this["guilded/components/MarkdownRenderer"].default({
                     plainText,
                     grammar: this["guilded/editor/grammars"].default.WebhookEmbed
                 }).render()
-            )
         };
     }
     /**

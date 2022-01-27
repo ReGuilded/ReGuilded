@@ -30,8 +30,6 @@ export default class PreviewCarousel<T extends AnyExtension> extends React.Compo
     render() {
         const { images } = this.state;
 
-        console.log("PreviewCarousel images", images);
-
         return (
             <div className="ReGuildedExtensionImages-container">
                 <GuildedText className="ReGuildedExtensionImages-heading" type="heading2" block={true}>Preview</GuildedText>
