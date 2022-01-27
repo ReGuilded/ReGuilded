@@ -60,27 +60,29 @@ app.whenReady().then(() => {
         ]
     };
     const cspWhitelist = {
-        connectSrc: [
-            "https://*.reguilded.dev"
+        connectSrc: [],
+        defaultSrc: [
+            "https://*.reguilded.dev" // ReGuilded Server
         ],
-        defaultSrc: [],
         fontSrc: [
-            "https://fonts.googleapis.com",
-            "https://*.github.io"
+            "https://fonts.gstatic.com" // Google Fonts
         ],
         imgSrc: [
-            "https://dl.dropboxusercontent.com",
-            "https://i.imgur.com",
-            "https://c.tenor.com/",
-            "https://*.giphy.com",
-            "https://img.icons8.com/"
+            "https://dl.dropboxusercontent.com", // Dropbox
+            "https://*.google.com", // Google (includes Google Drive)
+            "https://i.imgur.com", // Imgur
+            "https://c.tenor.com", // Tenor
+            "https://*.giphy.com", // Giphy
+            "https://img.icons8.com", // Icons8
+            "https://*.github.io", // Github Pages
+            "https://*.github.com" // Github
         ],
         mediaSrc: [],
         scriptSrc: [],
         styleSrc: [
-            "https://fonts.googleapis.com",
-            "https://*.github.io",
-            "https://raw.githack.com"
+            "https://fonts.googleapis.com", // Google Fonts
+            "https://*.guilded.gg", // Guilded
+            "https://*.github.io" // Github Pages
         ]
     };
     // Patch CSP (Content-Security-Policy)
@@ -101,52 +103,52 @@ app.whenReady().then(() => {
 
 
                     modifiedPolicyStr = modifiedPolicyStr
-                        .replace(/\s?report\-uri.*?;/, " ");
+                        .replace(/report\-uri.*?;/, " ");
 
-                    if(/\s?connect\-src/.test(modifiedPolicyStr))
+                    if(/connect\-src/.test(modifiedPolicyStr))
                         modifiedPolicyStr = modifiedPolicyStr
-                            .replace(/\s?connect\-src/, `connect-src ${cspWhitelist.connectSrc.join(" ")}`)
+                            .replace(/connect\-src/, `connect-src ${cspWhitelist.connectSrc.join(" ")}`)
                     else
                         modifiedPolicyStr.concat([` connect-src ${cspWhitelist.connectSrc.join(" ")};`]);
 
 
-                    /* if(/\s?default\-src/.test(modifiedPolicyStr))
+                    if(/default\-src/.test(modifiedPolicyStr))
                         modifiedPolicyStr = modifiedPolicyStr
-                            .replace(/\s?default\-src/, `default-src ${cspWhitelist.defaultSrc.join(" ")}`)
+                            .replace(/default\-src/, `default-src ${cspWhitelist.defaultSrc.join(" ")}`)
                     else
-                        modifiedPolicyStr.concat([` default-src 'self' ${cspWhitelist.defaultSrc.join(" ")};`]); */
+                        modifiedPolicyStr.concat([` default-src 'self' ${cspWhitelist.defaultSrc.join(" ")};`]);
 
-                    if(/\s?font\-src/.test(modifiedPolicyStr))
+                    if(/font\-src/.test(modifiedPolicyStr))
                         modifiedPolicyStr = modifiedPolicyStr
-                            .replace(/\s?font\-src/, `font-src ${cspWhitelist.fontSrc.join(" ")}`)
+                            .replace(/font\-src/, `font-src ${cspWhitelist.fontSrc.join(" ")}`)
                     else
                         modifiedPolicyStr.concat([` font-src ${cspWhitelist.fontSrc.join(" ")};`]);
 
 
-                    if(/s?img-src/.test(modifiedPolicyStr))
+                    if(/img-src/.test(modifiedPolicyStr))
                         modifiedPolicyStr = modifiedPolicyStr
-                            .replace(/\s?img\-src/, `img-src ${cspWhitelist.imgSrc.join(" ")}`)
+                            .replace(/img\-src/, `img-src ${cspWhitelist.imgSrc.join(" ")}`)
                     else
                         modifiedPolicyStr.concat([` img-src ${cspWhitelist.imgSrc.join(" ")};`]);
 
 
-                    if(/s?media-src/.test(modifiedPolicyStr))
+                    if(/media-src/.test(modifiedPolicyStr))
                         modifiedPolicyStr = modifiedPolicyStr
-                            .replace(/\s?media\-src/, `media-src ${cspWhitelist.mediaSrc.join(" ")}`)
+                            .replace(/media\-src/, `media-src ${cspWhitelist.mediaSrc.join(" ")}`)
                     else
                         modifiedPolicyStr.concat([` media-src ${cspWhitelist.mediaSrc.join(" ")};`]);
 
 
-                    if(/s?script-src/.test(modifiedPolicyStr))
+                    if(/script-src/.test(modifiedPolicyStr))
                         modifiedPolicyStr = modifiedPolicyStr
-                            .replace(/\s?script\-src/, `script-src ${cspWhitelist.scriptSrc.join(" ")}`)
+                            .replace(/script\-src/, `script-src ${cspWhitelist.scriptSrc.join(" ")}`)
                     else
                         modifiedPolicyStr.concat([` script-src ${cspWhitelist.scriptSrc.join(" ")};`]);
 
 
-                    if(/s?style-src/.test(modifiedPolicyStr))
+                    if(/style-src/.test(modifiedPolicyStr))
                         modifiedPolicyStr = modifiedPolicyStr
-                            .replace(/\s?style\-src/, `style-src ${cspWhitelist.styleSrc.join(" ")}`)
+                            .replace(/style\-src/, `style-src ${cspWhitelist.styleSrc.join(" ")}`)
                     else
                         modifiedPolicyStr.concat([` style-src ${cspWhitelist.styleSrc.join(" ")};`]);
                     
