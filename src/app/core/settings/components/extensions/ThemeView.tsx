@@ -4,40 +4,33 @@ import ThemeItem from "./ThemeItem";
 
 const {
     react: React,
-    // "guilded/components/Form": { default: Form },
-    // "guilded/components/WordDividerLine": { default: WordDividerLine }
+    "guilded/components/Form": { default: Form }
 } = window.ReGuildedApi;
 
 export default class ThemeView extends ExtensionView<Theme> {
     protected type = "theme";
     protected extensionHandler = window.ReGuilded.themes;
+
     constructor(props, context?) {
         super(props, context);
+
+        props.extension.settings && this.tabs.push({ name: "Settings" });
     }
-    override renderContent(theme: Theme) {
+
+    protected override renderTabs(theme: Theme) {
         return (
-            //theme.settings &&
-            <div className="ReGuildedExtensionPage-configuration">
-                {/* <WordDividerLine word="Configuration" wordStyle="chat" />
+            theme.settings &&
+            <div className="ReGuildedExtensionPage-tab">
+                {/* TODO: Settings saving */}
                 <Form formSpecs={{
                     header: "Settings",
+                    sectionStyle: "border-unpadded",
                     sections: [
                         {
                             fieldSpecs: ThemeItem.generateSettingsFields(theme.settings, theme.settingsProps)
-                        },
-                        {
-                            fieldSpecs: [
-                                {
-                                    type: "Button",
-                                    buttonText: "Save",
-                                    onClick(...e) {
-                                        console.log('E', e)
-                                    }
-                                }
-                            ]
                         }
                     ]
-                }}/> */}
+                }}/>
             </div>
         );
     }

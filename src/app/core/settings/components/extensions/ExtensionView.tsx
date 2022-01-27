@@ -5,6 +5,7 @@ import { ChildTabProps } from "../TabbedSettings";
 import ErrorBoundary from "../ErrorBoundary";
 import { ReactElement } from "react";
 import PreviewCarousel from "./PreviewCarousel";
+import { FormOutput } from "../../../../guilded/form";
 
 const {
     react: React,
@@ -13,7 +14,7 @@ const {
     "guilded/components/Form": { default: Form },
     "guilded/overlays/overlayProvider": { default: overlayProvider },
     "reguilded/util": reUtil,
-    "guilded/components/CodeContainer": { default: CodeContainer }
+    "guilded/components/HorizontalTabs": { default: HorizontalTabs }
 } = window.ReGuildedApi;
 
 type Props<T> = ChildTabProps & { extension: T };
@@ -24,11 +25,15 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
     private _onToggleBinded: () => Promise<void>;
     private _onDeleteBinded: () => Promise<void>;
     private _openDirectory: () => Promise<void>;
+
     // Configuration
     protected type: string;
     protected extensionHandler: ExtensionHandler<T, RGExtensionConfig<T>>;
+    protected tabs = [ { name: "Overview" } ];
+
     // From overlay provider
     protected DeleteConfirmationOverlay: { Open: ({ name: string }) => Promise<{ confirmed: boolean }> };
+
     constructor(props: Props<T>, context?: any) {
         super(props, context);
 
@@ -61,7 +66,7 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
      * @param extension The current extension
      * @returns Additional content
      */
-    abstract renderContent(extension: T): ReactElement | ReactElement[];
+    protected abstract renderTabs(extension: T): ReactElement | ReactElement[];
     /**
      * Returns the action form component depending on the state.
      * @returns Form element
@@ -119,7 +124,7 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
         );
     }
     render() {
-        const { switchTab, extension } = this.props;
+        const { props: { switchTab, extension }, tabs } = this;
 
         return (
             <ErrorBoundary>
@@ -133,16 +138,18 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
                             {/* Title */}
                             <GuildedText type="heading3">{ extension.name } settings</GuildedText>
                         </header>
-                        <div className="ReGuildedExtensionPage-content">
-                            {/* Description */}
-                            { extension.readme?.length ? reUtil.renderMarkdown(extension.readme) : null }
-                            {/* Preview images carousel */}
-                            { extension.images && window.ReGuilded.settingsHandler.settings.loadImages &&
-                                <PreviewCarousel extensionId={extension.id} extensionHandler={this.extensionHandler} />
-                            }
-                            { this.renderContent(extension) }
-                            { this.renderActionForm() }
-                        </div>
+                        <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: tabs }}>
+                            <div className="ReGuildedExtensionPage-tab">
+                                {/* Description */}
+                                { extension.readme?.length ? reUtil.renderMarkdown(extension.readme) : null }
+                                {/* Preview images carousel */}
+                                { extension.images && window.ReGuilded.settingsHandler.settings.loadImages &&
+                                    <PreviewCarousel extensionId={extension.id} extensionHandler={this.extensionHandler} />
+                                }
+                                { this.renderActionForm() }
+                            </div>
+                            { this.renderTabs(extension) }
+                        </HorizontalTabs>
                     </div>
                 </div>
             </ErrorBoundary>

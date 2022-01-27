@@ -155,6 +155,7 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
      * @param extension The extension that has been updated
      */
     protected abstract onFileChange(extension: T): Promise<void>;
+
     /**
      * Watches the extension directory for any changes.
      */
@@ -179,30 +180,16 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
             // Make sure extName exists(this not being `settings/addons` or `settings/themes`)
             // and it's currently not in the process of rebouncing
             if (extName && !deBouncers[extName])
+                // To not do 100 changes instantly
                 deBouncers[extName] = setTimeout(async () => {
                     const extPath = path.join(this.dirname, extName);
-
                     // Get the metadata.json file path, and if it doesn't exist, ignore it
                     const metadataPath = path.join(extPath, "metadata.json");
-
                     const changeIsMetadata = fp === metadataPath;
 
-                    if ((changeIsMetadata || fp === extPath) && (changeType === "unlink" || changeType === "unlinkDir")) {
-                        const existingExt = this.all.find(metadata => metadata.dirname === extPath);
-                        if (existingExt !== undefined) {
-                            // Since allIds and all will have the same indexes
-                            const index = this.all.indexOf(existingExt);
-
-                            this.all.splice(index, 1);
-
-                            delete loaded[extName];
-                            delete this.idsToMetadata[existingExt.id];
-
-                            this.onDeletion(existingExt);
-                        }
-                        delete deBouncers[extName];
-                        return;
-                    }
+                    // Leave no trace
+                    if ((changeIsMetadata || fp === extPath) && (changeType === "unlink" || changeType === "unlinkDir"))
+                        return this.watchOnMetadataDeletion(extName, extPath, loaded, deBouncers);
 
                     // For both getting the metadata and removing it
                     const metadataIndex = this.all.findIndex(metadata => metadata.dirname === extPath);
@@ -217,7 +204,7 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
                         this.all.splice(metadataIndex, 1);
                         delete this.idsToImages[metadata.id];
                     }
-                    // Require the metadata file.
+                    // Re-require new metadata
                     if (newMetadata || changeIsMetadata) {
                         metadata = await fsPromises.readFile(metadataPath, "utf8").then(JSON.parse);
                         metadata.dirname = extPath;
@@ -250,6 +237,34 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
                         });
                 }, 250);
         });
+    }
+    // ---- Watch stuff ----
+    /**
+     * Deletes everything about the metadata when its files get deleted.
+     * @param extName The name of the extension's directory
+     * @param extPath The path to the extension
+     * @param loaded The currently loaded extensions
+     * @param deBouncers The debouncers of all extensions
+     */
+    private watchOnMetadataDeletion(
+        extName: string,
+        extPath: string,
+        loaded: { [extensionId: string]: T },
+        deBouncers: { [extName: string]: NodeJS.Timeout }
+    ) {
+        const existingExt = this.all.find(metadata => metadata.dirname === extPath);
+        if (existingExt !== undefined) {
+            // Since allIds and all will have the same indexes
+            const index = this.all.indexOf(existingExt);
+
+            this.all.splice(index, 1);
+
+            delete loaded[extName];
+            delete this.idsToMetadata[existingExt.id];
+
+            this.onDeletion(existingExt);
+        }
+        delete deBouncers[extName];
     }
 }
 /**

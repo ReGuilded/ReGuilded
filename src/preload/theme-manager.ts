@@ -30,34 +30,31 @@ export default class ThemeManager extends ExtensionManager<Theme> {
         });
     }
     protected override async onFileChange(metadata: Theme): Promise<void> {
-        const styleSheets: string[] = [];
-
         const files = typeof metadata.files === "string" ? [metadata.files] : metadata.files;
 
-        metadata.files = files;
+        await Promise.all([
+            // CSS files
+            Promise.all(files.map(file => fsPromises.readFile(pathResolve(metadata.dirname, file), "utf8")))
+                .then(styleSheets => (metadata.css = styleSheets))
+                .catch(e => console.error("Failed to get CSS file", e)),
+            // Settings file
+            fsPromises
+                .readFile(join(metadata.dirname, "settings.json"), "utf8")
+                .then(d => {
+                    let settings = JSON.parse(d);
 
-        for (let file of files)
-            await fsPromises
-                .readFile(pathResolve(metadata.dirname, file), "utf8")
-                // JS breaks if you just do .then(styleSheets.push)
-                .then(d => styleSheets.push(d))
-                .catch(e => console.error("Error in '", metadata.id, "' related to CSS files:", e));
-
-        metadata.css = styleSheets;
-
-        readFile(join(metadata.dirname, "settings.json"), "utf8", (e, d) => {
-            if (e)
-                if (e.code === "ENOENT") return;
-                else return console.error("Error reading theme '", metadata.id, "' settings file:", e);
-
-            let settings = JSON.parse(d);
-
-            // Validate settings
-            if (typeof settings !== "object")
-                console.error("Expected theme by ID '", metadata.id, "' to have object at the root of settings.json.");
-
-            metadata.settingsProps = Object.keys((metadata.settings = settings));
-        });
+                    // Validate settings
+                    if (typeof settings !== "object")
+                        throw new TypeError(
+                            `Expected theme by ID '${metadata.id}' to have object at the root of settings.json.`
+                        );
+                    else metadata.settingsProps = Object.keys((metadata.settings = settings));
+                })
+                .catch(e => {
+                    if (e.code !== "ENOENT")
+                        console.error("Error while fetching settings of theme by ID '%s'", metadata.id, e);
+                })
+        ]);
     }
     /**
      * Gets the absolute path to the CSS file.
