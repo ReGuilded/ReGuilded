@@ -30,7 +30,7 @@ export function inject(
                 if (err) reject(err);
 
                 injection(platformModule).then(() => {
-                    ["linux", "darwin"].includes(process.platform) && exec(`chmod -R 0o777 ${platform.reguildedDir}`);
+                    ["linux", "darwin"].includes(process.platform) && exec(`chmod -R 777 ${platform.reguildedDir}`);
                     process.platform === "win32" && exec(`icacls ${platform.reguildedDir} "Authenticated Users":(OI)(CI)F`);
                 }).then(resolve).catch((err) => {
                     // If there was an error, try uninjecting ReGuilded
