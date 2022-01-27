@@ -75,14 +75,17 @@ app.whenReady().then(() => {
             "https://*.giphy.com", // Giphy
             "https://img.icons8.com", // Icons8
             "https://*.github.io", // Github Pages
-            "https://*.github.com" // Github
+            "https://*.gitlab.io", // Gitlab Pages
+            "https://*.github.com", // Github
+            "https://*.gitlab.com" // Gitlab
         ],
         mediaSrc: [],
         scriptSrc: [],
         styleSrc: [
             "https://fonts.googleapis.com", // Google Fonts
             "https://*.guilded.gg", // Guilded
-            "https://*.github.io" // Github Pages
+            "https://*.github.io", // Github Pages
+            "https://*.gitlab.io" // Gitlab Pages
         ]
     };
     // Patch CSP (Content-Security-Policy)
