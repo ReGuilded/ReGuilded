@@ -65,11 +65,15 @@ app.whenReady().then(() => {
             "https://*.reguilded.dev"
         ],
         fontSrc: [
-            "https://fonts.googleapis.com"
+            "https://fonts.googleapis.com",
+            "https://*.github.io"
         ],
         imgSrc: [
             "https://dl.dropboxusercontent.com",
-            "https://i.imgur.com"
+            "https://i.imgur.com",
+            "https://c.tenor.com/",
+            "https://*.giphy.com",
+            "https://img.icons8.com/"
         ],
         mediaSrc: [],
         scriptSrc: [],
