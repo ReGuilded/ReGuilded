@@ -97,7 +97,7 @@ app.whenReady().then(() => {
                         .replace(/\s?img\-src/, `img-src ${cspWhitelist.imgSrc.join(" ")}`)
                         .replace(/\s?media\-src/, `media-src ${cspWhitelist.mediaSrc.join(" ")}`)
                         .replace(/\s?script\-src/, `script-src ${cspWhitelist.scriptSrc.join(" ")}`)
-                        .replace(/\s?style\-src/, `style-src-elem ${cspWhitelist.styleSrcElem.join(" ")}`);
+                        .replace(/\s?style\-src-elem/, `style-src-elem ${cspWhitelist.styleSrcElem.join(" ")}`);
                     const modifiedPolicy = [modifiedPolicyStr];
 
                     if(enforcing) {
