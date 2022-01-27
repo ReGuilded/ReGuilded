@@ -67,7 +67,10 @@ app.whenReady().then(() => {
         fontSrc: [
             "https://fonts.googleapis.com"
         ],
-        imgSrc: [],
+        imgSrc: [
+            "https://dl.dropboxusercontent.com",
+            "https://i.imgur.com"
+        ],
         mediaSrc: [],
         scriptSrc: [],
         styleSrc: [
