@@ -48,7 +48,7 @@ export default class ReGuilded {
                     }),
                     Object.assign(document.createElement("style"), {
                         id: "ReGuildedStyle-reguilded",
-                        innerHTML: `.ReGuildedExtensionImages-image{position:relative;min-width:250px;height:250px}.ReGuildedExtensionImages-image:not(:first-child){margin-left:10px}.ReGuildedSettings-container-padded{padding-left:32px;padding-right:32px}`
+                        innerHTML: `.ReGuildedExtensionImages-image{position:relative;min-width:250px;height:250px}.ReGuildedExtensionImages-image:not(:first-child){margin-left:10px}.ReGuildedSettings-container-padded{padding-left:32px;padding-right:32px}.ReGuildedErrorBoundary-error{text-align:left}`
                     })
                 );
                 document.body.appendChild(this.styling);

@@ -5,7 +5,8 @@ import {
     WordDividerLine,
     BannerWithButton,
     MediaRenderer,
-    GuildedText
+    GuildedText,
+    CodeContainer
 } from "../guilded/components/content";
 import { getOwnerInstance, patchElementRenderer, waitForElement } from "./lib";
 import { Carousel as CarouselList } from "../guilded/components/sections";
@@ -131,6 +132,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/components/ActionMenuSection": webpack => webpack.withCode("ActionMenu-section"),
     "guilded/components/ActionMenuItem": webpack => webpack.withClassProperty("useRowWrapper"),
     "guilded/components/Modal": webpack => webpack.withClassProperty("hasConfirm"),
+    "guilded/components/CodeContainer": webpack => webpack.withClassProperty("tokenCodeLines"),
     "guilded/components/MarkRenderer": webpack => webpack.withClassProperty("mark"),
     "guilded/components/draggable": webpack => webpack.withProperty("DraggableTypes")
 };
@@ -605,6 +607,12 @@ export default class AddonApi {
         return this.#getCached("guilded/components/MediaRenderer");
     }
     /**
+     * Code block that can highlight code, have a header and can allow copying its contents.
+     */
+    get ["guilded/components/CodeContainer"](): { default: typeof CodeContainer } {
+        return this.#getCached("guilded/components/CodeContainer");
+    }
+    /**
      * An input made for searching.
      */
     get ["guilded/components/SearchBar"](): { default } {
@@ -643,6 +651,9 @@ export default class AddonApi {
     get ["guilded/components/CarouselList"](): { default: typeof CarouselList } {
         return this.#getCached("guilded/components/CarouselList");
     }
+    /**
+     * Displays loading dots that takes up the whole page.
+     */
     get ["guilded/components/LoadingPage"](): { default: typeof _React.Component } {
         return this.#getCached("guilded/components/LoadingPage");
     }

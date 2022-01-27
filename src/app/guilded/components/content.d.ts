@@ -1,5 +1,5 @@
 import { Size } from "../common";
-import React from "react";
+import React, { ReactNode } from "react";
 
 //#region BannerWithButton
 type BannerWithButtonProps = {
@@ -10,9 +10,25 @@ type BannerWithButtonProps = {
     children?: React.ReactNode | React.ReactNode[];
     buttonProps?: any;
 };
-declare class BannerWithButton extends React.Component<BannerWithButtonProps> {
+export declare class BannerWithButton extends React.Component<BannerWithButtonProps> {
     constructor(props: BannerWithButtonProps, context?: any);
     get hasText(): boolean;
+}
+//#endregion
+
+//#region CodeContainer
+type CodeContainerProps = {
+    language: string;
+    code: string;
+    canCopyContents?: boolean;
+    readOnly?: boolean;
+    header?: string;
+    className?: string;
+};
+export declare class CodeContainer extends React.Component<CodeContainerProps> {
+    constructor(props: CodeContainerProps, context?: any);
+    get tokens();
+    get tokenCodeLines();
 }
 //#endregion
 
@@ -69,7 +85,7 @@ type NullStateProps = {
     size?: Size;
     // Text
     title: string;
-    subtitle: string;
+    subtitle: string | ReactNode | ReactNode[];
     // Button
     onClick?: () => void;
     buttonText?: string;

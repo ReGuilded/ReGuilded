@@ -12,9 +12,8 @@ const {
     "guilded/components/GuildedText": { default: GuildedText },
     "guilded/components/Form": { default: Form },
     "guilded/overlays/overlayProvider": { default: overlayProvider },
-    "guilded/components/CarouselList": { default: CarouselList },
-    "guilded/components/MediaRenderer": { default: MediaRenderer },
-    "reguilded/util": reUtil
+    "reguilded/util": reUtil,
+    "guilded/components/CodeContainer": { default: CodeContainer }
 } = window.ReGuildedApi;
 
 type Props<T> = ChildTabProps & { extension: T };
