@@ -36,9 +36,7 @@ export function inject(
                     // If there was an error, try uninjecting ReGuilded
                     console.log("There was an error, reverting process more details will follow shortly...");
 
-                    // TODO: BETTER HANDLE FAIL, SO IT DOESN'T CORRUPT GUILDED INSTALL.
-                    // if (existsSync(platformModule.appDir))
-                    //     uninject(platformModule, reguildedDir, elevator).catch(reject);
+                    uninject(platformModule, elevator).catch(reject);
 
                     reject(err);
                 })
@@ -55,7 +53,6 @@ export function inject(
  */
 export async function uninject(
     platformModule: { appDir: string; resourcesDir: string },
-    reguildedDir: string,
     elevator?: string
 ) {
     return new Promise<void>((resolve, reject) => {
