@@ -12,6 +12,28 @@ const argv: { _: string[]; d?: string; dir?: string; e?: string; doas?: boolean;
 // We only need these two since injectbare and uninjectbare don't actually ever run this script.
 const specialTasks = ["inject", "uninject"];
 
+/**
+ * Function used from StackOverflow Answer
+ * https://stackoverflow.com/a/47996795/14981012
+ *
+ * Some modifications made, not many.
+ */
+function isRunning() {
+    const query = platform.appName;
+
+    return new Promise(function(resolve){
+        const plat = process.platform
+        const cmd = plat === 'win32' ? 'tasklist' : (plat === 'darwin' ? 'ps -ax | grep ' + query : (plat === 'linux' ? 'ps -A' : ''))
+        const proc = plat === 'win32' ? query : (plat === 'darwin' ? query : (plat === 'linux' ? query : ''))
+        if(cmd === '' || proc === ''){
+            resolve(false)
+        }
+        exec(cmd, function(err, stdout, stderr) {
+            resolve(stdout.toLowerCase().indexOf(proc.toLowerCase()) > -1)
+        })
+    })
+}
+
 (async function () {
     // Directory to install ReGuilded configuration to
     const dir = argv.d || argv.dir,
@@ -42,7 +64,10 @@ const specialTasks = ["inject", "uninject"];
                 if (err) console.error(`There was an error while attempting to run task ${taskArg}:\n${err}`);
                 console.log(stdout);
             });
-        } else performTask().catch((err) => {
+        } else performTask().then(() => {
+            // Cleanup Process.
+            process.exit();
+        }).catch((err) => {
             console.error(`There was an error while attempting to run task ${taskArg}:\n${err}`);
         });
     }).catch((err) => {
@@ -65,7 +90,18 @@ const specialTasks = ["inject", "uninject"];
                 new Promise<void>((taskResolve) => {
                     if (restartNeeded) {
                         console.log("Force closing Guilded");
-                        exec(platform.close).on("exit", taskResolve);
+                        exec(platform.close);
+
+                        const interval = setInterval(() => {
+                            isRunning().then((isGuildedRunning) => {
+                                if (!isGuildedRunning) {
+                                    clearInterval(interval);
+
+                                    taskResolve()
+                                }
+                            })
+                        }, 250);
+
                     } else taskResolve()
                 }).then(() => {
                     // Custom elevator support disabled
