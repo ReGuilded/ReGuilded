@@ -22,33 +22,27 @@ export default class ReGuildedWindow extends electron.BrowserWindow {
         ) {
             oldPreload = options.webPreferences.preload;
             options.webPreferences.preload = preloads.splash;
-        }
-        else if (options.webPreferences?.preload) {
+        } else if (options.webPreferences?.preload) {
             oldPreload = options.webPreferences.preload;
             options.webPreferences.preload = preloads.main;
         }
 
         super(options);
 
-        // This prevents Guilded from crashing when clicking on non-Guilded links
-        // Apparently, ReGuilded's preload gets loaded when link is clicked and the renderer's webFrame
-        // gets immediately disposed
-        this.webContents.setWindowOpenHandler(({ url }) => {
-            // Replace the default window opener with openExternal
-            electron.shell.openExternal(url);
-            return { action: "deny" };
-        });
-
         // Implements devtools warning
-        this.webContents.on('devtools-opened', () => {
-            this.webContents.executeJavaScript(`
+        this.webContents.on("devtools-opened", () => {
+            this.webContents
+                .executeJavaScript(
+                    `
                 (async () => {
                     if (window.ReGuilded.settingsHandler.settings.debugMode) return;
                     const warningStyles = "color: #cd3534;";
                     console.log("%cCAUTION!", \`\${warningStyles} text-decoration: underline; font-weight:bold; font-size: 32px;\`);
                     console.log("%cDO NOT PASTE OR WRITE ANYTHING HERE IF YOU DON'T KNOW WHAT YOU ARE DOING. THIS MAY BE USED BY ATTACKERS FOR ANY MALICIOUS ACT.", \`\${warningStyles} font-size: 24px;\`);
                 })();
-            `).catch(err => console.error(err));
+            `
+                )
+                .catch(err => console.error(err));
         });
 
         this.webContents.guildedPreload = oldPreload;
