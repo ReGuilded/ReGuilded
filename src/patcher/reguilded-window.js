@@ -37,8 +37,9 @@ export default class ReGuildedWindow extends electron.BrowserWindow {
                 (async () => {
                     if (window.ReGuilded.settingsHandler.settings.debugMode) return;
                     const warningStyles = "color: #cd3534;";
-                    console.log("%cCAUTION!", \`\${warningStyles} text-decoration: underline; font-weight:bold; font-size: 32px;\`);
+                    console.log("%cCAUTION!", \`\${warningStyles} font-weight:bold; font-size: 40px; line-height: 1em; color: #e7e7e7; background-color: #cd3534; border-radius: 4px; padding: 2px 8px\`);
                     console.log("%cDO NOT PASTE OR WRITE ANYTHING HERE IF YOU DON'T KNOW WHAT YOU ARE DOING. THIS MAY BE USED BY ATTACKERS FOR ANY MALICIOUS ACT.", \`\${warningStyles} font-size: 24px;\`);
+                    console.log("%cIf however, you know what you are doing, consider contributing to ReGuilded (https://www.github.com/ReGuilded/ReGuilded) and/or making addons and themes.", \`\${warningStyles} font-size: 16px;\`)
                 })();
             `
                 )
