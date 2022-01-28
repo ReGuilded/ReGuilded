@@ -106,9 +106,9 @@ function isRunning() {
                 }).then(() => {
                     // Custom elevator support disabled
                     tasks[taskArg](platform, "sudo").then(() => {
-                        restartNeeded && console.info(`Task ${taskArg} is complete, and you can now relaunch Guilded.`);
+                        console.info(`Task ${taskArg} is complete${!restartNeeded ? '.' : ", and you can now relaunch Guilded."}`);
 
-                        resolve()
+                        resolve();
                     }).catch(reject)
                 })
             } else reject(`Unknown task ${taskArg}`);

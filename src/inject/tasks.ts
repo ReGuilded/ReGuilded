@@ -64,9 +64,15 @@ export async function uninject(
  * Writes 'package.json' & Packs Asar
  */
 export async function prepareAndPackResources() {
-    await writeFile(
-        join(__dirname, "app", "package.json"),
-        `{"name":"reguilded","main":"electron.patcher.js"}`,
-        "utf8"
-    ).then(() => exec("asar pack ./out/app ./out/reguilded.asar"));
+    return new Promise<void>((resolve, reject) => {
+        writeFile(
+            join(__dirname, "app", "package.json"),
+            `{"name":"reguilded","main":"electron.patcher.js"}`,
+            "utf8"
+        ).then(() => exec("asar pack ./out/app ./out/reguilded.asar", (err) => {
+            if (err) reject(err);
+            resolve();
+        }));
+    });
+
 }
