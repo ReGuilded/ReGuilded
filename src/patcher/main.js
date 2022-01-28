@@ -56,7 +56,7 @@ app.whenReady().then(() => {
     const _webRequest = session.defaultSession.webRequest;
     const filter = {
         urls: [
-            "*://www.guilded.gg/*"
+            "https://www.guilded.gg/*"
         ]
     };
     const cspWhitelist = {
