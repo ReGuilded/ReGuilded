@@ -58,7 +58,9 @@ app.whenReady().then(() => {
         urls: ["https://www.guilded.gg/*"]
     };
     const cspWhitelist = {
-        connectSrc: [],
+        connectSrc: [
+            "https://raw.githubusercontent.com" // Github (Raw)
+        ],
         defaultSrc: [
             "https://*.reguilded.dev" // ReGuilded Server
         ],
