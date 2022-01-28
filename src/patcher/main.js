@@ -56,7 +56,7 @@ app.whenReady().then(() => {
     const _webRequest = session.defaultSession.webRequest;
     const filter = {
         urls: [
-            "*://www.guilded.gg/*"
+            "https://www.guilded.gg/*"
         ]
     };
     const cspWhitelist = {
@@ -75,14 +75,19 @@ app.whenReady().then(() => {
             "https://*.giphy.com", // Giphy
             "https://img.icons8.com", // Icons8
             "https://*.github.io", // Github Pages
-            "https://*.github.com" // Github
+            "https://*.gitlab.io", // Gitlab Pages
+            "https://*.github.com", // Github
+            "https://*.gitlab.com", // Gitlab
+            "https://*.gitea.io" // Gitea
         ],
         mediaSrc: [],
         scriptSrc: [],
         styleSrc: [
             "https://fonts.googleapis.com", // Google Fonts
             "https://*.guilded.gg", // Guilded
-            "https://*.github.io" // Github Pages
+            "https://*.github.io", // Github Pages
+            "https://*.gitlab.io", // Gitlab Pages
+            "https://*.gitea.io" // Gitea
         ]
     };
     // Patch CSP (Content-Security-Policy)
@@ -101,58 +106,18 @@ app.whenReady().then(() => {
                     const originalPolicy = policy;
                     let modifiedPolicyStr = originalPolicy[0];
 
-
                     modifiedPolicyStr = modifiedPolicyStr
                         .replace(/report\-uri.*?;/, " ");
 
-                    if(/connect\-src/.test(modifiedPolicyStr))
-                        modifiedPolicyStr = modifiedPolicyStr
-                            .replace(/connect\-src/, `connect-src ${cspWhitelist.connectSrc.join(" ")}`)
-                    else
-                        modifiedPolicyStr.concat([` connect-src ${cspWhitelist.connectSrc.join(" ")};`]);
-
-
-                    if(/default\-src/.test(modifiedPolicyStr))
-                        modifiedPolicyStr = modifiedPolicyStr
-                            .replace(/default\-src/, `default-src ${cspWhitelist.defaultSrc.join(" ")}`)
-                    else
-                        modifiedPolicyStr.concat([` default-src 'self' ${cspWhitelist.defaultSrc.join(" ")};`]);
-
-                    if(/font\-src/.test(modifiedPolicyStr))
-                        modifiedPolicyStr = modifiedPolicyStr
-                            .replace(/font\-src/, `font-src ${cspWhitelist.fontSrc.join(" ")}`)
-                    else
-                        modifiedPolicyStr.concat([` font-src ${cspWhitelist.fontSrc.join(" ")};`]);
-
-
-                    if(/img-src/.test(modifiedPolicyStr))
-                        modifiedPolicyStr = modifiedPolicyStr
-                            .replace(/img\-src/, `img-src ${cspWhitelist.imgSrc.join(" ")}`)
-                    else
-                        modifiedPolicyStr.concat([` img-src ${cspWhitelist.imgSrc.join(" ")};`]);
-
-
-                    if(/media-src/.test(modifiedPolicyStr))
-                        modifiedPolicyStr = modifiedPolicyStr
-                            .replace(/media\-src/, `media-src ${cspWhitelist.mediaSrc.join(" ")}`)
-                    else
-                        modifiedPolicyStr.concat([` media-src ${cspWhitelist.mediaSrc.join(" ")};`]);
-
-
-                    if(/script-src/.test(modifiedPolicyStr))
-                        modifiedPolicyStr = modifiedPolicyStr
-                            .replace(/script\-src/, `script-src ${cspWhitelist.scriptSrc.join(" ")}`)
-                    else
-                        modifiedPolicyStr.concat([` script-src ${cspWhitelist.scriptSrc.join(" ")};`]);
-
-
-                    if(/style-src/.test(modifiedPolicyStr))
-                        modifiedPolicyStr = modifiedPolicyStr
-                            .replace(/style\-src/, `style-src ${cspWhitelist.styleSrc.join(" ")}`)
-                    else
-                        modifiedPolicyStr.concat([` style-src ${cspWhitelist.styleSrc.join(" ")};`]);
-                    
-                    
+                    for (const entry in cspWhitelist) {
+                        let directive = entry.split("Src").join("-src");
+                        let directiveWhiteListStr = cspWhitelist[entry].join(" ");
+                        if(modifiedPolicyStr.includes(directive))
+                            modifiedPolicyStr = modifiedPolicyStr
+                                .replace(directive, `${directive} ${directiveWhiteListStr}`)
+                        else
+                            modifiedPolicyStr.concat(` ${directive} ${directiveWhiteListStr}`);
+                    };
                     
                     const modifiedPolicy = [modifiedPolicyStr];
 

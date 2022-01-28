@@ -1,5 +1,7 @@
-import { promises as fsPromises } from "fs";
+import {promises as fsPromises, readdirSync} from "fs";
 import { join } from "path";
+import platform from "./platform";
+import {readJSON} from "fs-extra";
 
 export default function (platformModule: { appDir: string; resourcesDir: string }) {
     return new Promise<void>(async (resolve) => {
@@ -10,16 +12,15 @@ export default function (platformModule: { appDir: string; resourcesDir: string 
             fsPromises.rm(platformModule.appDir, { force: true, recursive: true }),
 
             // Since we moved app.asar and app.asar.unpacked to resources/_guilded, we have to move back them to resources
-            Promise.all([
-                fsPromises.rename(join(_guildedPath, "app.asar"), join(platformModule.resourcesDir, "app.asar")),
-                fsPromises.rename(
-                    join(_guildedPath, "app.asar.unpacked"),
-                    join(platformModule.resourcesDir, "app.asar.unpacked")
-                )
-            ]).then(async () => await fsPromises.rm(_guildedPath, { force: true, recursive: true }))
-            // Remove ReGuilded asar
-            // TODO: Uncomment this when multi-user support is a thing on Windows & Mac OS
-            //fsPromises.rm(reguildedDir, { force: true, recursive: true })
+            new Promise<void>((returnResolve) => {
+                const _guildedContents = readdirSync(join(platform.resourcesDir, "_guilded"));
+
+                for (let string of _guildedContents) {
+                    fsPromises.rename(join(_guildedPath, string), join(platformModule.resourcesDir, string))
+                }
+
+                returnResolve();
+            }).then(async() => await fsPromises.rm(_guildedPath, { force: true, recursive: true})),
         ]).then(() => resolve());
     });
 }

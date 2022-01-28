@@ -5,6 +5,7 @@ const platforms = {
         resourcesDir: "/opt/Guilded/resources",
         close: "killall guilded",
         reguildedDir: "/usr/local/share/ReGuilded",
+        appName: "guilded",
         get appDir() {
             return join(this.resourcesDir, "app")
         },
@@ -16,6 +17,7 @@ const platforms = {
         resourcesDir: "/Applications/Guilded.app/Contents/Resources",
         close: "killall Guilded",
         reguildedDir: "/Applications/ReGuilded",
+        appName: "Guilded",
         get appDir() {
             return join(this.resourcesDir, "app");
         },
@@ -28,6 +30,7 @@ const platforms = {
             return join(process.env.LOCALAPPDATA, "Programs/Guilded/resources");
         },
         close: "taskkill /f /IM Guilded.exe >nul",
+        appName: "Guilded.exe",
         get reguildedDir() {
             return join(process.env.ProgramW6432, "ReGuilded");
         },
