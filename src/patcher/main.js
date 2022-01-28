@@ -124,17 +124,10 @@ app.whenReady().then(() => {
 
                     const modifiedPolicy = [modifiedPolicyStr];
 
-                    if (enforcing) {
-                        console.warn(
-                            "[WARNING] Regular CSP found on 'guilded.gg', converted to report-only for now. (will not be the case for long)"
-                        );
-                        delete details.responseHeaders["content-security-policy"];
-                        //details.responseHeaders["content-security-policy"] = modifiedPolicy;
+                    if (enforcing)
+                        details.responseHeaders["content-security-policy"] = modifiedPolicy;
+                    else 
                         details.responseHeaders["content-security-policy-report-only"] = modifiedPolicy;
-                    } else {
-                        delete details.responseHeaders["content-security-policy-report-only"];
-                        details.responseHeaders["content-security-policy-report-only"] = modifiedPolicy;
-                    }
 
                     return details.responseHeaders;
                 }
