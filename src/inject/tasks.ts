@@ -1,5 +1,4 @@
-import { existsSync } from "fs";
-import { spawnSync, spawn, exec } from "child_process";
+import { exec } from "child_process";
 import injection from "./util/injection.js";
 import uninjection from "./util/uninjection.js";
 import { join, dirname } from "path";
