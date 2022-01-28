@@ -1,9 +1,10 @@
-import { promises as fsPromises, stat, readdirSync, readdir, readFile } from "fs";
+import { promises as fsPromises, stat, readdirSync, readFile } from "fs";
 import { AnyExtension } from "../common/extensions";
 import { watch as chokidarWatch } from "chokidar";
-import { ipcRenderer, nativeImage } from "electron";
+import { ipcRenderer } from "electron";
 import { copy } from "fs-extra";
 import path from "path";
+import { getImageUrl, getSmallImageUrl } from "./util";
 
 // TODO: Checking
 export default abstract class ExtensionManager<T extends AnyExtension> {
@@ -81,7 +82,6 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
             // Loading them in `addToMetadata` contributes to reduced performance
             fetchImagesOf(extensionId: string, callback: (images: string[]) => void) {
                 // Don't reduce performance again
-                // TODO: Image refetch as an option in settings?
                 const imageCache = self.idsToImages[extensionId];
 
                 if (imageCache) {
@@ -94,9 +94,7 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
                 let fetchedImages = [];
 
                 if (images) {
-                    fetchedImages = images.map(imagePath =>
-                        nativeImage.createFromPath(path.resolve(dirname, imagePath)).toDataURL()
-                    );
+                    fetchedImages = images.map(imagePath => getImageUrl(dirname, imagePath));
 
                     // Save it for later reuse, until the extension's metadata gets changed
                     self.idsToImages[extensionId] = fetchedImages;
@@ -195,7 +193,7 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
                     const metadataIndex = this.all.findIndex(metadata => metadata.dirname === extPath);
 
                     let metadata: T = this.all[metadataIndex],
-                        previousId;
+                        previousId: string;
 
                     const newMetadata = metadata === undefined;
 
@@ -212,7 +210,7 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
                     }
 
                     // Add Readme, etc.
-                    addToMetadata(metadata, extPath);
+                    await addToMetadata(metadata, extPath);
 
                     const hasBeenLoaded = Boolean(loaded[extName]);
 
@@ -272,22 +270,33 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
  * @param extension The current metadata of the extension
  * @param dirname The path to the extension
  */
-function addToMetadata<T extends AnyExtension>(extension: T, dirname: string) {
-    readFile(path.join(dirname, "README.md"), "utf8", (err, d) => {
-        if (err)
-            if (err.code === "ENOENT") return;
-            else throw err;
-
-        extension.readme = d;
-    });
+async function addToMetadata<T extends AnyExtension>(extension: T, dirname: string) {
     if (extension.images && !Array.isArray(extension.images)) {
         console.warn("Extension metadata property 'images' must be a string array in extension by ID '%s'", extension.id);
         extension.images = undefined;
     }
     // Make sure author is an ID
     if (extension.author && (typeof extension.author !== "string" || extension.author.length !== 8)) {
-        console.warn("Author must be an identifier of the user in Guilded, not their name or anything else");
+        console.warn(
+            "Extension metadata property 'author' must be a Guilded identifier in extension by ID '%s'",
+            extension.id
+        );
         // To not cause errors and stuff
         extension.author = undefined;
     }
+    await Promise.all([
+        // README.md
+        fsPromises
+            .readFile(path.join(dirname, "README.md"), "utf8")
+            .then(data => (extension.readme = data))
+            .catch(err => {
+                if (err.code !== "ENOENT")
+                    console.error("Error while fetching readme file of an extension by ID '%s':", extension.id, err);
+            }),
+        // Cover/banner
+        extension.banner &&
+            getSmallImageUrl(dirname, extension.banner)
+                .then(url => (extension.banner = url))
+                .catch(e => console.error("Error while fetching banner of an extension by ID '%s':", extension.id, e))
+    ]);
 }

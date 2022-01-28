@@ -63,20 +63,20 @@ export default abstract class ExtensionItem<P extends AnyExtension, S = {}> exte
         }
     }
     render() {
-        const { overflowMenuSpecs, props: { name, readme, version, switchTab }, state: { enabled }, _onToggleBinded } = this;
+        const { overflowMenuSpecs, props: { name, readme, version, switchTab, banner }, state: { enabled }, _onToggleBinded } = this;
 
         const readmeLength = readme?.length;
 
         return (
             <span className={"CardWrapper-container CardWrapper-container-desktop PlayerAliasCard-container PlayerAliasCard-container-type-game UserProfileGamesTab-card ReGuildedExtension-container ReGuildedExtension-container-" + (enabled ? "enabled" : "disabled") } onClick={() => switchTab("specific", { extension: this.props })}>
-                <div className="PlayerCard-container PlayerCard-container-desktop PlayerAliasCard-card" onClick={e => e.stopPropagation()}>
+                <div className="PlayerCard-container PlayerCard-container-desktop PlayerAliasCard-card">
                     {/* Banner */}
-                    <StretchFadeBackground type="full-blur" className="PlayerBanner-container PlayerCard-banner" position="centered" src="/asset/TeamSplash/Minecraft-sm.jpg" />
+                    <StretchFadeBackground type="full-blur" className="PlayerBanner-container PlayerCard-banner" position="centered" src={banner || "/asset/TeamSplash/Minecraft-sm.jpg"} />
                     {/* Header */}
                     <div className="PlayerCardGameInfo-container PlayerCard-info ReGuildedExtension-header">
                         {/* Icon can be inputed here, if it will be ever necessary */}
                         {/* Header info */}
-                        <div className="PlayerCardGameInfo-name-alias">
+                        <div className="PlayerCardGameInfo-name-alias" onClick={e => e.stopPropagation()}>
                             {/* Name + Toggle */}
                             <Form onChange={async ({ hasChanged, values: {enabled} }) => (hasChanged && (this.hasToggled = true) || this.hasToggled) && await _onToggleBinded(enabled)} formSpecs={{
                                 sections: [
