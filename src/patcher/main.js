@@ -55,9 +55,7 @@ ipcMain.handle("reguilded-no-splash-close", () => {
 app.whenReady().then(() => {
     const _webRequest = session.defaultSession.webRequest;
     const filter = {
-        urls: [
-            "https://www.guilded.gg/*"
-        ]
+        urls: ["https://www.guilded.gg/*"]
     };
     const cspWhitelist = {
         connectSrc: [],
@@ -65,7 +63,10 @@ app.whenReady().then(() => {
             "https://*.reguilded.dev" // ReGuilded Server
         ],
         fontSrc: [
-            "https://fonts.gstatic.com" // Google Fonts
+            "https://fonts.gstatic.com", // Google Fonts
+            "https://*.github.io", // GitLab pages
+            "https://*.gitlab.io", // GitHub pages
+            "https://*.gitea.io" // Gitea
         ],
         imgSrc: [
             "https://dl.dropboxusercontent.com", // Dropbox
@@ -97,8 +98,8 @@ app.whenReady().then(() => {
                 callback({
                     cancel: false,
                     responseHeaders: headers
-                })
-            }
+                });
+            };
             const csp = {
                 permissive: details.responseHeaders["content-security-policy-report-only"],
                 enforcing: details.responseHeaders["content-security-policy"],
@@ -106,51 +107,46 @@ app.whenReady().then(() => {
                     const originalPolicy = policy;
                     let modifiedPolicyStr = originalPolicy[0];
 
-                    modifiedPolicyStr = modifiedPolicyStr
-                        .replace(/report\-uri.*?;/, " ");
+                    modifiedPolicyStr = modifiedPolicyStr.replace(/report\-uri.*?;/, " ");
 
                     for (const entry in cspWhitelist) {
                         let directive = entry.split("Src").join("-src");
                         let directiveWhiteListStr = cspWhitelist[entry].join(" ");
-                        if(modifiedPolicyStr.includes(directive))
-                            modifiedPolicyStr = modifiedPolicyStr
-                                .replace(directive, `${directive} ${directiveWhiteListStr}`)
-                        else
-                            modifiedPolicyStr.concat(` ${directive} ${directiveWhiteListStr}`);
-                    };
-                    
+                        if (modifiedPolicyStr.includes(directive))
+                            modifiedPolicyStr = modifiedPolicyStr.replace(
+                                directive,
+                                `${directive} ${directiveWhiteListStr}`
+                            );
+                        else modifiedPolicyStr.concat(` ${directive} ${directiveWhiteListStr}`);
+                    }
+
                     const modifiedPolicy = [modifiedPolicyStr];
 
-                    if(enforcing) {
-                        console.warn("[WARNING] Regular CSP found on 'guilded.gg', converted to report-only for now. (will not be the case for long)")
+                    if (enforcing) {
+                        console.warn(
+                            "[WARNING] Regular CSP found on 'guilded.gg', converted to report-only for now. (will not be the case for long)"
+                        );
                         delete details.responseHeaders["content-security-policy"];
                         //details.responseHeaders["content-security-policy"] = modifiedPolicy;
                         details.responseHeaders["content-security-policy-report-only"] = modifiedPolicy;
                     } else {
-                        delete details.responseHeaders["content-security-policy-report-only"]
+                        delete details.responseHeaders["content-security-policy-report-only"];
                         details.responseHeaders["content-security-policy-report-only"] = modifiedPolicy;
                     }
-                    
+
                     return details.responseHeaders;
                 }
             };
 
-            if (
-                !csp.permissive &&
-                !csp.enforcing
-            ) return callback({ cancel: false });
+            if (!csp.permissive && !csp.enforcing) return callback({ cancel: false });
 
-            if (csp.permissive)
-                csp.patch(csp.permissive, false)
-                    .then(patchedHeaders => patchedCallback(patchedHeaders));
+            if (csp.permissive) csp.patch(csp.permissive, false).then(patchedHeaders => patchedCallback(patchedHeaders));
 
-            if (csp.enforcing)
-                csp.patch(csp.enforcing, true)
-                    .then(patchedHeaders => patchedCallback(patchedHeaders));
+            if (csp.enforcing) csp.patch(csp.enforcing, true).then(patchedHeaders => patchedCallback(patchedHeaders));
         });
-    } catch(err) {
+    } catch (err) {
         console.error(err);
-    };
+    }
 });
 
 // Create Electron clone with modified BrowserWindow to inject ReGuilded preload
