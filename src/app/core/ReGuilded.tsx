@@ -53,7 +53,7 @@ export default class ReGuilded {
                 );
                 document.body.appendChild(this.styling);
 
-                window.ReGuildedApi = this.addonApi = new AddonApi(this.webpack, this.addons);
+                window.ReGuildedApi = this.addonApi = new AddonApi(this.webpack, this.addons, "@reguilded");
 
                 // I don't even have any idea why they are being disabled
                 try {
@@ -65,7 +65,7 @@ export default class ReGuilded {
 
                 this.addons.webpack = this.webpack;
 
-                await this.addons.init(this.addonApi)
+                await this.addons.init()
                     // TODO: Perhaps async init for themes and then Promise.all?
                     .then(this.themes.init.bind(this.themes))
                     .then(resolve)

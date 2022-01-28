@@ -7,7 +7,11 @@ import ReGuilded from "../ReGuilded";
 /**
  * Manages different components of ReGuilded to allow them to be extended.
  */
-export default abstract class ExtensionHandler<T extends AnyExtension, C extends RGExtensionConfig<T>> {
+export default abstract class ExtensionHandler<
+    T extends AnyExtension,
+    C extends RGExtensionConfig<T>,
+    S extends ReGuildedExtensionSettings = ReGuildedExtensionSettings
+> {
     /**
      * A Regex pattern for determining whether given extension's ID is correct.
      */
@@ -18,7 +22,7 @@ export default abstract class ExtensionHandler<T extends AnyExtension, C extends
     parent: ReGuilded;
     allLoaded: boolean;
     settingsHandler: SettingsHandler;
-    settings: ReGuildedExtensionSettings;
+    settings: S;
     idsToMetadata: { [extensionId: string]: T };
     /**
      * Creates a new manager for any kind of extension.
@@ -27,7 +31,7 @@ export default abstract class ExtensionHandler<T extends AnyExtension, C extends
      * @param settingsHandler The extension settings handler
      * @param config The preload configuration of the extensions
      */
-    constructor(parent: ReGuilded, settings: ReGuildedExtensionSettings, settingsHandler: SettingsHandler, config: C) {
+    constructor(parent: ReGuilded, settings: S, settingsHandler: SettingsHandler, config: C) {
         this.all = [];
         this.config = config;
         this.parent = parent;

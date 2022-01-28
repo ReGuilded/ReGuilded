@@ -10,7 +10,7 @@ export type ReGuildedSettings = {
     loadImages: boolean;
     keepSplash: boolean;
     debugMode: boolean;
-    addons: ReGuildedExtensionSettings;
+    addons: ReGuildedAddonSettings;
     themes: ReGuildedExtensionSettings;
 };
 export type ReGuildedSettingsUpdate = {
@@ -22,6 +22,9 @@ export type ReGuildedSettingsUpdate = {
     addons?: ReGuildedExtensionSettings;
     themes?: ReGuildedExtensionSettings;
 };
-export type ReGuildedExtensionSettings = {
+export interface ReGuildedExtensionSettings {
     enabled: string[];
-};
+}
+export interface ReGuildedAddonSettings extends ReGuildedExtensionSettings {
+    permissions: { [addonId: string]: number };
+}

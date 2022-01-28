@@ -1,7 +1,4 @@
-import {
-    ReGuildedSettings,
-    ReGuildedSettingsUpdate
-} from "../../../common/reguilded-settings";
+import { ReGuildedSettings, ReGuildedSettingsUpdate } from "../../../common/reguilded-settings";
 
 /**
  * The wrapping handler around `window.ReGuildedConfig` for easier changes tracking.
@@ -10,6 +7,8 @@ export default class SettingsHandler {
     settings: ReGuildedSettings;
     constructor() {
         this.settings = window.ReGuildedConfig.settings.getSettings();
+        // Support older versions of settings
+        if (!this.settings.addons.permissions) this.settings.addons.permissions = {};
     }
     /**
      * Updates the settings and saves them in settings file.

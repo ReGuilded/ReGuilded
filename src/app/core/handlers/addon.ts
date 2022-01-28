@@ -1,4 +1,4 @@
-import { ReGuildedExtensionSettings } from "../../../common/reguilded-settings";
+import { ReGuildedAddonSettings } from "../../../common/reguilded-settings";
 import { RGAddonConfig } from "../../types/reguilded";
 import { Addon } from "../../../common/extensions";
 import WebpackManager from "../../addons/webpack";
@@ -10,11 +10,11 @@ import ReGuilded from "../ReGuilded";
 /**
  * Manager that manages ReGuilded's addons
  */
-export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig> {
+export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig, ReGuildedAddonSettings> {
     initialized: string[] = [];
     webpack?: WebpackManager;
     addonApi?: AddonApi;
-    importable?: (path: string) => [boolean, any?];
+    addonApis: { [addonId: string]: AddonApi };
     /**
      * Manager that manages ReGuilded's addons
      * @param parent The parent ReGuilded instance
@@ -25,22 +25,20 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
      */
     constructor(
         parent: ReGuilded,
-        settings: ReGuildedExtensionSettings,
+        settings: ReGuildedAddonSettings,
         settingsHandler: SettingsHandler,
         config: RGAddonConfig
     ) {
         super(parent, settings, settingsHandler, config);
+
+        this.addonApis = {};
     }
 
     /**
      * Initiates addons for ReGuilded and addon manager
-     * @param addonApi ReGuilded Addon API.
      */
-    async init(addonApi: AddonApi): Promise<void> {
+    async init(): Promise<void> {
         this.settingsHandler.settings.debugMode && console.log("Initiating addon manager");
-        this.addonApi = addonApi;
-
-        this.importable = (path: string) => [path in addonApi, addonApi[path]];
 
         this.config.setWatchCallback(this._watchCallback.bind(this));
 
@@ -105,7 +103,8 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
             // Check if it's first time loading
             if (!~this.initialized.indexOf(metadata.id)) {
                 await metadata
-                    .execute(this.importable)
+                    // Allow requiring stuff from its very own API
+                    .execute((path: string) => [path in this.addonApis[metadata.id], this.addonApis[path]])
                     .then(exports => {
                         metadata.exports = exports;
                         // One-time `init` function
@@ -133,4 +132,38 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig>
             console.error(`Failed to unload an addon by ID '${metadata.id}':\n`, e);
         }
     }
+    /**
+     * Gets the specified addon's permissions.
+     * @param addonId The identifier of the addon to get permissions of
+     * @returns Permissions
+     */
+    getPermissionsOf(addonId: string) {
+        return this.settings.permissions[addonId];
+    }
+    /**
+     * Returns the specified permission if addon has it.
+     * @param addonId The identifier of the addon to get permissions of
+     * @param permission The permissions to check
+     * @returns Permissions that it has
+     */
+    hasPermission(addonId: string, permission: AddonPermission) {
+        return this.getPermissionsOf(addonId) & permission;
+    }
+    /**
+     * Sets the specified permissions to an addon.
+     * @param addonId The identifier of the addon to set permissions of
+     * @param permissions The permission to set for the addon
+     */
+    async setPermissions(addonId: string, permissions: AddonPermission) {
+        this.settings.permissions[addonId] = permissions;
+        await this.settingsHandler.updateSettings({ addons: this.settings });
+    }
+}
+export enum AddonPermission {
+    UseElements = 1,
+    ModifyElements = 2,
+    ModifyElementConfig = 4,
+    ExtraInfo = 8,
+    UseApi = 16,
+    UseExternalApi = 32
 }
