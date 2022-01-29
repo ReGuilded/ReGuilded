@@ -1,12 +1,12 @@
+import { ProvidedOverlay } from "../../../../addons/addonApi.types";
 import { Addon } from "../../../../../common/extensions";
-import { FormSpecs } from "../../../../guilded/form";
 import ExtensionItem from "./ExtensionItem";
 
-const { "guilded/overlays/overlayProvider": { default: overlayProvider } } = window.ReGuildedApi;
+const { default: overlayProvider } = window.ReGuilded.getApiProperty("guilded/overlays/overlayProvider");
 
 @overlayProvider(["SimpleFormOverlay"])
 export default class AddonItem extends ExtensionItem<Addon, { fp: string }> {
-    SimpleFormOverlay: { Open: Function };
+    SimpleFormOverlay: ProvidedOverlay<"SimpleFormOverlay">;
 
     constructor(props, context) {
         super(props, context);

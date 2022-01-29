@@ -1,11 +1,9 @@
 import { Addon } from "../../../../../common/extensions";
 import ExtensionView from "./ExtensionView";
 
-const {
-    react: React,
-    "guilded/components/Form": { default: Form },
-    "guilded/components/BannerWithButton": { default: BannerWithButton }
-} = window.ReGuildedApi;
+const React = window.ReGuilded.getApiProperty("react"),
+    { default: Form } = window.ReGuilded.getApiProperty("guilded/components/Form"),
+    { default: BannerWithButton } = window.ReGuilded.getApiProperty("guilded/components/BannerWithButton");
 
 export default class AddonView extends ExtensionView<Addon> {
     protected type = "addon";

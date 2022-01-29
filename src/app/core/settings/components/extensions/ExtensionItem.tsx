@@ -3,17 +3,16 @@ import { MenuSpecs } from "../../../../guilded/menu";
 import ErrorBoundary from "../ErrorBoundary";
 import { SwitchTab } from "../TabbedSettings";
 
-const {
-    react: React,
-    "guilded/components/OverflowButton": { default: OverflowButton },
-    "guilded/components/Form": { default: Form },
-    "guilded/components/UserBasicInfo": { default: UserBasicInfo },
-    "guilded/components/GuildedText": { default: GuildedText },
-    "guilded/components/StretchFadeBackground": { default: StretchFadeBackground },
-    "guilded/users": { UserModel },
-    "guilded/http/rest": { default: restMethods },
-    "reguilded/util": reUtil
-} = window.ReGuildedApi;
+const React = window.ReGuilded.getApiProperty("react"),
+    { default: OverflowButton } = window.ReGuilded.getApiProperty("guilded/components/OverflowButton"),
+    { default: Form } = window.ReGuilded.getApiProperty("guilded/components/Form"),
+    { default: UserBasicInfo } = window.ReGuilded.getApiProperty("guilded/components/UserBasicInfo"),
+    { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
+    { default: StretchFadeBackground } = window.ReGuilded.getApiProperty("guilded/components/StretchFadeBackground"),
+    { UserModel }: { UserModel } = window.ReGuilded.getApiProperty("guilded/users"),
+    { default: restMethods } = window.ReGuilded.getApiProperty("guilded/http/rest"),
+    { default: MarkdownRenderer } = window.ReGuilded.getApiProperty("guilded/components/MarkdownRenderer"),
+    { default: { WebhookEmbed } } = window.ReGuilded.getApiProperty("guilded/editor/grammars");
 
 type AdditionalProps = {
     type: string,
@@ -112,7 +111,7 @@ export default abstract class ExtensionItem<P extends AnyExtension, S = {}> exte
                     <div className="UserRichSocialLink-container">
                         <div className="ReGuildedExtension-description">
                             { readmeLength
-                                ? reUtil.renderMarkdown(readmeLength > 150 ? readme.slice(0, 150) + "..." : readme)
+                                ? <MarkdownRenderer plainText={(readmeLength > 150 ? readme.slice(0, 150) + "..." : readme)} grammar={WebhookEmbed}/>
                                 : <GuildedText type="gray" block={true}>No description provided.</GuildedText> }
                         </div>
                     </div>

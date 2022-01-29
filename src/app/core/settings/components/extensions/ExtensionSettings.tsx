@@ -1,16 +1,14 @@
-import { ChildTabProps } from "../TabbedSettings";
-import ErrorBoundary from "../ErrorBoundary";
-import ExtensionHandler from "../../../handlers/extension";
 import { AnyExtension } from "../../../../../common/extensions";
 import { RGExtensionConfig } from "../../../../types/reguilded";
+import ExtensionHandler from "../../../handlers/extension";
+import { ChildTabProps } from "../TabbedSettings";
+import ErrorBoundary from "../ErrorBoundary";
 
-const {
-    react: React,
-    "guilded/components/NullState": { default: NullState },
-    "guilded/components/HorizontalTabs": { default: HorizontalTabs },
-    "guilded/components/GuildedText": { default: GuildedText },
-    "guilded/context/defaultContextProvider": { default: defaultContextProvider }
-} = window.ReGuildedApi;
+const React = window.ReGuilded.getApiProperty("react"),
+    { default: NullState } = window.ReGuilded.getApiProperty("guilded/components/NullState"),
+    { default: HorizontalTabs } = window.ReGuilded.getApiProperty("guilded/components/HorizontalTabs"),
+    { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
+    { default: defaultContextProvider } = window.ReGuilded.getApiProperty("guilded/context/defaultContextProvider");
 
 type AnyExtensionHandler = ExtensionHandler<AnyExtension, RGExtensionConfig<AnyExtension>>;
 

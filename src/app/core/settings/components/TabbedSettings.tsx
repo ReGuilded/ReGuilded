@@ -1,4 +1,4 @@
-const { react: React } = window.ReGuildedApi;
+const React = window.ReGuilded.getApiProperty("react");
 
 type Props = {
     tabs: {

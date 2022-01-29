@@ -1,14 +1,17 @@
 import React from "react";
 
 export declare class SearchBar extends React.Component {
-    constructor(props: {
-        className?: string,
-        placeholder: string,
-        autoComplete: "on" | "off",
-        onChange: () => void,
-        onEnterPressed: () => void,
-        onEscapePressed: () => void,
-    }, context?: object);
+    constructor(
+        props: {
+            className?: string;
+            placeholder: string;
+            autoComplete: "on" | "off";
+            onChange: () => void;
+            onEnterPressed: () => void;
+            onEscapePressed: () => void;
+        },
+        context?: object
+    );
     /**
      * The element that is used as an input.
      */
@@ -18,16 +21,20 @@ export declare class SearchBar extends React.Component {
      */
     get isFocused(): boolean;
 }
+export type ButtonType = "gilded" | "delete" | "success" | "monochrome" | "bleached" | "white" | "whiteBg" | "stripe";
 export declare class Button extends React.Component {
-    constructor(props: {
-        href?: string,
-        onClick?: (e: MouseEvent) => void,
+    constructor(
+        props: {
+            href?: string;
+            onClick?: (e: MouseEvent) => void;
 
-        // Tooltip for disabled button
-        disabled?: boolean,
-        disabledTooltip?: boolean,
-        disabledTooltipDirection?: "left" | "right",
-    }, context?: object);
+            // Tooltip for disabled button
+            disabled?: boolean;
+            disabledTooltip?: boolean;
+            disabledTooltipDirection?: "left" | "right";
+        },
+        context?: object
+    );
     /**
      * Whether to use context when hovering.
      */

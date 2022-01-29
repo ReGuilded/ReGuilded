@@ -2,13 +2,11 @@ import { AnyExtension } from "../../../../../common/extensions";
 import { RGExtensionConfig } from "../../../../types/reguilded";
 import ExtensionHandler from "../../../handlers/extension";
 
-const {
-    react: React,
-    "guilded/components/GuildedText": { default: GuildedText },
-    "guilded/components/CarouselList": { default: CarouselList },
-    "guilded/components/MediaRenderer": { default: MediaRenderer },
-    "guilded/components/LoadingPage": { default: LoadingPage }
-} = window.ReGuildedApi;
+const React = window.ReGuilded.getApiProperty("react"),
+    { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
+    { default: CarouselList } = window.ReGuilded.getApiProperty("guilded/components/CarouselList"),
+    { default: MediaRenderer } = window.ReGuilded.getApiProperty("guilded/components/MediaRenderer"),
+    { default: LoadingPage } = window.ReGuilded.getApiProperty("guilded/components/LoadingPage");
 
 type Props<T extends AnyExtension> = { extensionId: string, extensionHandler: ExtensionHandler<T, RGExtensionConfig<T>> }
 

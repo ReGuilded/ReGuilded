@@ -1,13 +1,14 @@
-import { FieldAnySpecs } from "../../../../guilded/form";
+import { OverlayProviderContent, ProvidedOverlay } from "../../../../addons/addonApi.types";
+import { FieldAnySpecs, FormOutput } from "../../../../guilded/form";
 import { Theme } from "../../../../../common/extensions";
 import ExtensionItem from "./ExtensionItem";
 import validations from "../../validation";
 
-const { "guilded/overlays/overlayProvider": { default: overlayProvider } } = window.ReGuildedApi;
+const { default: overlayProvider } = window.ReGuilded.getApiProperty("guilded/overlays/overlayProvider");
 
 @overlayProvider(["SimpleFormOverlay"])
 export default class ThemeItem extends ExtensionItem<Theme, { settings: object, settingsProps: string[] }> {
-    SimpleFormOverlay;
+    SimpleFormOverlay: ProvidedOverlay<"SimpleFormOverlay">;
     constructor(props, context) {
         super(props, context);
 

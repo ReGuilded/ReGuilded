@@ -1,14 +1,14 @@
-﻿import reGuildedInfo from "../../../../common/reguilded.json";
+﻿import { ProvidedOverlay } from "../../../addons/addonApi.types";
+import reGuildedInfo from "../../../../common/reguilded.json";
 import ErrorBoundary from "./ErrorBoundary";
 
-const {
-    "guilded/components/Form": { default: Form },
-    react: React,
-    "guilded/settings/savableSettings": { default: savableSettings },
-    "guilded/util/functions": { coroutine },
-    "guilded/overlays/overlayProvider": { default: overlayProvider },
-    "guilded/context/defaultContextProvider": { default: defaultContextProvider }
-} = window.ReGuildedApi;
+
+const { default: Form } = window.ReGuilded.getApiProperty("guilded/components/Form"),
+    React = window.ReGuilded.getApiProperty("react"),
+    { default: savableSettings } = window.ReGuilded.getApiProperty("guilded/settings/savableSettings"),
+    { coroutine } = window.ReGuilded.getApiProperty("guilded/util/functions"),
+    { default: overlayProvider } = window.ReGuilded.getApiProperty("guilded/overlays/overlayProvider"),
+    { default: defaultContextProvider } = window.ReGuilded.getApiProperty("guilded/context/defaultContextProvider")
 
 type GeneralSettingsValues = {
     loadImages: boolean,
@@ -28,7 +28,7 @@ export default class GeneralSettings extends React.Component {
     private Update: () => Promise<void>;
     // Defined by SavableSettings & OverlayProvider
     protected _handleOptionsChange: () => void;
-    protected SimpleConfirmationOverlay: { Open: (settings: any) => Promise<{ confirmed: boolean}> };
+    protected SimpleConfirmationOverlay: ProvidedOverlay<"SimpleConfirmationOverlay">;
     protected statusContext;
 
     constructor(props, context) {

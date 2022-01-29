@@ -102,6 +102,8 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig,
             this.settingsHandler.settings.debugMode && console.log(`Loading addon by ID '${metadata.id}'`);
             // Check if it's first time loading
             if (!~this.initialized.indexOf(metadata.id)) {
+                this.addonApis[metadata.id] = new AddonApi(this.webpack, this, metadata.id);
+
                 await metadata
                     // Allow requiring stuff from its very own API
                     .execute((path: string) => [path in this.addonApis[metadata.id], this.addonApis[path]])

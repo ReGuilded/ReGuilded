@@ -1,21 +1,20 @@
+import { ProvidedOverlay } from "../../../../addons/addonApi.types";
 import { AnyExtension } from "../../../../../common/extensions";
 import { RGExtensionConfig } from "../../../../types/reguilded";
 import ExtensionHandler from "../../../handlers/extension";
 import { ChildTabProps } from "../TabbedSettings";
+import PreviewCarousel from "./PreviewCarousel";
 import ErrorBoundary from "../ErrorBoundary";
 import { ReactElement } from "react";
-import PreviewCarousel from "./PreviewCarousel";
-import { FormOutput } from "../../../../guilded/form";
 
-const {
-    react: React,
-    "guilded/components/SvgIcon": { default: SvgIcon },
-    "guilded/components/GuildedText": { default: GuildedText },
-    "guilded/components/Form": { default: Form },
-    "guilded/overlays/overlayProvider": { default: overlayProvider },
-    "reguilded/util": reUtil,
-    "guilded/components/HorizontalTabs": { default: HorizontalTabs }
-} = window.ReGuildedApi;
+const React = window.ReGuilded.getApiProperty("react"),
+    { default: SvgIcon } = window.ReGuilded.getApiProperty("guilded/components/SvgIcon"),
+    { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
+    { default: Form } = window.ReGuilded.getApiProperty("guilded/components/Form"),
+    { default: overlayProvider } = window.ReGuilded.getApiProperty("guilded/overlays/overlayProvider"),
+    { default: MarkdownRenderer } = window.ReGuilded.getApiProperty("guilded/components/MarkdownRenderer"),
+    { default: { WebhookEmbed } } = window.ReGuilded.getApiProperty("guilded/editor/grammars"),
+    { default: HorizontalTabs } = window.ReGuilded.getApiProperty("guilded/components/HorizontalTabs");
 
 type Props<T> = ChildTabProps & { extension: T };
 
@@ -32,7 +31,7 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
     protected tabs = [ { name: "Overview" } ];
 
     // From overlay provider
-    protected DeleteConfirmationOverlay: { Open: ({ name: string }) => Promise<{ confirmed: boolean }> };
+    DeleteConfirmationOverlay: ProvidedOverlay<"DeleteConfirmationOverlay">;
 
     constructor(props: Props<T>, context?: any) {
         super(props, context);
@@ -141,7 +140,7 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
                         <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: tabs }}>
                             <div className="ReGuildedExtensionPage-tab">
                                 {/* Description */}
-                                { extension.readme?.length ? reUtil.renderMarkdown(extension.readme) : null }
+                                { extension.readme?.length ? <MarkdownRenderer plainText={extension.readme} grammar={WebhookEmbed}/> : null }
                                 {/* Preview images carousel */}
                                 { extension.images && window.ReGuilded.settingsHandler.settings.loadImages &&
                                     <PreviewCarousel extensionId={extension.id} extensionHandler={this.extensionHandler} />

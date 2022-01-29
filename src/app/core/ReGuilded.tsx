@@ -7,6 +7,7 @@ import AddonHandler from "./handlers/addon";
 import AddonApi from "../addons/addonApi";
 import { FormSpecs } from "../guilded/form";
 import SettingsInjector from "./settings/settings";
+import { AddonApiExports } from "../addons/addonApi.types";
 
 /**
  * ReGuilded's full manager's class.
@@ -16,7 +17,6 @@ export default class ReGuilded {
     addons: AddonHandler;
     settingsHandler: SettingsHandler;
     webpack?: WebpackHandler;
-    addonApi?: AddonApi;
     styling?: Element;
     /**
      * A class that contains all of ReGuilded's configurations and settings.
@@ -53,8 +53,6 @@ export default class ReGuilded {
                 );
                 document.body.appendChild(this.styling);
 
-                window.ReGuildedApi = this.addonApi = new AddonApi(this.webpack, this.addons, "@reguilded");
-
                 // I don't even have any idea why they are being disabled
                 try {
                     window.__SENTRY__.hub.getClient().close(0);
@@ -88,7 +86,7 @@ export default class ReGuilded {
                             .catch(e => console.error("Error while trying to auto-update:", e)),
                 ])
                     // I don't know where to put this dumdum sync method
-                    .then(() => this.settingsHandler.settings.badge && this.loadUserBadges(this.addonApi["guilded/users"].UserModel))
+                    .then(() => this.settingsHandler.settings.badge && this.loadUserBadges(this.getApiProperty("guilded/users").UserModel))
             );
     }
 
@@ -110,8 +108,8 @@ export default class ReGuilded {
         if (!UserModel) return;
 
         // Pushes RG Contributor Flair into the Global Flairs array, along with a Duplication Tooltip Handler from the Gil Gang flair.
-        const globalFlairsInfo = this.addonApi["guilded/users/flairs/displayInfo"];
-        const globalFlairsTooltipInfo = this.addonApi["guilded/users/flairs/tooltipInfo"];
+        const globalFlairsInfo = this.getApiProperty("guilded/users/flairs/displayInfo");
+        const globalFlairsTooltipInfo = this.getApiProperty("guilded/users/flairs/tooltipInfo");
         globalFlairsInfo.default["rg_contrib"] = all.contrib;
         globalFlairsTooltipInfo.default["rg_contrib"] = globalFlairsTooltipInfo.default["gil_gang"];
 
@@ -126,8 +124,15 @@ export default class ReGuilded {
         flairs.injectFlairGetter(UserModel.prototype, flairGetter);
     }
 
+    getApiProperty<T extends string>(name: T): AddonApiExports<T> {
+        return AddonApi.getApiCachedProperty<T>(name, this.webpack);
+    }
+
     async handleFirstLaunch() {
-        const { transientMenuPortalUnmaskedContext: portalContext, "guilded/components/RouteLink": RouteLink, react: React } = this.addonApi;
+        const transientMenuPortal = window.ReGuilded.getApiProperty("transientMenuPortal"),
+            RouteLink = window.ReGuilded.getApiProperty("guilded/components/RouteLink");
+
+        const menuPortalContext = transientMenuPortal.__reactInternalMemoizedUnmaskedChildContext;
 
         const formSpecs: FormSpecs =
             {
@@ -168,7 +173,7 @@ export default class ReGuilded {
                 ]
             };
 
-        const { values, isChanged } = await portalContext.SimpleFormOverlay.Open(portalContext, {
+        const { values, isChanged } = await menuPortalContext.SimpleFormOverlay.Open(menuPortalContext, {
             header: "Successfully Installed",
             confirmText: "Continue",
             controlConfiguration: "Confirm",

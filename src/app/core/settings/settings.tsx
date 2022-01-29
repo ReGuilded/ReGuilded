@@ -1,11 +1,11 @@
-﻿import { patchElementRenderer } from "../../addons/lib";
-import AddonSettings from "./components/extensions/AddonSettings";
+﻿import AddonSettings from "./components/extensions/AddonSettings";
 import ThemeSettings from "./components/extensions/ThemeSettings";
-import patcher from "../../addons/patcher";
-import TabbedSettings from "./components/TabbedSettings";
 import GeneralSettings from "./components/GeneralSettings";
 import AddonView from "./components/extensions/AddonView";
 import ThemeView from "./components/extensions/ThemeView";
+import TabbedSettings from "./components/TabbedSettings";
+import { patchElementRenderer } from "../../addons/lib";
+import patcher from "../../addons/patcher";
 
 export default class SettingsInjector {
     id = "SettingsInjector";

@@ -1,10 +1,6 @@
-import _React from "react";
-
-const {
-    react: React,
-    "guilded/components/NullState": { default: NullState },
-    "guilded/components/CodeContainer": { default: CodeContainer }
-} = window.ReGuildedApi;
+const React = window.ReGuilded.getApiProperty("react"),
+    { default: NullState } = window.ReGuilded.getApiProperty("guilded/components/NullState"),
+    { default: CodeContainer } = window.ReGuilded.getApiProperty("guilded/components/CodeContainer");
 
 export default class ErrorBoundary extends React.Component<{ }, { hasErrored: boolean, error: Error | null }> {
     constructor(props, context) {

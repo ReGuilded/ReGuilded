@@ -2,10 +2,8 @@ import { Theme } from "../../../../../common/extensions";
 import ExtensionView from "./ExtensionView";
 import ThemeItem from "./ThemeItem";
 
-const {
-    react: React,
-    "guilded/components/Form": { default: Form }
-} = window.ReGuildedApi;
+const React = window.ReGuilded.getApiProperty("react"),
+    { default: Form } = window.ReGuilded.getApiProperty("guilded/components/Form");
 
 export default class ThemeView extends ExtensionView<Theme> {
     protected type = "theme";

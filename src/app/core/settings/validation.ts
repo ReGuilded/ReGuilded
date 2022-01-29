@@ -1,9 +1,6 @@
-// @ts-ignore
 const {
-    "guilded/components/formValidations": {
-        default: { validateIsUrl }
-    }
-} = window.ReGuildedApi;
+    default: { validateIsUrl }
+} = window.ReGuilded.getApiProperty("guilded/components/formValidations");
 
 export default {
     /**

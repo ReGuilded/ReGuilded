@@ -21,7 +21,6 @@ declare global {
             doUpdateIfPossible(): Promise<void>;
         };
         // Client
-        ReGuildedApi: AddonApi;
         ReGuilded: ReGuilded;
         settingsInjector: SettingsInjector;
     }
