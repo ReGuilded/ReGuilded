@@ -60,15 +60,17 @@ app.whenReady().then(() => {
     const cspWhitelist = {
         connectSrc: [
             "https://raw.githubusercontent.com", // Github (Raw)
-            "https://api.github.com" // Github API
+            "https://api.github.com", // Github API
+            "https://github.com", // Github
+            "https:/objects.githubusercontent.com" // Github (Asset)
         ],
         defaultSrc: [
             "https://*.reguilded.dev" // ReGuilded Server
         ],
         fontSrc: [
             "https://fonts.gstatic.com", // Google Fonts
-            "https://*.github.io", // GitLab pages
-            "https://*.gitlab.io", // GitHub pages
+            "https://*.github.io", // GitLab Pages
+            "https://*.gitlab.io", // GitHub Pages
             "https://*.gitea.io" // Gitea
         ],
         imgSrc: [
