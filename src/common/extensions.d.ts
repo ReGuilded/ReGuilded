@@ -39,6 +39,7 @@ type AddonExports = {
     [otherExport: string]: any;
 };
 export declare interface Addon extends Extension<string> {
+    requiredPermissions: number;
     execute: (importable: (path: string) => [boolean, any?]) => Promise<AddonExports>;
     exports?: AddonExports;
 }

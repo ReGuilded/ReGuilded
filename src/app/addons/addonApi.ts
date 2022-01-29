@@ -1,27 +1,10 @@
-import {
-    SvgIcon,
-    ItemManager,
-    NullState,
-    WordDividerLine,
-    BannerWithButton,
-    MediaRenderer,
-    GuildedText,
-    CodeContainer
-} from "../guilded/components/content";
 import { getOwnerInstance, patchElementRenderer, waitForElement } from "./lib";
-import { Carousel as CarouselList } from "../guilded/components/sections";
-import * as prismjsComponents from "prismjs/components";
 import AddonHandler, { AddonPermission } from "../core/handlers/addon";
-import { OverflowButton } from "../guilded/menu";
-import { Button } from "../guilded/input";
+import { AddonApiExports } from "./addonApi.types";
 import WebpackManager from "./webpack";
-import { Form } from "../guilded/form";
 import * as prismjs from "prismjs";
 import _ReactDOM from "react-dom";
-import { Grammar } from "prismjs";
 import _React from "react";
-import { Addon } from "../../common/extensions";
-import { AddonApiExports } from "./addonApi.types";
 
 // Provides API for addons to interact with Guilded.
 // TODO: Better documentation and probably TS declaration files.

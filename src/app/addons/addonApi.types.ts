@@ -157,9 +157,9 @@ export type AddonApiExports<N extends string> = N extends "reguilded/util"
     : N extends "guilded/context/layerContext"
     ? any
     : N extends "guilded/context/teamContextProvider"
-    ? any
+    ? { default: Decorator }
     : N extends "guilded/context/defaultContextProvider"
-    ? any
+    ? { default: Decorator }
     : // Util
     N extends "guilded/util/functions"
     ? Function & { coroutine: <R, T extends (...args: any[]) => R>(fn: T) => (...args: any[]) => Promise<R> }

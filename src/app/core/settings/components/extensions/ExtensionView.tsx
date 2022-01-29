@@ -6,20 +6,26 @@ import { ChildTabProps } from "../TabbedSettings";
 import PreviewCarousel from "./PreviewCarousel";
 import ErrorBoundary from "../ErrorBoundary";
 import { ReactElement } from "react";
+import { FormOutput } from "../../../../guilded/form";
 
 const React = window.ReGuilded.getApiProperty("react"),
     { default: SvgIcon } = window.ReGuilded.getApiProperty("guilded/components/SvgIcon"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
     { default: Form } = window.ReGuilded.getApiProperty("guilded/components/Form"),
     { default: overlayProvider } = window.ReGuilded.getApiProperty("guilded/overlays/overlayProvider"),
+    { default: savableSettings } = window.ReGuilded.getApiProperty("guilded/settings/savableSettings"),
+    { default: defaultContextProvider } = window.ReGuilded.getApiProperty("guilded/context/defaultContextProvider"),
+    { coroutine } = window.ReGuilded.getApiProperty("guilded/util/functions"),
     { default: MarkdownRenderer } = window.ReGuilded.getApiProperty("guilded/components/MarkdownRenderer"),
     { default: { WebhookEmbed } } = window.ReGuilded.getApiProperty("guilded/editor/grammars"),
     { default: HorizontalTabs } = window.ReGuilded.getApiProperty("guilded/components/HorizontalTabs");
 
 type Props<T> = ChildTabProps & { extension: T };
 
+@savableSettings
+@defaultContextProvider
 @overlayProvider(["DeleteConfirmationOverlay"])
-export default abstract class ExtensionView<T extends AnyExtension> extends React.Component<ChildTabProps, { enabled: boolean | number }> {
+export default abstract class ExtensionView<T extends AnyExtension> extends React.Component<Props<T>, { enabled: boolean | number }> {
     // Class functions with proper `this` to not rebind every time
     private _onToggleBinded: () => Promise<void>;
     private _onDeleteBinded: () => Promise<void>;
@@ -30,8 +36,11 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
     protected extensionHandler: ExtensionHandler<T, RGExtensionConfig<T>>;
     protected tabs = [ { name: "Overview" } ];
 
-    // From overlay provider
-    DeleteConfirmationOverlay: ProvidedOverlay<"DeleteConfirmationOverlay">;
+    // From decorators
+    protected DeleteConfirmationOverlay: ProvidedOverlay<"DeleteConfirmationOverlay">;
+    protected SaveChanges: (...args: any[]) => any;
+    protected Save: () => Promise<void>;
+    protected _handleOptionsChange: (...args: any[]) => void;
 
     constructor(props: Props<T>, context?: any) {
         super(props, context);
@@ -42,7 +51,9 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
         this._onToggleBinded = this._onToggle.bind(this);
         this._onDeleteBinded = this._onDelete.bind(this);
         this._openDirectory = window.ReGuildedConfig.openItem.bind(null, this.props.extension.dirname);
+        this.SaveChanges = coroutine(this.onSaveChanges);
     }
+    protected abstract onSaveChanges(formOutput: FormOutput): Iterable<PromiseLike<unknown>>;
     /**
      * Toggles the extension's enabled state.
      * @param enabled The new extension state

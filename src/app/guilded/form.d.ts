@@ -690,17 +690,13 @@ export type FormValue = {
     /** The value of the form field. */
     value: any;
 };
-export type FormOutput = {
+export type FormOutput<T extends {} = { [fieldName: string]: any }> = {
     /** Whether the form field values were changed. */
     hasChanged: boolean;
     /** The dictionary of changed fields with their values. */
-    changedValues: {
-        [fieldName: string]: any;
-    };
+    changedValues: Partial<T>;
     /** The dictionary of all fields with their values, including default values. */
-    values: {
-        [fieldName: string]: any;
-    };
+    values: T;
     /** Whether all fields in the form are valid */
     isValid: boolean;
 };

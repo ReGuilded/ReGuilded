@@ -1,6 +1,6 @@
+import React from "react";
 import { Addon, AnyExtension, Theme } from "../../common/extensions";
 import { ReGuildedSettings, ReGuildedSettingsUpdate } from "../../common/reguilded-settings";
-import AddonApi from "../addons/addonApi";
 import ReGuilded from "../core/ReGuilded";
 import SettingsInjector from "../core/settings/settings";
 
@@ -23,6 +23,7 @@ declare global {
         // Client
         ReGuilded: ReGuilded;
         settingsInjector: SettingsInjector;
+        getOwnerInstance: (element: Element | Node) => React.Component | void;
     }
 }
 export interface RGExtensionConfig<T extends AnyExtension> {

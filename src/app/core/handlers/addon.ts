@@ -106,7 +106,7 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig,
 
                 await metadata
                     // Allow requiring stuff from its very own API
-                    .execute((path: string) => [path in this.addonApis[metadata.id], this.addonApis[path]])
+                    .execute((path: string) => [path in this.addonApis[metadata.id], this.addonApis[metadata.id][path]])
                     .then(exports => {
                         metadata.exports = exports;
                         // One-time `init` function

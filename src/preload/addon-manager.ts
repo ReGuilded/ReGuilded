@@ -27,11 +27,15 @@ export default class AddonManager extends ExtensionManager<Addon> {
             // Because we can't have multiple entry points
             if (Array.isArray(addon.files)) {
                 console.warn(
-                    "Expected addon by ID '",
-                    addon.id,
-                    "' to have string 'files' in files property. Using first array item."
+                    "Expected addon by ID '%s' to have property 'files' as a string, not array. Using first array item.",
+                    addon.id
                 );
                 addon.files = addon.files[0];
+            }
+
+            if (typeof addon.requiredPermissions !== "number") {
+                console.error("Expected addon by ID '%s' to have property 'requiredFiles' as a number.");
+                addon.requiredPermissions = 0;
             }
             // Keep the same isolated world. If addon needs consistent window variables, then it can be kept.
             // const addonsWorld = (this.addonsToIsolatedWorlds[addon.id] = this.addonsToIsolatedWorlds[addon.id]

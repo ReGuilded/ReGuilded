@@ -64,3 +64,4 @@ export function getOwnerInstance(element: Element | Node): React.Component | voi
         depth++;
     }
 }
+window.getOwnerInstance = getOwnerInstance;

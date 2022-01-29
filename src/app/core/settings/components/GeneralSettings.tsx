@@ -23,7 +23,6 @@ type GeneralSettingsValues = {
 @defaultContextProvider
 @overlayProvider(["SimpleConfirmationOverlay"])
 export default class GeneralSettings extends React.Component {
-
     private SaveChanges: (...args: object[]) => any;
     private Update: () => Promise<void>;
     // Defined by SavableSettings & OverlayProvider

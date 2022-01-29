@@ -6,7 +6,9 @@ type BannerWithButtonProps = {
     title?: string;
     text: string;
     iconName?: string;
+    className?: string;
     imgSrc?: string;
+    theme?: "warning" | "error" | "info" | string;
     children?: React.ReactNode | React.ReactNode[];
     buttonProps?: any;
 };
