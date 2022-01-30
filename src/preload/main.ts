@@ -44,12 +44,13 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
             },
             reset: source => {
                 if(source)
-                    customCSPWhitelist[source] = []
+                    customCSPWhitelist[source] = [];
                 else {
                     for (const source in customCSPWhitelist) {
                         customCSPWhitelist[source] = [];
                     };
                 };
+                saveChanges();
             }
         };
         contextBridge.exposeInMainWorld("_ReGuildedCustomCSPWhitelist", _ReGuildedCustomCSPWhitelist);
