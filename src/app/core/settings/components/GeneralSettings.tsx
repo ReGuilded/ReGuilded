@@ -35,13 +35,20 @@ export default class GeneralSettings extends React.Component {
         this.SaveChanges = coroutine(this.onSaveChanges);
         this.Update = this.onUpdate.bind(this);
     }
-    private *onSaveChanges({ values, isValid }) {
+    private *onSaveChanges({ changedValues, values, isValid }) {
         if(isValid) {
             const { loadAuthors, loadImages, badge: { optionName: badge }, keepSplash, debugMode, autoUpdate }: GeneralSettingsValues = values;
             // Since we need to convert form values to proper values
             // (E.g., radios always returning { optionName: "xyz" } instead of "xyz")
-            const configValues = { loadAuthors, loadImages, badge: badge, keepSplash, debugMode, autoUpdate }
-            return window.ReGuilded.settingsHandler.updateSettings(configValues);
+            const configValues = { loadAuthors, loadImages, badge: badge, keepSplash, debugMode, autoUpdate };
+
+            yield window.ReGuilded.settingsHandler.updateSettings(configValues)
+                .then(() => {
+                    if (changedValues.badge) {
+                        window.ReGuilded.unloadUserBadges();
+                        window.ReGuilded.loadUserBadges();
+                    }
+                });
         } else throw new Error("Invalid settings form values");
     }
     private async onUpdate() {
@@ -116,13 +123,13 @@ export default class GeneralSettings extends React.Component {
                                             shortLabel: "Badge",
                                             description: "Shows ReGuilded badges as global badges like partner badge."
                                         },
-                                        // {
-                                        //     optionName: "Flair",
-                                        //     layout: "horizontal",
-                                        //     label: "Show as a flair",
-                                        //     shortLabel: "Flair",
-                                        //     description: "Shows ReGuilded badges as global flairs like stonks flair."
-                                        // },
+                                        {
+                                            optionName: 1,
+                                            layout: "horizontal",
+                                            label: "Show as a flair",
+                                            shortLabel: "Flair",
+                                            description: "Shows ReGuilded badges as global flairs like stonks flair."
+                                        },
                                         {
                                             optionName: 0,
                                             layout: "horizontal",

@@ -12,78 +12,101 @@ export type Flair = {
     amount: number;
 };
 
-export const badges = {
-    /**
-     * Injects custom badges into User class.
-     * @param prototype UserModel class prototype
-     * @param badgeFn The new getter for the UserModel class' `badges` getter
-     */
-    injectBadgeGetter(prototype: { get badges(): Badge[] | void }, badgeFn: () => Badge[] | void) {
-        // Defines new `badges` getter for User class
-        Object.defineProperty(prototype, "badges", {
-            get: badgeFn
-        });
-    },
+/**
+ * Creates a flair from given arguments.
+ * @param name The displayed name of the flair
+ * @param icon The icon of the flair
+ * @returns Flair
+ */
+function createFlair(name: string, icon: string) {
+    return {
+        iconSrcFn: () => icon,
+        stackCountFn: () => 1,
+        titleFn: () => name,
+        name
+    };
+}
+/**
+ * Creates a flair from the badge.
+ * @param badge The badge to create flair from
+ * @returns Injectable flair
+ */
+export function createFlairFromBadge(badge: Badge): Flair {
+    const displayInfo = window.ReGuilded.getApiProperty("guilded/users/flairs/displayInfo").default,
+        tooltipInfo = window.ReGuilded.getApiProperty("guilded/users/flairs/tooltipInfo").default;
 
-    /**
-     * Creates a function that wraps around another function to add new badges.
-     * @param defaultBadges Function that gives a list of badges based on user info
-     * @returns Getter function
-     */
-    genBadgeGetter: (defaultBadges: () => Badge[] | void) =>
-        function badges() {
-            // Calls default badge getter
-            const globalBadges: Badge[] | void = defaultBadges.call(this);
+    const flair = createFlair(badge.tooltipText, badge.icon);
 
-            const userId: string = this.userInfo.id;
+    displayInfo[badge.name] = flair;
+    tooltipInfo[badge.name] = tooltipInfo["gil_gang"];
 
-            const reguildedBadges: Badge[] = [];
+    return {
+        flair: badge.name,
+        amount: 1
+    };
+}
+function generateBadgeGetter<T>(
+    defaultGetter: () => T[] | void,
+    toPush: T,
+    membersTable: { [name: string]: string[] },
+    tableName: string
+) {
+    return function get() {
+        const global: T[] | undefined = defaultGetter.call(this);
 
-            if (members.dev.find(user => user.guildedId === userId)) {
-                reguildedBadges.push(all.dev);
-            }
+        return ~membersTable[tableName].indexOf(this.userInfo.id) ? (global || []).concat(toPush) : global;
+    };
+}
+function injectBadgeGetter<T>(
+    prototype: { get [prototypePropertyName](): T[] | void },
+    prototypePropertyName: string,
+    getter: () => T[] | void
+) {
+    // Replace
+    Object.defineProperty(prototype, prototypePropertyName, {
+        get: getter
+    });
+}
+const oldGetters = {};
+/**
+ * Injects a badge or a flair to the UserModel prototype.
+ * @param prototype The UserModel prototype
+ * @param prototypePropertyName The name of the prototype property to redefine
+ * @param badge The badge to push in the new getter
+ * @param members The identifiers of the members who will receive the badge
+ */
+export function injectBadge<T>(prototype: Object, prototypePropertyName: string, badge: T, membersName: string) {
+    const defaultGetter =
+        oldGetters[prototypePropertyName] || Object.getOwnPropertyDescriptor(prototype, prototypePropertyName).get;
+    oldGetters[prototypePropertyName] = defaultGetter;
 
-            return (globalBadges || []).concat(reguildedBadges);
-        }
-};
+    const newGetter = generateBadgeGetter(defaultGetter, badge, members, membersName);
 
-export const flairs = {
-    injectFlairGetter(prototype, flairFn) {
-        Object.defineProperty(prototype, "flairInfos", {
-            get: flairFn
-        });
-    },
+    injectBadgeGetter(prototype, prototypePropertyName, newGetter);
+}
+/**
+ * Uninjects all ReGuilded badges.
+ * @param prototype The prototype of the UserModel
+ * @param prototypePropertyName The injected property's name
+ */
+export function uninjectBadge<T>(prototype: { get [prototypePropertyName](): T[] | void }, prototypePropertyName: string) {
+    const oldGetter = oldGetters[prototypePropertyName];
 
-    genFlairGetter: (defaultFlairs: () => Flair[] | void) =>
-        function flairs() {
-            const globalFlairs: Flair[] | void = defaultFlairs.call(this);
+    if (oldGetter) injectBadgeGetter(prototype, prototypePropertyName, oldGetter);
+}
 
-            const userId: string = this.userInfo.id;
-
-            const reguildedFlairs: Flair[] = [];
-
-            if (members.contrib.find(user => user.guildedId === userId)) {
-                reguildedFlairs.push({
-                    flair: "rg_contrib",
-                    amount: 1
-                });
-            }
-
-            return (globalFlairs || []).concat(reguildedFlairs);
-        }
-};
+// ----- Dictionaries -----
 
 /**
  * Badges/Flairs that are visible on ReGuilded client.
  */
-export const all = {
+export const types = {
     dev: {
-        icon: "https://raw.githubusercontent.com/ReGuilded/ReGuilded/main/logo/ReGuilded.png",
+        icon: "https://raw.githubusercontent.com/ReGuilded/ReGuilded/main/logo/ReGuildedRed.svg",
         // Sets the name of the badge for getting this badge
         name: "ReGuildedDev",
         // What is displayed when you hover over the badge
         tooltipText: "ReGuilded Developer",
-        // Adds the display text/name
         text: "ReDev",
         style: {
             backgroundColor: "#10171F",
@@ -91,20 +114,30 @@ export const all = {
         }
     },
     contrib: {
-        // Sets the icon of the flair
-        iconSrcFn: function () {
-            return "https://raw.githubusercontent.com/ReGuilded/ReGuilded/main/logo/ReGuilded_Red.svg";
-        },
-        // Sets the stack amount of the flair
-        stackCountFn: function () {
-            return 1;
-        },
-        // Sets the title for the Flair.
-        titleFn: function () {
-            return "ReGuilded Contributor";
-        },
-        // Sets the name of the flair
-        name: "ReGuilded Contributor"
+        icon: "https://raw.githubusercontent.com/ReGuilded/ReGuilded/main/logo/ReGuildedRed.svg",
+        // Sets the name of the badge for getting this badge
+        name: "ReGuildedContributor",
+        // What is displayed when you hover over the badge
+        tooltipText: "ReGuilded Contributor",
+        text: "ReContrib",
+        style: {
+            backgroundColor: "#10171F",
+            color: "#CC5555"
+        }
+        // // Sets the icon of the flair
+        // iconSrcFn: function () {
+        //     return "https://raw.githubusercontent.com/ReGuilded/ReGuilded/main/logo/ReGuilded_Red.svg";
+        // },
+        // // Sets the stack amount of the flair
+        // stackCountFn: function () {
+        //     return 1;
+        // },
+        // // Sets the title for the Flair.
+        // titleFn: function () {
+        //     return "ReGuilded Contributor";
+        // },
+        // // Sets the name of the flair
+        // name: "ReGuilded Contributor"
     }
 };
 

@@ -1,4 +1,4 @@
-import { badges, flairs, all } from "./badges-flairs";
+import { types as badgeTypes, members as badgeMembers, injectBadge, uninjectBadge, createFlairFromBadge, Flair } from "./badges-flairs";
 import { WebpackRequire } from "../types/webpack";
 import SettingsHandler from "./handlers/settings";
 import WebpackHandler from "../addons/webpack";
@@ -6,7 +6,6 @@ import ThemeHandler from "./handlers/themes";
 import AddonHandler from "./handlers/addon";
 import AddonApi from "../addons/addonApi";
 import { FormSpecs } from "../guilded/form";
-import SettingsInjector from "./settings/settings";
 import { AddonApiExports } from "../addons/addonApi.types";
 
 /**
@@ -78,15 +77,17 @@ export default class ReGuilded {
                         await (window.settingsInjector = new SettingsInjector()).init()
                     ),
 
-                    window.ReGuildedConfig.isFirstLaunch && this.handleFirstLaunch(),
+                    // Global badges
+                    new Promise<void>(resolve => (this.loadUserBadges(), resolve())),
 
                     // Only do it if user has enabled auto-update
                     this.settingsHandler.settings.autoUpdate &&
                         window.ReGuildedConfig.doUpdateIfPossible()
+                            .then(() => console.log("Auto update done"))
                             .catch(e => console.error("Error while trying to auto-update:", e)),
-                ])
-                    // I don't know where to put this dumdum sync method
-                    .then(() => this.settingsHandler.settings.badge && this.loadUserBadges(this.getApiProperty("guilded/users").UserModel))
+
+                    window.ReGuildedConfig.isFirstLaunch && this.handleFirstLaunch(),
+                ]).then(() => console.log("ReGuilded done initializing"))
             );
     }
 
@@ -102,26 +103,35 @@ export default class ReGuilded {
 
     /**
      * Loads ReGuilded developer badges & contributor flairs.
-     * @param UserModel The class that represents user object.
      */
-    loadUserBadges(UserModel): void {
+    loadUserBadges(): void {
+        if (!this.settingsHandler.settings.badge) return;
+
+        const { UserModel } = this.getApiProperty("guilded/users");
+
         if (!UserModel) return;
 
-        // Pushes RG Contributor Flair into the Global Flairs array, along with a Duplication Tooltip Handler from the Gil Gang flair.
-        const globalFlairsInfo = this.getApiProperty("guilded/users/flairs/displayInfo");
-        const globalFlairsTooltipInfo = this.getApiProperty("guilded/users/flairs/tooltipInfo");
-        globalFlairsInfo.default["rg_contrib"] = all.contrib;
-        globalFlairsTooltipInfo.default["rg_contrib"] = globalFlairsTooltipInfo.default["gil_gang"];
+        // Either flair of badge depending on settings
+        const [devBadgeInjection, devBadge] =
+            this.settingsHandler.settings.badge === 1 ? ["flairInfos", definedFlairs.dev || createFlairFromBadge(badgeTypes.dev)] : ["badges", badgeTypes.dev];
 
-        // Badge Getters.
-        const badgeGetter = badges.genBadgeGetter(UserModel.prototype.__lookupGetter__("badges"));
-        const flairGetter = flairs.genFlairGetter(UserModel.prototype.__lookupGetter__("flairInfos"));
+        // Always flair
+        const contribFlair = definedFlairs.contrib || createFlairFromBadge(badgeTypes.contrib);
 
-        this.settingsHandler.settings.debugMode && console.log('Injecting');
+        injectBadge(UserModel.prototype, devBadgeInjection, devBadge, "dev");
+        // FIXME: Contributor flair overrides dev flair getter
+        injectBadge(UserModel.prototype, "flairInfos", contribFlair, "contrib");
+    }
+    /**
+     * Unloads ReGuilded developer badges & contributor flairs.
+     */
+    unloadUserBadges(): void {
+        const { UserModel } = this.getApiProperty("guilded/users");
 
-        // Adds ReGuilded developer badges
-        badges.injectBadgeGetter(UserModel.prototype, badgeGetter);
-        flairs.injectFlairGetter(UserModel.prototype, flairGetter);
+        if (!UserModel) return;
+
+        uninjectBadge(UserModel.prototype, "badges");
+        uninjectBadge(UserModel.prototype, "flairInfos");
     }
 
     getApiProperty<T extends string>(name: T): AddonApiExports<T> {
@@ -188,3 +198,4 @@ export default class ReGuilded {
         }
     }
 };
+const definedFlairs: { dev?: Flair, contrib?: Flair } = {};
