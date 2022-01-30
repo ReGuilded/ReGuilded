@@ -24,11 +24,11 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
             view: () => {
                 return customCSPWhitelist;
             },
-            add: (source, site) => {
+            add: (site, source = "defaultSrc") => {
                 customCSPWhitelist[source].push(site);
                 saveChanges();
             },
-            remove: (source, site) => {
+            remove: (site, source = "defaultSrc") => {
                 customCSPWhitelist[source] = customCSPWhitelist[source].filter(entry => entry !== site);
                 saveChanges();
             },
