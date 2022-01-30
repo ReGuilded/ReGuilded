@@ -2,7 +2,7 @@ import { ReGuildedSettings, ReGuildedSettingsUpdate } from "../common/reguilded-
 import { contextBridge, ipcRenderer, shell, webFrame } from "electron";
 import handleUpdate, { checkForUpdate, VersionJson } from "./update";
 import getSettingsFile from "./get-settings";
-import { promises as fsPromises, accessSync, constants, existsSync, mkdirSync } from "fs";
+import { promises as fsPromises, accessSync, constants, existsSync, mkdirSync, writeFile } from "fs";
 import AddonManager from "./addon-manager";
 import ThemeManager from "./theme-manager";
 import SettingsManager from "./settings";
@@ -25,6 +25,34 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
 (async () => {
     const reGuildedConfigAndSettings = async () => {
         const settingsManager = new SettingsManager(settingsPath, await getSettingsFile(settingsPath));
+
+        // Implements Basic CSP Whitelist Add/Remove
+        const customCSPWhitelistPath = join(settingsPath, "custom-csp-whitelist.json");
+        let customCSPWhitelist = require(customCSPWhitelistPath);
+        const saveChanges = () => writeFile(customCSPWhitelistPath, JSON.stringify(customCSPWhitelist), {encoding: "utf-8"}, () => {});
+        const _ReGuildedCustomCSPWhitelist = {
+            view: () => {
+                return customCSPWhitelist;
+            },
+            add: (source, site) => {
+                customCSPWhitelist[source].push(site);
+                saveChanges();
+            },
+            remove: (source, site) => {
+                customCSPWhitelist[source] = customCSPWhitelist[source].filter(entry => entry !== site);
+                saveChanges();
+            },
+            reset: source => {
+                if(source)
+                    customCSPWhitelist[source] = []
+                else {
+                    for (const source in customCSPWhitelist) {
+                        customCSPWhitelist[source] = [];
+                    };
+                };
+            }
+        };
+        contextBridge.exposeInMainWorld("_ReGuildedCustomCSPWhitelist", _ReGuildedCustomCSPWhitelist);
 
         // Allow reconfiguration of settings
         contextBridge.exposeInMainWorld("ReGuildedConfig", {
