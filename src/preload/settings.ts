@@ -1,9 +1,10 @@
+import {ReGuildedSettings, ReGuildedWhitelist} from "../common/reguilded-settings";
 import { promises as fsPromises } from "fs";
 const { writeFile } = fsPromises;
 import { join } from "path";
-import { ReGuildedSettings } from "../common/reguilded-settings";
+import * as process from "process";
+import {write} from "fs-extra";
 
-//export const badgeNames = ["None", "Flair", "Badge"];
 
 /**
  * Default ReGuilded settings.
@@ -18,21 +19,37 @@ export const defaultSettings: ReGuildedSettings = {
     addons: { enabled: [], permissions: {} },
     themes: { enabled: [] }
 };
+
+/**
+ * Default ReGuilded Whitelist
+ */
+export const defaultWhitelist: ReGuildedWhitelist = {
+    connectSrc: [],
+    defaultSrc: [],
+    fontSrc: [],
+    imgSrc: [],
+    mediaSrc: [],
+    scriptSrc: [],
+    styleSrc: []
+}
+
 /**
  * A manager that manages ReGuilded's settings and configuration.
  */
 export default class SettingsManager {
     directory: string;
     settings: ReGuildedSettings;
+    whitelist: ReGuildedWhitelist;
     /**
      * A manager that manages ReGuilded's settings and configuration.
      */
-    constructor(directory: string, settings: ReGuildedSettings) {
+    constructor(directory: string, [settings, whitelist]: [ReGuildedSettings, ReGuildedWhitelist]) {
         // Sets settings directory as `~/.reguilded/settings`
         this.directory = directory;
 
         // Fill in any settings that are not present
         this.settings = Object.assign(defaultSettings, settings);
+        this.whitelist = Object.assign(defaultWhitelist, whitelist);
     }
 
     /**
@@ -43,6 +60,16 @@ export default class SettingsManager {
             encoding: "utf8"
         });
     }
+
+    /**
+     * Saves current configuration of the whitelist.
+     */
+    async saveWhitelist(): Promise<void> {
+        await writeFile(this.whitelistFile, JSON.stringify(this.whitelist), {
+           encoding: "utf8"
+        });
+    }
+
     /**
      * Updates the configuration and saves it to settings file.
      * @param config The configuration properties to update with their updated values
@@ -58,12 +85,21 @@ export default class SettingsManager {
             );
         });
     }
+
     /**
      * Gets the path to the main settings file.
      * @returns Settings file path
      */
     get settingsFile(): string {
         return join(this.directory, "settings.json");
+    }
+
+    /**
+     * Gets the path to the whitelist file.
+     * @returns whitelist file path
+     */
+    get whitelistFile(): string {
+        return join(this.directory, "custom-csp-whitelist.json");
     }
 
     /**
