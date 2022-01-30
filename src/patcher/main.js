@@ -13,7 +13,7 @@ import { platform, getuid, exit } from "process";
 import { join, dirname } from "path";
 import * as electron from "electron";
 import { ipcMain, app, session } from "electron";
-import { readFileSync } from "fs";
+import { readFileSync, access, writeFile, existsSync } from "fs";
 import { _load } from "module";
 
 // Ensures application isn't ran as root on linux
@@ -24,6 +24,17 @@ if (platform === "linux" && getuid() === 0) {
     );
     exit(1);
 }
+
+// Gets settings path
+const userDataDir = process.env.APPDATA || process.env.HOME;
+let settingsParentDir;
+if(!__dirname.startsWith(userDataDir)) {
+    const configDir = join(userDataDir, ".reguilded");
+    if(!existsSync(configDir)) mkdirSync(configDir);
+    settingsParentDir = configDir;
+} else settingsParentDir = join(__dirname, "..");
+
+const settingsPath = join(settingsParentDir, "./settings");
 
 // Electron
 const electronPath = require.resolve("electron");
@@ -61,8 +72,8 @@ app.whenReady().then(() => {
         connectSrc: [
             "https://raw.githubusercontent.com", // Github (Raw)
             "https://api.github.com", // Github API
-            "https://github.com", // Github
-            "https:/objects.githubusercontent.com" // Github (Asset)
+            "https://www.github.com", // Github
+            "https://objects.githubusercontent.com" // Github (Asset)
         ],
         defaultSrc: [
             "https://*.reguilded.dev" // ReGuilded Server
@@ -96,55 +107,80 @@ app.whenReady().then(() => {
             "https://*.gitea.io" // Gitea
         ]
     };
-    // Patch CSP (Content-Security-Policy)
-    try {
-        _webRequest.onHeadersReceived(filter, (details, callback) => {
-            const patchedCallback = headers => {
-                callback({
-                    cancel: false,
-                    responseHeaders: headers
+    // Fetches/Creates Custom CSP Whitelist Config
+    let customCspWhitelist;
+    const customWhitelistPath = join(settingsPath, "custom-csp-whitelist.json");
+    const defaultCustomWhitelist = `{"connectSrc": [],"defaultSrc": [],"fontSrc": [],"imgSrc": [],"mediaSrc": [],"scriptSrc": [],"styleSrc": []}`;
+    new Promise((resolve, reject) => {
+        access(customWhitelistPath, err => {
+            if(err) {
+                writeFile(customWhitelistPath, defaultCustomWhitelist, {"encoding": "utf-8"}, err => {
+                    if(err) reject(err);
+                    customCspWhitelist = JSON.parse(defaultCustomWhitelist);
+                    resolve();
                 });
+            } else {
+                customCspWhitelist = require(customWhitelistPath);
+                resolve();
             };
-            const csp = {
-                permissive: details.responseHeaders["content-security-policy-report-only"],
-                enforcing: details.responseHeaders["content-security-policy"],
-                patch: async (policy, enforcing) => {
-                    const originalPolicy = policy;
-                    let modifiedPolicyStr = originalPolicy[0];
-
-                    modifiedPolicyStr = modifiedPolicyStr.replace(/report\-uri.*?;/, " ");
-
-                    for (const entry in cspWhitelist) {
-                        let directive = entry.split("Src").join("-src");
-                        let directiveWhiteListStr = cspWhitelist[entry].join(" ");
-                        if (modifiedPolicyStr.includes(directive))
-                            modifiedPolicyStr = modifiedPolicyStr.replace(
-                                directive,
-                                `${directive} ${directiveWhiteListStr}`
-                            );
-                        else modifiedPolicyStr.concat(` ${directive} ${directiveWhiteListStr}`);
-                    }
-
-                    const modifiedPolicy = [modifiedPolicyStr];
-
-                    if (enforcing)
-                        details.responseHeaders["content-security-policy"] = modifiedPolicy;
-                    else 
-                        details.responseHeaders["content-security-policy-report-only"] = modifiedPolicy;
-
-                    return details.responseHeaders;
-                }
-            };
-
-            if (!csp.permissive && !csp.enforcing) return callback({ cancel: false });
-
-            if (csp.permissive) csp.patch(csp.permissive, false).then(patchedHeaders => patchedCallback(patchedHeaders));
-
-            if (csp.enforcing) csp.patch(csp.enforcing, true).then(patchedHeaders => patchedCallback(patchedHeaders));
         });
-    } catch (err) {
-        console.error(err);
-    }
+    })
+    .then(() => {
+        // Apply Custom Whitelist
+        for (const directive in customCspWhitelist) {
+            cspWhitelist[directive] = cspWhitelist[directive].concat(customCspWhitelist[directive]);
+        };
+        // Patch CSP (Content-Security-Policy)
+        try {
+            _webRequest.onHeadersReceived(filter, (details, callback) => {
+                const patchedCallback = headers => {
+                    callback({
+                        cancel: false,
+                        responseHeaders: headers
+                    });
+                };
+                const csp = {
+                    permissive: details.responseHeaders["content-security-policy-report-only"],
+                    enforcing: details.responseHeaders["content-security-policy"],
+                    patch: async (policy, enforcing) => {
+                        const originalPolicy = policy;
+                        let modifiedPolicyStr = originalPolicy[0];
+
+                        modifiedPolicyStr = modifiedPolicyStr.replace(/report\-uri.*?;/, " ");
+
+                        for (const entry in cspWhitelist) {
+                            let directive = entry.split("Src").join("-src");
+                            let directiveWhiteListStr = cspWhitelist[entry].join(" ");
+                            if (modifiedPolicyStr.includes(directive))
+                                modifiedPolicyStr = modifiedPolicyStr.replace(
+                                    directive,
+                                    `${directive} ${directiveWhiteListStr}`
+                                );
+                            else modifiedPolicyStr.concat(` ${directive} ${directiveWhiteListStr}`);
+                        }
+
+                        const modifiedPolicy = [modifiedPolicyStr];
+
+                        if (enforcing)
+                            details.responseHeaders["content-security-policy"] = modifiedPolicy;
+                        else 
+                            details.responseHeaders["content-security-policy-report-only"] = modifiedPolicy;
+
+                        return details.responseHeaders;
+                    }
+                };
+
+                if (!csp.permissive && !csp.enforcing) return callback({ cancel: false });
+
+                if (csp.permissive) csp.patch(csp.permissive, false).then(patchedHeaders => patchedCallback(patchedHeaders));
+
+                if (csp.enforcing) csp.patch(csp.enforcing, true).then(patchedHeaders => patchedCallback(patchedHeaders));
+            });
+        } catch (err) {
+            console.error(err);
+        }
+    })
+    .catch(err => console.log(err));
 });
 
 // Create Electron clone with modified BrowserWindow to inject ReGuilded preload
