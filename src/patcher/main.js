@@ -115,18 +115,12 @@ app.whenReady().then(() => {
             if (!err) {
                 customCspWhitelist = require(customWhitelistPath);
             }
-            
+
             resolve();
         });
     })
     .then(() => {
-        // Apply Custom Whitelist
-        for (const directive in customCspWhitelist) {
-            cspWhitelist[directive] = cspWhitelist[directive].concat(customCspWhitelist[directive]);
-        }
-
-        // Patch CSP (Content-Security-Policy)
-        try {
+        const patchCSP = (customCspWhitelistParam = customCspWhitelist) => {
             _webRequest.onHeadersReceived(filter, (details, callback) => {
                 const patchedCallback = headers => {
                     callback({
@@ -170,6 +164,19 @@ app.whenReady().then(() => {
                 if (csp.permissive) csp.patch(csp.permissive, false).then(patchedHeaders => patchedCallback(patchedHeaders));
 
                 if (csp.enforcing) csp.patch(csp.enforcing, true).then(patchedHeaders => patchedCallback(patchedHeaders));
+            });
+            // Apply Custom Whitelist
+            for (const directive in customCspWhitelistParam) {
+                cspWhitelist[directive] = cspWhitelist[directive].concat(customCspWhitelist[directive]);
+            }
+        };
+
+        // Patch CSP (Content-Security-Policy)
+        try {
+            patchCSP();
+            ipcMain.handle("reguilded-repatch-csp", (...args) => {
+                const updatedCustomCSPWhitelist = JSON.parse(args[1]);
+                patchCSP(updatedCustomCSPWhitelist);
             });
         } catch (err) {
             console.error(err);

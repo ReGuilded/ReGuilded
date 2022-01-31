@@ -1,9 +1,10 @@
 import {ReGuildedSettings, ReGuildedWhitelist} from "../common/reguilded-settings";
 import { promises as fsPromises } from "fs";
-const { writeFile } = fsPromises;
+const { writeFile, readFile } = fsPromises;
 import { join } from "path";
 import * as process from "process";
 import {write} from "fs-extra";
+import { ipcRenderer } from "electron";
 
 
 /**
@@ -68,6 +69,7 @@ export default class SettingsManager {
         await writeFile(this.whitelistFile, JSON.stringify(this.whitelist, null, 4), {
            encoding: "utf8"
         });
+        ipcRenderer.invoke("reguilded-repatch-csp", [await readFile(this.whitelistFile, {encoding:"utf-8"})]);
     }
 
     /**
