@@ -23,7 +23,7 @@ declare global {
         // Client
         ReGuilded: ReGuilded;
         settingsInjector: SettingsInjector;
-        getOwnerInstance: (element: Element | Node) => React.Component | void;
+        getReactInstance: (element: Element | Node) => React.Component | void;
     }
 }
 export interface RGExtensionConfig<T extends AnyExtension> {

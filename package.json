@@ -48,6 +48,7 @@
         "rollup": "^2.60.1",
         "rollup-plugin-root-import": "^1.0.0",
         "rollup-plugin-terser": "^7.0.2",
+        "slate": "^0.72.3",
         "sudo-prompt": "^9.2.1",
         "typescript": "^4.5.2"
     }

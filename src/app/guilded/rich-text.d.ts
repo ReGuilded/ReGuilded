@@ -28,22 +28,22 @@ export type TemplateParameterOptions = {
      * The colour of the template parameter's text.
      */
     color?: string;
-}
-type allowedObjects = "value" | "document" | "block" | "inline" | "text" | "leaf" | "mark";
-declare interface TextObject<O extends allowedObjects> {
+};
+type NodeType = "value" | "document" | "block" | "inline" | "text" | "leaf" | "mark" | "renderless" | "command";
+declare interface TextObject<O extends NodeType> {
     object: O;
 }
 declare interface TextContainer<O extends "value" | "document" | "block" | "inline" | "text", C> extends TextObject<O> {
     nodes: C[];
 }
-declare interface BaseNode<O extends "document" | "block" | "inline", D, C> extends TextContainer<O, C> {
+declare interface BaseNode<O extends "document" | "block" | "inline", D extends object, C> extends TextContainer<O, C> {
     data: D;
 }
-declare interface Node<O extends "block" | "inline", T, D, C> extends BaseNode<O, D, C> {
+declare interface Node<O extends "block" | "inline", T, D extends object, C> extends BaseNode<O, D, C> {
     type: T;
 }
 declare interface Mark extends TextObject<"mark"> {
-    type: "bold" | "italic" | "strikethrough" | "underline"; 
+    type: "bold" | "italic" | "strikethrough" | "underline";
 }
 declare interface Leaf extends TextObject<"leaf"> {
     text: string;
@@ -52,14 +52,14 @@ declare interface Leaf extends TextObject<"leaf"> {
 declare interface LeafContainer extends TextObject<"text"> {
     leaves: Leaf[];
 }
-export type MessageDocument =
-    BaseNode<"document", { shareUrls?: string[], githubDeliveryId?: string } | undefined,
-        Node<"block", string, object | undefined,
-            Node<"block", string, undefined, LeafContainer> |
-            Node<"inline", string, object, LeafContainer> |
-            LeafContainer
-        >
-    >;
+export type InlineNode = Node<"inline", string, object, LeafContainer>;
+export type BlockNode = Node<"block", string, object | undefined, InlineNode | LeafContainer>;
+export type MessageDocument = BaseNode<
+    "document",
+    { shareUrls?: string[]; githubDeliveryId?: string } | undefined,
+    BlockNode
+>;
 export declare interface MessageContent extends TextObject<"value"> {
     document: MessageDocument;
 }
+export type AnyMessageObject = LeafContainer | Leaf | InlineNode | BlockNode;

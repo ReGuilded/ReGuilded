@@ -34,7 +34,7 @@ export function patchElementRenderer(
     return new Promise(async resolve => {
         const node = await waitForElement(selector);
 
-        const instance: React.Component | void = getOwnerInstance(node);
+        const instance: React.Component | void = getReactInstance(node);
         if (instance) {
             for (const component of [instance.constructor.prototype, instance]) {
                 patcher[patchType](id, component, "render", callback);
@@ -49,7 +49,7 @@ export function patchElementRenderer(
  * Gets the React instance that owns the given element.
  * @param element The element to get owner instance of.
  */
-export function getOwnerInstance(element: Element | Node): React.Component | void {
+export function getReactInstance(element: Element | Node): React.Component<any, any> | void {
     if (!element) return null;
 
     let reactInstance = element[Object.keys(element).find(key => ~key.indexOf("__reactInternalInstance"))];
@@ -64,4 +64,4 @@ export function getOwnerInstance(element: Element | Node): React.Component | voi
         depth++;
     }
 }
-window.getOwnerInstance = getOwnerInstance;
+window.getReactInstance = getReactInstance;

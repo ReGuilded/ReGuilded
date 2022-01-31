@@ -1,10 +1,12 @@
-import { getOwnerInstance, patchElementRenderer, waitForElement } from "./lib";
+import { getReactInstance, patchElementRenderer, waitForElement } from "./lib";
 import AddonHandler, { AddonPermission } from "../core/handlers/addon";
 import { AddonApiExports } from "./addonApi.types";
 import WebpackManager from "./webpack";
 import * as prismjs from "prismjs";
 import _ReactDOM from "react-dom";
 import _React from "react";
+import { EditorPlugin } from "../guilded/slate";
+import { MenuSectionSpecs } from "../guilded/menu";
 
 // Provides API for addons to interact with Guilded.
 // TODO: Better documentation and probably TS declaration files.
@@ -77,7 +79,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/overlays/portal": webpack => webpack.withProperty("Portals"),
     "guilded/overlays/OverlayStack": webpack => webpack.withProperty("addPortal"),
     "guilded/overlays/overlayProvider": webpack => webpack.withCode("OverlayProvider"),
-    transientMenuPortal: _ => getOwnerInstance(document.querySelector(".TransientMenuPortalContext-portal-container")),
+    transientMenuPortal: _ => getReactInstance(document.querySelector(".TransientMenuPortalContext-portal-container")),
 
     // Context
     "guilded/context/layerContext": webpack => webpack.allWithProperty("object")[1],
@@ -129,24 +131,58 @@ export default class AddonApi {
     static _cachedList: string[] = [];
     // Make it break less
     static _moduleNotFound = { default: undefined };
+    static reguildedUtil = {
+        getReactInstance,
+        waitForElement
+    };
+    static reguildedPatchUtil = {
+        patchElementRenderer
+    };
 
     // Don't allow addons to fetch this with `require("webpackManager")`
     #webpackManager: WebpackManager;
     #addonManager: AddonHandler;
     #addonId: string;
-
-    ["reguilded/util"]: AddonApiExports<"reguilded/util">;
+    #reguildedSlateUtil: {};
 
     // If addon needs it
     constructor(webpackManager: WebpackManager, addonManager: AddonHandler, addonId: string) {
         this.#webpackManager = webpackManager;
         this.#addonManager = addonManager;
         this.#addonId = addonId;
+        this.#reguildedSlateUtil = {
+            defaultInsertPlugins: { media: 0, form: 1 },
+            addInsertPlugin: (plugin: EditorPlugin) => this["guilded/editor/nodeInfos"].InsertPlugins.push(plugin),
+            removeInsertPlugin: (pluginIndex: number) =>
+                this["guilded/editor/nodeInfos"].InsertPlugins.splice(pluginIndex, 1),
+            addSlateSection: (section: MenuSectionSpecs) => {
+                const inserts = document.getElementsByClassName("SlateInsertToolbar-container");
 
-        this["reguilded/util"] = {
-            getOwnerInstance,
-            patchElementRenderer,
-            waitForElement
+                for (const insert of inserts) {
+                    const insertReact = getReactInstance(insert);
+                    if (insertReact) insertReact.props.menuSpecs.sections.push(section);
+                }
+            },
+            removeSlateSection: (sectionName: string) => {
+                const inserts = document.getElementsByClassName("SlateInsertToolbar-container");
+
+                for (const insert of inserts) {
+                    const insertReact = getReactInstance(insert);
+
+                    // To prevent errors
+                    if (insertReact) {
+                        const { sections }: { sections: MenuSectionSpecs[] } = insertReact.props.menuSpecs;
+
+                        // Remove by name
+                        sections.splice(
+                            sections.findIndex(section => section.name === sectionName),
+                            1
+                        );
+                    }
+                }
+            },
+            getPluginByType: (type: string) =>
+                this["guilded/editor/nodeInfos"].default.find(plugin => plugin.type === type)
         };
     }
     /**
@@ -164,15 +200,32 @@ export default class AddonApi {
      * @returns The cached value
      */
     #getCachedWithPermissions(permissions: AddonPermission, name: string) {
-        return this.#hasPermissions(permissions) && this.#getCached(name);
+        return this.#hasPermission(permissions) && this.#getCached(name);
     }
     /**
      * Gets whether there is the specified permission.
-     * @param permissions The permission that is needed
+     * @param permission The permission that is needed
      * @returns Permission or 0
      */
-    #hasPermissions(permissions: AddonPermission) {
-        return this.#addonManager.hasPermission(this.#addonId, permissions);
+    #hasPermission(permission: AddonPermission) {
+        return this.#addonManager.hasAnyPermission(this.#addonId, permission);
+    }
+    #hasAllPermissions(permissions: AddonPermission) {
+        return this.#addonManager.hasAllPermissions(this.#addonId, permissions);
+    }
+
+    // ReGuilded
+    get ["guilded/reguilded-util/patch"]() {
+        return this.#hasPermission(AddonPermission.ModifyElements) && AddonApi.reguildedPatchUtil;
+    }
+    get ["guilded/reguilded-util/react"]() {
+        return this.#hasPermission(AddonPermission.ModifyElementConfig) && AddonApi.reguildedUtil;
+    }
+    get ["guilded/reguilded-util/editor"]() {
+        return (
+            this.#hasAllPermissions(AddonPermission.UseElements | AddonPermission.ModifyElementConfig) &&
+            this.#reguildedSlateUtil
+        );
     }
 
     // React
@@ -384,12 +437,12 @@ export default class AddonApi {
     get ["prism/components"](): AddonApiExports<"prism/components"> {
         return this.#getCachedWithPermissions(AddonPermission.UseElements, "prism/info")?.prismComponents;
     }
-    /**
-     * The list of all Slate nodes.
-     */
-    get ["guilded/editor/nodes"](): AddonApiExports<"guilded/editor/nodes"> {
-        return this.#getCachedWithPermissions(AddonPermission.UseElements, "guilded/editor/nodes");
-    }
+    // /**
+    //  * The list of all Slate nodes.
+    //  */
+    // get ["guilded/editor/nodes"](): AddonApiExports<"guilded/editor/nodes"> {
+    //     return this.#getCachedWithPermissions(AddonPermission.UseElements, "guilded/editor/nodes");
+    // }
     /**
      * The list of nodes sorted by reactions, bare, etc.
      */

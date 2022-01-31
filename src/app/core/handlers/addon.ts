@@ -148,8 +148,17 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig,
      * @param permission The permissions to check
      * @returns Permissions that it has
      */
-    hasPermission(addonId: string, permission: AddonPermission) {
+    hasAnyPermission(addonId: string, permission: AddonPermission) {
         return this.getPermissionsOf(addonId) & permission;
+    }
+    /**
+     * Returns whether the addon has all specified permissions.
+     * @param addonId The identifier of the addon
+     * @param permissions All of the permissions it requires
+     * @returns Has all permissions
+     */
+    hasAllPermissions(addonId: string, permissions: AddonPermission) {
+        return (this.getPermissionsOf(addonId) & permissions) === permissions;
     }
     /**
      * Sets the specified permissions to an addon.

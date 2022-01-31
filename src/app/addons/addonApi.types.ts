@@ -17,8 +17,9 @@ import {
 import { Button } from "../guilded/input";
 import { OverflowButton } from "../guilded/menu";
 import { Carousel as CarouselList } from "../guilded/components/sections";
-import { getOwnerInstance, patchElementRenderer, waitForElement } from "./lib";
+import { getReactInstance, patchElementRenderer, waitForElement } from "./lib";
 import { ModalProps } from "../guilded/components/modals";
+import { EditorPlugin, NodeType } from "../guilded/slate";
 //#endregion
 
 //#region OverlayProvider, decorators & type mixins
@@ -38,13 +39,7 @@ export type OverlayProviderContent<T extends string> = { [O in T]: ProvidedOverl
 //#endregion
 
 //#region AddonApiExports
-export type AddonApiExports<N extends string> = N extends "reguilded/util"
-    ? {
-          getOwnerInstance: typeof getOwnerInstance;
-          waitForElement: typeof waitForElement;
-          patchElementRenderer: typeof patchElementRenderer;
-      }
-    : N extends "transientMenuPortal"
+export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? any
     : // React
     N extends "react"
@@ -125,7 +120,11 @@ export type AddonApiExports<N extends string> = N extends "reguilded/util"
     : N extends "guilded/editor/nodes"
     ? any
     : N extends "guilded/editor/nodeInfos"
-    ? any
+    ? {
+          EditorPluginsByEditorType: { [pluginType in NodeType]: EditorPlugin[] };
+          InsertPlugins: EditorPlugin[];
+          default: EditorPlugin[];
+      }
     : N extends "guilded/editor/grammars"
     ? { default: { WebhookEmbed: Prism.Grammar } }
     : N extends "guilded/editor/languageCodes"
