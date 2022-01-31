@@ -25,14 +25,17 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
                 return customCSPWhitelist;
             },
             add: (site, source = "defaultSrc") => {
+                if (!source.includes("Src")) source = `${source}Src`;
                 customCSPWhitelist[source].push(site);
                 saveChanges();
             },
             remove: (site, source = "defaultSrc") => {
+                if (!source.includes("Src")) source = `${source}Src`;
                 customCSPWhitelist[source] = customCSPWhitelist[source].filter(entry => entry !== site);
                 saveChanges();
             },
             reset: source => {
+                if (source && !source.includes("Src")) source = `${source}Src`;
                 if(source)
                     customCSPWhitelist[source] = []
                 else {
