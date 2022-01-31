@@ -8,12 +8,12 @@
  */
 
 // Modules
+import { readFileSync, access } from "fs";
 import ReGuildedWindow from "./reguilded-window";
 import { platform, getuid, exit } from "process";
+import { ipcMain, app, session } from "electron";
 import { join, dirname } from "path";
 import * as electron from "electron";
-import { ipcMain, app, session } from "electron";
-import { readFileSync, access, writeFile, existsSync } from "fs";
 import { _load } from "module";
 
 // Ensures application isn't ran as root on linux
@@ -26,15 +26,7 @@ if (platform === "linux" && getuid() === 0) {
 }
 
 // Gets settings path
-const userDataDir = process.env.APPDATA || process.env.HOME;
-let settingsParentDir;
-if(!__dirname.startsWith(userDataDir)) {
-    const configDir = join(userDataDir, ".reguilded");
-    if(!existsSync(configDir)) mkdirSync(configDir);
-    settingsParentDir = configDir;
-} else settingsParentDir = join(__dirname, "..");
-
-const settingsPath = join(settingsParentDir, "./settings");
+const settingsPath = join(process.env.APPDATA || process.env.HOME, ".reguilded");
 
 // Electron
 const electronPath = require.resolve("electron");
@@ -108,30 +100,27 @@ app.whenReady().then(() => {
         ]
     };
     // Fetches/Creates Custom CSP Whitelist Config
-    let customCspWhitelist;
+    let customCspWhitelist = {
+        connectSrc: [],
+        defaultSrc: [],
+        fontSrc: [],
+        imgSrc: [],
+        mediaSrc: [],
+        scriptSrc: [],
+        styleSrc: []
+    };
     const customWhitelistPath = join(settingsPath, "custom-csp-whitelist.json");
-    const defaultCustomWhitelist = `{"connectSrc": [],"defaultSrc": [],"fontSrc": [],"imgSrc": [],"mediaSrc": [],"scriptSrc": [],"styleSrc": []}`;
-    new Promise((resolve, reject) => {
+    new Promise((resolve) => {
         access(customWhitelistPath, err => {
-            if(err) {
-                writeFile(customWhitelistPath, defaultCustomWhitelist, {"encoding": "utf-8"}, err => {
-                    if(err) reject(err);
-                    customCspWhitelist = JSON.parse(defaultCustomWhitelist);
-                    resolve();
-                });
-            } else {
+            if (!err) {
                 customCspWhitelist = require(customWhitelistPath);
-                resolve();
-            };
+            }
+
+            resolve();
         });
     })
     .then(() => {
-        // Apply Custom Whitelist
-        for (const directive in customCspWhitelist) {
-            cspWhitelist[directive] = cspWhitelist[directive].concat(customCspWhitelist[directive]);
-        };
-        // Patch CSP (Content-Security-Policy)
-        try {
+        const patchCSP = (customCspWhitelistParam = customCspWhitelist) => {
             _webRequest.onHeadersReceived(filter, (details, callback) => {
                 const patchedCallback = headers => {
                     callback({
@@ -175,6 +164,19 @@ app.whenReady().then(() => {
                 if (csp.permissive) csp.patch(csp.permissive, false).then(patchedHeaders => patchedCallback(patchedHeaders));
 
                 if (csp.enforcing) csp.patch(csp.enforcing, true).then(patchedHeaders => patchedCallback(patchedHeaders));
+            });
+            // Apply Custom Whitelist
+            for (const directive in customCspWhitelistParam) {
+                cspWhitelist[directive] = cspWhitelist[directive].concat(customCspWhitelist[directive]);
+            }
+        };
+
+        // Patch CSP (Content-Security-Policy)
+        try {
+            patchCSP();
+            ipcMain.handle("reguilded-repatch-csp", (...args) => {
+                const updatedCustomCSPWhitelist = JSON.parse(args[1]);
+                patchCSP(updatedCustomCSPWhitelist);
             });
         } catch (err) {
             console.error(err);

@@ -22,6 +22,15 @@ export type ReGuildedSettingsUpdate = {
     addons?: ReGuildedExtensionSettings;
     themes?: ReGuildedExtensionSettings;
 };
+export type ReGuildedWhitelist = {
+    connectSrc: Array<string>,
+    defaultSrc: Array<string>,
+    fontSrc: Array<string>,
+    imgSrc: Array<string>,
+    mediaSrc: Array<string>,
+    scriptSrc: Array<string>,
+    styleSrc: Array<string>
+};
 export interface ReGuildedExtensionSettings {
     enabled: string[];
 }

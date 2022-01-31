@@ -1,6 +1,6 @@
-import { ReGuildedSettings } from "../common/reguilded-settings";
-import { readFileSync, promises as fsPromises } from "fs";
-import { defaultSettings } from "./settings";
+import {ReGuildedSettings, ReGuildedWhitelist} from "../common/reguilded-settings";
+import { defaultSettings, defaultWhitelist } from "./settings";
+import {readFileSync, promises as fsPromises } from "fs";
 import { join } from "path";
 
 /**
@@ -9,13 +9,13 @@ import { join } from "path";
  * @returns Settings
  */
 export default function getSettingsFile(settingsPath: string) {
-    return new Promise<ReGuildedSettings>((resolve, reject) => {
+    return new Promise<[ReGuildedSettings, ReGuildedWhitelist]>((resolve, reject) => {
         fsPromises
             .access(settingsPath)
             // Settings were found, just read the file
             .then(() => {
                 window.isFirstLaunch = false;
-                resolve(JSON.parse(readFileSync(join(settingsPath, "settings.json"), { encoding: "utf8" })));
+                resolve([JSON.parse(readFileSync(join(settingsPath, "settings.json"), { encoding: "utf8" })), JSON.parse(readFileSync(join(settingsPath, "custom-csp-whitelist.json"), { encoding: "utf8" }))]);
             })
             // Settings doesn't exist, create them and give default settings
             .catch(e => {
@@ -28,12 +28,14 @@ export default function getSettingsFile(settingsPath: string) {
                 // Create ~/.reguilded/settings
                 fsPromises.mkdir(settingsPath, { recursive: true }).then(async () => {
                     const settingsJson = JSON.stringify(defaultSettings, null, 4);
+                    const customWhitelistJson = JSON.stringify(defaultWhitelist, null, 4);
 
                     await Promise.all([
                         fsPromises.writeFile(join(settingsPath, "settings.json"), settingsJson, { encoding: "utf-8" }),
+                        fsPromises.writeFile(join(settingsPath, "custom-csp-whitelist.json"), customWhitelistJson, { encoding: "utf-8" }),
                         fsPromises.mkdir(join(settingsPath, "themes")),
-                        fsPromises.mkdir(join(settingsPath, "addons"))
-                    ]).then(() => resolve(defaultSettings));
+                        fsPromises.mkdir(join(settingsPath, "addons")),
+                    ]).then(() => resolve([defaultSettings, defaultWhitelist]));
                 });
             });
     });

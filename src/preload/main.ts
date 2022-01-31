@@ -1,24 +1,16 @@
-import { ReGuildedSettings, ReGuildedSettingsUpdate } from "../common/reguilded-settings";
+import {ReGuildedSettings, ReGuildedSettingsUpdate, ReGuildedWhitelist} from "../common/reguilded-settings";
 import { contextBridge, ipcRenderer, shell, webFrame } from "electron";
 import handleUpdate, { checkForUpdate, VersionJson } from "./update";
 import getSettingsFile from "./get-settings";
-import { promises as fsPromises, accessSync, constants, existsSync, mkdirSync, writeFile } from "fs";
+import { promises as fsPromises, writeFile } from "fs";
 import AddonManager from "./addon-manager";
 import ThemeManager from "./theme-manager";
 import SettingsManager from "./settings";
 import createSystem from "./fake-system";
 import { join } from "path";
 
-const userDataDir = process.env.APPDATA || process.env.HOME;
-let settingsParentDir;
+const settingsPath = join(process.env.APPDATA || process.env.HOME, ".reguilded");
 
-if (!__dirname.startsWith(userDataDir)) {
-    const configDir = join(userDataDir, ".reguilded");
-    if (!existsSync(configDir)) mkdirSync(configDir);
-    settingsParentDir = configDir;
-} else settingsParentDir = join(__dirname, "..");
-
-const settingsPath = join(settingsParentDir, "./settings");
 const addonManager = new AddonManager(join(settingsPath, "addons")),
     themeManager = new ThemeManager(join(settingsPath, "themes"));
 
@@ -26,30 +18,31 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
     const reGuildedConfigAndSettings = async () => {
         const settingsManager = new SettingsManager(settingsPath, await getSettingsFile(settingsPath));
 
-        // Implements Basic CSP Whitelist Add/Remove
-        const customCSPWhitelistPath = join(settingsPath, "custom-csp-whitelist.json");
-        let customCSPWhitelist = require(customCSPWhitelistPath);
-        const saveChanges = () => writeFile(customCSPWhitelistPath, JSON.stringify(customCSPWhitelist), {encoding: "utf-8"}, () => {});
+        let customCSPWhitelist = settingsManager.whitelist;
+        const saveChanges = () => settingsManager.saveWhitelist();
         const _ReGuildedCustomCSPWhitelist = {
             view: () => {
                 return customCSPWhitelist;
             },
-            add: (source, site) => {
+            add: (site, source = "defaultSrc") => {
+                if (!source.includes("Src")) source = `${source}Src`;
                 customCSPWhitelist[source].push(site);
                 saveChanges();
             },
-            remove: (source, site) => {
+            remove: (site, source = "defaultSrc") => {
+                if (!source.includes("Src")) source = `${source}Src`;
                 customCSPWhitelist[source] = customCSPWhitelist[source].filter(entry => entry !== site);
                 saveChanges();
             },
             reset: source => {
+                if (source && !source.includes("Src")) source = `${source}Src`;
                 if(source)
                     customCSPWhitelist[source] = []
                 else {
                     for (const source in customCSPWhitelist) {
                         customCSPWhitelist[source] = [];
-                    };
-                };
+                    }
+                }
                 saveChanges();
             }
         };
