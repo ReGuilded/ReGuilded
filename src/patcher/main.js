@@ -100,14 +100,22 @@ app.whenReady().then(() => {
         ]
     };
     // Fetches/Creates Custom CSP Whitelist Config
-    let customCspWhitelist = `{"connectSrc": [], "defaultSrc": [], "fontSrc": [], "imgSrc": [], "mediaSrc": [], "scriptSrc": [], "styleSrc": []}`;
+    let customCspWhitelist = {
+        connectSrc: [],
+        defaultSrc: [],
+        fontSrc: [],
+        imgSrc: [],
+        mediaSrc: [],
+        scriptSrc: [],
+        styleSrc: []
+    };
     const customWhitelistPath = join(settingsPath, "custom-csp-whitelist.json");
     new Promise((resolve) => {
         access(customWhitelistPath, err => {
             if (!err) {
                 customCspWhitelist = require(customWhitelistPath);
             }
-
+            
             resolve();
         });
     })

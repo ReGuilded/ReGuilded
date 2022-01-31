@@ -65,7 +65,7 @@ export default class SettingsManager {
      * Saves current configuration of the whitelist.
      */
     async saveWhitelist(): Promise<void> {
-        await writeFile(this.whitelistFile, JSON.stringify(this.whitelist), {
+        await writeFile(this.whitelistFile, JSON.stringify(this.whitelist, null, 4), {
            encoding: "utf8"
         });
     }
