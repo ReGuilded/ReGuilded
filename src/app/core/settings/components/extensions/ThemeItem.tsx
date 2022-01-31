@@ -24,19 +24,19 @@ export default class ThemeItem extends ExtensionItem<Theme, { settings: object, 
         // Move this somewhere else
         const settingsBtnCallback = this.openThemeSettings.bind(this);
 
-        // Add "Settings" button if settings are present
-        if (settings)
-            this.overflowMenuSpecs.sections.push({
-                name: "Theme",
-                type: "rows",
-                actions: [
-                    {
-                        label: "Settings",
-                        icon: "icon-settings",
-                        onClick: settingsBtnCallback
-                    }
-                ]
-            });
+        // // Add "Settings" button if settings are present
+        // if (settings)
+        //     this.overflowMenuSpecs.sections.push({
+        //         name: "Theme",
+        //         type: "rows",
+        //         actions: [
+        //             {
+        //                 label: "Settings",
+        //                 icon: "icon-settings",
+        //                 onClick: settingsBtnCallback
+        //             }
+        //         ]
+        //     });
     }
     get formSpecs() {
         const { settings, settingsProps } = this.state;

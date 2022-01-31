@@ -18,7 +18,9 @@ export default class ThemeView extends ExtensionView<Theme> {
     }
 
     protected override *onSaveChanges({ values, isValid }) {
-        console.log("Save changes theme", values, isValid);
+        if (isValid)
+            // Change this if colour fields will be used
+            this.extensionHandler.assignProperties(this.props.extension, values);
     }
     protected override renderTabs(theme: Theme) {
         return (

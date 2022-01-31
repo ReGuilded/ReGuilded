@@ -171,10 +171,8 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig,
     }
 }
 export enum AddonPermission {
-    UseElements = 1,
-    ModifyElements = 2,
-    ModifyElementConfig = 4,
-    ExtraInfo = 8,
-    UseApi = 16,
-    UseExternalApi = 32
+    Elements = 1,
+    ExtraInfo = 2,
+    UseApi = 4,
+    UseExternalApi = 8
 }
