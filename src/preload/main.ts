@@ -24,25 +24,54 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
             view: () => {
                 return customCSPWhitelist;
             },
-            add: (site, source = "defaultSrc") => {
-                if (!source.includes("Src")) source = `${source}Src`;
-                customCSPWhitelist[source].push(site);
+            add: (sites: string[], sources = ["defaultSrc"]) => {
+                if (!Array.isArray(sites) || !Array.isArray(sources))
+                    return console.error(new Error("Sites and/or sources must be an array!"));
+
+                if (!sites || sites.length === 0)
+                    return console.error(new Error("At least one site must be specified!"));
+
+
+                sources.forEach((source: string) => {
+                    if (!source.includes("Src")) source = `${source}Src`;
+                    sites.forEach(site => {
+                        customCSPWhitelist[source].push(site);
+                    });
+                });
                 saveChanges();
             },
-            remove: (site, source = "defaultSrc") => {
-                if (!source.includes("Src")) source = `${source}Src`;
-                customCSPWhitelist[source] = customCSPWhitelist[source].filter(entry => entry !== site);
+            remove: (sites: string[], sources = ["defaultSrc"]) => {
+                if (!Array.isArray(sites) || !Array.isArray(sources))
+                    return console.error(new Error("Sites and/or sources must be an array!"));
+
+                if (!sites || sites.length === 0)
+                    return console.error(new Error("At least one site must be specified!"));
+
+
+                sources.forEach((source: string) => {
+                    if (!source.includes("Src")) source = `${source}Src`;
+                    sites.forEach(site => {
+                        customCSPWhitelist[source] = customCSPWhitelist[source].filter((entry: string) => entry !== site);
+                    });
+                });
                 saveChanges();
             },
-            reset: source => {
-                if (source && !source.includes("Src")) source = `${source}Src`;
-                if(source)
-                    customCSPWhitelist[source] = []
+            reset: (sources: string[]) => {
+                if(sources && !Array.isArray(sources))
+                    return console.error(new Error("Sources must be an array!"))
+
+
+                if (sources && sources.length > 0) {
+                    sources.forEach((source: string) => {
+                        if (!source.includes("Src")) source = `${source}Src`;
+                        customCSPWhitelist[source] = []
+                    });
+                }
                 else {
                     for (const source in customCSPWhitelist) {
                         customCSPWhitelist[source] = [];
-                    }
-                }
+                    };
+                };
                 saveChanges();
             }
         };

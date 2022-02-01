@@ -65,8 +65,10 @@ app.whenReady().then(() => {
             "https://raw.githubusercontent.com", // Github (Raw)
             "https://api.github.com", // Github API
             "https://www.github.com", // Github
-            "https://objects.githubusercontent.com" // Github (Asset)
+            "https://objects.githubusercontent.com", // Github (Asset)
+            "https://*.reguilded.dev" // ReGuilded Server
         ],
+        // defaultSrc apparently ignored when more specific directive exists in CSP for attempted purpose
         defaultSrc: [
             "https://*.reguilded.dev" // ReGuilded Server
         ],
@@ -169,6 +171,7 @@ app.whenReady().then(() => {
             for (const directive in customCspWhitelistParam) {
                 cspWhitelist[directive] = cspWhitelist[directive].concat(customCspWhitelist[directive]);
             }
+            console.log(cspWhitelist);
         };
 
         // Patch CSP (Content-Security-Policy)
