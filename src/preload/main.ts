@@ -24,36 +24,52 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
             view: () => {
                 return customCSPWhitelist;
             },
-            add: (sites: string[], sources = ["defaultSrc"]) => {
-                if (!Array.isArray(sites) || !Array.isArray(sources))
+            add: (sites: string[], sources: string[]) => {
+                if (!Array.isArray(sites) || (sources && !Array.isArray(sources)))
                     return console.error(new Error("Sites and/or sources must be an array!"));
 
                 if (!sites || sites.length === 0)
                     return console.error(new Error("At least one site must be specified!"));
 
-
-                sources.forEach((source: string) => {
-                    if (!source.includes("Src")) source = `${source}Src`;
-                    sites.forEach(site => {
-                        customCSPWhitelist[source].push(site);
+                if (sources) {
+                    sources.forEach((source: string) => {
+                        if (!source.includes("Src")) source = `${source}Src`;
+                        sites.forEach(site => {
+                            customCSPWhitelist[source].push(site);
+                        });
                     });
-                });
+                }
+                else {
+                    for(const source in customCSPWhitelist) {
+                        sites.forEach(site => {
+                            customCSPWhitelist[source].push(site);
+                        });
+                    };
+                };
                 saveChanges();
             },
-            remove: (sites: string[], sources = ["defaultSrc"]) => {
-                if (!Array.isArray(sites) || !Array.isArray(sources))
+            remove: (sites: string[], sources: string[]) => {
+                if (!Array.isArray(sites) || (sources && !Array.isArray(sources)))
                     return console.error(new Error("Sites and/or sources must be an array!"));
 
                 if (!sites || sites.length === 0)
                     return console.error(new Error("At least one site must be specified!"));
 
-
-                sources.forEach((source: string) => {
-                    if (!source.includes("Src")) source = `${source}Src`;
-                    sites.forEach(site => {
-                        customCSPWhitelist[source] = customCSPWhitelist[source].filter((entry: string) => entry !== site);
+                if (sources) {
+                    sources.forEach((source: string) => {
+                        if (!source.includes("Src")) source = `${source}Src`;
+                        sites.forEach(site => {
+                            customCSPWhitelist[source] = customCSPWhitelist[source].filter((entry: string) => entry !== site);
+                        });
                     });
-                });
+                }
+                else {
+                    for(const source in customCSPWhitelist) {
+                        sites.forEach(site => {
+                            customCSPWhitelist[source].push(site);
+                        });
+                    };
+                };
                 saveChanges();
             },
             reset: (sources: string[]) => {
