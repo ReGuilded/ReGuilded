@@ -102,7 +102,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/components/SvgIcon": webpack => webpack.withClassProperty("iconComponentProps"),
     "guilded/components/NullState": webpack => webpack.withClassProperty("imageSrc"),
     "guilded/components/HorizontalTabs": webpack => webpack.withClassProperty("tabOptions"),
-    "guilded/components/ToggleField": webpack => webpack.withCode("ToggleFieldWrapper-container"),
+    "guilded/components/ToggleFieldWrapper": webpack => webpack.withCode("ToggleFieldWrapper-container"),
     "guilded/components/SimpleToggle": webpack => webpack.withClassProperty("input"),
     "guilded/components/MediaRenderer": webpack => webpack.withClassProperty("progressiveImageHasLoaded"),
     "guilded/components/CodeContainer": webpack => webpack.withClassProperty("tokenCodeLines"),
@@ -111,11 +111,15 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/components/OverflowButton": webpack => webpack.withClassProperty("isOpen"),
     "guilded/components/BannerWithButton": webpack => webpack.withClassProperty("hasText"),
     "guilded/components/UserBasicInfo": webpack => webpack.withClassProperty("userPresenceContext"),
+    "guilded/components/CheckmarkIcon": webpack => webpack.withCode("CheckmarkIcon"),
     "guilded/components/ProfilePicture": webpack => webpack.withClassProperty("borderType"),
     "guilded/components/CarouselList": webpack => webpack.withClassProperty("overflowRight"),
+    "guilded/components/LoadingAnimationMicro": webpack => webpack.withClassProperty("containerStyle"),
     "guilded/components/LoadingPage": webpack => webpack.withCode("LoadingPage"),
     "guilded/components/WordDividerLine": webpack => webpack.withCode("WordDividerLine"),
     "guilded/components/StretchFadeBackground": webpack => webpack.withCode("StretchFadeBackground"),
+    "guilded/components/TeamNavSectionItem": webpack => webpack.withCode("TeamNavSectionItem"),
+    "guilded/components/TeamNavSectionsList": webpack => webpack.withClassProperty("isSomeActionSelected"),
     "guilded/components/ActionMenu": webpack => webpack.withClassProperty("actionMenuHeight"),
     "guilded/components/ActionMenuSection": webpack => webpack.withCode("ActionMenu-section"),
     "guilded/components/ActionMenuItem": webpack => webpack.withClassProperty("useRowWrapper"),
@@ -586,8 +590,8 @@ export default class AddonApi {
     get ["guilded/components/HorizontalTabs"](): AddonApiExports<"guilded/components/HorizontalTabs"> {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/HorizontalTabs");
     }
-    get ["guilded/components/ToggleField"](): AddonApiExports<"guilded/components/ToggleField"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ToggleField");
+    get ["guilded/components/ToggleFieldWrapper"](): AddonApiExports<"guilded/components/ToggleFieldWrapper"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ToggleFieldWrapper");
     }
     /**
      * Provides a simple Guilded toggle with optional label.
@@ -653,6 +657,12 @@ export default class AddonApi {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/LoadingPage");
     }
     /**
+     * Displays loading animated dots.
+     */
+    get ["guilded/components/LoadingAnimationMicro"](): AddonApiExports<"guilded/components/LoadingAnimationMicro"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/LoadingAnimationMicro");
+    }
+    /**
      * Static image that fades into background.
      */
     get ["guilded/components/StretchFadeBackground"](): AddonApiExports<"guilded/components/StretchFadeBackground"> {
@@ -663,6 +673,12 @@ export default class AddonApi {
      */
     get ["guilded/components/WordDividerLine"](): AddonApiExports<"guilded/components/WordDividerLine"> {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/component/WordDividerLine");
+    }
+    get ["guilded/components/TeamNavSectionItem"](): AddonApiExports<"guilded/components/TeamNavSectionItem"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/TeamNavSectionItem");
+    }
+    get ["guilded/components/TeamNavSectionsList"](): AddonApiExports<"guilded/components/TeamNavSectionsList"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/TeamNavSectionsList");
     }
     /**
      * Draggable element names and infos.

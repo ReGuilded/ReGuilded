@@ -35,7 +35,7 @@ export default class AddonView extends ExtensionView<Addon> {
             <div className="ReGuildedExtensionPage-tab">
                 { requiredPermissions
                     ? <>
-                        <BannerWithButton theme="warning" iconName="icon-filter" className="ReGuildedExtensionPage-warning" text="This allows or denies actions that this addon can do. Basic information that can't be used maliciously will be given by default. Please DO NOT give a permission to an addon if you do not know how it will be used."/>
+                        <BannerWithButton theme="warning" iconName="icon-filter" className="ReGuildedExtensionPage-warning" text="Basic information that can't be used maliciously will be given by default. Please DO NOT give a permission to an addon if you do not know how it will be used."/>
                         <Form onChange={this._handleOptionsChange} formSpecs={{
                             sections: [
                                 {

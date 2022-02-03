@@ -41,7 +41,7 @@ export default class WebpackManager {
         };
     }
     /**
-     * Gets specific module with the given identifier.
+     * Returns the specific module with the given identifier.
      * @param id Gets module by the identifier
      * @returns Webpack Module Exports
      */
@@ -49,7 +49,7 @@ export default class WebpackManager {
         return this.asEsModule(this._webpackRequire(id));
     }
     /**
-     * Gets the set of modules that were filtered out with the given function.
+     * Matches and returns the set of modules that were filtered out with the given function.
      * @param fn Function to filter modules.
      * @returns Webpack Module Exports
      */
@@ -57,7 +57,7 @@ export default class WebpackManager {
         return this._webpackExportList.filter(fn).map(x => x.exports);
     }
     /**
-     * Gets the module that was found using filter.
+     * Matches and returns the module that was found using filter.
      * @param fn Function to filter out modules.
      * @returns Webpack Module Exports
      */
@@ -65,11 +65,11 @@ export default class WebpackManager {
         return this._webpackExportList.find(fn)?.exports;
     }
     /**
-     * Gets module with the function that contains the given part of code.
+     * Matches and returns the module with the function that contains the given part of code.
      * @param code The part of code that function should contain.
      * @returns Found function
      */
-    withCode(code: string): Function | void {
+    withCode(code: string): Function | { default: Function } | void {
         return this.withFilter(x => {
             const { default: fn } = this.asEsModule(x.exports);
 
@@ -78,11 +78,11 @@ export default class WebpackManager {
         });
     }
     /**
-     * Gets module that contains a property with the given name.
+     * Matches and returns the module that contains a property with the given name.
      * @param name The name of the property
      * @returns Webpack Module Exports
      */
-    allWithProperty(name: string): object | Function | { default: object | Function } | void {
+    allWithProperty(name: string): (object | Function | typeof Object | { default: object | Function | typeof Object })[] {
         return this.allWithFilter(x => {
             const { default: obj, ...rest } = this.asEsModule(x.exports);
 
@@ -91,11 +91,11 @@ export default class WebpackManager {
         });
     }
     /**
-     * Gets module that contains a property with the given name.
+     * Matches and returns the module that contains a property with the given name.
      * @param name The name of the property
      * @returns Webpack Module Exports
      */
-    withProperty(name: string): object | Function | { default: object | Function } | void {
+    withProperty(name: string): object | Function | typeof Object | { default: object | Function | typeof Object } | void {
         return this.withFilter(x => {
             const { default: obj, ...rest } = this.asEsModule(x.exports);
 
@@ -104,7 +104,7 @@ export default class WebpackManager {
         });
     }
     /**
-     * Gets module with property found in the given path.
+     * Matches and returns module with property found in the given path.
      * @param path The path of the property
      * @returns Webpack Module Exports
      */
@@ -126,21 +126,38 @@ export default class WebpackManager {
         });
     }
     /**
-     * Gets module containing a class with the given property in its prototype.
+     * Matches and returns the module containing a class with the given prototype property.
      * @param name The name of the property that prototype should contain
      * @returns Webpack Module Exports
      */
-    withClassProperty(name: string): Function | { default: Function } {
+    withClassProperty(name: string): typeof Object | { default: typeof Object } {
         return this.withFilter(x => {
             const { default: type } = this.asEsModule(x?.exports);
 
-            // Checks if it's a function with property in prototypes
             return (
                 typeof type === "function" &&
+                // Functions vs classes check
                 type.prototype !== void 0 &&
                 type.prototype !== null &&
                 name in type.prototype
             );
+        });
+    }
+    /**
+     * Matches and returns the module containing a class with all of the given prototype properties.
+     * @param names The names of the properties that the prototype should include
+     * @returns Webpack Module Exports
+     */
+    withClassProperties(names: string[]): typeof Object | { default: typeof Object } {
+        return this.withFilter(x => {
+            const { default: type } = this.asEsModule(x?.exports);
+
+            if (typeof type !== "function" || typeof type.prototype === "undefined") return false;
+
+            // It does not need to check other properties, because it will always be false
+            for (let name of names) if (!(name in type)) return false;
+
+            return true;
         });
     }
     /**

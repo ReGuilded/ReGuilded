@@ -11,6 +11,7 @@ import {
     CodeContainer,
     GuildedText,
     ItemManager,
+    LoadingAnimationMicro,
     MediaRenderer,
     NullState,
     SvgIcon,
@@ -18,7 +19,7 @@ import {
 } from "../guilded/components/content";
 import { Button } from "../guilded/input";
 import { OverflowButton } from "../guilded/menu";
-import { Carousel as CarouselList } from "../guilded/components/sections";
+import { Carousel as CarouselList, TeamNavSectionItem, TeamNavSectionsList } from "../guilded/components/sections";
 import { getReactInstance, patchElementRenderer, waitForElement } from "./lib";
 import { ModalProps } from "../guilded/components/modals";
 import { EditorPlugin, NodeType } from "../guilded/slate";
@@ -192,7 +193,7 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof NullState }
     : N extends "guilded/components/HorizontalTabs"
     ? { default: typeof React.Component }
-    : N extends "guilded/components/ToggleField"
+    : N extends "guilded/components/ToggleFieldWrapper"
     ? { default: typeof React.Component }
     : N extends "guilded/components/SimpleToggle"
     ? { default: typeof React.Component }
@@ -214,12 +215,18 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof React.Component }
     : N extends "guilded/components/CarouselList"
     ? { default: typeof CarouselList }
+    : N extends "guilded/components/LoadingAnimationMicro"
+    ? { default: typeof LoadingAnimationMicro }
     : N extends "guilded/components/LoadingPage"
     ? { default: typeof React.Component }
     : N extends "guilded/components/StretchFadeBackground"
     ? { default: typeof React.Component }
     : N extends "guilded/components/WordDividerLine"
     ? { default: typeof WordDividerLine }
+    : N extends "guilded/components/TeamNavSectionItem"
+    ? { default: typeof TeamNavSectionItem }
+    : N extends "guilded/components/TeamNavSectionsList"
+    ? { default: typeof TeamNavSectionsList }
     : N extends "guilded/components/draggable"
     ? any
     : N extends "guilded/components/ActionMenu"

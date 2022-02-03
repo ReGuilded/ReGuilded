@@ -1,5 +1,5 @@
 import { Direction, Size } from "../common";
-import React, { ReactNode } from "react";
+import React, { CSSProperties, ReactNode } from "react";
 
 //#region BannerWithButton
 type BannerWithButtonProps = {
@@ -13,7 +13,6 @@ type BannerWithButtonProps = {
     buttonProps?: any;
 };
 export declare class BannerWithButton extends React.Component<BannerWithButtonProps> {
-    constructor(props: BannerWithButtonProps, context?: any);
     get hasText(): boolean;
 }
 //#endregion
@@ -28,9 +27,21 @@ export type CalloutBadgeProps = {
     contentEditable?: boolean;
 };
 export declare class CalloutBadge extends React.Component<CalloutBadgeProps> {
-    constructor(props: CalloutBadgeProps, context?: any);
     get style(): React.CSSProperties;
 }
+//#endregion
+
+//#region CheckmarkIcon
+type CheckmarkIconProps = {
+    className?: string;
+    selected?: boolean;
+    radio?: boolean;
+    isDisabled?: boolean;
+    type?: "guilded" | "success";
+    onClick?: Function;
+    size?: Size;
+};
+export declare class CheckmarkIcon extends React.Component<CheckmarkIconProps> {}
 //#endregion
 
 //#region CodeContainer
@@ -43,7 +54,6 @@ type CodeContainerProps = {
     className?: string;
 };
 export declare class CodeContainer extends React.Component<CodeContainerProps> {
-    constructor(props: CodeContainerProps, context?: any);
     get tokens();
     get tokenCodeLines();
 }
@@ -74,9 +84,23 @@ type GuildedTextProps = {
     className?: string;
     block?: boolean;
     ellipsify?: boolean;
+    centered?: boolean;
+    breakUserContent?: boolean;
+    title?: string;
 };
-export declare class GuildedText extends React.Component<GuildedTextProps> {
-    constructor(props: GuildedTextProps, context?: object);
+export declare class GuildedText extends React.Component<GuildedTextProps> {}
+//#endregion
+
+//#region LoadingAnimationMicro
+type LoadingAnimationMicroProps = {
+    className?: string;
+    dark?: boolean;
+    fudgeTop?: number;
+    fudgeLeft?: number;
+    noFudge?: boolean;
+};
+export declare class LoadingAnimationMicro extends React.Component<LoadingAnimationMicroProps> {
+    get containerStyle(): CSSProperties;
 }
 //#endregion
 
@@ -89,7 +113,6 @@ type MediaRendererProps = {
     onError?: Function;
 };
 export declare class MediaRenderer extends React.Component<MediaRendererProps> {
-    constructor(props: MediaRendererProps, context?: any);
     get progressiveImageHasLoaded(): boolean;
 }
 //#endregion
@@ -114,7 +137,6 @@ type NullStateProps = {
     customComponent?: Function;
 };
 export declare class NullState extends React.Component<NullStateProps> {
-    constructor(props: NullStateProps, context?: object);
     get imageSrc(): string;
 }
 //#endregion
@@ -124,20 +146,16 @@ type SvgIconProps = {
     className?: string;
     iconName: string;
 };
-export declare class SvgIcon extends React.Component<SvgIconProps> {
-    constructor(props: SvgIconProps, context?: object);
-}
+export declare class SvgIcon extends React.Component<SvgIconProps> {}
 //#endregion
 
 //#region WordDividerLine
 type WordDividerLineProps = {
-    word: string;
-    wordStyle?: "normal" | "chat";
+    word?: string;
+    wordStyle?: "normal" | "semibold" | "bold" | "chat" | "alert";
     onGetRef?: Function;
 };
-export declare class WordDividerLine extends React.Component<WordDividerLineProps> {
-    constructor(props: WordDividerLineProps, context?: object);
-}
+export declare class WordDividerLine extends React.Component<WordDividerLineProps> {}
 //#endregion
 
 //#region ItemManager
