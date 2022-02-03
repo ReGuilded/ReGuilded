@@ -21,22 +21,21 @@ export default class ThemeItem extends ExtensionItem<Theme, { settings: object, 
             enabled: ~window.ReGuilded.themes.enabled.indexOf(id)
         };
 
-        // Move this somewhere else
-        const settingsBtnCallback = this.openThemeSettings.bind(this);
+        const { switchTab } = this.props;
 
-        // // Add "Settings" button if settings are present
-        // if (settings)
-        //     this.overflowMenuSpecs.sections.push({
-        //         name: "Theme",
-        //         type: "rows",
-        //         actions: [
-        //             {
-        //                 label: "Settings",
-        //                 icon: "icon-settings",
-        //                 onClick: settingsBtnCallback
-        //             }
-        //         ]
-        //     });
+        // Add "Settings" button if settings are present
+        if (settings)
+            this.overflowMenuSpecs.sections.push({
+                name: "Theme",
+                type: "rows",
+                actions: [
+                    {
+                        label: "Settings",
+                        icon: "icon-settings",
+                        onClick: () => switchTab("specific", { extension: this.props, defaultTabIndex: 1 })
+                    }
+                ]
+            });
     }
     get formSpecs() {
         const { settings, settingsProps } = this.state;
@@ -53,23 +52,23 @@ export default class ThemeItem extends ExtensionItem<Theme, { settings: object, 
         await window.ReGuilded.themes[enabled ? "savedLoad" : "savedUnload"](this.props)
             .then(() => this.setState({ enabled }));
     }
-    async openThemeSettings() {
-        const { name } = this.props;
+    // async openThemeSettings() {
+    //     const { name } = this.props;
 
-        // Get whether Save was clicked and get form values
-        const { confirmed, changedValues } =
-            await this.SimpleFormOverlay.Open({
-                header: name + " settings",
+    //     // Get whether Save was clicked and get form values
+    //     const { confirmed, changedValues } =
+    //         await this.SimpleFormOverlay.Open({
+    //             header: name + " settings",
 
-                confirmText: "Save",
-                controlConfiguration: "ConfirmAndCancel",
+    //             confirmText: "Save",
+    //             controlConfiguration: "ConfirmAndCancel",
 
-                formSpecs: this.formSpecs
-            });
+    //             formSpecs: this.formSpecs
+    //         });
 
-        if (confirmed)
-            window.ReGuilded.themes.assignProperties(this.props, changedValues);
-    }
+    //     if (confirmed)
+    //         window.ReGuilded.themes.assignProperties(this.props, changedValues);
+    // }
     static generateSettingsFields(settings: object, settingsProps: string[]): FieldAnySpecs[] {
         return settingsProps.map(id => {
             const { type, value, name } = settings[id];

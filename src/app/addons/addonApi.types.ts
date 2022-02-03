@@ -6,6 +6,8 @@ import * as React from "react";
 import { Form, FormOutput, FormSpecs } from "../guilded/form";
 import {
     BannerWithButton,
+    CalloutBadge,
+    CalloutBadgeProps,
     CodeContainer,
     GuildedText,
     ItemManager,
@@ -140,7 +142,7 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
           [tabName: string]: {
               id: string;
               label: string;
-              calloutBadgeProps?: { text: string; color: string };
+              calloutBadgeProps?: CalloutBadgeProps & { color?: string };
           };
       }
     : // Overlays
@@ -177,7 +179,7 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     : N extends "guilded/components/MarkdownRenderer"
     ? { default: typeof React.Component }
     : N extends "guilded/components/CalloutBadge"
-    ? { default: typeof React.Component }
+    ? { default: typeof CalloutBadge }
     : N extends "guilded/components/GuildedText"
     ? { default: typeof GuildedText }
     : N extends "guilded/components/RouteLink"

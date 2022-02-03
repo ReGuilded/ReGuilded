@@ -17,19 +17,19 @@ export default class AddonItem extends ExtensionItem<Addon, { fp: string }> {
             enabled: ~window.ReGuilded.addons.enabled.indexOf(props.id)
         };
 
-        // const permissionsCallback = this.openPermissions.bind(this);
+        const { switchTab } = this.props;
 
-        // this.overflowMenuSpecs.sections.push({
-        //     name: "Addon",
-        //     type: "rows",
-        //     actions: [
-        //         {
-        //             label: "Permissions",
-        //             icon: "icon-filter",
-        //             onClick: permissionsCallback,
-        //         }
-        //     ]
-        // });
+        this.overflowMenuSpecs.sections.push({
+            name: "Addon",
+            type: "rows",
+            actions: [
+                {
+                    label: "Permissions",
+                    icon: "icon-filter",
+                    onClick: () => switchTab("specific", { extension: this.props, defaultTabIndex: 1 }),
+                }
+            ]
+        });
     }
     protected override async onToggle(enabled: boolean): Promise<void> {
         await window.ReGuilded.addons[enabled ? "savedLoad" : "savedUnload"](this.props)

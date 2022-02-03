@@ -1,4 +1,4 @@
-import { Size } from "../common";
+import { Direction, Size } from "../common";
 import React, { ReactNode } from "react";
 
 //#region BannerWithButton
@@ -15,6 +15,21 @@ type BannerWithButtonProps = {
 export declare class BannerWithButton extends React.Component<BannerWithButtonProps> {
     constructor(props: BannerWithButtonProps, context?: any);
     get hasText(): boolean;
+}
+//#endregion
+
+//#region CalloutBadge
+export type CalloutBadgeProps = {
+    className?: string;
+    text?: string;
+    style?: React.CSSProperties;
+    hoverText?: string;
+    hoverDirection?: Direction;
+    contentEditable?: boolean;
+};
+export declare class CalloutBadge extends React.Component<CalloutBadgeProps> {
+    constructor(props: CalloutBadgeProps, context?: any);
+    get style(): React.CSSProperties;
 }
 //#endregion
 
@@ -58,6 +73,7 @@ type GuildedTextProps = {
     color?: "bodyWhite" | "white" | "gray" | "gilded1" | "errorRed";
     className?: string;
     block?: boolean;
+    ellipsify?: boolean;
 };
 export declare class GuildedText extends React.Component<GuildedTextProps> {
     constructor(props: GuildedTextProps, context?: object);

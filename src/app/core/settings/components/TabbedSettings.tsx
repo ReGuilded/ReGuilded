@@ -14,7 +14,7 @@ type State = {
 export type SwitchTab = (tabName: string, tabProps: object) => void;
 export type ChildTabProps = {
     switchTab: SwitchTab,
-    [tabProp: string]: any;
+    [tabProp: string]: any
 };
 
 /**

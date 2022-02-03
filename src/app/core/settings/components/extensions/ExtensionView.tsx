@@ -134,7 +134,9 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
         );
     }
     render() {
-        const { props: { switchTab, extension }, tabs } = this;
+        const { props: { switchTab, extension, defaultTabIndex }, tabs } = this;
+
+        console.log("Default selected tab index", defaultTabIndex, this.props)
 
         return (
             <ErrorBoundary>
@@ -148,7 +150,7 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
                             {/* Title */}
                             <GuildedText type="heading3">{ extension.name } settings</GuildedText>
                         </header>
-                        <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: tabs }}>
+                        <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: tabs }} defaultSelectedTabIndex={defaultTabIndex}>
                             <div className="ReGuildedExtensionPage-tab">
                                 {/* Description */}
                                 { extension.readme?.length ? <MarkdownRenderer plainText={extension.readme} grammar={WebhookEmbed}/> : null }
