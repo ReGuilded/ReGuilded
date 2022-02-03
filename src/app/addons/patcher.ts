@@ -131,32 +131,4 @@ export default new (class Patcher {
 
         return child.unpatch;
     }
-
-    // before(
-    //     caller: string,
-    //     module: any,
-    //     functionName: any,
-    //     callback: (thisObject: any, methodArguments: IArguments, returnValue: any) => any
-    // ): () => void {
-    //     console.log("patcher before");
-    //     return this.doPatch(caller, module, functionName, callback, "before");
-    // }
-
-    // after(
-    //     caller: string,
-    //     module: any,
-    //     functionName: any,
-    //     callback: (thisObject: any, methodArguments: IArguments, returnValue: any) => any
-    // ): () => void {
-    //     return this.doPatch(caller, module, functionName, callback, "after");
-    // }
-
-    // instead(
-    //     caller: string,
-    //     module: any,
-    //     functionName: any,
-    //     callback: (thisObject: any, methodArguments: IArguments, returnValue: any) => any
-    // ): () => void {
-    //     return this.doPatch(caller, module, functionName, callback, "instead");
-    // }
 })();

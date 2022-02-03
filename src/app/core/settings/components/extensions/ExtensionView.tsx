@@ -136,8 +136,6 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
     render() {
         const { props: { switchTab, extension, defaultTabIndex }, tabs } = this;
 
-        console.log("Default selected tab index", defaultTabIndex, this.props)
-
         return (
             <ErrorBoundary>
                 <div className="OptionsMenuPageWrapper-container ReGuildedExtensionPage-wrapper" style={{ paddingLeft: 32, paddingRight: 32, maxWidth: "100%" }}>

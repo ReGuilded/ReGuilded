@@ -93,4 +93,3 @@ export default class SettingsInjector {
         patcher.unpatchAll(this.id);
     }
 }
-console.log("SettingsInjector module")
