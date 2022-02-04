@@ -17,10 +17,9 @@ import {
     SvgIcon,
     WordDividerLine
 } from "../guilded/components/content";
-import { Button } from "../guilded/input";
+import { Button, SearchBarV2 } from "../guilded/input";
 import { OverflowButton } from "../guilded/menu";
 import { Carousel as CarouselList, TeamNavSectionItem, TeamNavSectionsList } from "../guilded/components/sections";
-import { getReactInstance, patchElementRenderer, waitForElement } from "./lib";
 import { ModalProps } from "../guilded/components/modals";
 import { EditorPlugin, NodeType } from "../guilded/slate";
 //#endregion
@@ -201,8 +200,8 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof MediaRenderer }
     : N extends "guilded/components/CodeContainer"
     ? { default: typeof CodeContainer }
-    : N extends "guilded/components/SearchBar"
-    ? { default: typeof React.Component }
+    : N extends "guilded/components/SearchBarV2"
+    ? { default: typeof SearchBarV2 }
     : N extends "guilded/components/ItemManager"
     ? { default: typeof ItemManager }
     : N extends "guilded/components/OverflowButton"

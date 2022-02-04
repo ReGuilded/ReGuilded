@@ -3,6 +3,7 @@ import { RGExtensionConfig } from "../../../../types/reguilded";
 import ExtensionHandler from "../../../handlers/extension";
 import { ChildTabProps } from "../TabbedSettings";
 import ErrorBoundary from "../ErrorBoundary";
+import { ExtensionGrid } from "./ExtensionGrid";
 
 const React = window.ReGuilded.getApiProperty("react"),
     { default: NullState } = window.ReGuilded.getApiProperty("guilded/components/NullState"),
@@ -33,25 +34,17 @@ export default class ExtensionSettings extends React.Component<ChildTabProps, { 
                         {/* Installed */}
                         <ErrorBoundary>
                             <div className="ReGuildedExtensions-wrapper ReGuildedExtensions-tab-installed">
-                                <div className="ReGuildedExtensions-container UserProfileGamesTab-container ContentLoader-container">
-                                    <div className="ReGuildedExtensions-grid UserProfileGamesTab-grid">
-                                        { all.length ?
-                                            all.map(ext => <ItemTemplate {...ext} switchTab={switchTab}/>)
-                                        :
-                                            <NullState type="nothing-here" title={"There are no " + type + "s installed"} subtitle={"You have not installed any ReGuilded " + type + "s yet. To install it, put it in the " + type + "s folder."} buttonText="Open folder" onClick={() => window.ReGuildedConfig.openItem(config.dirname)} alignment="center"/>
-                                        }
-                                    </div>
-                                </div>
+                                <ExtensionGrid type={type} extensionHandler={this.extensionHandler} ItemTemplate={ItemTemplate} switchTab={switchTab} />
                             </div>
                         </ErrorBoundary>
                         {/* Browse */}
                         <div className="ReGuildedExtensions-wrapper ReGuildedExtensions-tab-browse">
-                            <NullState type="not-found" title="Work in Progress" subtitle="Addon and theme browser has not been done yet. Come back later." alignment="center" />
+                            <NullState type="not-found" title="Work in Progress" subtitle="Browsing is not done yet. Come back later." alignment="center" />
                         </div>
                         {/* Import */}
                         <div className="ReGuildedExtensions-wrapper ReGuildedExtensions-tab-import">
                             {/* onClick={config.openImportDialog} results in "An object cannot be cloned"... */}
-                            <NullState type="empty-search" title={"Import " + type} subtitle={"Import any " + type + " by selecting a folder with metadata.json file. Zips and archives are not supported at this time."} buttonText="Import" onClick={async () => await config.openImportPrompt()} alignment="center"/>
+                            <NullState type="empty-search" title={"Import " + type} subtitle={"Import any " + type + " by selecting a folder with metadata.json file. Zips and archives are not supported at this time."} buttonText="Import" onClick={async () => await config.openImportPrompt()} alignment="center" />
                         </div>
                     </HorizontalTabs>
                 </div>

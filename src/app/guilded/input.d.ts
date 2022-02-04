@@ -1,17 +1,21 @@
 import React from "react";
+import { Size } from "./common";
 
-export declare class SearchBar extends React.Component {
-    constructor(
-        props: {
-            className?: string;
-            placeholder: string;
-            autoComplete: "on" | "off";
-            onChange: () => void;
-            onEnterPressed: () => void;
-            onEscapePressed: () => void;
-        },
-        context?: object
-    );
+type SearchBarV2Props = {
+    className?: string;
+    placeholder: string;
+    /**
+     * The value of the searchbar.
+     */
+    searchTerm?: string;
+    theme?: "gray";
+    size?: Size;
+    autoFocus?: boolean;
+    onChange: (input: string) => void | PromiseLike<void>;
+    onEnterPressed?: (input: KeyboardEvent) => void | PromiseLike<void>;
+    onEscapePressed?: (input: KeyboardEvent) => void | PromiseLike<void>;
+};
+export declare class SearchBarV2 extends React.Component<SearchBarV2Props> {
     /**
      * The element that is used as an input.
      */

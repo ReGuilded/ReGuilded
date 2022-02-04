@@ -106,7 +106,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/components/SimpleToggle": webpack => webpack.withClassProperty("input"),
     "guilded/components/MediaRenderer": webpack => webpack.withClassProperty("progressiveImageHasLoaded"),
     "guilded/components/CodeContainer": webpack => webpack.withClassProperty("tokenCodeLines"),
-    "guilded/components/SearchBar": webpack => webpack.withClassProperty("_inputRef"),
+    "guilded/components/SearchBarV2": webpack => webpack.withClassProperty("_inputRef"),
     "guilded/components/ItemManager": webpack => webpack.withClassProperty("ItemManager"),
     "guilded/components/OverflowButton": webpack => webpack.withClassProperty("isOpen"),
     "guilded/components/BannerWithButton": webpack => webpack.withClassProperty("hasText"),
@@ -614,8 +614,8 @@ export default class AddonApi {
     /**
      * An input made for searching.
      */
-    get ["guilded/components/SearchBar"](): AddonApiExports<"guilded/components/SearchBar"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/SearchBar");
+    get ["guilded/components/SearchBarV2"](): AddonApiExports<"guilded/components/SearchBarV2"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/SearchBarV2");
     }
     /**
      * Returns a searchable table with filtering and other features.
