@@ -1,8 +1,9 @@
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
-import root from "rollup-plugin-root-import";
 import { terser } from "rollup-plugin-terser";
+import postcss from "rollup-plugin-postcss";
 import ts from "@rollup/plugin-typescript";
+import styles from "rollup-plugin-styles";
 import json from "@rollup/plugin-json";
 import { join } from "path";
 
@@ -19,115 +20,8 @@ const globalModules = {
     electron: 'require("electron")',
     child_process: 'require("child_process")'
 };
-/**
- * NPM package dependency tree be like:
- * "multiply"
- * |-"add-numbers"
- * | |-"two-plus-two"
- * | | |-"number-two"
- * | |   |-"numbers"
- * | |-"chokidar"
- * | |-"node-watch"
- * |-"atom-editor"
- * | |-"electron"
- * |-"visual-studio-community"
- *
- * I love how Node community creates packages for something that is built into Node.js
- * instead of... I don't know, fixing Node.js itself instead?
- *
- * I blame Node community for bloating ReGuilded.
- *
- * This goes to electron-dl and chokidar in particular
- */
+
 const resolvableModules = [/^(?!electron$).*$/];
-// const resolvableModules = [
-//     // ReGuilded used
-//     "fs",
-//     "os",
-//     "path",
-//     "util",
-//     "events",
-//     "stream",
-//     "module",
-//     "tslib",
-//     "chokidar",
-//     "fs-extra",
-//     "yauzl",
-//     "unzipper",
-//     "got",
-//     // Dependencies of the dependecies
-//     // Yauzl
-//     "fd-slicer",
-//     "pend",
-//     "buffer-crc32",
-//     // fs-extra
-//     "universalify",
-//     "graceful-fs",
-//     "jsonfile",
-//     // chokidar // Thank you for bloat, chokidar
-//     "readdirp",
-//     "anymatch",
-//     "glob-parent",
-//     "is-glob",
-//     "braces",
-//     "normalize-path",
-//     "is-binary-path",
-//     "picomatch",
-//     "is-extglob",
-//     "fill-range",
-//     "binary-extensions",
-//     "to-regex-range",
-//     "is-number",
-//     // unzipper
-//     "big-integer",
-//     "binary",
-//     "chainsaw",
-//     "traverse",
-//     "buffers",
-//     "bluebird",
-//     "buffer-indexof-polyfill",
-//     "duplexer2",
-//     "duplexer3",
-//     "fstream",
-//     "listenercount",
-//     "readable-stream",
-//     "process-nextick-args",
-//     "isarray",
-//     "safe-buffer",
-//     "core-util-is",
-//     "inherits",
-//     "util-deprecate",
-//     "string_decoder",
-//     "rimraf",
-//     "mkdirp",
-//     "setimmediate",
-//     // got // MORE BLOAT! D:<
-//     "@sindresorhus/is",
-//     "@szmarczak/http-timer",
-//     "responselike",
-//     "cacheable-lookup",
-//     "cacheable-request",
-//     "decompress-response",
-//     "normalize-url",
-//     "get-stream",
-//     "pump",
-//     "once",
-//     "end-of-stream",
-//     "wrappy",
-//     "http-cache-semantics",
-//     "clone-response",
-//     "mimic-response",
-//     "keyv",
-//     "json-buffer",
-//     "http2-wrapper",
-//     "lowercase-keys",
-//     "p-cancelable",
-//     "responselike",
-//     "to-readable-stream",
-//     "defer-to-connect",
-//     "url-parse-lax",
-//     "prepend-http"
-// ];
 
 // npm run watch -- --environment WATCH_PATH:...
 const watchCopyLocation = process.env.WATCH_PATH,
@@ -242,11 +136,15 @@ const config = [
             chunkFileNames: "reguilded.[name].js"
         },
         plugins: [
-            root({
-                root: "./src/app"
+            resolve({ browser: true }),
+            styles({
+                mode: "emit"
             }),
-            resolve({
-                browser: true
+            postcss({
+                extract: false,
+                inject: false,
+                extensions: [".css", ".styl"],
+                minimize: true
             }),
             configuredPlugins.json,
             configuredPlugins.ts,

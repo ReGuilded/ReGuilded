@@ -1,0 +1,40 @@
+@require "./util.styl"
+
+.ReGuilded
+    // Util
+    &ErrorBoundary-error
+        // Align code block to the left, because we set text alignment to center in the ErrorBoundary's error display
+        text-align: left
+    // Settings
+    &Extension
+        // All
+        &s-container
+            // Looks awful when extension touches the very bottom
+            padding-bottom: 10px
+        &s-search
+            width: 246px
+            margin-bottom: 16px
+        &s-grid
+            // Extension height
+            grid-auto-rows: 260px
+
+        // Single extension
+        &-container
+            transition: transform 0.1s ease-out
+            &:hover
+                transform: translateY(-2px)
+
+        // Extension page
+        &Page-warning
+            margin-bottom: 16px
+        &Images-image
+            // Otherwise carousel won't work
+            position: relative
+
+            min-width: 250px
+            height: 250px
+
+            &:not(:first-child)
+                margin-left: 10px
+    &Settings-container-padded
+        sides('padding', 32px)

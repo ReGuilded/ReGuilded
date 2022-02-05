@@ -9,6 +9,8 @@ import { FormSpecs } from "../guilded/form";
 import { AddonApiExports } from "../addons/addonApi.types";
 import { UserFlair } from "../guilded/models";
 
+import reGuildedCss from "../css/styles.styl";
+
 /**
  * ReGuilded's full manager's class.
  */
@@ -48,7 +50,7 @@ export default class ReGuilded {
                     }),
                     Object.assign(document.createElement("style"), {
                         id: "ReGuildedStyle-reguilded",
-                        innerHTML: `.ReGuildedExtensionImages-image{position:relative;min-width:250px;height:250px}.ReGuildedExtensionImages-image:not(:first-child){margin-left:10px}.ReGuildedSettings-container-padded{padding-left:32px;padding-right:32px}.ReGuildedErrorBoundary-error{text-align:left}.ReGuildedExtensions-container{padding-bottom:10px}.ReGuildedExtensions-grid{grid-auto-rows:260px}.ReGuildedExtensionPage-warning{margin-bottom:16px}.ReGuildedExtensions-search{width:246px;margin-bottom:16px}.ReGuildedExtension-container{transition:transform 0.1s ease-out}.ReGuildedExtension-container:hover{transform:translateY(-2px)}`
+                        innerHTML: reGuildedCss
                     })
                 );
                 document.body.appendChild(this.styling);
