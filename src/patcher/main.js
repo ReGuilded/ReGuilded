@@ -142,12 +142,22 @@ app.whenReady().then(() => {
                         for (const entry in cspWhitelist) {
                             let directive = entry.split("Src").join("-src");
                             let directiveWhiteListStr = cspWhitelist[entry].join(" ");
+
+                            // Uses elem variant of directive if found, otherwise leaves it as-is
+                            if (modifiedPolicyStr.includes(`${directive}-elem`)) directive = `${directive}-elem`;
+                            
+                            // If directive (-elem or otherwise) is still not found, just append to defaultSrc, failing that make it from scratch
                             if (modifiedPolicyStr.includes(directive))
                                 modifiedPolicyStr = modifiedPolicyStr.replace(
                                     directive,
                                     `${directive} ${directiveWhiteListStr}`
                                 );
-                            else modifiedPolicyStr.concat(` ${directive} ${directiveWhiteListStr}`);
+                            else if (modifiedPolicyStr.includes('defaultSrc'))
+                                modifiedPolicyStr = modifiedPolicyStr.replace(
+                                    'defaultSrc',
+                                    `defaultSrc ${directiveWhiteListStr}`
+                                )                                
+                            else modifiedPolicyStr.concat(` defaultSrc ${directiveWhiteListStr}`);
                         }
 
                         const modifiedPolicy = [modifiedPolicyStr];
