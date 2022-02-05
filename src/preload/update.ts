@@ -1,22 +1,28 @@
 import reGuildedInfo from "../common/reguilded.json";
 import { createWriteStream } from "fs-extra";
-import { join } from "path";
 import { stream } from "got";
+import { join } from "path";
+
 
 export default async function handleUpdate(updateInfo: VersionJson) {
     const downloadUrl = updateInfo.assets[0].browser_download_url;
     const downloadPath = join(__dirname);
 
-    process.noAsar = true;
-    return new Promise<void>(async resolve => {
-        stream(downloadUrl)
-            .pipe(createWriteStream(downloadPath))
-            .on("finish", () => {
-                window.ReGuilded.settingsHandler.settings.debugMode && console.log("Download Finished");
+    return new Promise<boolean>(resolve => {
 
-                process.noAsar = false;
-                resolve();
-            });
+        try {
+            stream(downloadUrl)
+                .pipe(createWriteStream(downloadPath))
+                .on("finish", () => {
+                    window.ReGuilded.settingsHandler.settings.debugMode && console.log("Download Finished");
+
+                    process.noAsar = false;
+                    resolve(true);
+                });
+        } catch (err) {
+            console.error("There was an error updating: ", err);
+            resolve(false);
+        }
     });
 }
 
