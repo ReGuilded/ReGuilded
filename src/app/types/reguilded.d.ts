@@ -18,7 +18,7 @@ declare global {
             openItem(path: string): void;
             openExternal(path: string): void;
             checkForUpdate(): Promise<[boolean, { version: string; downloadUrl: string; sha256: string }]>;
-            doUpdateIfPossible(): Promise<void>;
+            doUpdateIfPossible(): Promise<boolean>;
         };
         // Client
         ReGuilded: ReGuilded;
