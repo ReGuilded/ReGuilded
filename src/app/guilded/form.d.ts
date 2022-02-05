@@ -20,8 +20,10 @@ export type FormSpecs = {
 declare interface FormSectionSpecs {
     name?: string;
     header?: string;
+    footer?: string;
     rowMarginSize?: Size;
     isCollapsible?: boolean;
+    isDisabled?: boolean;
     sectionStyle?: SectionStyle;
     rowStyle?: RowStyle;
     // FieldSpec depends on type, so that sucks

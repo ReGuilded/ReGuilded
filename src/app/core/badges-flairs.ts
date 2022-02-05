@@ -1,16 +1,4 @@
-export type Badge = {
-    icon: string;
-    name: string;
-    tooltipText: string;
-    text: string;
-    style: {
-        backgroundColor: string;
-    } & object;
-};
-export type Flair = {
-    flair: string;
-    amount: number;
-};
+import { UserBadge, UserFlair } from "../guilded/models";
 
 /**
  * Creates a flair from given arguments.
@@ -31,7 +19,7 @@ function createFlair(name: string, icon: string) {
  * @param badge The badge to create flair from
  * @returns Injectable flair
  */
-export function createFlairFromBadge(badge: Badge): Flair {
+export function createFlairFromBadge(badge: UserBadge): UserFlair {
     const displayInfo = window.ReGuilded.getApiProperty("guilded/users/flairs/displayInfo").default,
         tooltipInfo = window.ReGuilded.getApiProperty("guilded/users/flairs/tooltipInfo").default;
 

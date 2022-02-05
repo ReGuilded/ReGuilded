@@ -1,18 +1,26 @@
-import { Direction, Size } from "../common";
+import { ComponentText, Direction, Size } from "../common";
 import React, { CSSProperties, ReactNode } from "react";
+import { ButtonProps } from "../input";
+
+//#region BadgeV2
+export declare class BadgeV2 extends React.Component<{
+    count?: number;
+    hasBorder?: boolean;
+    isDot?: boolean;
+}> {}
+//#endregion
 
 //#region BannerWithButton
-type BannerWithButtonProps = {
-    title?: string;
-    text: string;
+export declare class BannerWithButton extends React.Component<{
+    title?: ComponentText;
+    text: ComponentText;
     iconName?: string;
     className?: string;
     imgSrc?: string;
     theme?: "warning" | "error" | "info" | string;
     children?: React.ReactNode | React.ReactNode[];
     buttonProps?: any;
-};
-export declare class BannerWithButton extends React.Component<BannerWithButtonProps> {
+}> {
     get hasText(): boolean;
 }
 //#endregion
@@ -20,7 +28,7 @@ export declare class BannerWithButton extends React.Component<BannerWithButtonPr
 //#region CalloutBadge
 export type CalloutBadgeProps = {
     className?: string;
-    text?: string;
+    text?: ComponentText;
     style?: React.CSSProperties;
     hoverText?: string;
     hoverDirection?: Direction;
@@ -32,7 +40,7 @@ export declare class CalloutBadge extends React.Component<CalloutBadgeProps> {
 //#endregion
 
 //#region CheckmarkIcon
-type CheckmarkIconProps = {
+export declare class CheckmarkIcon extends React.Component<{
     className?: string;
     selected?: boolean;
     radio?: boolean;
@@ -40,27 +48,25 @@ type CheckmarkIconProps = {
     type?: "guilded" | "success";
     onClick?: Function;
     size?: Size;
-};
-export declare class CheckmarkIcon extends React.Component<CheckmarkIconProps> {}
+}> {}
 //#endregion
 
 //#region CodeContainer
-type CodeContainerProps = {
+export declare class CodeContainer extends React.Component<{
     language: string;
     code: string;
     canCopyContents?: boolean;
     readOnly?: boolean;
-    header?: string;
+    header?: ComponentText;
     className?: string;
-};
-export declare class CodeContainer extends React.Component<CodeContainerProps> {
+}> {
     get tokens();
     get tokenCodeLines();
 }
 //#endregion
 
 //#region GuildedText
-type GuildedTextProps = {
+export declare class GuildedText extends React.Component<{
     type:
         | "title"
         | "heading1"
@@ -87,62 +93,60 @@ type GuildedTextProps = {
     centered?: boolean;
     breakUserContent?: boolean;
     title?: string;
-};
-export declare class GuildedText extends React.Component<GuildedTextProps> {}
+}> {}
+//#endregion
+
+//#region IconAndLabel
+export declare class IconAndLabel extends React.Component<{
+    className?: string;
+    iconClassName?: string;
+    labelClassName?: string;
+
+    iconName: string;
+    label: ComponentText;
+
+    iconPosition?: "left" | "right";
+    onClick?: (event: MouseEvent) => void;
+}> {}
 //#endregion
 
 //#region LoadingAnimationMicro
-type LoadingAnimationMicroProps = {
+export declare class LoadingAnimationMicro extends React.Component<{
     className?: string;
     dark?: boolean;
     fudgeTop?: number;
     fudgeLeft?: number;
     noFudge?: boolean;
-};
-export declare class LoadingAnimationMicro extends React.Component<LoadingAnimationMicroProps> {
+}> {
     get containerStyle(): CSSProperties;
 }
 //#endregion
 
-//#region MediaRenderer
-type MediaRendererProps = {
-    className?: string;
-    progressiveImageSrc?: string;
-    src: string;
-    onClick?: () => void;
-    onError?: Function;
-};
-export declare class MediaRenderer extends React.Component<MediaRendererProps> {
-    get progressiveImageHasLoaded(): boolean;
-}
-//#endregion
-
 //#region NullState
-type NullStateProps = {
+export declare class NullState extends React.Component<{
     className?: string;
     // Image
     type?: string;
     imageSrc?: string;
     size?: Size;
     // Text
-    title: string;
-    subtitle: string | ReactNode | ReactNode[];
+    title: ComponentText;
+    subtitle: ComponentText;
     // Button
     onClick?: () => void;
     buttonText?: string;
     isButtonDisabled?: boolean;
     alignment?: "left" | "center" | "right";
     style?: any;
-    buttonProps?: object;
+    buttonProps?: ButtonProps;
     customComponent?: Function;
-};
-export declare class NullState extends React.Component<NullStateProps> {
+}> {
     get imageSrc(): string;
 }
 //#endregion
 
 //#region SvgIcon
-type SvgIconProps = {
+export type SvgIconProps = {
     className?: string;
     iconName: string;
 };
@@ -150,12 +154,11 @@ export declare class SvgIcon extends React.Component<SvgIconProps> {}
 //#endregion
 
 //#region WordDividerLine
-type WordDividerLineProps = {
-    word?: string;
+export declare class WordDividerLine extends React.Component<{
+    word?: ComponentText;
     wordStyle?: "normal" | "semibold" | "bold" | "chat" | "alert";
     onGetRef?: Function;
-};
-export declare class WordDividerLine extends React.Component<WordDividerLineProps> {}
+}> {}
 //#endregion
 
 //#region ItemManager

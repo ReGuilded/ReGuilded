@@ -1,4 +1,4 @@
-import { types as badgeTypes, members as badgeMembers, injectBadge, uninjectBadge, createFlairFromBadge, Flair } from "./badges-flairs";
+import { types as badgeTypes, injectBadge, uninjectBadge, createFlairFromBadge } from "./badges-flairs";
 import { WebpackRequire } from "../types/webpack";
 import SettingsHandler from "./handlers/settings";
 import WebpackHandler from "../addons/webpack";
@@ -7,6 +7,7 @@ import AddonHandler from "./handlers/addon";
 import AddonApi from "../addons/addonApi";
 import { FormSpecs } from "../guilded/form";
 import { AddonApiExports } from "../addons/addonApi.types";
+import { UserFlair } from "../guilded/models";
 
 /**
  * ReGuilded's full manager's class.
@@ -198,4 +199,4 @@ export default class ReGuilded {
         }
     }
 };
-const definedFlairs: { dev?: Flair, contrib?: Flair } = {};
+const definedFlairs: { dev?: UserFlair, contrib?: UserFlair } = {};

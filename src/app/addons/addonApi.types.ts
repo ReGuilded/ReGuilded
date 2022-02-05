@@ -5,23 +5,33 @@ import * as Prism from "prismjs";
 import * as React from "react";
 import { Form, FormOutput, FormSpecs } from "../guilded/form";
 import {
+    BadgeV2,
     BannerWithButton,
     CalloutBadge,
     CalloutBadgeProps,
     CodeContainer,
     GuildedText,
+    IconAndLabel,
     ItemManager,
     LoadingAnimationMicro,
-    MediaRenderer,
     NullState,
     SvgIcon,
     WordDividerLine
 } from "../guilded/components/content";
-import { Button, SearchBarV2 } from "../guilded/input";
+import { MediaRenderer, UserBasicInfoDisplay } from "../guilded/components/display";
+import { Button, SearchBarV2, SimpleToggle } from "../guilded/input";
 import { OverflowButton } from "../guilded/menu";
-import { Carousel as CarouselList, TeamNavSectionItem, TeamNavSectionsList } from "../guilded/components/sections";
+import {
+    Carousel as CarouselList,
+    HorizontalTab,
+    HorizontalTabs,
+    TeamNavSectionItem,
+    TeamNavSectionsList,
+    ThreeColumns
+} from "../guilded/components/sections";
 import { ModalProps } from "../guilded/components/modals";
 import { EditorPlugin, NodeType } from "../guilded/slate";
+import { UserModel } from "../guilded/models";
 //#endregion
 
 //#region OverlayProvider, decorators & type mixins
@@ -66,7 +76,7 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     : N extends "guilded/users/flairs/tooltipInfo"
     ? any
     : N extends "guilded/users"
-    ? { UserModel: typeof Object }
+    ? { UserModel: typeof UserModel }
     : N extends "guilded/users/members"
     ? { MemberModel: typeof Object; getMemberModel: (memberInfo: { teamId: string; memberId: string }) => Object }
     : N extends "guilded/profile/PostModel"
@@ -168,7 +178,35 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     N extends "guilded/components/Form"
     ? { default: typeof Form }
     : N extends "guilded/components/formFieldTypes"
-    ? { default: { Dropdown: "Dropdown" } }
+    ? {
+          default: {
+              Text: "Text";
+              TextArea: "TextArea";
+              RichText: "RichText";
+              Switch: "Switch";
+              TriState: "TriState";
+              Radios: "Radios";
+              IconMenu: "IconMenu";
+              Button: "Button";
+              DateAndTimeRange: "DateAndTimeRange";
+              Date: "Date";
+              Time: "Time";
+              EventRepeat: "EventRepeat";
+              Color: "Color";
+              Range: "Range";
+              ItemKeybinds: "ItemKeybinds";
+              Hotkey: "Hotkey";
+              Table: "Table";
+              Checkboxes: "Checkboxes";
+              Dropdown: "Dropdown";
+              SearchableList: "SearchableList";
+              CustomForm: "CustomForm";
+              Image: "Image";
+              Reaction: "Reaction";
+              Tag: "Tag";
+              Number: "Number";
+          };
+      }
     : N extends "guilded/components/formValidations"
     ? {
           default: {
@@ -191,11 +229,13 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     : N extends "guilded/components/NullState"
     ? { default: typeof NullState }
     : N extends "guilded/components/HorizontalTabs"
-    ? { default: typeof React.Component }
+    ? { default: typeof HorizontalTabs }
+    : N extends "guilded/components/HorizontalTab"
+    ? { default: typeof HorizontalTab }
     : N extends "guilded/components/ToggleFieldWrapper"
     ? { default: typeof React.Component }
     : N extends "guilded/components/SimpleToggle"
-    ? { default: typeof React.Component }
+    ? { default: typeof SimpleToggle }
     : N extends "guilded/components/MediaRenderer"
     ? { default: typeof MediaRenderer }
     : N extends "guilded/components/CodeContainer"
@@ -208,8 +248,10 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof OverflowButton }
     : N extends "guilded/components/BannerWithButton"
     ? { default: typeof BannerWithButton }
-    : N extends "guilded/components/UserBasicInfo"
-    ? { default: typeof React.Component }
+    : N extends "guilded/components/IconAndLabel"
+    ? { default: typeof IconAndLabel }
+    : N extends "guilded/components/UserBasicInfoDisplay"
+    ? { default: typeof UserBasicInfoDisplay }
     : N extends "guilded/components/ProfilePicture"
     ? { default: typeof React.Component }
     : N extends "guilded/components/CarouselList"
@@ -218,6 +260,8 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof LoadingAnimationMicro }
     : N extends "guilded/components/LoadingPage"
     ? { default: typeof React.Component }
+    : N extends "guilded/components/BadgeV2"
+    ? { default: typeof BadgeV2 }
     : N extends "guilded/components/StretchFadeBackground"
     ? { default: typeof React.Component }
     : N extends "guilded/components/WordDividerLine"
@@ -226,6 +270,8 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof TeamNavSectionItem }
     : N extends "guilded/components/TeamNavSectionsList"
     ? { default: typeof TeamNavSectionsList }
+    : N extends "guilded/components/ThreeColumns"
+    ? { default: typeof ThreeColumns }
     : N extends "guilded/components/draggable"
     ? any
     : N extends "guilded/components/ActionMenu"

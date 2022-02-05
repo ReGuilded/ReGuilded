@@ -1,7 +1,38 @@
 import React from "react";
 import { Size } from "./common";
 
-type SearchBarV2Props = {
+//#region Button
+export type ButtonType =
+    | "gilded"
+    | "delete"
+    | "success"
+    | "monochrome"
+    | "bleached"
+    | "white"
+    | "whiteBg"
+    | "stripe"
+    | string;
+export type ButtonProps = {
+    href?: string;
+    onClick?: (e: MouseEvent) => void;
+
+    // Tooltip for disabled button
+    disabled?: boolean;
+    disabledTooltip?: boolean;
+    disabledTooltipDirection?: "left" | "right";
+};
+export declare class Button extends React.Component<ButtonProps> {
+    /**
+     * Whether to use context when hovering.
+     */
+    get useHoverContext(): boolean;
+    get Component(): typeof React.Component;
+    get componentProps(): object;
+}
+//#endregion
+
+//#region SearchBarV2
+export declare class SearchBarV2 extends React.Component<{
     className?: string;
     placeholder: string;
     /**
@@ -14,8 +45,7 @@ type SearchBarV2Props = {
     onChange: (input: string) => void | PromiseLike<void>;
     onEnterPressed?: (input: KeyboardEvent) => void | PromiseLike<void>;
     onEscapePressed?: (input: KeyboardEvent) => void | PromiseLike<void>;
-};
-export declare class SearchBarV2 extends React.Component<SearchBarV2Props> {
+}> {
     /**
      * The element that is used as an input.
      */
@@ -25,24 +55,12 @@ export declare class SearchBarV2 extends React.Component<SearchBarV2Props> {
      */
     get isFocused(): boolean;
 }
-export type ButtonType = "gilded" | "delete" | "success" | "monochrome" | "bleached" | "white" | "whiteBg" | "stripe";
-export declare class Button extends React.Component {
-    constructor(
-        props: {
-            href?: string;
-            onClick?: (e: MouseEvent) => void;
+//#endregion
 
-            // Tooltip for disabled button
-            disabled?: boolean;
-            disabledTooltip?: boolean;
-            disabledTooltipDirection?: "left" | "right";
-        },
-        context?: object
-    );
-    /**
-     * Whether to use context when hovering.
-     */
-    get useHoverContext(): boolean;
-    get Component(): React.Component;
-    get componentProps(): object;
-}
+//#region SimpleToggle
+export declare class SimpleToggle extends React.Component<{
+    label: string;
+    onChange?: (enabled: boolean | number) => void;
+    defaultValue?: boolean;
+}> {}
+//#endregion

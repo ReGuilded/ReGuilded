@@ -1,12 +1,9 @@
 import { getReactInstance, patchElementRenderer, waitForElement } from "./lib";
 import AddonHandler, { AddonPermission } from "../core/handlers/addon";
 import { AddonApiExports } from "./addonApi.types";
-import WebpackManager from "./webpack";
-import * as prismjs from "prismjs";
-import _ReactDOM from "react-dom";
-import _React from "react";
-import { EditorPlugin } from "../guilded/slate";
 import { MenuSectionSpecs } from "../guilded/menu";
+import { EditorPlugin } from "../guilded/slate";
+import WebpackManager from "./webpack";
 
 // Provides API for addons to interact with Guilded.
 // TODO: Better documentation and probably TS declaration files.
@@ -102,24 +99,28 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/components/SvgIcon": webpack => webpack.withClassProperty("iconComponentProps"),
     "guilded/components/NullState": webpack => webpack.withClassProperty("imageSrc"),
     "guilded/components/HorizontalTabs": webpack => webpack.withClassProperty("tabOptions"),
+    "guilded/components/HorizontalTab": webpack => webpack.withClassProperty("tabOption"),
     "guilded/components/ToggleFieldWrapper": webpack => webpack.withCode("ToggleFieldWrapper-container"),
     "guilded/components/SimpleToggle": webpack => webpack.withClassProperty("input"),
     "guilded/components/MediaRenderer": webpack => webpack.withClassProperty("progressiveImageHasLoaded"),
     "guilded/components/CodeContainer": webpack => webpack.withClassProperty("tokenCodeLines"),
     "guilded/components/SearchBarV2": webpack => webpack.withClassProperty("_inputRef"),
-    "guilded/components/ItemManager": webpack => webpack.withClassProperty("ItemManager"),
+    "guilded/components/ItemManager": webpack => webpack.withCode("ItemManager"),
     "guilded/components/OverflowButton": webpack => webpack.withClassProperty("isOpen"),
     "guilded/components/BannerWithButton": webpack => webpack.withClassProperty("hasText"),
-    "guilded/components/UserBasicInfo": webpack => webpack.withClassProperty("userPresenceContext"),
+    "guilded/components/IconAndLabel": webpack => webpack.withCode("IconAndLabel"),
+    "guilded/components/UserBasicInfoDisplay": webpack => webpack.withClassProperty("userPresenceContext"),
     "guilded/components/CheckmarkIcon": webpack => webpack.withCode("CheckmarkIcon"),
     "guilded/components/ProfilePicture": webpack => webpack.withClassProperty("borderType"),
     "guilded/components/CarouselList": webpack => webpack.withClassProperty("overflowRight"),
     "guilded/components/LoadingAnimationMicro": webpack => webpack.withClassProperty("containerStyle"),
     "guilded/components/LoadingPage": webpack => webpack.withCode("LoadingPage"),
+    "guilded/components/BadgeV2": webpack => webpack.withCode("BadgeV2"),
     "guilded/components/WordDividerLine": webpack => webpack.withCode("WordDividerLine"),
     "guilded/components/StretchFadeBackground": webpack => webpack.withCode("StretchFadeBackground"),
     "guilded/components/TeamNavSectionItem": webpack => webpack.withCode("TeamNavSectionItem"),
     "guilded/components/TeamNavSectionsList": webpack => webpack.withClassProperty("isSomeActionSelected"),
+    "guilded/components/ThreeColumns": webpack => webpack.withCode("ThreeColumns"),
     "guilded/components/ActionMenu": webpack => webpack.withClassProperty("actionMenuHeight"),
     "guilded/components/ActionMenuSection": webpack => webpack.withCode("ActionMenu-section"),
     "guilded/components/ActionMenuItem": webpack => webpack.withClassProperty("useRowWrapper"),
@@ -233,13 +234,13 @@ export default class AddonApi {
     /**
      * React.JS framework stuff.
      */
-    get react(): typeof _React {
+    get react(): AddonApiExports<"react"> {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "react");
     }
     /**
      * React.JS framework DOM-related things.
      */
-    get ["react-dom"](): typeof _ReactDOM {
+    get ["react-dom"](): AddonApiExports<"react-dom"> {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "react-dom");
     }
     /**
@@ -429,7 +430,7 @@ export default class AddonApi {
     /**
      * Gets Prism library.
      */
-    get prism(): typeof prismjs {
+    get prism(): AddonApiExports<"prism"> {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "prism");
     }
     /**
@@ -590,6 +591,12 @@ export default class AddonApi {
     get ["guilded/components/HorizontalTabs"](): AddonApiExports<"guilded/components/HorizontalTabs"> {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/HorizontalTabs");
     }
+    /**
+     * Single displayed tab in the HorizontalTabs header.
+     */
+    get ["guilded/components/HorizontalTab"](): AddonApiExports<"guilded/components/HorizontalTab"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/HorizontalTabs");
+    }
     get ["guilded/components/ToggleFieldWrapper"](): AddonApiExports<"guilded/components/ToggleFieldWrapper"> {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ToggleFieldWrapper");
     }
@@ -632,11 +639,14 @@ export default class AddonApi {
     get ["guilded/components/BannerWithButton"](): AddonApiExports<"guilded/components/BannerWithButton"> {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/BannerWithButton");
     }
+    get ["guilded/components/IconAndLabel"](): AddonApiExports<"guilded/components/IconAndLabel"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/IconAndLabel");
+    }
     /**
      * Component that renders user's name, profile picture, badges and other things in a line.
      */
-    get ["guilded/components/UserBasicInfo"](): AddonApiExports<"guilded/components/UserBasicInfo"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/UserBasicInfo");
+    get ["guilded/components/UserBasicInfoDisplay"](): AddonApiExports<"guilded/components/UserBasicInfoDisplay"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/UserBasicInfoDisplay");
     }
     /**
      * Profile picture of someone.
@@ -663,6 +673,12 @@ export default class AddonApi {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/LoadingAnimationMicro");
     }
     /**
+     * Displays a red notification badge.
+     */
+    get ["guilded/components/BadgeV2"](): AddonApiExports<"guilded/components/BadgeV2"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/BadgeV2");
+    }
+    /**
      * Static image that fades into background.
      */
     get ["guilded/components/StretchFadeBackground"](): AddonApiExports<"guilded/components/StretchFadeBackground"> {
@@ -679,6 +695,12 @@ export default class AddonApi {
     }
     get ["guilded/components/TeamNavSectionsList"](): AddonApiExports<"guilded/components/TeamNavSectionsList"> {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/TeamNavSectionsList");
+    }
+    /**
+     * Displays three columns, where the middle one covers the left over space and side columns take up ~300px.
+     */
+    get ["guilded/components/ThreeColumns"](): AddonApiExports<"guilded/components/ThreeColumns"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ThreeColumns");
     }
     /**
      * Draggable element names and infos.

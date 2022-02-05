@@ -1,12 +1,13 @@
 ﻿import { AnyExtension } from "../../../../../common/extensions";
 import { MenuSpecs } from "../../../../guilded/menu";
+import { UserInfo } from "../../../../guilded/models";
 import ErrorBoundary from "../ErrorBoundary";
 import { SwitchTab } from "../TabbedSettings";
 
 const React = window.ReGuilded.getApiProperty("react"),
     { default: OverflowButton } = window.ReGuilded.getApiProperty("guilded/components/OverflowButton"),
     { default: SimpleToggle } = window.ReGuilded.getApiProperty("guilded/components/SimpleToggle"),
-    { default: UserBasicInfo } = window.ReGuilded.getApiProperty("guilded/components/UserBasicInfo"),
+    { default: UserBasicInfoDisplay } = window.ReGuilded.getApiProperty("guilded/components/UserBasicInfoDisplay"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
     { default: StretchFadeBackground } = window.ReGuilded.getApiProperty("guilded/components/StretchFadeBackground"),
     { UserModel } = window.ReGuilded.getApiProperty("guilded/users"),
@@ -21,7 +22,7 @@ type AdditionalProps = {
 type State = {
     enabled: boolean,
     dirname: string,
-    author?: object
+    author?: UserInfo
 };
 
 export default abstract class ExtensionItem<P extends AnyExtension, S = {}> extends React.Component<P & AdditionalProps, State & S> {
@@ -84,7 +85,7 @@ export default abstract class ExtensionItem<P extends AnyExtension, S = {}> exte
                             <div className="ReGuildedExtension-author">
                                 <br/>
                                 {this.state.author
-                                    ? <UserBasicInfo size="sm" user={new UserModel(this.state.author)}/>
+                                    ? <UserBasicInfoDisplay size="sm" user={new UserModel(this.state.author)} />
                                     : <GuildedText className="ReGuildedExtension-no-author" block={true} type="subtext">{this.props.author ? "By user " + this.props.author : "Unknown author"}</GuildedText>
                                 }
                             </div>
