@@ -86,8 +86,7 @@ export default class ReGuilded {
                     // Only do it if user has enabled auto-update
                     this.settingsHandler.settings.autoUpdate &&
                         window.ReGuildedConfig.doUpdateIfPossible()
-                            .then(() => console.log("Auto update done"))
-                            .catch(e => console.error("Error while trying to auto-update:", e)),
+                            .then((isUpdated) => isUpdated && location.reload()),
 
                     window.ReGuildedConfig.isFirstLaunch && this.handleFirstLaunch(),
                 ]).then(() => console.log("ReGuilded done initializing"))

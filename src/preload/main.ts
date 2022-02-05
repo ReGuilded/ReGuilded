@@ -118,7 +118,7 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
             /**
              * Does a ReGuilded update if it exists.
              */
-            async doUpdateIfPossible(): Promise<void> {
+            async doUpdateIfPossible(): Promise<boolean> {
                 // If its info was already fetched, don't refetch it
                 return await (window.updateExists !== undefined
                     ? doUpdate([window.updateExists, window.latestVersionInfo])
@@ -173,6 +173,6 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
         .catch(console.error);
 })();
 
-async function doUpdate([updateExists, updateInfo]: [boolean, VersionJson]) {
-    updateExists && (await handleUpdate(updateInfo));
+async function doUpdate([updateExists, updateInfo]: [boolean, VersionJson]) : Promise<boolean> {
+    return updateExists && (await handleUpdate(updateInfo));
 }
