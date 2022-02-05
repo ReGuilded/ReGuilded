@@ -1,7 +1,7 @@
 import { ReGuildedExtensionSettings } from "../../../common/reguilded-settings.js";
 import { RGThemeConfig } from "../../types/reguilded.js";
 import { Theme } from "../../../common/extensions.js";
-import ExtensionHandler from "./extension.js";
+import ExtensionHandler, { ExtensionEvent } from "./extension.js";
 import SettingsHandler from "./settings.js";
 import ReGuilded from "../ReGuilded.js";
 
@@ -70,6 +70,8 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
         if (~this.enabled.indexOf(metadata.id)) this.load(metadata);
 
         this.all.push(metadata);
+
+        this.dispatchEvent(new ExtensionEvent("change", metadata));
     }
     /**
      * Loads a ReGuilded theme
@@ -87,7 +89,7 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
             classList: "ReGuildedStyle-theme"
         });
 
-        await this.checkAndDoSettings(metadata, group);
+        this.checkAndDoSettings(metadata, group);
 
         for (let css of metadata.css)
             group.appendChild(

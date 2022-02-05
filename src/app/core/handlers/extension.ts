@@ -3,6 +3,7 @@ import { AnyExtension } from "../../../common/extensions";
 import { RGExtensionConfig } from "../../types/reguilded";
 import SettingsHandler from "./settings";
 import ReGuilded from "../ReGuilded";
+import { AbstractEventTarget } from "./eventTarget";
 
 /**
  * Manages different components of ReGuilded to allow them to be extended.
@@ -11,7 +12,7 @@ export default abstract class ExtensionHandler<
     T extends AnyExtension,
     C extends RGExtensionConfig<T>,
     S extends ReGuildedExtensionSettings = ReGuildedExtensionSettings
-> {
+> extends AbstractEventTarget {
     /**
      * A Regex pattern for determining whether given extension's ID is correct.
      */
@@ -24,6 +25,7 @@ export default abstract class ExtensionHandler<
     settingsHandler: SettingsHandler;
     settings: S;
     idsToMetadata: { [extensionId: string]: T };
+
     /**
      * Creates a new manager for any kind of extension.
      * @param parent The parent ReGuilded instance
@@ -32,6 +34,8 @@ export default abstract class ExtensionHandler<
      * @param config The preload configuration of the extensions
      */
     constructor(parent: ReGuilded, settings: S, settingsHandler: SettingsHandler, config: C) {
+        super();
+
         this.all = [];
         this.config = config;
         this.parent = parent;
@@ -53,6 +57,8 @@ export default abstract class ExtensionHandler<
             this.all.findIndex(other => other.id === metadata.id),
             1
         );
+
+        this.dispatchEvent(new ExtensionEvent("delete", metadata));
     }
     /**
      * Gets identifiers of all the enabled extensions.
@@ -82,17 +88,6 @@ export default abstract class ExtensionHandler<
                 () => this.settingsHandler.settings.debugMode && console.log(`Deleted extension by ID '${extension.id}'`),
                 e => console.error(`Failed to delete extension by ID '${extension.id}':\n`, e)
             );
-    }
-    /**
-     * Checks if the identifier of the extension is correct or not.
-     * @param id The identifier of the extension
-     * @param path The path of the file
-     * @throws {Error} Incorrect parameter `id` syntax
-     * @returns Checks identifier's syntax
-     */
-    static checkId(id: any, path: string): void {
-        if (!(typeof id === "string" && id.match(ExtensionHandler.idRegex)))
-            throw new Error(`Incorrect syntax of the property 'id'. Path: ${path}`);
     }
 
     /**
@@ -132,6 +127,18 @@ export default abstract class ExtensionHandler<
         this.settings.enabled = this.settings.enabled.filter(extId => extId != extension.id);
         await this.settingsHandler.save();
     }
+
+    /**
+     * Checks if the identifier of the extension is correct or not.
+     * @param id The identifier of the extension
+     * @param path The path of the file
+     * @throws {Error} Incorrect parameter `id` syntax
+     * @returns Checks identifier's syntax
+     */
+    static checkId(id: any, path: string): void {
+        if (!(typeof id === "string" && id.match(ExtensionHandler.idRegex)))
+            throw new Error(`Incorrect syntax of the property 'id'. Path: ${path}`);
+    }
     /**
      * Checks if property is given type and if it isn't, throws an error.
      * @param name The name of the property.
@@ -144,5 +151,13 @@ export default abstract class ExtensionHandler<
             throw new TypeError(
                 `Expected '${name}' to be [${types.join(", ")}], found ${typeof value} instead in ${path}`
             );
+    }
+}
+export class ExtensionEvent<T extends AnyExtension> extends Event {
+    public extension: T;
+    constructor(type: string, extension: T) {
+        super(type, { cancelable: false });
+
+        this.extension = extension;
     }
 }

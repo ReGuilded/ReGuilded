@@ -3,7 +3,7 @@ import { RGAddonConfig } from "../../types/reguilded";
 import { Addon } from "../../../common/extensions";
 import WebpackManager from "../../addons/webpack";
 import AddonApi from "../../addons/addonApi";
-import ExtensionHandler from "./extension";
+import ExtensionHandler, { ExtensionEvent } from "./extension";
 import SettingsHandler from "./settings";
 import ReGuilded from "../ReGuilded";
 
@@ -13,8 +13,8 @@ import ReGuilded from "../ReGuilded";
 export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig, ReGuildedAddonSettings> {
     initialized: string[] = [];
     webpack?: WebpackManager;
-    addonApi?: AddonApi;
     addonApis: { [addonId: string]: AddonApi };
+
     /**
      * Manager that manages ReGuilded's addons
      * @param parent The parent ReGuilded instance
@@ -64,6 +64,8 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig,
         this.all.push(metadata);
         // Load the addon if enabled.
         isEnabled && (await this.load(metadata));
+
+        this.dispatchEvent(new ExtensionEvent("change", metadata));
     }
     /**
      * Returns whether the exported function exists. If the export isn't a function or undefined, it returns a warning.

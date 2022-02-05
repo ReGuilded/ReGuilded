@@ -1,14 +1,9 @@
-import { OverlayProviderContent, ProvidedOverlay } from "../../../../addons/addonApi.types";
-import { FieldAnySpecs, FormOutput } from "../../../../guilded/form";
+import { FieldAnySpecs } from "../../../../guilded/form";
 import { Theme } from "../../../../../common/extensions";
 import ExtensionItem from "./ExtensionItem";
 import validations from "../../validation";
 
-const { default: overlayProvider } = window.ReGuilded.getApiProperty("guilded/overlays/overlayProvider");
-
-@overlayProvider(["SimpleFormOverlay"])
 export default class ThemeItem extends ExtensionItem<Theme, { settings: object, settingsProps: string[] }> {
-    SimpleFormOverlay: ProvidedOverlay<"SimpleFormOverlay">;
     constructor(props, context) {
         super(props, context);
 
@@ -18,7 +13,7 @@ export default class ThemeItem extends ExtensionItem<Theme, { settings: object, 
             dirname,
             settings,
             settingsProps,
-            enabled: ~window.ReGuilded.themes.enabled.indexOf(id)
+            enabled: window.ReGuilded.themes.enabled.includes(id)
         };
 
         const { switchTab } = this.props;
@@ -52,23 +47,6 @@ export default class ThemeItem extends ExtensionItem<Theme, { settings: object, 
         await window.ReGuilded.themes[enabled ? "savedLoad" : "savedUnload"](this.props)
             .then(() => this.setState({ enabled }));
     }
-    // async openThemeSettings() {
-    //     const { name } = this.props;
-
-    //     // Get whether Save was clicked and get form values
-    //     const { confirmed, changedValues } =
-    //         await this.SimpleFormOverlay.Open({
-    //             header: name + " settings",
-
-    //             confirmText: "Save",
-    //             controlConfiguration: "ConfirmAndCancel",
-
-    //             formSpecs: this.formSpecs
-    //         });
-
-    //     if (confirmed)
-    //         window.ReGuilded.themes.assignProperties(this.props, changedValues);
-    // }
     static generateSettingsFields(settings: object, settingsProps: string[]): FieldAnySpecs[] {
         return settingsProps.map(id => {
             const { type, value, name } = settings[id];

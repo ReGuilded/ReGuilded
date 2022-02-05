@@ -14,7 +14,7 @@ export default class ThemeView extends ExtensionView<Theme> {
         super(props, context);
 
         props.extension.settings && this.tabs.push({ name: "Settings" });
-        this._SaveBinded = this.Save.bind(this);
+        this._SaveBinded = this._handleSaveChangesClick.bind(this);
     }
 
     protected override *onSaveChanges({ values, isValid }) {

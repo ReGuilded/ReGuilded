@@ -9,10 +9,12 @@ const React = window.ReGuilded.getApiProperty("react"),
     { default: NullState } = window.ReGuilded.getApiProperty("guilded/components/NullState"),
     { default: HorizontalTabs } = window.ReGuilded.getApiProperty("guilded/components/HorizontalTabs"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
-    { default: defaultContextProvider } = window.ReGuilded.getApiProperty("guilded/context/defaultContextProvider");
+    { default: defaultContextProvider } = window.ReGuilded.getApiProperty("guilded/context/defaultContextProvider"),
+    { default: savableSettings } = window.ReGuilded.getApiProperty("guilded/settings/savableSettings");
 
 type AnyExtensionHandler = ExtensionHandler<AnyExtension, RGExtensionConfig<AnyExtension>>;
 
+@savableSettings
 @defaultContextProvider
 export default class ExtensionSettings extends React.Component<ChildTabProps, { dirname: string, all: object[] }> {
     protected name: string;
@@ -24,7 +26,7 @@ export default class ExtensionSettings extends React.Component<ChildTabProps, { 
         super(props, context);
     }
     render() {
-        const { name, type, ItemTemplate, extensionHandler: { config, all }, props: { switchTab } } = this;
+        const { name, type, ItemTemplate, extensionHandler: { config }, props: { switchTab } } = this;
 
         return (
             <ErrorBoundary>

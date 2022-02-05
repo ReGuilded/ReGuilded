@@ -41,6 +41,7 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
     protected SaveChanges: (...args: any[]) => any;
     protected Save: () => Promise<void>;
     protected _handleOptionsChange: (...args: any[]) => void;
+    protected _handleSaveChangesClick: () => Promise<void>;
 
     constructor(props: Props<T>, context?: any) {
         super(props, context);

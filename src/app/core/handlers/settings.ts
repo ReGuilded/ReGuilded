@@ -1,4 +1,5 @@
 import { ReGuildedSettings, ReGuildedSettingsUpdate } from "../../../common/reguilded-settings";
+import { AbstractEventTarget } from "./eventTarget";
 
 /**
  * The wrapping handler around `window.ReGuildedConfig` for easier changes tracking.

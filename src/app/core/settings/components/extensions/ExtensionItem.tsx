@@ -5,11 +5,11 @@ import { SwitchTab } from "../TabbedSettings";
 
 const React = window.ReGuilded.getApiProperty("react"),
     { default: OverflowButton } = window.ReGuilded.getApiProperty("guilded/components/OverflowButton"),
-    { default: Form } = window.ReGuilded.getApiProperty("guilded/components/Form"),
+    { default: SimpleToggle } = window.ReGuilded.getApiProperty("guilded/components/SimpleToggle"),
     { default: UserBasicInfo } = window.ReGuilded.getApiProperty("guilded/components/UserBasicInfo"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
     { default: StretchFadeBackground } = window.ReGuilded.getApiProperty("guilded/components/StretchFadeBackground"),
-    { UserModel }: { UserModel } = window.ReGuilded.getApiProperty("guilded/users"),
+    { UserModel } = window.ReGuilded.getApiProperty("guilded/users"),
     { default: restMethods } = window.ReGuilded.getApiProperty("guilded/http/rest"),
     { default: MarkdownRenderer } = window.ReGuilded.getApiProperty("guilded/components/MarkdownRenderer"),
     { default: { WebhookEmbed } } = window.ReGuilded.getApiProperty("guilded/editor/grammars");
@@ -19,7 +19,7 @@ type AdditionalProps = {
     switchTab: SwitchTab
 };
 type State = {
-    enabled: boolean | number,
+    enabled: boolean,
     dirname: string,
     author?: object
 };
@@ -51,7 +51,6 @@ export default abstract class ExtensionItem<P extends AnyExtension, S = {}> exte
             ]
         };
         this.hasToggled = false;
-        this._onToggleBinded = this.onToggle.bind(this);
     }
     protected abstract onToggle(enabled: boolean): Promise<void>;
     async componentWillMount() {
@@ -62,7 +61,7 @@ export default abstract class ExtensionItem<P extends AnyExtension, S = {}> exte
         }
     }
     render() {
-        const { overflowMenuSpecs, props: { name, readme, version, switchTab, banner }, state: { enabled }, _onToggleBinded } = this;
+        const { overflowMenuSpecs, props: { name, readme, version, switchTab, banner }, state: { enabled } } = this;
 
         const readmeLength = readme?.length;
 
@@ -77,21 +76,11 @@ export default abstract class ExtensionItem<P extends AnyExtension, S = {}> exte
                         {/* Header info */}
                         <div className="PlayerCardGameInfo-name-alias" onClick={e => e.stopPropagation()}>
                             {/* Name + Toggle */}
-                            <Form onChange={async ({ hasChanged, values: {enabled} }) => (hasChanged && (this.hasToggled = true) || this.hasToggled) && await _onToggleBinded(enabled)} formSpecs={{
-                                sections: [
-                                    {
-                                        fieldSpecs: [
-                                            {
-                                                type: "Switch",
-                                                label: name,
-                                                fieldName: "enabled",
-                                                description: version ? `Version ${version}` : "Latest release",
-                                                defaultValue: enabled
-                                            }
-                                        ]
-                                    }
-                                ],
-                            }}/>
+                            <SimpleToggle
+                                label={name}
+                                defaultValue={enabled}
+                                onChange={async (newState: boolean) => (this.hasToggled || (newState !== enabled && typeof newState !== "number")) && (this.hasToggled = true, await this.onToggle(newState))}/>
+                            <GuildedText type="subtext" block={true}>{ version ? `Version ${version}` : "Latest release" }</GuildedText>
                             <div className="ReGuildedExtension-author">
                                 <br/>
                                 {this.state.author
