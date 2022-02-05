@@ -65,12 +65,21 @@ export default class GeneralSettings extends React.Component {
                         confirmType: "success"
                     })
                         .then(async ({ confirmed }) =>
-                            // Display ephermal status messages for users to see
+                            // Display ephemeral status messages for users to see
                             confirmed && await window.ReGuildedConfig.doUpdateIfPossible()
-                                .then(() => statusContext.displayStatus({
-                                    text: "ReGuilded update finished. CTRL + R to refresh",
-                                    type: "success"
-                                }))
+                                .then((isUpdate) => {
+                                    switch (isUpdate) {
+                                        case true: statusContext.displayStatus({
+                                            text: "ReGuilded update finished. CTRL + R to refresh",
+                                            type: "success"
+                                        }); break;
+                                        case false: statusContext.displayError({
+                                            message: "ReGuilded failed to update. More info in Console."
+                                        }); break;
+                                    }
+
+
+                                })
                                 .catch(e => {
                                     if (typeof e === "string")
                                         statusContext.displayError({ message: e, error: e });
