@@ -61,24 +61,24 @@ app.whenReady().then(() => {
         urls: ["https://www.guilded.gg/*"]
     };
     const cspWhitelist = {
-        connectSrc: [
+        connect: [
             "https://raw.githubusercontent.com", // Github (Raw)
             "https://api.github.com", // Github API
             "https://www.github.com", // Github
             "https://objects.githubusercontent.com", // Github (Asset)
             "https://*.reguilded.dev" // ReGuilded Server
         ],
-        // defaultSrc apparently ignored when more specific directive exists in CSP for attempted purpose
-        defaultSrc: [
+        // default-src apparently ignored when more specific directive exists in CSP for attempted purpose
+        default: [
             "https://*.reguilded.dev" // ReGuilded Server
         ],
-        fontSrc: [
+        font: [
             "https://fonts.gstatic.com", // Google Fonts
             "https://*.github.io", // GitLab Pages
             "https://*.gitlab.io", // GitHub Pages
             "https://*.gitea.io" // Gitea
         ],
-        imgSrc: [
+        img: [
             "https://dl.dropboxusercontent.com", // Dropbox
             "https://*.google.com", // Google (includes Google Drive)
             "https://i.imgur.com", // Imgur
@@ -91,9 +91,9 @@ app.whenReady().then(() => {
             "https://*.gitlab.com", // Gitlab
             "https://*.gitea.io" // Gitea
         ],
-        mediaSrc: [],
-        scriptSrc: [],
-        styleSrc: [
+        media: [],
+        script: [],
+        style: [
             "https://fonts.googleapis.com", // Google Fonts
             "https://*.guilded.gg", // Guilded
             "https://*.github.io", // Github Pages
@@ -103,13 +103,13 @@ app.whenReady().then(() => {
     };
     // Fetches/Creates Custom CSP Whitelist Config
     let customCspWhitelist = {
-        connectSrc: [],
-        defaultSrc: [],
-        fontSrc: [],
-        imgSrc: [],
-        mediaSrc: [],
-        scriptSrc: [],
-        styleSrc: []
+        connect: [],
+        default: [],
+        font: [],
+        img: [],
+        media: [],
+        script: [],
+        style: []
     };
     const customWhitelistPath = join(settingsPath, "custom-csp-whitelist.json");
     new Promise((resolve) => {
@@ -140,24 +140,24 @@ app.whenReady().then(() => {
                         modifiedPolicyStr = modifiedPolicyStr.replace(/report\-uri.*?;/, " ");
 
                         for (const entry in cspWhitelist) {
-                            let directive = entry.split("Src").join("-src");
+                            let directive = `${entry}-src`;
                             let directiveWhiteListStr = cspWhitelist[entry].join(" ");
 
                             // Uses elem variant of directive if found, otherwise leaves it as-is
                             if (modifiedPolicyStr.includes(`${directive}-elem`)) directive = `${directive}-elem`;
-                            
-                            // If directive (-elem or otherwise) is still not found, just append to defaultSrc, failing that make it from scratch
+
+                            // If directive (-elem or otherwise) is still not found, just append to default-src, failing that make it from scratch
                             if (modifiedPolicyStr.includes(directive))
                                 modifiedPolicyStr = modifiedPolicyStr.replace(
                                     directive,
                                     `${directive} ${directiveWhiteListStr}`
                                 );
-                            else if (modifiedPolicyStr.includes('defaultSrc'))
+                            else if (modifiedPolicyStr.includes('default-src'))
                                 modifiedPolicyStr = modifiedPolicyStr.replace(
-                                    'defaultSrc',
-                                    `defaultSrc ${directiveWhiteListStr}`
+                                    'default-src',
+                                    `default-src ${directiveWhiteListStr}`
                                 )                                
-                            else modifiedPolicyStr.concat(` defaultSrc ${directiveWhiteListStr}`);
+                            else modifiedPolicyStr.concat(` default-src ${directiveWhiteListStr}`);
                         }
 
                         const modifiedPolicy = [modifiedPolicyStr];
@@ -180,8 +180,7 @@ app.whenReady().then(() => {
             // Apply Custom Whitelist
             for (const directive in customCspWhitelistParam) {
                 cspWhitelist[directive] = cspWhitelist[directive].concat(customCspWhitelist[directive]);
-            }
-            console.log(cspWhitelist);
+            };
         };
 
         // Patch CSP (Content-Security-Policy)

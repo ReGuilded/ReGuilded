@@ -33,7 +33,6 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
 
                 if (sources) {
                     sources.forEach((source: string) => {
-                        if (!source.includes("Src")) source = `${source}Src`;
                         sites.forEach(site => {
                             customCSPWhitelist[source].push(site);
                         });
@@ -66,7 +65,7 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
                 else {
                     for(const source in customCSPWhitelist) {
                         sites.forEach(site => {
-                            customCSPWhitelist[source].push(site);
+                            customCSPWhitelist[source] = customCSPWhitelist[source].filter((entry: string) => entry !== site);
                         });
                     };
                 };
