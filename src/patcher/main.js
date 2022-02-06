@@ -62,43 +62,42 @@ app.whenReady().then(() => {
     };
     const cspWhitelist = {
         connect: [
-            "https://raw.githubusercontent.com", // Github (Raw)
-            "https://api.github.com", // Github API
-            "https://www.github.com", // Github
-            "https://objects.githubusercontent.com", // Github (Asset)
-            "https://*.reguilded.dev" // ReGuilded Server
+            "raw.githubusercontent.com", // Github (Raw)
+            "api.github.com", // Github API
+            "www.github.com", // Github
+            "objects.githubusercontent.com", // Github (Asset)
+            "*.reguilded.dev" // ReGuilded Server
         ],
-        // default-src apparently ignored when more specific directive exists in CSP for attempted purpose
         default: [
-            "https://*.reguilded.dev" // ReGuilded Server
+            "*.reguilded.dev" // ReGuilded Server
         ],
         font: [
-            "https://fonts.gstatic.com", // Google Fonts
-            "https://*.github.io", // GitLab Pages
-            "https://*.gitlab.io", // GitHub Pages
-            "https://*.gitea.io" // Gitea
+            "fonts.gstatic.com", // Google Fonts
+            "*.github.io", // GitLab Pages
+            "*.gitlab.io", // GitHub Pages
+            "*.gitea.io" // Gitea
         ],
         img: [
-            "https://dl.dropboxusercontent.com", // Dropbox
-            "https://*.google.com", // Google (includes Google Drive)
-            "https://i.imgur.com", // Imgur
-            "https://c.tenor.com", // Tenor
-            "https://*.giphy.com", // Giphy
-            "https://img.icons8.com", // Icons8
-            "https://*.github.io", // Github Pages
-            "https://*.gitlab.io", // Gitlab Pages
-            "https://*.github.com", // Github
-            "https://*.gitlab.com", // Gitlab
-            "https://*.gitea.io" // Gitea
+            "dl.dropboxusercontent.com", // Dropbox
+            "*.google.com", // Google (includes Google Drive)
+            "i.imgur.com", // Imgur
+            "c.tenor.com", // Tenor
+            "*.giphy.com", // Giphy
+            "img.icons8.com", // Icons8
+            "*.github.io", // Github Pages
+            "*.gitlab.io", // Gitlab Pages
+            "*.github.com", // Github
+            "*.gitlab.com", // Gitlab
+            "*.gitea.io" // Gitea
         ],
         media: [],
         script: [],
         style: [
-            "https://fonts.googleapis.com", // Google Fonts
-            "https://*.guilded.gg", // Guilded
-            "https://*.github.io", // Github Pages
-            "https://*.gitlab.io", // Gitlab Pages
-            "https://*.gitea.io" // Gitea
+            "fonts.googleapis.com", // Google Fonts
+            "*.guilded.gg", // Guilded
+            "*.github.io", // Github Pages
+            "*.gitlab.io", // Gitlab Pages
+            "*.gitea.io" // Gitea
         ]
     };
     // Fetches/Creates Custom CSP Whitelist Config
@@ -186,10 +185,10 @@ app.whenReady().then(() => {
         // Patch CSP (Content-Security-Policy)
         try {
             patchCSP();
-            ipcMain.handle("reguilded-repatch-csp", (...args) => {
+            /* ipcMain.handle("reguilded-repatch-csp", (...args) => {
                 const updatedCustomCSPWhitelist = JSON.parse(args[1]);
                 patchCSP(updatedCustomCSPWhitelist);
-            });
+            }); */
         } catch (err) {
             console.error(err);
         }

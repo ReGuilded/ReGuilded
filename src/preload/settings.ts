@@ -77,7 +77,7 @@ export default class SettingsManager {
         await writeFile(this.whitelistFile, JSON.stringify(this.whitelist, null, 4), {
            encoding: "utf8"
         });
-        ipcRenderer.invoke("reguilded-repatch-csp", [await readFile(this.whitelistFile, {encoding:"utf-8"})]);
+        //ipcRenderer.invoke("reguilded-repatch-csp", [await readFile(this.whitelistFile, {encoding:"utf-8"})]);
     }
 
     /**
