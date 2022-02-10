@@ -25,13 +25,13 @@ export const defaultSettings: ReGuildedSettings = {
  * Default ReGuilded Whitelist
  */
 export const defaultWhitelist: ReGuildedWhitelist = {
-    connectSrc: [],
-    defaultSrc: [],
-    fontSrc: [],
-    imgSrc: [],
-    mediaSrc: [],
-    scriptSrc: [],
-    styleSrc: []
+    connect: [],
+    default: [],
+    font: [],
+    img: [],
+    media: [],
+    script: [],
+    style: []
 }
 
 /**
@@ -47,6 +47,14 @@ export default class SettingsManager {
     constructor(directory: string, [settings, whitelist]: [ReGuildedSettings, ReGuildedWhitelist]) {
         // Sets settings directory as `~/.reguilded/settings`
         this.directory = directory;
+
+        // Removes Src from whitelist entries if found
+        for (const entry in whitelist) {
+            if (entry.includes('Src')) {
+                whitelist[entry.split('Src')[0]] = whitelist[entry];
+                delete whitelist[entry];
+            };
+        };
 
         // Fill in any settings that are not present
         this.settings = Object.assign(defaultSettings, settings);
@@ -69,7 +77,7 @@ export default class SettingsManager {
         await writeFile(this.whitelistFile, JSON.stringify(this.whitelist, null, 4), {
            encoding: "utf8"
         });
-        ipcRenderer.invoke("reguilded-repatch-csp", [await readFile(this.whitelistFile, {encoding:"utf-8"})]);
+        //ipcRenderer.invoke("reguilded-repatch-csp", [await readFile(this.whitelistFile, {encoding:"utf-8"})]);
     }
 
     /**

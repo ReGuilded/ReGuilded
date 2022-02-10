@@ -61,55 +61,54 @@ app.whenReady().then(() => {
         urls: ["https://www.guilded.gg/*"]
     };
     const cspWhitelist = {
-        connectSrc: [
-            "https://raw.githubusercontent.com", // Github (Raw)
-            "https://api.github.com", // Github API
-            "https://www.github.com", // Github
-            "https://objects.githubusercontent.com", // Github (Asset)
-            "https://*.reguilded.dev" // ReGuilded Server
+        connect: [
+            "raw.githubusercontent.com", // Github (Raw)
+            "api.github.com", // Github API
+            "www.github.com", // Github
+            "objects.githubusercontent.com", // Github (Asset)
+            "*.reguilded.dev" // ReGuilded Server
         ],
-        // defaultSrc apparently ignored when more specific directive exists in CSP for attempted purpose
-        defaultSrc: [
-            "https://*.reguilded.dev" // ReGuilded Server
+        default: [
+            "*.reguilded.dev" // ReGuilded Server
         ],
-        fontSrc: [
-            "https://fonts.gstatic.com", // Google Fonts
-            "https://*.github.io", // GitLab Pages
-            "https://*.gitlab.io", // GitHub Pages
-            "https://*.gitea.io" // Gitea
+        font: [
+            "fonts.gstatic.com", // Google Fonts
+            "*.github.io", // GitLab Pages
+            "*.gitlab.io", // GitHub Pages
+            "*.gitea.io" // Gitea
         ],
-        imgSrc: [
-            "https://dl.dropboxusercontent.com", // Dropbox
-            "https://*.google.com", // Google (includes Google Drive)
-            "https://i.imgur.com", // Imgur
-            "https://c.tenor.com", // Tenor
-            "https://*.giphy.com", // Giphy
-            "https://img.icons8.com", // Icons8
-            "https://*.github.io", // Github Pages
-            "https://*.gitlab.io", // Gitlab Pages
-            "https://*.github.com", // Github
-            "https://*.gitlab.com", // Gitlab
-            "https://*.gitea.io" // Gitea
+        img: [
+            "dl.dropboxusercontent.com", // Dropbox
+            "*.google.com", // Google (includes Google Drive)
+            "i.imgur.com", // Imgur
+            "c.tenor.com", // Tenor
+            "*.giphy.com", // Giphy
+            "img.icons8.com", // Icons8
+            "*.github.io", // Github Pages
+            "*.gitlab.io", // Gitlab Pages
+            "*.github.com", // Github
+            "*.gitlab.com", // Gitlab
+            "*.gitea.io" // Gitea
         ],
-        mediaSrc: [],
-        scriptSrc: [],
-        styleSrc: [
-            "https://fonts.googleapis.com", // Google Fonts
-            "https://*.guilded.gg", // Guilded
-            "https://*.github.io", // Github Pages
-            "https://*.gitlab.io", // Gitlab Pages
-            "https://*.gitea.io" // Gitea
+        media: [],
+        script: [],
+        style: [
+            "fonts.googleapis.com", // Google Fonts
+            "*.guilded.gg", // Guilded
+            "*.github.io", // Github Pages
+            "*.gitlab.io", // Gitlab Pages
+            "*.gitea.io" // Gitea
         ]
     };
     // Fetches/Creates Custom CSP Whitelist Config
     let customCspWhitelist = {
-        connectSrc: [],
-        defaultSrc: [],
-        fontSrc: [],
-        imgSrc: [],
-        mediaSrc: [],
-        scriptSrc: [],
-        styleSrc: []
+        connect: [],
+        default: [],
+        font: [],
+        img: [],
+        media: [],
+        script: [],
+        style: []
     };
     const customWhitelistPath = join(settingsPath, "custom-csp-whitelist.json");
     new Promise((resolve) => {
@@ -140,14 +139,24 @@ app.whenReady().then(() => {
                         modifiedPolicyStr = modifiedPolicyStr.replace(/report\-uri.*?;/, " ");
 
                         for (const entry in cspWhitelist) {
-                            let directive = entry.split("Src").join("-src");
+                            let directive = `${entry}-src`;
                             let directiveWhiteListStr = cspWhitelist[entry].join(" ");
+
+                            // Uses elem variant of directive if found, otherwise leaves it as-is
+                            if (modifiedPolicyStr.includes(`${directive}-elem`)) directive = `${directive}-elem`;
+
+                            // If directive (-elem or otherwise) is still not found, just append to default-src, failing that make it from scratch
                             if (modifiedPolicyStr.includes(directive))
                                 modifiedPolicyStr = modifiedPolicyStr.replace(
                                     directive,
                                     `${directive} ${directiveWhiteListStr}`
                                 );
-                            else modifiedPolicyStr.concat(` ${directive} ${directiveWhiteListStr}`);
+                            else if (modifiedPolicyStr.includes('default-src'))
+                                modifiedPolicyStr = modifiedPolicyStr.replace(
+                                    'default-src',
+                                    `default-src ${directiveWhiteListStr}`
+                                )                                
+                            else modifiedPolicyStr.concat(` default-src ${directiveWhiteListStr}`);
                         }
 
                         const modifiedPolicy = [modifiedPolicyStr];
@@ -170,17 +179,16 @@ app.whenReady().then(() => {
             // Apply Custom Whitelist
             for (const directive in customCspWhitelistParam) {
                 cspWhitelist[directive] = cspWhitelist[directive].concat(customCspWhitelist[directive]);
-            }
-            console.log(cspWhitelist);
+            };
         };
 
         // Patch CSP (Content-Security-Policy)
         try {
             patchCSP();
-            ipcMain.handle("reguilded-repatch-csp", (...args) => {
+            /* ipcMain.handle("reguilded-repatch-csp", (...args) => {
                 const updatedCustomCSPWhitelist = JSON.parse(args[1]);
                 patchCSP(updatedCustomCSPWhitelist);
-            });
+            }); */
         } catch (err) {
             console.error(err);
         }

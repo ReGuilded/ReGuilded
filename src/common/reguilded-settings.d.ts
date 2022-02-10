@@ -23,13 +23,13 @@ export type ReGuildedSettingsUpdate = {
     themes?: ReGuildedExtensionSettings;
 };
 export type ReGuildedWhitelist = {
-    connectSrc: Array<string>,
-    defaultSrc: Array<string>,
-    fontSrc: Array<string>,
-    imgSrc: Array<string>,
-    mediaSrc: Array<string>,
-    scriptSrc: Array<string>,
-    styleSrc: Array<string>
+    connect: Array<string>,
+    default: Array<string>,
+    font: Array<string>,
+    img: Array<string>,
+    media: Array<string>,
+    script: Array<string>,
+    style: Array<string>
 };
 export interface ReGuildedExtensionSettings {
     enabled: string[];
