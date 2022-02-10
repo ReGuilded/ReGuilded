@@ -1,14 +1,15 @@
 import { types as badgeTypes, injectBadge, uninjectBadge, createFlairFromBadge } from "./badges-flairs";
+import { AddonApiExports } from "../addons/addonApi.types";
 import { WebpackRequire } from "../types/webpack";
 import SettingsHandler from "./handlers/settings";
 import WebpackHandler from "../addons/webpack";
+import { UserFlair } from "../guilded/models";
 import ThemeHandler from "./handlers/themes";
+import { FormSpecs } from "../guilded/form";
 import AddonHandler from "./handlers/addon";
 import AddonApi from "../addons/addonApi";
-import { FormSpecs } from "../guilded/form";
-import { AddonApiExports } from "../addons/addonApi.types";
-import { UserFlair } from "../guilded/models";
 
+import reGuildedMainCss from "../css/main.styl";
 import reGuildedCss from "../css/styles.styl";
 
 /**
@@ -46,7 +47,7 @@ export default class ReGuilded {
                 this.styling.append(
                     Object.assign(document.createElement("style"), {
                         id: "ReGuildedStyle-datagroup",
-                        innerHTML: "datagroup{display:none;}"
+                        innerHTML: reGuildedMainCss
                     }),
                     Object.assign(document.createElement("style"), {
                         id: "ReGuildedStyle-reguilded",

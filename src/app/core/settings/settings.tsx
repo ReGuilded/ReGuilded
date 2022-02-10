@@ -80,7 +80,8 @@ export default class SettingsInjector {
                 //     calloutBadgeProps: {
                 //         text: "Addon",
                 //         style: {
-                //             backgroundColor: "#CC5555"
+                //             backgroundColor: "#CC5555",
+                //             className: "ReGuildedSettings-badge"
                 //         }
                 //     }
                 // }

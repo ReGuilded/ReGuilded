@@ -3,7 +3,7 @@ import { RGAddonConfig } from "../../types/reguilded";
 import { Addon } from "../../../common/extensions";
 import WebpackManager from "../../addons/webpack";
 import AddonApi from "../../addons/addonApi";
-import ExtensionHandler, { ExtensionEvent } from "./extension";
+import ExtensionHandler from "./extension";
 import SettingsHandler from "./settings";
 import ReGuilded from "../ReGuilded";
 

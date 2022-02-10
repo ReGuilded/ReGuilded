@@ -112,20 +112,6 @@ export const types = {
             backgroundColor: "#10171F",
             color: "#CC5555"
         }
-        // // Sets the icon of the flair
-        // iconSrcFn: function () {
-        //     return "https://raw.githubusercontent.com/ReGuilded/ReGuilded/main/logo/ReGuilded_Red.svg";
-        // },
-        // // Sets the stack amount of the flair
-        // stackCountFn: function () {
-        //     return 1;
-        // },
-        // // Sets the title for the Flair.
-        // titleFn: function () {
-        //     return "ReGuilded Contributor";
-        // },
-        // // Sets the name of the flair
-        // name: "ReGuilded Contributor"
     }
 };
 

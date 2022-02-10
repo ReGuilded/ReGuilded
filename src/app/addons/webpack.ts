@@ -176,16 +176,4 @@ export default class WebpackManager {
     pushModule(mod: WebpackBundle) {
         return window.webpackJsonp.push(mod);
     }
-    // /**
-    //  * Removes pushed modules from WebpackJsonp with the given ID.
-    //  * @param {number} id The identifier of the pushed module
-    //  * @returns WebpackJsonp
-    //  */
-    // removeModules(id: number): WebpackBundle {
-    //     // Filtered webpackJsonp without the module
-    //     const filtered = window.webpackJsonp.filter(x => x[0][0] !== id);
-
-    //     window.webpackJsonp = filtered;
-    //     return filtered;
-    // }
 }
