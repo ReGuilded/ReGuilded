@@ -1,9 +1,11 @@
-import { exec } from "child_process";
-import injection from "./util/injection.js";
+import reGuildedInfo from "../common/reguilded.json";
 import uninjection from "./util/uninjection.js";
+import injection from "./util/injection.js";
+import { copy, writeFile } from "fs-extra";
+import { exec } from "child_process";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { copy, writeFile } from "fs-extra";
+
 import platform from "./util/platform";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -67,7 +69,7 @@ export async function prepareAndPackResources() {
     return new Promise<void>((resolve, reject) => {
         writeFile(
             join(__dirname, "app", "package.json"),
-            `{"name":"reguilded","main":"electron.patcher.js"}`,
+            `{"name":"reguilded","main":"electron.patcher.js", "version":"${reGuildedInfo.version}"}`,
             "utf8"
         ).then(() => exec("asar pack ./out/app ./out/reguilded.asar", (err) => {
             if (err) reject(err);
