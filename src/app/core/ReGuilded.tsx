@@ -35,7 +35,7 @@ export default class ReGuilded {
      * @param webpackRequire A function that gets Guilded modules.
      */
     async init(webpackRequire: WebpackRequire) {
-        return new Promise<void>(
+        return new Promise<void[]>(
             async (resolve, reject) => {
                 this.webpack = new WebpackHandler(webpackRequire);
 
@@ -65,9 +65,10 @@ export default class ReGuilded {
 
                 this.addons.webpack = this.webpack;
 
-                await this.addons.init()
-                    // TODO: Perhaps async init for themes and then Promise.all?
-                    .then(this.themes.init.bind(this.themes))
+                await Promise.all([
+                    this.addons.init(),
+                    this.themes.init()
+                ])
                     .then(resolve)
                     .catch(reject);
             }

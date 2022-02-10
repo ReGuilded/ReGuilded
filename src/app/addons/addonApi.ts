@@ -105,6 +105,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/components/MediaRenderer": webpack => webpack.withClassProperty("progressiveImageHasLoaded"),
     "guilded/components/CodeContainer": webpack => webpack.withClassProperty("tokenCodeLines"),
     "guilded/components/SearchBarV2": webpack => webpack.withClassProperty("_inputRef"),
+    "guilded/components/GuildedSelect": webpack => webpack.withClassProperty("selectedValue"),
     "guilded/components/ItemManager": webpack => webpack.withCode("ItemManager"),
     "guilded/components/OverflowButton": webpack => webpack.withClassProperty("isOpen"),
     "guilded/components/BannerWithButton": webpack => webpack.withClassProperty("hasText"),

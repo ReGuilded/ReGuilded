@@ -19,7 +19,7 @@ import {
     WordDividerLine
 } from "../guilded/components/content";
 import { MediaRenderer, UserBasicInfoDisplay } from "../guilded/components/display";
-import { Button, SearchBarV2, SimpleToggle } from "../guilded/input";
+import { Button, GuildedSelect, SearchBarV2, SimpleToggle } from "../guilded/input";
 import { OverflowButton } from "../guilded/menu";
 import {
     Carousel as CarouselList,
@@ -242,6 +242,8 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof CodeContainer }
     : N extends "guilded/components/SearchBarV2"
     ? { default: typeof SearchBarV2 }
+    : N extends "guilded/components/GuildedSelect"
+    ? { default: typeof GuildedSelect }
     : N extends "guilded/components/ItemManager"
     ? { default: typeof ItemManager }
     : N extends "guilded/components/OverflowButton"

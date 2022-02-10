@@ -32,7 +32,7 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
     /**
      * Initiates themes for ReGuilded and theme manager.
      */
-    init() {
+    async init(): Promise<void> {
         this.settingsHandler.settings.debugMode && console.log("Initiating theme manager");
 
         // For themes
@@ -42,19 +42,11 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
             }))
         );
 
-        this.config.setWatchCallback(this._watchCallback.bind(this));
-
-        for (let theme of this.config.getAll()) {
-            this.all.push(theme);
-            ~this.enabled.indexOf(theme.id) && this.load(theme);
-        }
+        await super.init();
     }
-    private _watchCallback(metadata: Theme, loaded: boolean, previousId: string): void {
+    protected override async watchCallback(metadata: Theme, loaded: boolean, previousId: string): Promise<void> {
         // Since we already have it loaded, we need to update it and unload
         if (loaded && ~this.enabled.indexOf(previousId)) this.unloadWithId(previousId);
-        // Update its metadata
-        const inAll = this.all.findIndex(other => other.dirname === metadata.dirname);
-        if (~inAll) this.all.splice(inAll, 1);
 
         const propFiles = typeof metadata.files === "string" ? [metadata.files] : metadata.files;
         metadata.files = propFiles;
@@ -66,18 +58,13 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
                 new TypeError(`Expected property 'files' to be either a string or an array. In path: ${metadata.dirname}`)
             );
 
-        // Since we already unloaded it or haven't loaded it at all
-        if (~this.enabled.indexOf(metadata.id)) this.load(metadata);
-
-        this.all.push(metadata);
-
-        this.dispatchEvent(new ExtensionEvent("change", metadata));
+        await super._watchCallbackBase(metadata);
     }
     /**
      * Loads a ReGuilded theme
      * @param metadata The ReGuilded theme to load
      */
-    async load(metadata: Theme) {
+    async load(metadata: Theme): Promise<void> {
         this.settingsHandler.settings.debugMode && console.log(`Loading theme by ID '${metadata.id}'`);
 
         await this.addStyleSheets(metadata);

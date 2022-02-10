@@ -11,9 +11,13 @@
         &s-container
             // Looks awful when extension touches the very bottom
             padding-bottom: 10px
-        &s-search
-            width: 246px
+        &s-topbar
             margin-bottom: 16px
+        &s-search
+            float: left
+            width: 246px
+        &s-sort
+            float: right
         &s-grid
             // Extension height
             grid-auto-rows: 260px
@@ -37,4 +41,4 @@
             &:not(:first-child)
                 margin-left: 10px
     &Settings-container-padded
-        sides('padding', 32px)
+        padding-horizontal: 32px

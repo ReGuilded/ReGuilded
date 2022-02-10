@@ -40,32 +40,13 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig,
     async init(): Promise<void> {
         this.settingsHandler.settings.debugMode && console.log("Initiating addon manager");
 
-        this.config.setWatchCallback(this._watchCallback.bind(this));
-
-        // Load addons that weren't catched by setWatchCallback
-        // Preload can be too fast for addon handler
-        await Promise.all(
-            this.config.getAll().map(addon => {
-                this.all.push(addon);
-                return ~this.enabled.indexOf(addon.id) && this.load(addon);
-            })
-        ).catch(e => {
-            console.error("Error while loading an addon:", e);
-        });
+        await super.init();
     }
-    private async _watchCallback(metadata: Addon, loaded: boolean, previousId: string): Promise<void> {
-        const isEnabled = ~this.enabled.indexOf(metadata.id);
+    protected override async watchCallback(metadata: Addon, loaded: boolean, previousId: string): Promise<void> {
         // If the addon is already loaded, unload it
-        AddonHandler._functionExists(metadata, "unload") && loaded && this.unload(metadata);
-        // If the addon is in the list of all loaded addons, remove it
-        if (~this.all.findIndex(other => other.dirname === metadata.dirname))
-            this.all.splice(this.all.indexOf(metadata), 1);
+        loaded && ~this.enabled.indexOf(previousId) && this.unload(metadata);
 
-        this.all.push(metadata);
-        // Load the addon if enabled.
-        isEnabled && (await this.load(metadata));
-
-        this.dispatchEvent(new ExtensionEvent("change", metadata));
+        await super._watchCallbackBase(metadata);
     }
     /**
      * Returns whether the exported function exists. If the export isn't a function or undefined, it returns a warning.
@@ -131,7 +112,7 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig,
     unload(metadata: Addon) {
         try {
             this.settingsHandler.settings.debugMode && console.log(`Unloading addon by ID '${metadata.id}''`);
-            metadata.exports.unload(this, this.webpack);
+            AddonHandler._functionExists(metadata, "unload") && metadata.exports.unload(this, this.webpack);
         } catch (e) {
             console.error(`Failed to unload an addon by ID '${metadata.id}':\n`, e);
         }

@@ -80,16 +80,8 @@ export type FieldAnySpecs =
     ) & { [unusedProp: string]: any };
 
 //#region Interfaces
-declare interface FieldSpecs<N, V> {
+declare interface FieldDefaultSpecs<V> {
     label?: string;
-    /**
-     * The type of the field
-     */
-    type: N;
-    /**
-     * Field name that will be used for formSpecs values list
-     */
-    fieldName?: string;
 
     /**
      * Default value of the field if none is provided
@@ -124,6 +116,17 @@ declare interface FieldSpecs<N, V> {
      */
     validationFunction?: ValidationFunction;
 }
+declare interface FieldRequiredSpecs<N> {
+    /**
+     * The type of the field
+     */
+    type: N;
+    /**
+     * Field name that will be used for formSpecs values list
+     */
+    fieldName?: string;
+}
+declare interface FieldSpecs<N, V> extends FieldRequiredSpecs<N>, FieldDefaultSpecs<V> {}
 declare interface FieldBasics {
     // /**
     //  * The displayed name of the field.
@@ -296,7 +299,7 @@ declare interface FieldTriStateSpecs extends FieldToggleSpecs<"TriState", "on" |
      */
     triStateDisabledButton?: null | 1;
 }
-declare interface FieldDropdownProps extends FieldHasOptions<OptionSpecs> {
+declare interface FieldDropdownProps extends FieldDefaultSpecs<OptionSpecs | any>, FieldHasOptions<OptionSpecs> {
     placeholder?: string;
     /**
      * @default false
@@ -343,14 +346,14 @@ declare interface FieldDropdownProps extends FieldHasOptions<OptionSpecs> {
      * @default false
      */
     contentEditable?: boolean;
-    optionSubLabelRenderer: (option: OptionSpecs) => ReactElement;
+    optionSubLabelRenderer?: (option: OptionSpecs) => ReactElement;
     useFuzzySort?: boolean;
     fuzzySortMaxResults?: number;
 }
 /**
  * The field that hides its options until it's clicked.
  */
-declare interface FieldDropdownSpecs extends FieldSpecs<"Dropdown", OptionSpecs | any>, FieldDropdownProps {}
+declare interface FieldDropdownSpecs extends FieldRequiredSpecs<"Dropdown">, FieldDropdownProps {}
 /**
  * The field that allows one option to be selected.
  *

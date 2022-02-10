@@ -7,6 +7,7 @@ export declare interface Extension<T extends string | string[]> {
     author?: string;
     contributors?: string[];
     version?: string;
+    _versionMatches?: string[];
     repoUrl?: string;
     banner?: string;
     images?: string[];

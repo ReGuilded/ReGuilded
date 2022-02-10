@@ -1,5 +1,6 @@
-import React from "react";
+import { FieldDropdownProps, OptionSpecs } from "./form";
 import { Size } from "./common";
+import React from "react";
 
 //#region Button
 export type ButtonType =
@@ -28,6 +29,15 @@ export declare class Button extends React.Component<ButtonProps> {
     get useHoverContext(): boolean;
     get Component(): typeof React.Component;
     get componentProps(): object;
+}
+//#endregion
+
+//#region GuildedSelect
+export declare class GuildedSelect extends React.Component<
+    FieldDropdownProps & { onChange?: (option: OptionSpecs) => void }
+> {
+    get selectedValue(): OptionSpecs | any;
+    get selectOptions(): OptionSpecs[];
 }
 //#endregion
 

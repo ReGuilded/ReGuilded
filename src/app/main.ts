@@ -11,11 +11,11 @@ function setPush(obj) {
 let hasInjected = false;
 function setUpWebpackInjection() {
     // To wait for the bundle to be created
-    if (document.readyState === "interactive")
+    if (document.readyState === "interactive" && window.bundle)
         // Wait when bundle loads
         window.bundle.addEventListener("load", injectWebpackJsonp);
     // Still try injecting even if it was too late
-    else if (!hasInjected && document.readyState === "complete") {
+    else if (!hasInjected && document.readyState === "complete" && window.webpackJsonp) {
         console.warn(
             "WebpackJsonp injection is too late. Still injecting. This may require loading a bundle that has not been loaded yet. If ReGuilded hasn't loaded yet, make sure to load settings or area that you have not yet viewed or refresh Guilded."
         );
