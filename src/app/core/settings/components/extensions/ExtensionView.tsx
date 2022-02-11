@@ -1,4 +1,4 @@
-import { ProvidedOverlay } from "../../../../addons/addonApi.types";
+import { ProvidedOverlay } from "../../../../guilded/decorators";
 import { AnyExtension } from "../../../../../common/extensions";
 import { RGExtensionConfig } from "../../../../types/reguilded";
 import ExtensionHandler from "../../../handlers/extension";

@@ -122,10 +122,11 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/components/TeamNavSectionItem": webpack => webpack.withCode("TeamNavSectionItem"),
     "guilded/components/TeamNavSectionsList": webpack => webpack.withClassProperty("isSomeActionSelected"),
     "guilded/components/ThreeColumns": webpack => webpack.withCode("ThreeColumns"),
+    "guilded/components/DragViewer": webpack => webpack.withClassProperty("enableDrag"),
     "guilded/components/ActionMenu": webpack => webpack.withClassProperty("actionMenuHeight"),
     "guilded/components/ActionMenuSection": webpack => webpack.withCode("ActionMenu-section"),
     "guilded/components/ActionMenuItem": webpack => webpack.withClassProperty("useRowWrapper"),
-    "guilded/components/Modal": webpack => webpack.withClassProperty("hasConfirm"),
+    "guilded/components/ModalV2": webpack => webpack.withClassProperty("hasConfirm"),
     "guilded/components/MarkRenderer": webpack => webpack.withClassProperty("mark"),
     "guilded/components/draggable": webpack => webpack.withProperty("DraggableTypes")
 };
@@ -691,6 +692,12 @@ export default class AddonApi {
     get ["guilded/components/WordDividerLine"](): AddonApiExports<"guilded/components/WordDividerLine"> {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/component/WordDividerLine");
     }
+    /**
+     * Component that displays a header of a page at the top of the screen.
+     */
+    get ["guilded/components/ScreenHeader"](): AddonApiExports<"guilded/components/ScreenHeader"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/component/ScreenHeader");
+    }
     get ["guilded/components/TeamNavSectionItem"](): AddonApiExports<"guilded/components/TeamNavSectionItem"> {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/TeamNavSectionItem");
     }
@@ -708,6 +715,12 @@ export default class AddonApi {
      */
     get ["guilded/components/draggable"](): AddonApiExports<"guilded/components/draggable"> {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/draggable");
+    }
+    /**
+     * Component for viewing content with drag support.
+     */
+    get ["guilded/components/DragViewer"](): AddonApiExports<"guilded/components/DragViewer"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/DragViewer");
     }
     /**
      * Provides action menu component for rendering Guilded right click, overflow and other kinds of menus.
@@ -730,8 +743,8 @@ export default class AddonApi {
     /**
      * Provides a component to render a Modal. Does not provide full Modal overlay.
      */
-    get ["guilded/components/Modal"](): AddonApiExports<"guilded/components/Modal"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/Modal");
+    get ["guilded/components/ModalV2"](): AddonApiExports<"guilded/components/ModalV2"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ModalV2");
     }
     get ["guilded/components/MarkRenderer"](): AddonApiExports<"guilded/components/MarkRenderer"> {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/MarkRenderer");

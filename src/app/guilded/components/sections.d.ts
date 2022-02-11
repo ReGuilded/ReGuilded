@@ -17,6 +17,16 @@ export declare class Carousel extends React.Component<{
 }
 //#endregion
 
+//#region DragViewer
+export declare class DragViewer extends React.Component<{
+    className?: string;
+    children: ReactNode | ReactNode[];
+}> {
+    get enableDrag(): boolean;
+    get hasInitialized(): boolean;
+}
+//#endregion
+
 //#region HorizontalTabs
 type TabOption = {
     iconName?: string;

@@ -1,4 +1,4 @@
-﻿import { ProvidedOverlay } from "../../../addons/addonApi.types";
+﻿import { ProvidedOverlay } from "../../../guilded/decorators";
 import reGuildedInfo from "../../../../common/reguilded.json";
 import ErrorBoundary from "./ErrorBoundary";
 

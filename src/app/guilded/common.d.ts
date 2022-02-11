@@ -2,7 +2,9 @@ import { ReactNode } from "react";
 
 export type Size = "xl" | "lg" | "md" | "sm" | "xsm";
 export type Alignment = "vertical" | "horizontal";
-export type Direction = "up" | "down";
+export type DirectionVertical = "up" | "down";
+export type DirectionHorizontal = "left" | "right";
+export type Direction = DirectionVertical | DirectionHorizontal;
 /**
  * This should typically be a string, but using elements in it does not lead to errors.
  *

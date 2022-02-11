@@ -1,5 +1,5 @@
-import { ComponentText, Direction, Size } from "../common";
-import React, { CSSProperties, ReactNode } from "react";
+import { ComponentText, DirectionVertical, Size } from "../common";
+import React, { CSSProperties } from "react";
 import { ButtonProps } from "../input";
 
 //#region BadgeV2
@@ -31,7 +31,7 @@ export type CalloutBadgeProps = {
     text?: ComponentText;
     style?: React.CSSProperties;
     hoverText?: string;
-    hoverDirection?: Direction;
+    hoverDirection?: DirectionVertical;
     contentEditable?: boolean;
 };
 export declare class CalloutBadge extends React.Component<CalloutBadgeProps> {
@@ -129,6 +129,7 @@ export declare class NullState extends React.Component<{
     type?: string;
     imageSrc?: string;
     size?: Size;
+    customComponent?: Function;
     // Text
     title: ComponentText;
     subtitle: ComponentText;
@@ -139,7 +140,6 @@ export declare class NullState extends React.Component<{
     alignment?: "left" | "center" | "right";
     style?: any;
     buttonProps?: ButtonProps;
-    customComponent?: Function;
 }> {
     get imageSrc(): string;
 }

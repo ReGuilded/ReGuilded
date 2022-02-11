@@ -1,6 +1,6 @@
 import React from "react";
-import { Size } from "../common";
-import { UserModel } from "../models";
+import { DirectionVertical, Size } from "../common";
+import { UserInfo, UserModel } from "../models";
 
 //#region MediaRenderer
 export declare class MediaRenderer extends React.Component<{
@@ -30,6 +30,7 @@ export declare class UserBasicInfoDisplay extends React.Component<{
      */
     user?: UserModel;
 
+    // Display
     size?: Size;
     avatarSize?: Size;
     /**
@@ -52,7 +53,25 @@ export declare class UserBasicInfoDisplay extends React.Component<{
      * @default false
      */
     disableNameUnderline?: boolean;
+    /**
+     * Displays a background based on role colour.
+     */
+    showBackgroundColor?: boolean;
+    /**
+     * Whether the user is dimmed out unless hovered over.
+     */
+    dimmable?: boolean;
+    /**
+     * Displays status to the bottom of the name of the user.
+     */
     showSecondaryInfo?: boolean;
+    statusTooltipDirection?: DirectionVertical;
+
+    // Action
+    /**
+     * Allows the user basic info display to be closable. Uses the provided callback when closing.
+     */
+    onClose?: (user: UserInfo) => void | PromiseLike<void>;
 }> {
     get name(): string;
     get userId(): string;

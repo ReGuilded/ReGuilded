@@ -1,4 +1,4 @@
-import { ProvidedOverlay } from "../../../../addons/addonApi.types";
+import { ProvidedOverlay } from "../../../../guilded/decorators";
 import { Addon } from "../../../../../common/extensions";
 import ExtensionItem from "./ExtensionItem";
 

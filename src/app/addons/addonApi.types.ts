@@ -23,31 +23,22 @@ import { Button, GuildedSelect, SearchBarV2, SimpleToggle } from "../guilded/inp
 import { OverflowButton } from "../guilded/menu";
 import {
     Carousel as CarouselList,
+    DragViewer,
     HorizontalTab,
     HorizontalTabs,
     TeamNavSectionItem,
     TeamNavSectionsList,
     ThreeColumns
 } from "../guilded/components/sections";
-import { ModalProps } from "../guilded/components/modals";
+import { ModalV2, ModalV2Props } from "../guilded/components/modals";
 import { EditorPlugin, NodeType } from "../guilded/slate";
 import { UserModel } from "../guilded/models";
+import { OverlayProvider, TypeMixin } from "../guilded/decorators";
+import { ScreenHeader } from "../guilded/components/page";
 //#endregion
 
 //#region OverlayProvider, decorators & type mixins
 type Decorator = <T>(type: T) => T;
-
-export type DefinedOverlay<A, R> = {
-    Open: (args: A) => Promise<R>;
-};
-export type ProvidedOverlay<T> = T extends "SimpleFormOverlay"
-    ? DefinedOverlay<ModalProps & { formSpecs: FormSpecs }, FormOutput & { confirmed: boolean }>
-    : T extends "DeleteConfirmationOverlay"
-    ? DefinedOverlay<{ name: string }, { confirmed: boolean }>
-    : T extends "SimpleConfirmationOverlay"
-    ? DefinedOverlay<ModalProps & { text: string }, { confirmed: boolean }>
-    : never;
-export type OverlayProviderContent<T extends string> = { [O in T]: ProvidedOverlay<O> };
 //#endregion
 
 //#region AddonApiExports
@@ -146,7 +137,7 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? any
     : // Settings
     N extends "guilded/settings/savableSettings"
-    ? { default: Decorator }
+    ? { default: TypeMixin<{ SaveChanges: (...args: any[]) => any; _handleOptionsChange: () => void }> }
     : N extends "guilded/settings/tabs"
     ? {
           [tabName: string]: {
@@ -161,7 +152,7 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     : N extends "guilded/overlays/OverlayStack"
     ? any
     : N extends "guilded/overlays/overlayProvider"
-    ? { default: <O extends string>(overlays: O[]) => Decorator }
+    ? { default: OverlayProvider }
     : // Context
     N extends "guilded/context/chatContext"
     ? any
@@ -268,23 +259,27 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof React.Component }
     : N extends "guilded/components/WordDividerLine"
     ? { default: typeof WordDividerLine }
+    : N extends "guilded/components/ScreenHeader"
+    ? { default: typeof ScreenHeader }
     : N extends "guilded/components/TeamNavSectionItem"
     ? { default: typeof TeamNavSectionItem }
     : N extends "guilded/components/TeamNavSectionsList"
     ? { default: typeof TeamNavSectionsList }
     : N extends "guilded/components/ThreeColumns"
     ? { default: typeof ThreeColumns }
-    : N extends "guilded/components/draggable"
-    ? any
+    : N extends "guilded/components/DragViewer"
+    ? { default: typeof DragViewer }
     : N extends "guilded/components/ActionMenu"
     ? { default: typeof React.Component }
     : N extends "guilded/components/ActionMenuSection"
     ? { default: typeof React.Component }
     : N extends "guilded/components/ActionMenuItem"
     ? { default: typeof React.Component }
-    : N extends "guilded/components/Modal"
-    ? { default: typeof React.Component }
+    : N extends "guilded/components/ModalV2"
+    ? { default: typeof ModalV2 }
     : N extends "guilded/components/MarkRenderer"
     ? { default: typeof React.Component }
+    : N extends "guilded/components/draggable"
+    ? any
     : unknown;
 //#endregion
