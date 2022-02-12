@@ -52,6 +52,7 @@
         "slate": "^0.72.3",
         "stylus": "^0.56.0",
         "sudo-prompt": "^9.2.1",
-        "typescript": "^4.5.2"
+        "typescript": "^4.5.2",
+        "moment": "^2.29.1"
     }
 }

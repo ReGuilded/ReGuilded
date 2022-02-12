@@ -1,6 +1,7 @@
 import { MessageContent, TemplateParameterOptions } from "./rich-text";
 import React, { ReactElement, ReactNode } from "react";
 import { Alignment, Size } from "./common";
+import { Moment } from "moment";
 
 //#region Form specs
 export type FormSpecs = {
@@ -479,7 +480,7 @@ declare interface FieldButtonSpecs extends FieldSpecs<"Button", undefined> {
  * Present in event creation.
  */
 declare interface FieldDateAndTimeRangeSpecs
-    extends FieldSpecs<"DateAndTimeRange", { startMoment: object; endMoment: object }>,
+    extends FieldSpecs<"DateAndTimeRange", { startMoment: Moment; endMoment: Moment }>,
         FieldBasics {
     allowPastValues?: boolean;
 }
@@ -500,7 +501,7 @@ declare interface FieldEventRepeatSpecs
  * Present in date and time range field.
  * This will always hold a value.
  */
-declare interface FieldDateSpecs extends FieldSpecs<"Date", object>, FieldBasics {
+declare interface FieldDateSpecs extends FieldSpecs<"Date", Moment>, FieldBasics {
     hasError?: boolean;
     allowPastValues?: boolean;
 }
