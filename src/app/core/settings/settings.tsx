@@ -1,8 +1,8 @@
-﻿import AddonSettings from "./components/extensions/AddonSettings";
-import ThemeSettings from "./components/extensions/ThemeSettings";
+﻿import AddonSettings from "./components/enhancements/AddonSettings";
+import ThemeSettings from "./components/enhancements/ThemeSettings";
 import GeneralSettings from "./components/GeneralSettings";
-import AddonView from "./components/extensions/AddonView";
-import ThemeView from "./components/extensions/ThemeView";
+import AddonView from "./components/enhancements/AddonView";
+import ThemeView from "./components/enhancements/ThemeView";
 import TabbedSettings from "./components/TabbedSettings";
 import { patchElementRenderer } from "../../addons/lib";
 import patcher from "../../addons/patcher";
@@ -74,8 +74,8 @@ export default class SettingsInjector {
                     }
                 },
                 // {
-                //     id: "rgAddon-extension",
-                //     label: "Extension Name",
+                //     id: "rgAddon-enhancement",
+                //     label: "Enhancement Name",
                 //     Component: ThemeSettings,
                 //     calloutBadgeProps: {
                 //         text: "Addon",

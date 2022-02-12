@@ -39,7 +39,7 @@ require.main.filename = join(guildedPath, "main.js");
 ipcMain.on("reguilded-preload", event => {
     event.returnValue = event.sender.guildedPreload;
 });
-ipcMain.handle("reguilded-extension-dialog", async (_, type) => {
+ipcMain.handle("reguilded-enhancement-dialog", async (_, type) => {
     return await electron.dialog
         .showOpenDialog(electron.BrowserWindow.getFocusedWindow(), {
             title: `Import ${type}`,
@@ -113,7 +113,7 @@ app.whenReady().then(() => {
         style: []
     };
     const customWhitelistPath = join(settingsPath, "custom-csp-whitelist.json");
-    new Promise((resolve) => {
+    new Promise(resolve => {
         access(customWhitelistPath, err => {
             if (!err) {
                 customCspWhitelist = require(customWhitelistPath);
@@ -122,82 +122,82 @@ app.whenReady().then(() => {
             resolve();
         });
     })
-    .then(() => {
-        const patchCSP = (customCspWhitelistParam = customCspWhitelist) => {
-            _webRequest.onHeadersReceived(filter, (details, callback) => {
-                const patchedCallback = headers => {
-                    callback({responseHeaders: headers});
-                };
-                const csp = {
-                    permissive: details.responseHeaders["content-security-policy-report-only"],
-                    enforcing: details.responseHeaders["content-security-policy"],
-                    patch: async (policy, enforcing) => {
-                        const originalPolicy = policy;
-                        let modifiedPolicyStr = originalPolicy[0];
+        .then(() => {
+            const patchCSP = (customCspWhitelistParam = customCspWhitelist) => {
+                _webRequest.onHeadersReceived(filter, (details, callback) => {
+                    const patchedCallback = headers => {
+                        callback({ responseHeaders: headers });
+                    };
+                    const csp = {
+                        permissive: details.responseHeaders["content-security-policy-report-only"],
+                        enforcing: details.responseHeaders["content-security-policy"],
+                        patch: async (policy, enforcing) => {
+                            const originalPolicy = policy;
+                            let modifiedPolicyStr = originalPolicy[0];
 
-                        modifiedPolicyStr = modifiedPolicyStr.replace(/report\-uri.*?;/, " ");
+                            modifiedPolicyStr = modifiedPolicyStr.replace(/report\-uri.*?;/, " ");
 
-                        for (const entry in cspWhitelist) {
-                            let directive = `${entry}-src`,
-                                directiveWhiteListStr = cspWhitelist[entry].concat(cspWhitelist["all"]).join(" ");
+                            for (const entry in cspWhitelist) {
+                                let directive = `${entry}-src`,
+                                    directiveWhiteListStr = cspWhitelist[entry].concat(cspWhitelist["all"]).join(" ");
 
-                            // Uses elem variant of directive if found, otherwise leaves it as-is
-                            if (modifiedPolicyStr.includes(`${directive}-elem`)) directive = `${directive}-elem`;
+                                // Uses elem variant of directive if found, otherwise leaves it as-is
+                                if (modifiedPolicyStr.includes(`${directive}-elem`)) directive = `${directive}-elem`;
 
-                            // If directive (-elem or otherwise) is still not found, just append to default-src, failing that make it from scratch
-                            if (entry !== "all") {
-                                if (modifiedPolicyStr.includes(directive))
-                                    modifiedPolicyStr = modifiedPolicyStr.replace(
-                                        directive,
-                                        `${directive} ${directiveWhiteListStr}`
-                                    );
-                                else if (modifiedPolicyStr.includes('default-src'))
-                                    modifiedPolicyStr = modifiedPolicyStr.replace(
-                                        'default-src',
-                                        `default-src ${directiveWhiteListStr}`
-                                    )                                
-                                else modifiedPolicyStr.concat(` default-src ${directiveWhiteListStr}`);
-                            };
+                                // If directive (-elem or otherwise) is still not found, just append to default-src, failing that make it from scratch
+                                if (entry !== "all") {
+                                    if (modifiedPolicyStr.includes(directive))
+                                        modifiedPolicyStr = modifiedPolicyStr.replace(
+                                            directive,
+                                            `${directive} ${directiveWhiteListStr}`
+                                        );
+                                    else if (modifiedPolicyStr.includes("default-src"))
+                                        modifiedPolicyStr = modifiedPolicyStr.replace(
+                                            "default-src",
+                                            `default-src ${directiveWhiteListStr}`
+                                        );
+                                    else modifiedPolicyStr.concat(` default-src ${directiveWhiteListStr}`);
+                                }
+                            }
+
+                            const modifiedPolicy = [modifiedPolicyStr];
+
+                            if (enforcing) details.responseHeaders["content-security-policy"] = modifiedPolicy;
+                            else details.responseHeaders["content-security-policy-report-only"] = modifiedPolicy;
+
+                            return details.responseHeaders;
                         }
+                    };
 
-                        const modifiedPolicy = [modifiedPolicyStr];
+                    if (!csp.permissive && !csp.enforcing) return callback({});
 
-                        if (enforcing)
-                            details.responseHeaders["content-security-policy"] = modifiedPolicy;
-                        else 
-                            details.responseHeaders["content-security-policy-report-only"] = modifiedPolicy;
+                    if (csp.permissive)
+                        csp.patch(csp.permissive, false).then(patchedHeaders => patchedCallback(patchedHeaders));
 
-                        return details.responseHeaders;
-                    }
-                };
-
-                if (!csp.permissive && !csp.enforcing) return callback({});
-
-                if (csp.permissive) csp.patch(csp.permissive, false).then(patchedHeaders => patchedCallback(patchedHeaders));
-
-                if (csp.enforcing) csp.patch(csp.enforcing, true).then(patchedHeaders => patchedCallback(patchedHeaders));
-            });
-            // Apply Custom Whitelist
-            for (const directive in customCspWhitelistParam) {
-                if (directive !== "all")
-                    cspWhitelist[directive] = cspWhitelist[directive]
-                                                .concat(customCspWhitelist[directive])
-                                                .concat(customCspWhitelist["all"]);
+                    if (csp.enforcing)
+                        csp.patch(csp.enforcing, true).then(patchedHeaders => patchedCallback(patchedHeaders));
+                });
+                // Apply Custom Whitelist
+                for (const directive in customCspWhitelistParam) {
+                    if (directive !== "all")
+                        cspWhitelist[directive] = cspWhitelist[directive]
+                            .concat(customCspWhitelist[directive])
+                            .concat(customCspWhitelist["all"]);
+                }
             };
-        };
 
-        // Patch CSP (Content-Security-Policy)
-        try {
-            patchCSP();
-            /* ipcMain.handle("reguilded-repatch-csp", (...args) => {
+            // Patch CSP (Content-Security-Policy)
+            try {
+                patchCSP();
+                /* ipcMain.handle("reguilded-repatch-csp", (...args) => {
                 const updatedCustomCSPWhitelist = JSON.parse(args[1]);
                 patchCSP(updatedCustomCSPWhitelist);
             }); */
-        } catch (err) {
-            console.error(err);
-        }
-    })
-    .catch(err => console.log(err));
+            } catch (err) {
+                console.error(err);
+            }
+        })
+        .catch(err => console.log(err));
 });
 
 // Create Electron clone with modified BrowserWindow to inject ReGuilded preload

@@ -1,7 +1,7 @@
 import { ProvidedOverlay } from "../../../../guilded/decorators";
-import { AnyExtension } from "../../../../../common/extensions";
-import { RGExtensionConfig } from "../../../../types/reguilded";
-import ExtensionHandler from "../../../handlers/extension";
+import { AnyEnhancement } from "../../../../../common/enhancements";
+import { RGEnhancementConfig } from "../../../../types/reguilded";
+import EnhancementHandler from "../../../handlers/enhancement";
 import { ChildTabProps } from "../TabbedSettings";
 import PreviewCarousel from "./PreviewCarousel";
 import ErrorBoundary from "../ErrorBoundary";
@@ -20,12 +20,12 @@ const React = window.ReGuilded.getApiProperty("react"),
     { default: { WebhookEmbed } } = window.ReGuilded.getApiProperty("guilded/editor/grammars"),
     { default: HorizontalTabs } = window.ReGuilded.getApiProperty("guilded/components/HorizontalTabs");
 
-type Props<T> = ChildTabProps & { extension: T };
+type Props<T> = ChildTabProps & { enhancement: T };
 
 @savableSettings
 @defaultContextProvider
 @overlayProvider(["DeleteConfirmationOverlay"])
-export default abstract class ExtensionView<T extends AnyExtension> extends React.Component<Props<T>, { enabled: boolean | number }> {
+export default abstract class EnhancementView<T extends AnyEnhancement> extends React.Component<Props<T>, { enabled: boolean | number }> {
     // Class functions with proper `this` to not rebind every time
     private _onToggleBinded: () => Promise<void>;
     private _onDeleteBinded: () => Promise<void>;
@@ -33,7 +33,7 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
 
     // Configuration
     protected type: string;
-    protected extensionHandler: ExtensionHandler<T, RGExtensionConfig<T>>;
+    protected enhancementHandler: EnhancementHandler<T, RGEnhancementConfig<T>>;
     protected tabs = [ { name: "Overview" } ];
 
     // From decorators
@@ -47,37 +47,37 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
         super(props, context);
 
         this.state = {
-            enabled: ~window.ReGuilded.themes.enabled.indexOf(this.props.extension.id)
+            enabled: ~window.ReGuilded.themes.enabled.indexOf(this.props.enhancement.id)
         };
         this._onToggleBinded = this._onToggle.bind(this);
         this._onDeleteBinded = this._onDelete.bind(this);
-        this._openDirectory = window.ReGuildedConfig.openItem.bind(null, this.props.extension.dirname);
+        this._openDirectory = window.ReGuildedConfig.openItem.bind(null, this.props.enhancement.dirname);
         this.SaveChanges = coroutine(this.onSaveChanges);
     }
     protected abstract onSaveChanges(formOutput: FormOutput): Iterable<PromiseLike<unknown>>;
     /**
-     * Toggles the extension's enabled state.
-     * @param enabled The new extension state
+     * Toggles the enhancement's enabled state.
+     * @param enabled The new enhancement state
      */
     private async _onToggle(): Promise<void> {
-        await this.extensionHandler[this.state.enabled ? "savedUnload" : "savedLoad"](this.props.extension)
+        await this.enhancementHandler[this.state.enabled ? "savedUnload" : "savedLoad"](this.props.enhancement)
             .then(() => this.setState({ enabled: !this.state.enabled }));
     }
     /**
-     * Confirms whether the extension should be deleted and deletes it if the modal is confirmed.
+     * Confirms whether the enhancement should be deleted and deletes it if the modal is confirmed.
      */
     private async _onDelete(): Promise<void> {
         await this.DeleteConfirmationOverlay.Open({ name: this.type })
-            .then(async ({ confirmed }) => confirmed && await this.extensionHandler.delete(this.props.extension))
+            .then(async ({ confirmed }) => confirmed && await this.enhancementHandler.delete(this.props.enhancement))
             // To not stay in the screen and break something
-            .then(() => this.props.switchTab('list', { extension: {} }));
+            .then(() => this.props.switchTab('list', { enhancement: {} }));
     }
     /**
-     * Renders additional content for the extension.
-     * @param extension The current extension
+     * Renders additional content for the enhancement.
+     * @param enhancement The current enhancement
      * @returns Additional content
      */
-    protected abstract renderTabs(extension: T): ReactElement | ReactElement[];
+    protected abstract renderTabs(enhancement: T): ReactElement | ReactElement[];
     /**
      * Returns the action form component depending on the state.
      * @returns Form element
@@ -135,31 +135,31 @@ export default abstract class ExtensionView<T extends AnyExtension> extends Reac
         );
     }
     render() {
-        const { props: { switchTab, extension, defaultTabIndex }, tabs } = this;
+        const { props: { switchTab, enhancement, defaultTabIndex }, tabs } = this;
 
         return (
             <ErrorBoundary>
-                <div className="OptionsMenuPageWrapper-container ReGuildedExtensionPage-wrapper" style={{ paddingLeft: 32, paddingRight: 32, maxWidth: "100%" }}>
-                    <div className="ReGuildedExtensionPage-container">
-                        <header className="ReGuildedExtensionPage-header DocsDisplayV2-title">
+                <div className="OptionsMenuPageWrapper-container ReGuildedEnhancementPage-wrapper" style={{ paddingLeft: 32, paddingRight: 32, maxWidth: "100%" }}>
+                    <div className="ReGuildedEnhancementPage-container">
+                        <header className="ReGuildedEnhancementPage-header DocsDisplayV2-title">
                             {/* <| */}
-                            <div className="BackLink-container BackLink-container-desktop BackLink-container-size-md ScreenHeader-back" onClick={() => switchTab("list", { extension: {} })}>
+                            <div className="BackLink-container BackLink-container-desktop BackLink-container-size-md ScreenHeader-back" onClick={() => switchTab("list", { enhancement: {} })}>
                                 <SvgIcon iconName="icon-back" className="BackLink-icon"/>
                             </div>
                             {/* Title */}
-                            <GuildedText type="heading3">{ extension.name } settings</GuildedText>
+                            <GuildedText type="heading3">{ enhancement.name } settings</GuildedText>
                         </header>
                         <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: tabs }} defaultSelectedTabIndex={defaultTabIndex}>
-                            <div className="ReGuildedExtensionPage-tab">
+                            <div className="ReGuildedEnhancementPage-tab">
                                 {/* Description */}
-                                { extension.readme?.length ? <MarkdownRenderer plainText={extension.readme} grammar={WebhookEmbed}/> : null }
+                                { enhancement.readme?.length ? <MarkdownRenderer plainText={enhancement.readme} grammar={WebhookEmbed}/> : null }
                                 {/* Preview images carousel */}
-                                { extension.images && window.ReGuilded.settingsHandler.settings.loadImages &&
-                                    <PreviewCarousel extensionId={extension.id} extensionHandler={this.extensionHandler} />
+                                { enhancement.images && window.ReGuilded.settingsHandler.settings.loadImages &&
+                                    <PreviewCarousel enhancementId={enhancement.id} enhancementHandler={this.enhancementHandler} />
                                 }
                                 { this.renderActionForm() }
                             </div>
-                            { this.renderTabs(extension) }
+                            { this.renderTabs(enhancement) }
                         </HorizontalTabs>
                     </div>
                 </div>

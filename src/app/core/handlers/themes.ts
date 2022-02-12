@@ -1,29 +1,29 @@
-import { ReGuildedExtensionSettings } from "../../../common/reguilded-settings.js";
+import { ReGuildedEnhancementSettings } from "../../../common/reguilded-settings.js";
 import { RGThemeConfig } from "../../types/reguilded.js";
-import { Theme } from "../../../common/extensions.js";
-import ExtensionHandler, { ExtensionEvent } from "./extension.js";
+import { Theme } from "../../../common/enhancements.js";
+import EnhancementHandler from "./enhancement.js";
 import SettingsHandler from "./settings.js";
 import ReGuilded from "../ReGuilded.js";
 
 /**
  * Manager that manages ReGuilded's themes
  */
-export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig> {
+export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfig> {
     static allowedSettingsTypes = [undefined, null, "url", "size", "color", "number", "percent"];
     static allowedSettingsValues = ["string", "boolean", "number", "undefined"];
     megaGroup?: Element;
-    //idsToCss: { [extensionId: string]: string[] };
+    //idsToCss: { [enhancementId: string]: string[] };
     /**
      * Manager that manages ReGuilded's themes
      * @param parent The parent ReGuilded instance
      * @param themesDir The directory of the ReGuilded themes
      * @param settings The settings of the themes
-     * @param settingsHandler The extension settings handler
+     * @param settingsHandler The enhancement settings handler
      * @param config The preload config for themes
      */
     constructor(
         parent: ReGuilded,
-        settings: ReGuildedExtensionSettings,
+        settings: ReGuildedEnhancementSettings,
         settingsHandler: SettingsHandler,
         config: RGThemeConfig
     ) {
@@ -101,7 +101,7 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
         // Using keys instead of values to validate id as well
         for (let propId of metadata.settingsProps) {
             // Validate ID
-            if (!propId.match(ExtensionHandler.idRegex))
+            if (!propId.match(EnhancementHandler.idRegex))
                 return console.warn("Incorrect syntax for property", propId, ". Theme ID:", metadata.id);
 
             const prop = metadata.settings[propId];

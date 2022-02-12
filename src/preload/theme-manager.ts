@@ -1,10 +1,10 @@
 import { promises as fsPromises, readFile, writeFile } from "fs";
 import { isAbsolute, join, resolve as pathResolve } from "path";
-import ExtensionManager from "./extension-manager";
-import { Theme } from "../common/extensions";
+import EnhancementManager from "./enhancement-manager";
+import { Theme } from "../common/enhancements";
 
 // TODO: Checking
-export default class ThemeManager extends ExtensionManager<Theme> {
+export default class ThemeManager extends EnhancementManager<Theme> {
     constructor(dirname: string) {
         super("theme", dirname);
 

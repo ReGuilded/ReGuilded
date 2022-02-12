@@ -1,4 +1,4 @@
-﻿import { AnyExtension } from "../../../../../common/extensions";
+﻿import { AnyEnhancement } from "../../../../../common/enhancements";
 import { MenuSpecs } from "../../../../guilded/menu";
 import { UserInfo } from "../../../../guilded/models";
 import ErrorBoundary from "../ErrorBoundary";
@@ -25,7 +25,7 @@ type State = {
     author?: UserInfo
 };
 
-export default abstract class ExtensionItem<P extends AnyExtension, S = {}> extends React.Component<P & AdditionalProps, State & S> {
+export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> extends React.Component<P & AdditionalProps, State & S> {
     protected overflowMenuSpecs: MenuSpecs;
     private hasToggled: boolean;
     private _onToggleBinded: (enabled: boolean) => Promise<void>;
@@ -35,11 +35,11 @@ export default abstract class ExtensionItem<P extends AnyExtension, S = {}> exte
 
         // Can't put it into props because of JavaScript schenanigans
         this.overflowMenuSpecs = {
-            id: "ExtensionMenu",
+            id: "EnhancementMenu",
             sections: [
                 {
-                    name: "Extension",
-                    header: "Extension",
+                    name: "Enhancement",
+                    header: "Enhancement",
                     type: "rows",
                     actions: [
                         {
@@ -67,12 +67,12 @@ export default abstract class ExtensionItem<P extends AnyExtension, S = {}> exte
         const readmeLength = readme?.length;
 
         return (
-            <span className={"CardWrapper-container CardWrapper-container-desktop PlayerAliasCard-container PlayerAliasCard-container-type-game UserProfileGamesTab-card ReGuildedExtension-container ReGuildedExtension-container-" + (enabled ? "enabled" : "disabled") } onClick={() => switchTab("specific", { extension: this.props })}>
+            <span className={"CardWrapper-container CardWrapper-container-desktop PlayerAliasCard-container PlayerAliasCard-container-type-game UserProfileGamesTab-card ReGuildedEnhancement-container ReGuildedEnhancement-container-" + (enabled ? "enabled" : "disabled") } onClick={() => switchTab("specific", { enhancement: this.props })}>
                 <div className="PlayerCard-container PlayerCard-container-desktop PlayerAliasCard-card">
                     {/* Banner */}
                     <StretchFadeBackground type="full-blur" className="PlayerBanner-container PlayerCard-banner" position="centered" src={banner || "/asset/TeamSplash/Minecraft-sm.jpg"} />
                     {/* Header */}
-                    <div className="PlayerCardGameInfo-container PlayerCard-info ReGuildedExtension-header">
+                    <div className="PlayerCardGameInfo-container PlayerCard-info ReGuildedEnhancement-header">
                         {/* Icon can be inputed here, if it will be ever necessary */}
                         {/* Header info */}
                         <div className="PlayerCardGameInfo-name-alias" onClick={e => e.stopPropagation()}>
@@ -82,11 +82,11 @@ export default abstract class ExtensionItem<P extends AnyExtension, S = {}> exte
                                 defaultValue={enabled}
                                 onChange={async (newState: boolean) => (this.hasToggled || (newState !== enabled && typeof newState !== "number")) && (this.hasToggled = true, await this.onToggle(newState))}/>
                             <GuildedText type="subtext" block={true}>{ version ? `Version ${version}` : "Latest release" }</GuildedText>
-                            <div className="ReGuildedExtension-author">
+                            <div className="ReGuildedEnhancement-author">
                                 <br/>
                                 {this.state.author
                                     ? <UserBasicInfoDisplay size="sm" user={new UserModel(this.state.author)} />
-                                    : <GuildedText className="ReGuildedExtension-no-author" block={true} type="subtext">{this.props.author ? "By user " + this.props.author : "Unknown author"}</GuildedText>
+                                    : <GuildedText className="ReGuildedEnhancement-no-author" block={true} type="subtext">{this.props.author ? "By user " + this.props.author : "Unknown author"}</GuildedText>
                                 }
                             </div>
                         </div>
@@ -99,7 +99,7 @@ export default abstract class ExtensionItem<P extends AnyExtension, S = {}> exte
                 <div className="UserSocialPresence-container PlayerAliasCard-info">
                     {/* Description */}
                     <div className="UserRichSocialLink-container">
-                        <div className="ReGuildedExtension-description">
+                        <div className="ReGuildedEnhancement-description">
                             { readmeLength
                                 ? <MarkdownRenderer plainText={(readmeLength > 150 ? readme.slice(0, 150) + "..." : readme)} grammar={WebhookEmbed}/>
                                 : <GuildedText type="gray" block={true}>No description provided.</GuildedText> }

@@ -1,7 +1,7 @@
-import { ReGuildedExtensionSettings } from "../../../../../common/reguilded-settings";
-import { AnyExtension } from "../../../../../common/extensions";
-import { RGExtensionConfig } from "../../../../types/reguilded";
-import ExtensionHandler from "../../../handlers/extension";
+import { ReGuildedEnhancementSettings } from "../../../../../common/reguilded-settings";
+import { AnyEnhancement } from "../../../../../common/enhancements";
+import { RGEnhancementConfig } from "../../../../types/reguilded";
+import EnhancementHandler from "../../../handlers/enhancement";
 import { OptionSpecs } from "../../../../guilded/form";
 
 const React = window.ReGuilded.getApiProperty("react"),
@@ -29,7 +29,7 @@ const sortingOptions: OptionSpecs[] = [
         value: 2
     }
 ];
-const versionSorter = (a: AnyExtension, b: AnyExtension) => {
+const versionSorter = (a: AnyEnhancement, b: AnyEnhancement) => {
     const aVersion = a._versionMatches, bVersion = b._versionMatches;
     // Both checks if both of them exists and creates number for sorting if one of them doesn't.
     // The one that is undefined will be higher, as undefined is seen as "Latest release"
@@ -45,14 +45,14 @@ const versionSorter = (a: AnyExtension, b: AnyExtension) => {
         return 0;
     }
 }
-const sortFns: Array<(a: AnyExtension, b: AnyExtension) => number> = [
+const sortFns: Array<(a: AnyEnhancement, b: AnyEnhancement) => number> = [
     undefined,
     versionSorter,
     (a, b) => -versionSorter(a, b)
 ];
 
-export class ExtensionGrid<T extends AnyExtension, C extends RGExtensionConfig<T>, S extends ReGuildedExtensionSettings = ReGuildedExtensionSettings> extends React.Component<
-    { type: string, extensionHandler: ExtensionHandler<T, C, S>, ItemTemplate: typeof React.Component, switchTab: Function },
+export class EnhancementGrid<T extends AnyEnhancement, C extends RGEnhancementConfig<T>, S extends ReGuildedEnhancementSettings = ReGuildedEnhancementSettings> extends React.Component<
+    { type: string, enhancementHandler: EnhancementHandler<T, C, S>, ItemTemplate: typeof React.Component, switchTab: Function },
     { searchInput?: string, filteredItems?: T[], sort: number }
 > {
     private _searchPlaceholder: string;
@@ -72,8 +72,8 @@ export class ExtensionGrid<T extends AnyExtension, C extends RGExtensionConfig<T
     private async onSearch(input: string) {
         if (input) {
             // Filter based on name, id or description
-            const filteredItems = this.props.extensionHandler.all.filter(extension =>
-                ~extension.name.indexOf(input) || ~extension.id.indexOf(input) || (extension.readme ? ~extension.readme.indexOf(input) : 0)
+            const filteredItems = this.props.enhancementHandler.all.filter(enhancement =>
+                ~enhancement.name.indexOf(input) || ~enhancement.id.indexOf(input) || (enhancement.readme ? ~enhancement.readme.indexOf(input) : 0)
             );
 
             this.setState({
@@ -85,13 +85,13 @@ export class ExtensionGrid<T extends AnyExtension, C extends RGExtensionConfig<T
             filteredItems: null
         });
     }
-    private get filteredExtensions() {
+    private get filteredEnhancements() {
         const { state: { filteredItems }, _searchNullSubtitle } = this;
 
         return this.renderItems("not-found", "Cannot find anything", _searchNullSubtitle, filteredItems);
     }
-    private get normalExtensions() {
-        const { props: { extensionHandler: { all } }, _nothingSubtitle } = this;
+    private get normalEnhancements() {
+        const { props: { enhancementHandler: { all } }, _nothingSubtitle } = this;
 
         return this.renderItems("nothing-here", "Nothing is installed", _nothingSubtitle, all);
     }
@@ -102,8 +102,8 @@ export class ExtensionGrid<T extends AnyExtension, C extends RGExtensionConfig<T
 
         return (
             items.length
-            ? <div className="ReGuildedExtensions-grid UserProfileGamesTab-grid">
-                { sorted.map(extension => <ItemTemplate {...extension} switchTab={switchTab} />) }
+            ? <div className="ReGuildedEnhancements-grid UserProfileGamesTab-grid">
+                { sorted.map(enhancement => <ItemTemplate {...enhancement} switchTab={switchTab} />) }
               </div>
             : <NullState type={nullStateType} title={nullStateTitle} subtitle={nullStateSubtitle} alignment="center" />
         );
@@ -112,14 +112,14 @@ export class ExtensionGrid<T extends AnyExtension, C extends RGExtensionConfig<T
         const { _searchPlaceholder, _onSearchBinded, state: { searchInput } } = this;
 
         return (
-            <div className="ReGuildedExtensions-container UserProfileGamesTab-container ContentLoader-container">
-                <div className="ReGuildedExtensions-topbar">
-                    <SearchBarInput className="ReGuildedExtensions-search" searchTerm={searchInput} placeholder={_searchPlaceholder} onChange={_onSearchBinded}/>
-                    <GuildedSelect className="ReGuildedExtensions-sort" defaultValue={sortingOptions[0]} options={sortingOptions} grow={0} onChange={option => this.setState({ sort: option.value })} />
+            <div className="ReGuildedEnhancements-container UserProfileGamesTab-container ContentLoader-container">
+                <div className="ReGuildedEnhancements-topbar">
+                    <SearchBarInput className="ReGuildedEnhancements-search" searchTerm={searchInput} placeholder={_searchPlaceholder} onChange={_onSearchBinded}/>
+                    <GuildedSelect className="ReGuildedEnhancements-sort" defaultValue={sortingOptions[0]} options={sortingOptions} grow={0} onChange={option => this.setState({ sort: option.value })} />
                 </div>
                 { searchInput
-                    ? this.filteredExtensions
-                    : this.normalExtensions
+                    ? this.filteredEnhancements
+                    : this.normalEnhancements
                 }
             </div>
         );

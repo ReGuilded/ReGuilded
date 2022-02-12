@@ -1,15 +1,15 @@
-import { Addon } from "../../../../../common/extensions";
+import { Addon } from "../../../../../common/enhancements";
 import { FormOutput } from "../../../../guilded/form";
-import ExtensionView from "./ExtensionView";
+import EnhancementView from "./EnhancementView";
 
 const React = window.ReGuilded.getApiProperty("react"),
     { default: Form } = window.ReGuilded.getApiProperty("guilded/components/Form"),
     { default: NullState } = window.ReGuilded.getApiProperty("guilded/components/NullState"),
     { default: BannerWithButton } = window.ReGuilded.getApiProperty("guilded/components/BannerWithButton");
 
-export default class AddonView extends ExtensionView<Addon> {
+export default class AddonView extends EnhancementView<Addon> {
     protected type = "addon";
-    protected extensionHandler = window.ReGuilded.addons;
+    protected enhancementHandler = window.ReGuilded.addons;
 
     _SaveBinded: () => Promise<void>;
 
@@ -24,18 +24,18 @@ export default class AddonView extends ExtensionView<Addon> {
         if (isValid) {
             const givenPermissions = permissions.map(x => x.value && x.optionName).reduce((a, b) => a | b);
 
-            this.extensionHandler.setPermissions(this.props.extension.id, givenPermissions);
+            this.enhancementHandler.setPermissions(this.props.enhancement.id, givenPermissions);
         }
     }
     protected override renderTabs(addon: Addon) {
         const { requiredPermissions } = addon;
-        const presentPermissions = this.extensionHandler.getPermissionsOf(addon.id);
+        const presentPermissions = this.enhancementHandler.getPermissionsOf(addon.id);
 
         return (
-            <div className="ReGuildedExtensionPage-tab">
+            <div className="ReGuildedEnhancementPage-tab">
                 { requiredPermissions
                     ? <>
-                        <BannerWithButton theme="warning" iconName="icon-filter" className="ReGuildedExtensionPage-warning" text="Basic information that can't be used maliciously will be given by default. Please DO NOT give a permission to an addon if you do not know how it will be used."/>
+                        <BannerWithButton theme="warning" iconName="icon-filter" className="ReGuildedEnhancementPage-warning" text="Basic information that can't be used maliciously will be given by default. Please DO NOT give a permission to an addon if you do not know how it will be used."/>
                         <Form onChange={this._handleOptionsChange} formSpecs={{
                             sections: [
                                 {

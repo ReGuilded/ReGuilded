@@ -1,5 +1,5 @@
 import React from "react";
-import { Addon, AnyExtension, Theme } from "../../common/extensions";
+import { Addon, AnyEnhancement, Theme } from "../../common/enhancements";
 import { ReGuildedSettings, ReGuildedSettingsUpdate } from "../../common/reguilded-settings";
 import ReGuilded from "../core/ReGuilded";
 import SettingsInjector from "../core/settings/settings";
@@ -26,20 +26,20 @@ declare global {
         getReactInstance: (element: Element | Node) => React.Component | void;
     }
 }
-export interface RGExtensionConfig<T extends AnyExtension> {
+export interface RGEnhancementConfig<T extends AnyEnhancement> {
     dirname: string;
     getAll(): T[];
     getHasLoaded(): boolean;
-    fetchImagesOf(extensionId: string, callback: (images: string[]) => void): void;
+    fetchImagesOf(enhancementId: string, callback: (images: string[]) => void): void;
     openImportPrompt(): Promise<void>;
-    delete(extensionId: string): Promise<void>;
+    delete(enhancementId: string): Promise<void>;
     setLoadCallback(callback: (all: T[]) => void): void;
-    setWatchCallback(callback: (extension: T, loaded: boolean, previousId: string) => void): void;
-    setDeletionCallback(callback: (extension: T) => void): void;
+    setWatchCallback(callback: (enhancement: T, loaded: boolean, previousId: string) => void): void;
+    setDeletionCallback(callback: (enhancement: T) => void): void;
 }
-export interface RGThemeConfig extends RGExtensionConfig<Theme> {
+export interface RGThemeConfig extends RGEnhancementConfig<Theme> {
     setThemeSettings(themeId: string, settings: { [settingsProp: string]: string | number | boolean | undefined }): void;
 }
-export interface RGAddonConfig extends RGExtensionConfig<Addon> {}
+export interface RGAddonConfig extends RGEnhancementConfig<Addon> {}
 
 export {};

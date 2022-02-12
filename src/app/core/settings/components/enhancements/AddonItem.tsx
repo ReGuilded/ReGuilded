@@ -1,8 +1,8 @@
 import { ProvidedOverlay } from "../../../../guilded/decorators";
-import { Addon } from "../../../../../common/extensions";
-import ExtensionItem from "./ExtensionItem";
+import { Addon } from "../../../../../common/enhancements";
+import EnhancementItem from "./EnhancementItem";
 
-export default class AddonItem extends ExtensionItem<Addon, { fp: string }> {
+export default class AddonItem extends EnhancementItem<Addon, { fp: string }> {
     SimpleFormOverlay: ProvidedOverlay<"SimpleFormOverlay">;
 
     constructor(props, context) {
@@ -23,7 +23,7 @@ export default class AddonItem extends ExtensionItem<Addon, { fp: string }> {
                 {
                     label: "Permissions",
                     icon: "icon-filter",
-                    onClick: () => switchTab("specific", { extension: this.props, defaultTabIndex: 1 }),
+                    onClick: () => switchTab("specific", { enhancement: this.props, defaultTabIndex: 1 }),
                 }
             ]
         });

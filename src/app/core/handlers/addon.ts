@@ -1,16 +1,16 @@
 import { ReGuildedAddonSettings } from "../../../common/reguilded-settings";
 import { RGAddonConfig } from "../../types/reguilded";
-import { Addon } from "../../../common/extensions";
+import { Addon } from "../../../common/enhancements";
 import WebpackManager from "../../addons/webpack";
 import AddonApi from "../../addons/addonApi";
-import ExtensionHandler from "./extension";
+import EnhancementHandler from "./enhancement";
 import SettingsHandler from "./settings";
 import ReGuilded from "../ReGuilded";
 
 /**
  * Manager that manages ReGuilded's addons
  */
-export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig, ReGuildedAddonSettings> {
+export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfig, ReGuildedAddonSettings> {
     initialized: string[] = [];
     webpack?: WebpackManager;
     addonApis: { [addonId: string]: AddonApi };
@@ -20,7 +20,7 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig,
      * @param parent The parent ReGuilded instance
      * @param addonsDir Path to the directory that holds addons
      * @param settings The settings of the addons
-     * @param settingsHandler The extension settings handler
+     * @param settingsHandler The enhancement settings handler
      * @param config The preload configuration for addons
      */
     constructor(
@@ -47,7 +47,7 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig,
         // If the addon is already loaded, unload it
         if (loaded) {
             if (~this.enabled.indexOf(currentOrPreviousId)) {
-                // FIXME: We already kind of do that in ExtensionHandler, but with index
+                // FIXME: We already kind of do that in EnhancementHandler, but with index
                 const previousMetadata = this.all.find(addon => addon.id === currentOrPreviousId);
                 this.unload(previousMetadata);
             }

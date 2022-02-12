@@ -1,4 +1,4 @@
-export declare interface Extension<T extends string | string[]> {
+export declare interface Enhancement<T extends string | string[]> {
     id: string;
     name: string;
     files: T;
@@ -13,7 +13,7 @@ export declare interface Extension<T extends string | string[]> {
     images?: string[];
     readme?: string;
 }
-export declare interface Theme extends Extension<string[]> {
+export declare interface Theme extends Enhancement<string[]> {
     /**
      * The list of CSS content of this theme.
      */
@@ -39,9 +39,9 @@ type AddonExports = {
     unload?: Function;
     [otherExport: string]: any;
 };
-export declare interface Addon extends Extension<string> {
+export declare interface Addon extends Enhancement<string> {
     requiredPermissions: number;
     execute: (importable: (path: string) => [boolean, any?]) => Promise<AddonExports>;
     exports?: AddonExports;
 }
-export type AnyExtension = Extension<string | string[]>;
+export type AnyEnhancement = Enhancement<string | string[]>;

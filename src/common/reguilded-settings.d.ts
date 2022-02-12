@@ -11,7 +11,7 @@ export type ReGuildedSettings = {
     keepSplash: boolean;
     debugMode: boolean;
     addons: ReGuildedAddonSettings;
-    themes: ReGuildedExtensionSettings;
+    themes: ReGuildedEnhancementSettings;
 };
 export type ReGuildedSettingsUpdate = {
     autoUpdate?: boolean;
@@ -19,22 +19,22 @@ export type ReGuildedSettingsUpdate = {
     loadAuthors?: boolean;
     keepSplash?: boolean;
     debugMode?: boolean;
-    addons?: ReGuildedExtensionSettings;
-    themes?: ReGuildedExtensionSettings;
+    addons?: ReGuildedEnhancementSettings;
+    themes?: ReGuildedEnhancementSettings;
 };
 export type ReGuildedWhitelist = {
-    all: Array<string>,
-    connect: Array<string>,
-    default: Array<string>,
-    font: Array<string>,
-    img: Array<string>,
-    media: Array<string>,
-    script: Array<string>,
-    style: Array<string>
+    all: Array<string>;
+    connect: Array<string>;
+    default: Array<string>;
+    font: Array<string>;
+    img: Array<string>;
+    media: Array<string>;
+    script: Array<string>;
+    style: Array<string>;
 };
-export interface ReGuildedExtensionSettings {
+export interface ReGuildedEnhancementSettings {
     enabled: string[];
 }
-export interface ReGuildedAddonSettings extends ReGuildedExtensionSettings {
+export interface ReGuildedAddonSettings extends ReGuildedEnhancementSettings {
     permissions: { [addonId: string]: number };
 }

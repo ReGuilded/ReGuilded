@@ -171,7 +171,7 @@ export default class GeneralSettings extends React.Component {
                                     type: "Switch",
                                     fieldName: "loadAuthors",
 
-                                    label: "Load Extension Authors",
+                                    label: "Load Enhancement Authors",
                                     description: "Loads addon and theme authors.",
 
                                     defaultValue: settings.loadAuthors
@@ -180,7 +180,7 @@ export default class GeneralSettings extends React.Component {
                                     type: "Switch",
                                     fieldName: "loadImages",
 
-                                    label: "Load Extension Images",
+                                    label: "Load Enhancement Images",
                                     description: "Loads addon and theme previews and banner.",
 
                                     defaultValue: settings.loadImages

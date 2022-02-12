@@ -1,9 +1,9 @@
 import { FieldAnySpecs } from "../../../../guilded/form";
-import { Theme } from "../../../../../common/extensions";
-import ExtensionItem from "./ExtensionItem";
+import { Theme } from "../../../../../common/enhancements";
+import EnhancementItem from "./EnhancementItem";
 import validations from "../../validation";
 
-export default class ThemeItem extends ExtensionItem<Theme, { settings: object, settingsProps: string[] }> {
+export default class ThemeItem extends EnhancementItem<Theme, { settings: object, settingsProps: string[] }> {
     constructor(props, context) {
         super(props, context);
 
@@ -27,7 +27,7 @@ export default class ThemeItem extends ExtensionItem<Theme, { settings: object, 
                     {
                         label: "Settings",
                         icon: "icon-settings",
-                        onClick: () => switchTab("specific", { extension: this.props, defaultTabIndex: 1 })
+                        onClick: () => switchTab("specific", { enhancement: this.props, defaultTabIndex: 1 })
                     }
                 ]
             });

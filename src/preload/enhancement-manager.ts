@@ -1,5 +1,5 @@
 import { promises as fsPromises, stat, readdirSync, readFile } from "fs";
-import { AnyExtension } from "../common/extensions";
+import { AnyEnhancement } from "../common/enhancements";
 import { watch as chokidarWatch } from "chokidar";
 import { ipcRenderer } from "electron";
 import { copy } from "fs-extra";
@@ -7,61 +7,61 @@ import path from "path";
 import { getImageUrl, getSmallImageUrl } from "./util";
 
 // TODO: Checking
-export default abstract class ExtensionManager<T extends AnyExtension> {
+export default abstract class EnhancementManager<T extends AnyEnhancement> {
     /**
-     * The list of all extensions.
+     * The list of all enhancements.
      */
     all: T[];
     /**
-     * The list of IDs of all extensions.
+     * The list of IDs of all enhancements.
      */
     allIds: string[];
     /**
-     * The map of extension IDs to their metadata.
+     * The map of enhancement IDs to their metadata.
      */
-    idsToMetadata: { [extensionId: string]: T };
+    idsToMetadata: { [enhancementId: string]: T };
 
     /**
-     * The memory of already loaded preview images in an extension.
+     * The memory of already loaded preview images in an enhancement.
      */
-    idsToImages: { [extensionId: string]: string[] };
+    idsToImages: { [enhancementId: string]: string[] };
     /**
-     * Whether every extension has been initiated.
+     * Whether every enhancement has been initiated.
      */
     allInit: boolean;
     /**
-     * The directory where all the extensions are.
+     * The directory where all the enhancements are.
      */
     dirname: string;
     /**
-     * The callback when extension gets deleted.
+     * The callback when enhancement gets deleted.
      */
-    onDeletion: (extension: T) => void;
+    onDeletion: (enhancement: T) => void;
     /**
-     * The callback when every extension has finished initiating.
+     * The callback when every enhancement has finished initiating.
      */
     watchDoneCallback: (all: T[]) => void;
     /**
      * The callback when file change happens in `this.dirname`.
      */
-    watchCallback: (extension: T, loaded: boolean, previousId: string) => void;
+    watchCallback: (enhancement: T, loaded: boolean, previousId: string) => void;
     /**
      * The properties that will be exported to context bridge.
      */
     exportable: { [prop: string]: any };
     /**
-     * The type of extension it is (theme, addon).
+     * The type of enhancement it is (theme, addon).
      */
-    extensionType: string;
+    enhancementType: string;
 
-    constructor(extensionType: string, dirname: string) {
+    constructor(enhancementType: string, dirname: string) {
         this.all = [];
         this.allIds = [];
         this.dirname = dirname;
         this.allInit = false;
         this.idsToMetadata = {};
         this.idsToImages = {};
-        this.extensionType = extensionType;
+        this.enhancementType = enhancementType;
 
         let empty = () => {};
         this.onDeletion = empty;
@@ -80,39 +80,39 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
                 return self.allInit;
             },
             // Loading them in `addToMetadata` contributes to reduced performance
-            fetchImagesOf(extensionId: string, callback: (images: string[]) => void) {
+            fetchImagesOf(enhancementId: string, callback: (images: string[]) => void) {
                 // Don't reduce performance again
-                const imageCache = self.idsToImages[extensionId];
+                const imageCache = self.idsToImages[enhancementId];
 
                 if (imageCache) {
                     callback(imageCache);
                     return;
                 }
                 // Otherwise, it was never fetched
-                const { images, dirname } = self.idsToMetadata[extensionId];
+                const { images, dirname } = self.idsToMetadata[enhancementId];
 
                 let fetchedImages = [];
 
                 if (images) {
                     fetchedImages = images.map(imagePath => getImageUrl(dirname, imagePath));
 
-                    // Save it for later reuse, until the extension's metadata gets changed
-                    self.idsToImages[extensionId] = fetchedImages;
+                    // Save it for later reuse, until the enhancement's metadata gets changed
+                    self.idsToImages[enhancementId] = fetchedImages;
                 }
                 callback(fetchedImages);
             },
-            setWatchCallback(callback: (extension: T, loaded: boolean) => void) {
+            setWatchCallback(callback: (enhancement: T, loaded: boolean) => void) {
                 self.watchCallback = callback;
             },
             setLoadCallback(callback: (all: T[]) => void) {
                 self.watchDoneCallback = callback;
             },
-            setDeletionCallback(callback: (extension: T) => void) {
+            setDeletionCallback(callback: (enhancement: T) => void) {
                 self.onDeletion = callback;
             },
             async openImportPrompt() {
                 await ipcRenderer
-                    .invoke("reguilded-extension-dialog", self.extensionType)
+                    .invoke("reguilded-enhancement-dialog", self.enhancementType)
                     .then(({ filePaths, canceled }) => {
                         if (!canceled)
                             // Copy only directories with metadata.json
@@ -121,9 +121,9 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
                                     if (e)
                                         if (e.code === "ENOENT")
                                             throw new Error(
-                                                `Directory '${importedDir}' cannot be imported as an extension: it has no metadata.json file.`
+                                                `Directory '${importedDir}' cannot be imported as an enhancement: it has no metadata.json file.`
                                             );
-                                        else return console.error("Error while importing extension:", e);
+                                        else return console.error("Error while importing enhancement:", e);
 
                                     await copy(importedDir, path.join(self.dirname, path.basename(importedDir)), {
                                         overwrite: true,
@@ -137,30 +137,30 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
         };
     }
     /**
-     * Deletes the given extension.
-     * @param extensionId The identifier of the extension to delete`
+     * Deletes the given enhancement.
+     * @param enhancementId The identifier of the enhancement to delete`
      */
-    async delete(extensionId: string): Promise<void> {
-        const metadata = this.idsToMetadata[extensionId];
+    async delete(enhancementId: string): Promise<void> {
+        const metadata = this.idsToMetadata[enhancementId];
 
-        if (!metadata) throw new ReferenceError(`Metadata with ID '${extensionId}' was not found.`);
+        if (!metadata) throw new ReferenceError(`Metadata with ID '${enhancementId}' was not found.`);
 
         // Because .rm doesn't exist in Electron's Node.JS apparently
-        await fsPromises.rmdir(this.idsToMetadata[extensionId].dirname, { recursive: true });
+        await fsPromises.rmdir(this.idsToMetadata[enhancementId].dirname, { recursive: true });
     }
     /**
-     * Manages the extension once its files get changed.
-     * @param extension The extension that has been updated
+     * Manages the enhancement once its files get changed.
+     * @param enhancement The enhancement that has been updated
      */
-    protected abstract onFileChange(extension: T): Promise<void>;
+    protected abstract onFileChange(enhancement: T): Promise<void>;
 
     /**
-     * Watches the extension directory for any changes.
+     * Watches the enhancement directory for any changes.
      */
     watch() {
         // This is messy
         const available = readdirSync(this.dirname, { withFileTypes: true }).length,
-            // Split '/' and get its length, to get the name of the extension.
+            // Split '/' and get its length, to get the name of the enhancement.
             // The length already gives us +1, so no need to do that.
             relativeIndex = this.dirname.split(path.sep).length;
 
@@ -218,12 +218,12 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
                         // Mark it as loaded
                         .then(
                             () => this.all.push((loaded[extName] = metadata)),
-                            e => console.error(`Error in extension by ID '${metadata.id}':\n`, e)
+                            e => console.error(`Error in enhancement by ID '${metadata.id}':\n`, e)
                         )
                         // Call the renderer callback
                         .then(() => this.watchCallback(metadata, hasBeenLoaded, previousId))
                         .finally(() => {
-                            // Ensure this is the last extension and that we haven't already tripped the event
+                            // Ensure this is the last enhancement and that we haven't already tripped the event
                             if (available == Object.keys(loaded).length && !this.allInit) {
                                 this.allInit = true;
 
@@ -239,15 +239,15 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
     // ---- Watch stuff ----
     /**
      * Deletes everything about the metadata when its files get deleted.
-     * @param extName The name of the extension's directory
-     * @param extPath The path to the extension
-     * @param loaded The currently loaded extensions
-     * @param deBouncers The debouncers of all extensions
+     * @param extName The name of the enhancement's directory
+     * @param extPath The path to the enhancement
+     * @param loaded The currently loaded enhancements
+     * @param deBouncers The debouncers of all enhancements
      */
     private watchOnMetadataDeletion(
         extName: string,
         extPath: string,
-        loaded: { [extensionId: string]: T },
+        loaded: { [enhancementId: string]: T },
         deBouncers: { [extName: string]: NodeJS.Timeout }
     ) {
         const existingExt = this.all.find(metadata => metadata.dirname === extPath);
@@ -267,36 +267,39 @@ export default abstract class ExtensionManager<T extends AnyExtension> {
 }
 /**
  * Adds misc properties to the metadata and verifies it.
- * @param extension The current metadata of the extension
- * @param dirname The path to the extension
+ * @param enhancement The current metadata of the enhancement
+ * @param dirname The path to the enhancement
  */
-async function addToMetadata<T extends AnyExtension>(extension: T, dirname: string) {
-    if (extension.images && !Array.isArray(extension.images)) {
-        console.warn("Extension metadata property 'images' must be a string array in extension by ID '%s'", extension.id);
-        extension.images = undefined;
+async function addToMetadata<T extends AnyEnhancement>(enhancement: T, dirname: string) {
+    if (enhancement.images && !Array.isArray(enhancement.images)) {
+        console.warn(
+            "Enhancement metadata property 'images' must be a string array in enhancement by ID '%s'",
+            enhancement.id
+        );
+        enhancement.images = undefined;
     }
     // Make sure author is an ID
-    if (extension.author && (typeof extension.author !== "string" || extension.author.length !== 8)) {
+    if (enhancement.author && (typeof enhancement.author !== "string" || enhancement.author.length !== 8)) {
         console.warn(
-            "Extension metadata property 'author' must be a Guilded identifier in extension by ID '%s'",
-            extension.id
+            "Enhancement metadata property 'author' must be a Guilded identifier in enhancement by ID '%s'",
+            enhancement.id
         );
         // To not cause errors and stuff
-        extension.author = undefined;
+        enhancement.author = undefined;
     }
     await Promise.all([
         // README.md
         fsPromises
             .readFile(path.join(dirname, "README.md"), "utf8")
-            .then(data => (extension.readme = data))
+            .then(data => (enhancement.readme = data))
             .catch(err => {
                 if (err.code !== "ENOENT")
-                    console.error("Error while fetching readme file of an extension by ID '%s':", extension.id, err);
+                    console.error("Error while fetching readme file of an enhancement by ID '%s':", enhancement.id, err);
             }),
         // Cover/banner
-        extension.banner &&
-            getSmallImageUrl(dirname, extension.banner)
-                .then(url => (extension.banner = url))
-                .catch(e => console.error("Error while fetching banner of an extension by ID '%s':", extension.id, e))
+        enhancement.banner &&
+            getSmallImageUrl(dirname, enhancement.banner)
+                .then(url => (enhancement.banner = url))
+                .catch(e => console.error("Error while fetching banner of an enhancement by ID '%s':", enhancement.id, e))
     ]);
 }

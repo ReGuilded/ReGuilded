@@ -1,7 +1,7 @@
 import { promises as fsPromises, statSync, readFileSync } from "fs";
 import { join, resolve as pathResolve, extname } from "path";
-import ExtensionManager from "./extension-manager";
-import { Addon } from "../common/extensions";
+import EnhancementManager from "./enhancement-manager";
+import { Addon } from "../common/enhancements";
 import { webFrame } from "electron";
 
 type ExecutableModule<T> = (__filename: string, __dirname: string, require: (file: string) => any) => T;
@@ -11,7 +11,7 @@ type AddonExports = {
     init?: Function;
 };
 
-export default class AddonManager extends ExtensionManager<Addon> {
+export default class AddonManager extends EnhancementManager<Addon> {
     addonsToIsolatedWorlds: {
         [addonId: string]: number;
     };
