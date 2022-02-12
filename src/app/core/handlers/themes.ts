@@ -45,8 +45,9 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
         await super.init();
     }
     protected override async watchCallback(metadata: Theme, loaded: boolean, previousId: string): Promise<void> {
+        const currentOrPreviousId = previousId || metadata.id;
         // Since we already have it loaded, we need to update it and unload
-        if (loaded && ~this.enabled.indexOf(previousId)) this.unloadWithId(previousId);
+        if (loaded && ~this.enabled.indexOf(currentOrPreviousId)) this.unloadWithId(currentOrPreviousId);
 
         const propFiles = typeof metadata.files === "string" ? [metadata.files] : metadata.files;
         metadata.files = propFiles;
@@ -58,7 +59,7 @@ export default class ThemeHandler extends ExtensionHandler<Theme, RGThemeConfig>
                 new TypeError(`Expected property 'files' to be either a string or an array. In path: ${metadata.dirname}`)
             );
 
-        await super._watchCallbackBase(metadata);
+        await super._watchCallbackBase(metadata, currentOrPreviousId);
     }
     /**
      * Loads a ReGuilded theme

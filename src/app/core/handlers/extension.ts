@@ -147,11 +147,11 @@ export default abstract class ExtensionHandler<
         this.dispatchEvent(new ExtensionEvent("delete", metadata));
     }
     protected abstract watchCallback(metadata: T, loaded: boolean, previousId: string): Promise<void>;
-    protected async _watchCallbackBase(metadata: T): Promise<void> {
+    protected async _watchCallbackBase(metadata: T, currentOrPreviousId: string): Promise<void> {
         this.checkExtension(metadata);
 
         // Update its metadata
-        const inAll = this.all.findIndex(other => other.dirname === metadata.dirname);
+        const inAll = this.all.findIndex(other => other.id === currentOrPreviousId);
         if (~inAll) this.all.splice(inAll, 1);
 
         this.all.push(metadata);

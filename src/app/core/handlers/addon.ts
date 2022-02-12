@@ -43,10 +43,21 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig,
         await super.init();
     }
     protected override async watchCallback(metadata: Addon, loaded: boolean, previousId: string): Promise<void> {
+        const currentOrPreviousId = previousId || metadata.id;
         // If the addon is already loaded, unload it
-        loaded && ~this.enabled.indexOf(previousId) && this.unload(metadata);
+        if (loaded) {
+            if (~this.enabled.indexOf(currentOrPreviousId)) {
+                // FIXME: We already kind of do that in ExtensionHandler, but with index
+                const previousMetadata = this.all.find(addon => addon.id === currentOrPreviousId);
+                this.unload(previousMetadata);
+            }
 
-        await super._watchCallbackBase(metadata);
+            // Since it will try invoking .load with metadata change if previous ID is same as the current ID
+            const initIndex = this.initialized.indexOf(currentOrPreviousId);
+            if (~initIndex) this.initialized.splice(initIndex, 1);
+        }
+
+        await super._watchCallbackBase(metadata, currentOrPreviousId);
     }
     /**
      * Returns whether the exported function exists. If the export isn't a function or undefined, it returns a warning.
@@ -84,6 +95,7 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig,
         try {
             this.settingsHandler.settings.debugMode && console.log(`Loading addon by ID '${metadata.id}'`);
             // Check if it's first time loading
+            console.log("Load initialized", JSON.stringify(metadata.id));
             if (!~this.initialized.indexOf(metadata.id)) {
                 this.addonApis[metadata.id] = new AddonApi(this.webpack, this, metadata.id);
 
@@ -95,6 +107,7 @@ export default class AddonHandler extends ExtensionHandler<Addon, RGAddonConfig,
                         // One-time `init` function
                         AddonHandler._functionExists(metadata, "init") && metadata.exports.init();
 
+                        console.log("Loading first time");
                         this.initialized.push(metadata.id);
                         metadata.exports.load();
                     })
