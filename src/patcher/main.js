@@ -61,6 +61,7 @@ app.whenReady().then(() => {
         urls: ["https://www.guilded.gg/*"]
     };
     const cspWhitelist = {
+        all: [],
         connect: [
             "raw.githubusercontent.com", // Github (Raw)
             "api.github.com", // Github API
@@ -102,6 +103,7 @@ app.whenReady().then(() => {
     };
     // Fetches/Creates Custom CSP Whitelist Config
     let customCspWhitelist = {
+        all: [],
         connect: [],
         default: [],
         font: [],
@@ -124,10 +126,7 @@ app.whenReady().then(() => {
         const patchCSP = (customCspWhitelistParam = customCspWhitelist) => {
             _webRequest.onHeadersReceived(filter, (details, callback) => {
                 const patchedCallback = headers => {
-                    callback({
-                        cancel: false,
-                        responseHeaders: headers
-                    });
+                    callback({responseHeaders: headers});
                 };
                 const csp = {
                     permissive: details.responseHeaders["content-security-policy-report-only"],
@@ -139,24 +138,26 @@ app.whenReady().then(() => {
                         modifiedPolicyStr = modifiedPolicyStr.replace(/report\-uri.*?;/, " ");
 
                         for (const entry in cspWhitelist) {
-                            let directive = `${entry}-src`;
-                            let directiveWhiteListStr = cspWhitelist[entry].join(" ");
+                            let directive = `${entry}-src`,
+                                directiveWhiteListStr = cspWhitelist[entry].concat(cspWhitelist["all"]).join(" ");
 
                             // Uses elem variant of directive if found, otherwise leaves it as-is
                             if (modifiedPolicyStr.includes(`${directive}-elem`)) directive = `${directive}-elem`;
 
                             // If directive (-elem or otherwise) is still not found, just append to default-src, failing that make it from scratch
-                            if (modifiedPolicyStr.includes(directive))
-                                modifiedPolicyStr = modifiedPolicyStr.replace(
-                                    directive,
-                                    `${directive} ${directiveWhiteListStr}`
-                                );
-                            else if (modifiedPolicyStr.includes('default-src'))
-                                modifiedPolicyStr = modifiedPolicyStr.replace(
-                                    'default-src',
-                                    `default-src ${directiveWhiteListStr}`
-                                )                                
-                            else modifiedPolicyStr.concat(` default-src ${directiveWhiteListStr}`);
+                            if (entry !== "all") {
+                                if (modifiedPolicyStr.includes(directive))
+                                    modifiedPolicyStr = modifiedPolicyStr.replace(
+                                        directive,
+                                        `${directive} ${directiveWhiteListStr}`
+                                    );
+                                else if (modifiedPolicyStr.includes('default-src'))
+                                    modifiedPolicyStr = modifiedPolicyStr.replace(
+                                        'default-src',
+                                        `default-src ${directiveWhiteListStr}`
+                                    )                                
+                                else modifiedPolicyStr.concat(` default-src ${directiveWhiteListStr}`);
+                            };
                         }
 
                         const modifiedPolicy = [modifiedPolicyStr];
@@ -170,7 +171,7 @@ app.whenReady().then(() => {
                     }
                 };
 
-                if (!csp.permissive && !csp.enforcing) return callback({ cancel: false });
+                if (!csp.permissive && !csp.enforcing) return callback({});
 
                 if (csp.permissive) csp.patch(csp.permissive, false).then(patchedHeaders => patchedCallback(patchedHeaders));
 
@@ -178,7 +179,10 @@ app.whenReady().then(() => {
             });
             // Apply Custom Whitelist
             for (const directive in customCspWhitelistParam) {
-                cspWhitelist[directive] = cspWhitelist[directive].concat(customCspWhitelist[directive]);
+                if (directive !== "all")
+                    cspWhitelist[directive] = cspWhitelist[directive]
+                                                .concat(customCspWhitelist[directive])
+                                                .concat(customCspWhitelist["all"]);
             };
         };
 
