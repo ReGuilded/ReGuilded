@@ -23,6 +23,7 @@ export type ReGuildedSettingsUpdate = {
     themes?: ReGuildedExtensionSettings;
 };
 export type ReGuildedWhitelist = {
+    all: Array<string>,
     connect: Array<string>,
     default: Array<string>,
     font: Array<string>,

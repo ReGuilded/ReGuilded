@@ -25,6 +25,7 @@ export const defaultSettings: ReGuildedSettings = {
  * Default ReGuilded Whitelist
  */
 export const defaultWhitelist: ReGuildedWhitelist = {
+    all: [],
     connect: [],
     default: [],
     font: [],
