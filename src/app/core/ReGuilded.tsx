@@ -116,15 +116,18 @@ export default class ReGuilded {
         if (!UserModel) return;
 
         // Either flair of badge depending on settings
-        const [devBadgeInjection, devBadge] =
-            this.settingsHandler.settings.badge === 1 ? ["flairInfos", definedFlairs.dev || createFlairFromBadge(badgeTypes.dev)] : ["badges", badgeTypes.dev];
+        const [injectDevBadgeIntoFlairs, devBadge] =
+            this.settingsHandler.settings.badge === 1 ? [true, definedFlairs.dev || createFlairFromBadge(badgeTypes.dev)] : [false, badgeTypes.dev];
 
         // Always flair
         const contribFlair = definedFlairs.contrib || createFlairFromBadge(badgeTypes.contrib);
 
-        injectBadge(UserModel.prototype, devBadgeInjection, devBadge, "dev");
-        // FIXME: Contributor flair overrides dev flair getter
-        injectBadge(UserModel.prototype, "flairInfos", contribFlair, "contrib");
+        const flairTable: { [name: string]: UserFlair } = { contrib: contribFlair };
+
+        if (injectDevBadgeIntoFlairs) flairTable.dev = devBadge as UserFlair;
+        else injectBadge(UserModel.prototype, "badges", { dev: devBadge });
+
+        injectBadge(UserModel.prototype, "flairInfos", flairTable);
     }
     /**
      * Unloads ReGuilded developer badges & contributor flairs.
