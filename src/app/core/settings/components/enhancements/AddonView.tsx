@@ -50,18 +50,18 @@ export default class AddonView extends EnhancementView<Addon> {
                                                     label: "Use DOM & React",
                                                     description: "Allows using elements and React components to create some kind of UI, or even modify them.\nCons: This may be used to break GUI, create unwanted content, change the look of the app or even disable themes.\nPros: This allows creating settings or GUI that addon needs or display its contents."
                                                 },
-                                                requiredPermissions & 2 && {
-                                                    optionName: 2,
+                                                requiredPermissions & 4 && {
+                                                    optionName: 4,
                                                     label: "Extra Data",
                                                     description: "Adds extra data to an addon. This can be used to gather information that the addon typically wouldn't need to use, but may be mandatory for some.\nE.g., this allows fetching data of certain member in a team. While this isn't necessarily bad, this could be used to do unknown exploits."
                                                 },
-                                                requiredPermissions & 4 && {
-                                                    optionName: 4,
+                                                requiredPermissions & 8 && {
+                                                    optionName: 8,
                                                     label: "Use Guilded API",
                                                     description: "Allows doing anything on behalf of you. This does not hand out your passwords or any sensitive information, but it can still be used to make malicious API calls under your account (including password resetting) or gather more information about you. This may be mandatory to some addons."
                                                 },
-                                                requiredPermissions & 8 && {
-                                                    optionName: 8,
+                                                requiredPermissions & 16 && {
+                                                    optionName: 16,
                                                     label: "Use External API",
                                                     description: "Allows doing calls to an external server outside Guilded. This may be mandatory for some addons to function, but can be used to send unwanted information to a server."
                                                 }
@@ -73,16 +73,16 @@ export default class AddonView extends EnhancementView<Addon> {
                                                     value: presentPermissions & 1
                                                 },
                                                 {
-                                                    optionName: 2,
-                                                    value: presentPermissions & 2
-                                                },
-                                                {
                                                     optionName: 4,
                                                     value: presentPermissions & 4
                                                 },
                                                 {
                                                     optionName: 8,
                                                     value: presentPermissions & 8
+                                                },
+                                                {
+                                                    optionName: 16,
+                                                    value: presentPermissions & 16
                                                 }
                                             ]
                                         },
