@@ -168,7 +168,8 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
 }
 export enum AddonPermission {
     Elements = 1,
-    ExtraInfo = 2,
-    UseApi = 4,
-    UseExternalApi = 8
+    _RESERVED = 2,
+    ExtraInfo = 4,
+    UseApi = 8,
+    UseExternalApi = 16
 }
