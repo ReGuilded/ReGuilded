@@ -1,74 +1,56 @@
-import { defaultSettings } from "./core/managers/settings";
 import { members } from "./core/badges-flairs";
-import { promises as fsPromises } from "fs";
-import webpackPush from "./webpackInject";
 import ReGuilded from "./core/ReGuilded";
-import { ipcRenderer } from "electron";
-import { join } from "path";
+import webpackPush from "./webpackInject";
 
-const { access, mkdir, writeFile } = fsPromises;
-
-let SettingsPromise = function handleSettings() {
-    return new Promise<void>((resolve, reject) => {
-        const settingsPath = join(__dirname, "./settings");
-
-        access(settingsPath).then(resolve).catch(e => {
-            if (!e || !e.code || e.code !== "ENOENT") {
-                reject(e);
-                return;
-            }
-
-            // To do this properly, you're supposed to check the type of error. Fuck that, for now. Nah I'll fix it in a sec
-            window.firstLaunch = true;
-
-            // Create ~/.reguilded/settings
-            mkdir(settingsPath, { recursive: true }).then(async () => {
-                const settingsJson = JSON.stringify(defaultSettings, null, 4);
-
-                // Create the settings.json and an empty themes and addons folder
-                await writeFile(join(settingsPath, "settings.json"), settingsJson, {encoding: "utf-8"});
-                await mkdir(join(settingsPath, "themes"));
-                await mkdir(join(settingsPath, "addons"));
-
-                // Resolve
-                resolve();
-            });
-        });
-    });
-};
-
-SettingsPromise().then(() => {
-    window.ReGuilded = new ReGuilded();
-
-    const preload = ipcRenderer.sendSync("REGUILDED_GET_PRELOAD");
-    if (preload) {
-        require(preload);
-    }
-}).catch(console.error);
+window.ReGuilded = new ReGuilded();
 
 function setPush(obj) {
-    Object.defineProperty(window.webpackJsonp, "push", obj)
+    Object.defineProperty(window.webpackJsonp, "push", obj);
 }
 
-document.addEventListener("readystatechange", () => {
+let hasInjected = false;
+function setUpWebpackInjection() {
     // To wait for the bundle to be created
-    if (document.readyState === "interactive")
+    if (document.readyState === "interactive" && window.bundle)
         // Wait when bundle loads
-        window.bundle.addEventListener("load", () => {
-            // Saves the old push
-            window.webpackJsonp._push = window.webpackJsonp.push;
+        window.bundle.addEventListener("load", injectWebpackJsonp);
+    // Still try injecting even if it was too late
+    else if (!hasInjected && document.readyState === "complete" && window.webpackJsonp) {
+        console.warn(
+            "WebpackJsonp injection is too late. Still injecting. This may require loading a bundle that has not been loaded yet. If ReGuilded hasn't loaded yet, make sure to load settings or area that you have not yet viewed or refresh Guilded."
+        );
+        injectWebpackJsonp();
+    }
+}
+function injectWebpackJsonp() {
+    hasInjected = true;
 
-            setPush({
-                get: () => webpackPush.bind(window.webpackJsonp),
-                set: (value) => setPush({get: () => value})
-            });
-        });
-});
+    // Saves the old push
+    window.webpackJsonp._push = window.webpackJsonp.push;
 
-// Fetches ReGuilded developer list
-fetch("https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuilded/wwwroot/contributors.json").then((response) => {
-    response.json().then((json) => {
-        members.dev = json.filter(user => user.isCoreDeveloper)
-        members.contrib = json.filter(user => user.isContributor)
+    setPush({
+        get: () => webpackPush.bind(window.webpackJsonp),
+        set: value => setPush({ get: () => value })
     });
-});
+}
+
+// Inject if it's possible yet, or wait for it to be possible
+if (document.readyState !== "loading") setUpWebpackInjection();
+else document.addEventListener("readystatechange", setUpWebpackInjection);
+
+// Fetch ReGuilded things
+(async () => {
+    // Global badge holders
+    await fetch("https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuilded/wwwroot/contributorIds.json")
+        .then(
+            response => response.json(),
+            e => console.warn("Failed to fetch ReGuilded badges:", e)
+        )
+        .then(
+            json => {
+                members.dev = json.dev;
+                members.contrib = json.contrib;
+            },
+            e => console.warn("Failed to fetch ReGuilded badges:", e)
+        );
+})();

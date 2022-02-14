@@ -1,72 +1,88 @@
 import { MessageContent, TemplateParameterOptions } from "./rich-text";
-import React, { ReactElement } from "react";
+import React, { ReactElement, ReactNode } from "react";
 import { Alignment, Size } from "./common";
+import { Moment } from "moment";
 
 //#region Form specs
 export type FormSpecs = {
-    header?: string,
-    description?: string,
-    rowStyle?: RowStyle,
-    headerStyle?: HeaderStyle,
-    sectionStyle?: SectionStyle,
-    sections: FormSectionSpecs[],
+    header?: string;
+    description?: ReactNode | ReactNode[];
+    rowStyle?: RowStyle;
+    headerStyle?: HeaderStyle;
+    sectionStyle?: SectionStyle;
+    sections: FormSectionSpecs[];
     /**
      * The functions that will be called once field changes its value.
      */
     fieldValueReactions?: {
-        [fieldName: string]: (value: any, formValues: { [fieldName: string]: any }, fieldName: string) => void
-    }
+        [fieldName: string]: (value: any, formValues: { [fieldName: string]: any }, fieldName: string) => void;
+    };
 };
 declare interface FormSectionSpecs {
-    name?: string,
-    header?: string,
-    rowMarginSize?: Size,
-    sectionStyle?: SectionStyle,
-    rowStyle?: RowStyle,
+    name?: string;
+    header?: string;
+    footer?: string;
+    rowMarginSize?: Size;
+    isCollapsible?: boolean;
+    isDisabled?: boolean;
+    sectionStyle?: SectionStyle;
+    rowStyle?: RowStyle;
     // FieldSpec depends on type, so that sucks
-    fieldSpecs: FieldAnySpecs[]
+    fieldSpecs: FieldAnySpecs[];
 }
-type SectionStyle
-    = "padded" | "unpadded" | "indented-padded" | "no-border-unpadded"
-    | "border" | "border-unpadded" | "border-lg"
+type SectionStyle =
+    | "padded"
+    | "unpadded"
+    | "indented-padded"
+    | "no-border-unpadded"
+    | "border"
+    | "border-unpadded"
+    | "border-lg"
     | "background-inset";
 type RowStyle = "border-unpadded" | "border-padding-s" | "border-padding-md" | "constrained-width";
 type HeaderStyle = "collapsible";
 
 //#region Fields
-export type FieldAnySpecs
+export type FieldAnySpecs =
     // Text
-    = (FieldTextSpecs       | FieldTextAreaSpecs     | FieldRichTextSpecs
-    | FieldTagSpecs
-    // Number & Range
-    | FieldNumberSpecs      | FieldRangeSpecs
-    // Date
-    | FieldDateSpecs        | FieldTimeSpecs         | FieldDateAndTimeRangeSpecs
-    | FieldEventRepeatSpecs
-    // Toggling
-    | FieldSwitchSpecs      | FieldTriStateSpecs     | FieldButtonSpecs
-    // With options
-    | FieldDropdownSpecs    | FieldRadioSpecs        | FieldCheckboxesSpecs
-    | FieldIconMenuSpecs    | FieldTableSpecs
-    // Visual
-    | FieldImageSpecs       | FieldColorSpecs
-    // Flow
-    | FieldReactionSpecs
-    // Exotic
-    | FieldCustomFormSpecs  | FieldItemKeybindsSpecs | FieldHotkeySpecs
-    | FieldSpecs<string, any>) & { [unusedProp: string]: any };
+    (
+        | FieldTextSpecs
+        | FieldTextAreaSpecs
+        | FieldRichTextSpecs
+        | FieldTagSpecs
+        // Number & Range
+        | FieldNumberSpecs
+        | FieldRangeSpecs
+        // Date
+        | FieldDateSpecs
+        | FieldTimeSpecs
+        | FieldDateAndTimeRangeSpecs
+        | FieldEventRepeatSpecs
+        // Toggling
+        | FieldSwitchSpecs
+        | FieldTriStateSpecs
+        | FieldButtonSpecs
+        // With options
+        | FieldDropdownSpecs
+        | FieldRadioSpecs
+        | FieldCheckboxesSpecs
+        | FieldIconMenuSpecs
+        | FieldTableSpecs
+        // Visual
+        | FieldImageSpecs
+        | FieldColorSpecs
+        // Flow
+        | FieldReactionSpecs
+        // Exotic
+        | FieldCustomFormSpecs
+        | FieldItemKeybindsSpecs
+        | FieldHotkeySpecs
+        | FieldSpecs<string, any>
+    ) & { [unusedProp: string]: any };
 
 //#region Interfaces
-declare interface FieldSpecs<N, V> {
+declare interface FieldDefaultSpecs<V> {
     label?: string;
-    /**
-     * The type of the field
-     */
-    type: N;
-    /**
-     * Field name that will be used for formSpecs values list
-     */
-    fieldName?: string;
 
     /**
      * Default value of the field if none is provided
@@ -101,6 +117,17 @@ declare interface FieldSpecs<N, V> {
      */
     validationFunction?: ValidationFunction;
 }
+declare interface FieldRequiredSpecs<N> {
+    /**
+     * The type of the field
+     */
+    type: N;
+    /**
+     * Field name that will be used for formSpecs values list
+     */
+    fieldName?: string;
+}
+declare interface FieldSpecs<N, V> extends FieldRequiredSpecs<N>, FieldDefaultSpecs<V> {}
 declare interface FieldBasics {
     // /**
     //  * The displayed name of the field.
@@ -219,7 +246,7 @@ declare interface FieldRichTextSpecs extends FieldSpecs<"RichText", MessageConte
 }
 /**
  * The field that allows adding multiple tags.
- * 
+ *
  * Only present in media post creation.
  */
 declare interface FieldTagSpecs extends FieldSpecs<"Tag", string[]>, FieldBasics {
@@ -231,7 +258,7 @@ declare interface FieldTagSpecs extends FieldSpecs<"Tag", string[]>, FieldBasics
 }
 /**
  * The field that allows any number up to the maximum.
- * 
+ *
  * Only present in event repetition. Anything else uses text field instead.
  * This is similar to dropdown.
  */
@@ -259,7 +286,7 @@ declare interface FieldSwitchSpecs extends FieldToggleSpecs<"Switch", boolean> {
 }
 /**
  * The toggle field that has deny state, allow state and inherit state.
- * 
+ *
  * Only present in channel permissions.
  */
 declare interface FieldTriStateSpecs extends FieldToggleSpecs<"TriState", "on" | "passThrough" | "off"> {
@@ -273,7 +300,7 @@ declare interface FieldTriStateSpecs extends FieldToggleSpecs<"TriState", "on" |
      */
     triStateDisabledButton?: null | 1;
 }
-declare interface FieldDropdownProps extends FieldHasOptions<OptionSpecs> {
+declare interface FieldDropdownProps extends FieldDefaultSpecs<OptionSpecs | any>, FieldHasOptions<OptionSpecs> {
     placeholder?: string;
     /**
      * @default false
@@ -320,20 +347,22 @@ declare interface FieldDropdownProps extends FieldHasOptions<OptionSpecs> {
      * @default false
      */
     contentEditable?: boolean;
-    optionSubLabelRenderer: (option: OptionSpecs) => ReactElement;
+    optionSubLabelRenderer?: (option: OptionSpecs) => ReactElement;
     useFuzzySort?: boolean;
     fuzzySortMaxResults?: number;
 }
 /**
  * The field that hides its options until it's clicked.
  */
-declare interface FieldDropdownSpecs extends FieldSpecs<"Dropdown", OptionSpecs | any>, FieldDropdownProps { }
+declare interface FieldDropdownSpecs extends FieldRequiredSpecs<"Dropdown">, FieldDropdownProps {}
 /**
  * The field that allows one option to be selected.
- * 
+ *
  * Present in custom forms (normal version) and everywhere else (panel checkboxes).
  */
-declare interface FieldRadioSpecs extends FieldSpecs<"Radios", { optionName: string }>, FieldHasOptions<OptionRadioSpecs> {
+declare interface FieldRadioSpecs
+    extends FieldSpecs<"Radios", { optionName: string | number | boolean }>,
+        FieldHasOptions<OptionRadioSpecs> {
     labelFlavor?: "subtle";
     labelMarginSize?: Size;
     numColumns?: number;
@@ -349,21 +378,23 @@ declare interface FieldRadioSpecs extends FieldSpecs<"Radios", { optionName: str
     layout?: Alignment;
     renderComponent?: typeof React.Component;
     optionDetailsByName?: {
-        [optionName: string]: any
-    }
+        [optionName: string]: any;
+    };
 }
 /**
  * The field that allows multiple options to be selected.
- * 
+ *
  * Present only in custom forms.
  * Everywhere else, Switch is used instead.
  */
-declare interface FieldCheckboxesSpecs extends FieldSpecs<"Checkboxes", Array<{ optionName: string, value: boolean }>>, FieldHasOptions<OptionSpecs> {
+declare interface FieldCheckboxesSpecs
+    extends FieldSpecs<"Checkboxes", Array<{ optionName: string; value: boolean }>>,
+        FieldHasOptions<OptionSpecs> {
     numColumns?: number;
 }
 /**
  * The field that acts as an icon dropdown.
- * 
+ *
  * Present in emote picker menu (normal), event creation (color type).
  * Similar to dropdown, but doesn't have a border.
  */
@@ -408,7 +439,7 @@ declare interface FieldButtonSpecs extends FieldSpecs<"Button", undefined> {
     style?: "filled" | "hollow";
     /**
      * The type of the button it is.
-     * 
+     *
      * Success is only used in mobile version, while monochrome is never used and bleached is only used as hollow button.
      * @default "gilded"
      */
@@ -445,34 +476,38 @@ declare interface FieldButtonSpecs extends FieldSpecs<"Button", undefined> {
 }
 /**
  * The field for getting the range between 2 dates and times.
- * 
+ *
  * Present in event creation.
  */
-declare interface FieldDateAndTimeRangeSpecs extends FieldSpecs<"DateAndTimeRange", { startMoment: object, endMoment: object }>, FieldBasics {
+declare interface FieldDateAndTimeRangeSpecs
+    extends FieldSpecs<"DateAndTimeRange", { startMoment: Moment; endMoment: Moment }>,
+        FieldBasics {
     allowPastValues?: boolean;
 }
 /**
  * The field for getting event repetition.
- * 
+ *
  * Present in event creation.
  * This is a wrapper around another form using number and dropdown fields.
  */
-declare interface FieldEventRepeatSpecs extends FieldSpecs<"EventRepeat", { repeatType: "once", isValid: boolean }>, FieldBasics {
+declare interface FieldEventRepeatSpecs
+    extends FieldSpecs<"EventRepeat", { repeatType: "once"; isValid: boolean }>,
+        FieldBasics {
     defaultStartDate?: boolean;
 }
 /**
  * The field for getting specific day of the month and of the year.
- * 
+ *
  * Present in date and time range field.
  * This will always hold a value.
  */
-declare interface FieldDateSpecs extends FieldSpecs<"Date", object>, FieldBasics {
+declare interface FieldDateSpecs extends FieldSpecs<"Date", Moment>, FieldBasics {
     hasError?: boolean;
     allowPastValues?: boolean;
 }
 /**
  * The field for getting hours and minutes.
- * 
+ *
  * Present in date and time range field.
  */
 declare interface FieldTimeSpecs extends FieldSpecs<"Time", number>, FieldBasics {
@@ -482,7 +517,7 @@ declare interface FieldTimeSpecs extends FieldSpecs<"Time", number>, FieldBasics
 }
 /**
  * The field for picking a colour.
- * 
+ *
  * Present in role settings.
  * This does not have alpha channel available.
  */
@@ -492,7 +527,7 @@ declare interface FieldColorSpecs extends FieldSpecs<"Color", string>, FieldBasi
 }
 /**
  * The field for uploading images and avatars.
- * 
+ *
  * Present in server settings, bot settings and webhook settings.
  */
 declare interface FieldImageSpecs extends FieldSpecs<"Image", string>, FieldBasics {
@@ -528,7 +563,7 @@ declare interface FieldImageSpecs extends FieldSpecs<"Image", string>, FieldBasi
 /**
  * The field for getting the range with minimum and maximum value.
  */
-declare interface FieldRangeSpecs extends FieldSpecs<"Range", { max: number, min?: number }>, FieldBasics {
+declare interface FieldRangeSpecs extends FieldSpecs<"Range", { max: number; min?: number }>, FieldBasics {
     rangeType?: "gilded";
     size?: Size;
     isPanel?: boolean;
@@ -536,8 +571,8 @@ declare interface FieldRangeSpecs extends FieldSpecs<"Range", { max: number, min
      * The function that will be used to display a label based on changed range value.
      * @example ({ min, max }) => `Members ${min}-${max}`
      */
-    selectedValueFunction?: (value: { max: number, min?: number }) => string;
-    details?: { max: number, min?: number };
+    selectedValueFunction?: (value: { max: number; min?: number }) => string;
+    details?: { max: number; min?: number };
     /**
      * Whether to allow only maximum number to be changed. If false, this makes range 2-way with 2 thumbs.
      * @default true
@@ -550,16 +585,16 @@ declare interface FieldRangeSpecs extends FieldSpecs<"Range", { max: number, min
     stepDetails?: { hasEmptyDefault?: boolean };
 }
 type KeybindValue = {
-    id: string,
+    id: string;
     keys: Array<{
-        key: string,
-        virtualKey: string
-    }>,
-    entities: Array<OptionDropdownSpecs>
-}
+        key: string;
+        virtualKey: string;
+    }>;
+    entities: Array<OptionDropdownSpecs>;
+};
 /**
  * The field for setting keyboard keys for roles and users.
- * 
+ *
  * Only present in voice settings.
  */
 declare interface FieldItemKeybindsSpecs extends FieldSpecs<"ItemKeybinds", KeybindValue[]>, FieldBasics {
@@ -575,23 +610,19 @@ declare interface FieldItemKeybindsSpecs extends FieldSpecs<"ItemKeybinds", Keyb
 }
 /**
  * The field for getting a set of keyboard keys.
- * 
+ *
  * Only present in item keybinds.
  */
-declare interface FieldHotkeySpecs extends FieldSpecs<"Hotkey", { keys: KeybindValue[] }> {
-
-}
+declare interface FieldHotkeySpecs extends FieldSpecs<"Hotkey", { keys: KeybindValue[] }> {}
 declare interface FieldTableSpecs extends FieldSpecs<"Table", Array<{ optionName: string } & object>>, FieldBasics {
     rowInputType: string;
     emptyText: string;
     itemClass?: string;
-    headerSpecs: Array<
-        { text: string, key: string } | Array<{ text: string, key: string }>
-    >
+    headerSpecs: Array<{ text: string; key: string } | Array<{ text: string; key: string }>>;
 }
 /**
  * The field that allows creating a custom form.
- * 
+ *
  * Only present in event creation and tournament settings.
  */
 declare interface FieldCustomFormSpecs extends FieldSpecs<"CustomForm", number> {
@@ -602,7 +633,7 @@ declare interface FieldCustomFormSpecs extends FieldSpecs<"CustomForm", number> 
 }
 /**
  * The field that allows picking any emote.
- * 
+ *
  * Only present in flow reaction action.
  */
 declare interface FieldReactionSpecs extends FieldSpecs<"Reaction", number> {
@@ -612,7 +643,7 @@ declare interface FieldReactionSpecs extends FieldSpecs<"Reaction", number> {
 
 //#region Option definitions
 declare interface OptionBaseSpecs {
-    optionName: string;
+    optionName: string | number | boolean;
 }
 declare interface OptionSpecs extends OptionBaseSpecs {
     label?: string;
@@ -637,7 +668,7 @@ declare interface OptionDropdownSpecs extends OptionSpecs {
     labelStyle?: { color?: string };
 }
 declare interface OptionTableSpecs extends OptionBaseSpecs {
-    renderOrnament: (option: { optionName: string, value: OptionTableSpecs & object }) => React.ReactNode;
+    renderOrnament: (option: { optionName: string; value: OptionTableSpecs & object }) => React.ReactNode;
 }
 //#endregion
 
@@ -654,8 +685,8 @@ export type ValidationFunction = (fieldValue: string) => void | undefined | stri
 
 //#region Components
 type FormProps = {
-    formSpecs: FormSpecs,
-    onChange?: (state: FormOutput) => void
+    formSpecs: FormSpecs;
+    onChange?: (state: FormOutput) => void;
 };
 export type FormValue = {
     /** Whether the form field's value has been changed. */
@@ -665,19 +696,15 @@ export type FormValue = {
     /** The value of the form field. */
     value: any;
 };
-export type FormOutput = {
+export type FormOutput<T extends {} = { [fieldName: string]: any }> = {
     /** Whether the form field values were changed. */
-    hasChanged: boolean,
+    hasChanged: boolean;
     /** The dictionary of changed fields with their values. */
-    changedValues: {
-        [fieldName: string]: any,
-    },
+    changedValues: Partial<T>;
     /** The dictionary of all fields with their values, including default values. */
-    values: {
-        [fieldName: string]: any
-    }
+    values: T;
     /** Whether all fields in the form are valid */
-    isValid: boolean,
+    isValid: boolean;
 };
 
 export declare class Form extends React.Component<FormProps> {

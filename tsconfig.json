@@ -2,7 +2,7 @@
     "compilerOptions": {
         "module": "ES2020",
         "esModuleInterop": true,
-        "target": "ES6",
+        "target": "ES2019",
         "moduleResolution": "node",
 
         "jsx": "react",
@@ -10,6 +10,8 @@
         "jsxFactory": "React.createElement",
 
         "removeComments": true,
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "resolveJsonModule": true,
+        "allowSyntheticDefaultImports": true
     }
 }

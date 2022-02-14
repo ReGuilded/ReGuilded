@@ -1,673 +1,808 @@
-import { SvgIcon, ItemManager, NullState, WordDividerLine } from "../guilded/content";
-import { getOwnerInstance, patchElementRenderer, waitForElement } from "./lib";
-import AddonManager from "../core/managers/addon";
-import { OverflowButton } from "../guilded/menu";
-import overlayWrapper from "./overlayWrapper";
+import { getReactInstance, patchElementRenderer, waitForElement } from "./lib";
+import AddonHandler, { AddonPermission } from "../core/handlers/addon";
+import { AddonApiExports } from "./addonApi.types";
+import { MenuSectionSpecs } from "../guilded/menu";
+import { EditorPlugin } from "../guilded/slate";
 import WebpackManager from "./webpack";
-import { Form } from "../guilded/form";
-import _React from "react";
-import _ReactDOM from "react-dom";
 
 // Provides API for addons to interact with Guilded.
 // TODO: Better documentation and probably TS declaration files.
 
-// I wanted to do a Proxy, but I don't want it to be slow af and I am in the mood to spam same
-// code over and over again. Also, all my homies hate proxies /s
+// I wanted to do a Proxy, but I don't want it to be slower.
 
 const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     // React
-    React: webpack => webpack.withProperty("createElement"),
-    ReactDOM: webpack => webpack.withProperty("createPortal"),
-    ReactElement: webpack => webpack.withCode("react.element"),
+    react: webpack => webpack.withProperty("createElement"),
+    "react-dom": webpack => webpack.withProperty("createPortal"),
+    "react-element": webpack => webpack.withCode("react.element"),
 
     // HTTP and WS
-    restMethods: webpack => webpack.withProperty("getMe"),
+    "guilded/http/rest": webpack => webpack.withProperty("getMe"),
 
-    // Management
-    channelManagement: webpack => webpack.withProperty("GetChannels"),
+    // Teams / Servers
+    "guilded/teams/games": webpack => webpack.withProperty("SearchableGames"),
+    "guilded/teams/TeamModel": webpack => webpack.withClassProperty("_teamInfo"),
 
-    // Guilded
-    domainUri: webpack => webpack.withProperty("WebClient"),
-    globalBadges: webpack => webpack.withProperty("Webhook"),
-    functionUtil: webpack => webpack.withProperty("coroutine"),
-    externalSiteInfo: webpack => webpack.withProperty("reddit"),
-    gameList: webpack => webpack.withProperty("SearchableGames"),
-    guildedArticles: webpack => webpack.withProperty("aboutURL"),
-    globalFlairsDisplayInfo: webpack => webpack.allWithProperty("guilded_gold_v1")[0],
-    globalFlairsTooltipInfo: webpack => webpack.allWithProperty("guilded_gold_v1")[1],
-    socialMedia: webpack => webpack.withProperty("SocialMediaTypes"),
-    externalSites: webpack => webpack.withProperty("ExternalSiteTypes"),
+    // Users / Members
+    "guilded/users": webpack => webpack.withProperty("UserModel"),
+    "guilded/users/badges": webpack => webpack.withProperty("Webhook"),
+    "guilded/users/members": webpack => webpack.withProperty("MemberModel"),
+    "guilded/users/flairs/displayInfo": webpack => webpack.allWithProperty("guilded_gold_v1")[0],
+    "guilded/users/flairs/tooltipInfo": webpack => webpack.allWithProperty("guilded_gold_v1")[1],
+    "guilded/profile/PostModel": webpack => webpack.withClassProperty("_profilePostInfo"),
+    "guilded/profile/socialLinks": webpack => webpack.withProperty("SOCIAL_LINK_CONSTS_BY_TYPE"),
 
-    portal: webpack => webpack.withProperty("Portals"),
-    layerContext: webpack => webpack.allWithProperty("object")[1],
-    OverlayStack: webpack => webpack.withProperty("addPortal"),
-    transientMenuPortal: _ => getOwnerInstance(document.querySelector(".TransientMenuPortalContext-portal-container")),
+    // Roles
+    "guilded/roles/membership": webpack => webpack.withProperty("CaptainRoleName"),
 
-    OverlayProvider: webpack => webpack.withCode("OverlayProvider"),
-    TeamContextProvider: webpack => webpack.withCode("EnforceTeamData"),
-    DefaultContextProvider: webpack => webpack.withCode("defaultContext"),
-    SavableSettings: webpack => webpack.withCode("handleSaveChanges"),
+    // Groups
+    "guilded/groups": webpack => webpack.withProperty("GroupModel"),
 
-    // Settings and this user
-    cookies: webpack => webpack.withProperty("cookie"),
-    sounds: webpack => webpack.withProperty("IncomingCall"),
-    stylePusher: webpack => webpack.withProperty("singleton"),
-    chatContext: webpack => webpack.withProperty("chatContext"),
-    styleGenerator: webpack => webpack.withProperty("sourceURL"),
-    settingsTabs: webpack => webpack.withProperty("Notifications"),
+    // Channels
+    "guilded/channels": webpack => webpack.withProperty("ChannelModel"),
+    "guilded/channels/types": webpack => webpack.withProperty("Overview"),
+    "guilded/channels/management": webpack => webpack.withProperty("GetChannels"),
+    "guilded/channels/settings": webpack => webpack.withProperty("channelSettingsInfo"),
+    "guilded/channels/content/AnnouncementModel": webpack => webpack.withClassProperty("_announcementInfo"),
+    "guilded/channels/content/DocumentModel": webpack => webpack.withClassProperty("docInfo"),
+    "guilded/channels/content/EventModel": webpack => webpack.withClassProperty("_eventInfo"),
+    "guilded/channels/content/ListItemModel": webpack => webpack.withClassProperty("listItemInfo"),
+    "guilded/channels/content/MessageModel": webpack => webpack.withClassProperty("chatMessageInfo"),
+    "guilded/channels/content/eventInfo": webpack => webpack.withProperty("EVENT_COLOR_LABEL_OPTIONS"),
 
-    // Team/server
-    channelTypes: webpack => webpack.withProperty("Overview"),
-    eventConfig: webpack => webpack.withProperty("EVENT_COLOR_LABEL_OPTIONS"),
-    channelSettingsInfo: webpack => webpack.withProperty("channelSettingsInfo"),
-
-    // User/profile
-    membershipRoles: webpack => webpack.withProperty("CaptainRoleName"),
-    profileSocialLinks: webpack => webpack.withProperty("SOCIAL_LINK_CONSTS_BY_TYPE"),
-
-    // Models
-    TeamModel: webpack => webpack.withClassProperty("_teamInfo"),
-    GroupModel: webpack => webpack.withProperty("GroupModel"),
-    ChannelModel: webpack => webpack.withProperty("ChannelModel"),
-
-    UserModel: webpack => webpack.withProperty("UserModel"),
-    MemberModel: webpack => webpack.withProperty("MemberModel"),
-    ProfilePostModel: webpack => webpack.withClassProperty("_profilePostInfo"),
-
-    EventModel: webpack => webpack.withClassProperty("_eventInfo"),
-    DocumentModel: webpack => webpack.withClassProperty("docInfo"),
-    ListItemModel: webpack => webpack.withClassProperty("listItemInfo"),
-    MessageModel: webpack => webpack.withClassProperty("chatMessageInfo"),
-    AnnouncementModel: webpack => webpack.withClassProperty("_announcementInfo"),
+    // URLs
+    "guilded/urls/domain": webpack => webpack.withProperty("WebClient"),
+    "guilded/urls/externalSites": webpack => webpack.withProperty("ExternalSiteTypes"),
+    "guilded/urls/externalSiteInfos": webpack => webpack.withProperty("reddit"),
+    "guilded/urls/articles": webpack => webpack.withProperty("aboutURL"),
+    "guilded/urls/socialMedia": webpack => webpack.withProperty("SocialMediaTypes"),
 
     // Editor and Rich text
     prism: webpack => webpack.withProperty("highlightElement"),
-    editorNodes: webpack => webpack.allWithProperty("editorTypes"),
-    prismSettings: webpack => webpack.withProperty("PrismPlugins"),
-    editorNodeInfos: webpack => webpack.withProperty("InsertPlugins"),
-    markdownGrammars: webpack => webpack.withProperty("WebhookEmbed"),
-    languageCodes: webpack => webpack.withProperty("availableLanguageCodes"),
+    "prism/info": webpack => webpack.withProperty("prismComponents"),
+    "guilded/editor/nodes": webpack => webpack.allWithProperty("editorTypes"),
+    "guilded/editor/nodeInfos": webpack => webpack.withProperty("InsertPlugins"),
+    "guilded/editor/grammars": webpack => webpack.withProperty("WebhookEmbed"),
+    "guilded/editor/languageCodes": webpack => webpack.withProperty("availableLanguageCodes"),
+
+    // Settings
+    "guilded/settings/savableSettings": webpack => webpack.withCode("handleSaveChanges"),
+    "guilded/settings/tabs": webpack => webpack.withProperty("Notifications"),
+
+    // App stuff
+    "guilded/app/sounds": webpack => webpack.withProperty("IncomingCall"),
+
+    // Overlays
+    "guilded/overlays/portal": webpack => webpack.withProperty("Portals"),
+    "guilded/overlays/OverlayStack": webpack => webpack.withProperty("addPortal"),
+    "guilded/overlays/overlayProvider": webpack => webpack.withCode("OverlayProvider"),
+    transientMenuPortal: _ => getReactInstance(document.querySelector(".TransientMenuPortalContext-portal-container")),
+
+    // Context
+    "guilded/context/layerContext": webpack => webpack.allWithProperty("object")[1],
+    "guilded/context/teamContextProvider": webpack => webpack.withCode("EnforceTeamData"),
+    "guilded/context/defaultContextProvider": webpack => webpack.withCode("defaultContext"),
+    "guilded/context/chatContext": webpack => webpack.withProperty("chatContext"),
+
+    // Util
+    "guilded/util/functions": webpack => webpack.withProperty("coroutine"),
 
     // Components
-    GuildedText: webpack => webpack.withCode("GuildedText"),
-    RouteLink: webpack => webpack.withClassProperty("href"),
-    Form: webpack => webpack.withClassProperty("formValues"),
-    Modal: webpack => webpack.withClassProperty("hasConfirm"),
-    MarkRenderer: webpack => webpack.withClassProperty("mark"),
-    SimpleToggle: webpack => webpack.withClassProperty("input"),
-    CalloutBadge: webpack => webpack.withClassProperty("style"),
-    formFieldTypes: webpack => webpack.withProperty("Dropdown"),
-    NullState: webpack => webpack.withClassProperty("imageSrc"),
-    SearchBar: webpack => webpack.withClassProperty("_inputRef"),
-    draggable: webpack => webpack.withProperty("DraggableTypes"),
-    OverflowButton: webpack => webpack.withClassProperty("isOpen"),
-    WordDividerLine: webpack => webpack.withCode("WordDividerLine"),
-    Button: webpack => webpack.withClassProperty("useHoverContext"),
-    ItemManager: webpack => webpack.withClassProperty("ItemManager"),
-    HorizontalTabs: webpack => webpack.withClassProperty("tabOptions"),
-    ProfilePicture: webpack => webpack.withClassProperty("borderType"),
-    MarkdownRenderer: webpack => webpack.withClassProperty("plainText"),
-    SvgIcon: webpack => webpack.withClassProperty("iconComponentProps"),
-    ActionMenuSection: webpack => webpack.withCode("ActionMenu-section"),
-    ActionMenu: webpack => webpack.withClassProperty("actionMenuHeight"),
-    ActionMenuItem: webpack => webpack.withClassProperty("useRowWrapper"),
-    ToggleField: webpack => webpack.withCode("ToggleFieldWrapper-container"),
-    inputFieldValidations: webpack => webpack.withProperty("ValidateUserUrl"),
-    UserBasicInfo: webpack => webpack.withClassProperty("userPresenceContext")
+    "guilded/components/Form": webpack => webpack.withClassProperty("formValues"),
+    "guilded/components/formFieldTypes": webpack => webpack.withProperty("Dropdown"),
+    "guilded/components/formValidations": webpack => webpack.withProperty("ValidateUserUrl"),
+    "guilded/components/MarkdownRenderer": webpack => webpack.withClassProperty("plainText"),
+    "guilded/components/CalloutBadge": webpack => webpack.withClassProperty("style"),
+    "guilded/components/GuildedText": webpack => webpack.withCode("GuildedText"),
+    "guilded/components/RouteLink": webpack => webpack.withClassProperty("href"),
+    "guilded/components/Button": webpack => webpack.withClassProperty("useHoverContext"),
+    "guilded/components/SvgIcon": webpack => webpack.withClassProperty("iconComponentProps"),
+    "guilded/components/NullState": webpack => webpack.withClassProperty("imageSrc"),
+    "guilded/components/HorizontalTabs": webpack => webpack.withClassProperty("tabOptions"),
+    "guilded/components/HorizontalTab": webpack => webpack.withClassProperty("tabOption"),
+    "guilded/components/ToggleFieldWrapper": webpack => webpack.withCode("ToggleFieldWrapper-container"),
+    "guilded/components/SimpleToggle": webpack => webpack.withClassProperty("input"),
+    "guilded/components/MediaRenderer": webpack => webpack.withClassProperty("progressiveImageHasLoaded"),
+    "guilded/components/CodeContainer": webpack => webpack.withClassProperty("tokenCodeLines"),
+    "guilded/components/SearchBarV2": webpack => webpack.withClassProperty("_inputRef"),
+    "guilded/components/GuildedSelect": webpack => webpack.withClassProperty("selectedValue"),
+    "guilded/components/ItemManager": webpack => webpack.withCode("ItemManager"),
+    "guilded/components/OverflowButton": webpack => webpack.withClassProperty("isOpen"),
+    "guilded/components/BannerWithButton": webpack => webpack.withClassProperty("hasText"),
+    "guilded/components/IconAndLabel": webpack => webpack.withCode("IconAndLabel"),
+    "guilded/components/UserBasicInfoDisplay": webpack => webpack.withClassProperty("userPresenceContext"),
+    "guilded/components/CheckmarkIcon": webpack => webpack.withCode("CheckmarkIcon"),
+    "guilded/components/ProfilePicture": webpack => webpack.withClassProperty("borderType"),
+    "guilded/components/CarouselList": webpack => webpack.withClassProperty("overflowRight"),
+    "guilded/components/LoadingAnimationMicro": webpack => webpack.withClassProperty("containerStyle"),
+    "guilded/components/LoadingPage": webpack => webpack.withCode("LoadingPage"),
+    "guilded/components/BadgeV2": webpack => webpack.withCode("BadgeV2"),
+    "guilded/components/WordDividerLine": webpack => webpack.withCode("WordDividerLine"),
+    "guilded/components/StretchFadeBackground": webpack => webpack.withCode("StretchFadeBackground"),
+    "guilded/components/TeamNavSectionItem": webpack => webpack.withCode("TeamNavSectionItem"),
+    "guilded/components/TeamNavSectionsList": webpack => webpack.withClassProperty("isSomeActionSelected"),
+    "guilded/components/ThreeColumns": webpack => webpack.withCode("ThreeColumns"),
+    "guilded/components/DragViewer": webpack => webpack.withClassProperty("enableDrag"),
+    "guilded/components/ActionMenu": webpack => webpack.withClassProperty("actionMenuHeight"),
+    "guilded/components/ActionMenuSection": webpack => webpack.withCode("ActionMenu-section"),
+    "guilded/components/ActionMenuItem": webpack => webpack.withClassProperty("useRowWrapper"),
+    "guilded/components/ModalV2": webpack => webpack.withClassProperty("hasConfirm"),
+    "guilded/components/MarkRenderer": webpack => webpack.withClassProperty("mark"),
+    "guilded/components/draggable": webpack => webpack.withProperty("DraggableTypes")
 };
 
 export default class AddonApi {
     // Values cached from getters
-    _cached: { [prop: string]: any } = {};
+    static _cached: { [prop: string]: any } = {};
     // Don't fetch the module 100 times if the module is undefined
-    _cachedList: string[] = [];
-    webpackManager: WebpackManager;
-    addonManager: AddonManager;
-    constructor(webpackManager: WebpackManager, addonManager: AddonManager) {
-        this.webpackManager = webpackManager;
-        this.addonManager = addonManager;
+    static _cachedList: string[] = [];
+    // Make it break less
+    static _moduleNotFound = { default: undefined };
+    static reguildedUtil = {
+        getReactInstance,
+        waitForElement
+    };
+    static reguildedPatchUtil = {
+        patchElementRenderer
+    };
+
+    // Don't allow addons to fetch this with `require("webpackManager")`
+    #webpackManager: WebpackManager;
+    #addonManager: AddonHandler;
+    #addonId: string;
+    #reguildedSlateUtil: {};
+
+    // If addon needs it
+    constructor(webpackManager: WebpackManager, addonManager: AddonHandler, addonId: string) {
+        this.#webpackManager = webpackManager;
+        this.#addonManager = addonManager;
+        this.#addonId = addonId;
+        this.#reguildedSlateUtil = {
+            defaultInsertPlugins: { media: 0, form: 1 },
+            addInsertPlugin: (plugin: EditorPlugin) => this["guilded/editor/nodeInfos"].InsertPlugins.push(plugin),
+            removeInsertPlugin: (pluginIndex: number) =>
+                this["guilded/editor/nodeInfos"].InsertPlugins.splice(pluginIndex, 1),
+            addSlateSection: (section: MenuSectionSpecs) => {
+                const inserts = document.getElementsByClassName("SlateInsertToolbar-container");
+
+                for (const insert of inserts) {
+                    const insertReact = getReactInstance(insert);
+                    if (insertReact) insertReact.props.menuSpecs.sections.push(section);
+                }
+            },
+            removeSlateSection: (sectionName: string) => {
+                const inserts = document.getElementsByClassName("SlateInsertToolbar-container");
+
+                for (const insert of inserts) {
+                    const insertReact = getReactInstance(insert);
+
+                    // To prevent errors
+                    if (insertReact) {
+                        const { sections }: { sections: MenuSectionSpecs[] } = insertReact.props.menuSpecs;
+
+                        // Remove by name
+                        sections.splice(
+                            sections.findIndex(section => section.name === sectionName),
+                            1
+                        );
+                    }
+                }
+            },
+            getPluginByType: (type: string) =>
+                this["guilded/editor/nodeInfos"].default.find(plugin => plugin.type === type)
+        };
     }
     /**
      * Caches the value if it's not already cached and returns it.
      * @param name The name of cachable value
      * @returns The cached value
      */
-    getCached(name: string): any {
-        // If cached object exists, get it. Else, add it to cached array,
-        // cache it and return cached value.
-        return (
-            ~this._cachedList.indexOf(name)
-            ? this._cached[name]
-            // Honestly, the only convenient thing about JS
-            : (this._cachedList.push(name), this._cached[name] = cacheFns[name](this.webpackManager))
-        );
+    #getCached(name: string): any {
+        return AddonApi.getApiCachedProperty(name, this.#webpackManager);
+    }
+    /**
+     * Caches the value if it's not already cached and returns it. Requires specified permissions.
+     * @param permissions The permissions that it requires
+     * @param name The name of cachable value
+     * @returns The cached value
+     */
+    #getCachedWithPermissions(permissions: AddonPermission, name: string) {
+        return this.#hasPermission(permissions) && this.#getCached(name);
+    }
+    /**
+     * Gets whether there is the specified permission.
+     * @param permission The permission that is needed
+     * @returns Permission or 0
+     */
+    #hasPermission(permission: AddonPermission) {
+        return this.#addonManager.hasAnyPermission(this.#addonId, permission);
+    }
+    #hasAllPermissions(permissions: AddonPermission) {
+        return this.#addonManager.hasAllPermissions(this.#addonId, permissions);
+    }
+
+    // ReGuilded
+    get ["guilded/reguilded-util/patch"]() {
+        return this.#hasPermission(AddonPermission.Elements) && AddonApi.reguildedPatchUtil;
+    }
+    get ["guilded/reguilded-util/react"]() {
+        return this.#hasPermission(AddonPermission.Elements) && AddonApi.reguildedUtil;
+    }
+    get ["guilded/reguilded-util/editor"]() {
+        return this.#hasPermission(AddonPermission.Elements) && this.#reguildedSlateUtil;
+    }
+
+    // React
+    /**
+     * React.JS framework stuff.
+     */
+    get react(): AddonApiExports<"react"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "react");
+    }
+    /**
+     * React.JS framework DOM-related things.
+     */
+    get ["react-dom"](): AddonApiExports<"react-dom"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "react-dom");
+    }
+    /**
+     * Method for creating React elements.
+     */
+    get ["react-element"]() {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "react-element");
+    }
+
+    // HTTPS and WS
+    /**
+     * The list of REST methods for interacting with Guilded API.
+     */
+    get ["guilded/http/rest"](): AddonApiExports<"guilded/http/rest"> {
+        return this.#getCachedWithPermissions(AddonPermission.UseApi, "guilded/http/rest");
+    }
+
+    // Teams / Servers
+    /**
+     * The list of supported games.
+     */
+    get ["guilded/teams/games"](): AddonApiExports<"guilded/teams/games"> {
+        return this.#getCached("guilded/teams/games");
+    }
+    /**
+     * Model class for teams.
+     */
+    get ["guilded/teams/TeamModel"](): AddonApiExports<"guilded/teams/TeamModel"> {
+        return this.#getCached("guilded/teams/TeamModel");
+    }
+
+    // Users / Members
+    /**
+     * The list of all global badges.
+     */
+    get ["guilded/users/badges"](): AddonApiExports<"guilded/users/badges"> {
+        return this.#getCached("guilded/users/badges");
+    }
+    /**
+     * The list of all global flairs display info.
+     */
+    get ["guilded/users/flairs/displayInfo"](): AddonApiExports<"guilded/users/flairs/displayInfo"> {
+        return this.#getCached("guilded/users/flairs/displayInfo");
+    }
+    /**
+     * The list of all global flairs tooltip info.
+     */
+    get ["guilded/users/flairs/tooltipInfo"](): AddonApiExports<"guilded/users/flairs/tooltipInfo"> {
+        return this.#getCached("guilded/users/flairs/tooltipInfo");
+    }
+    /**
+     * Model class for users.
+     */
+    get ["guilded/users"](): AddonApiExports<"guilded/users"> {
+        return this.#getCached("guilded/users");
+    }
+    /**
+     * Fetches a model for the given member.
+     */
+    get ["guilded/users/members"](): AddonApiExports<"guilded/users/members"> {
+        return this.#getCachedWithPermissions(AddonPermission.ExtraInfo, "guilded/users/members");
+    }
+    /**
+     * Model class for users' profile posts.
+     */
+    get ["guilded/profile/PostModel"](): AddonApiExports<"guilded/profile/PostModel"> {
+        return this.#getCached("guilded/profile/PostModel");
+    }
+    /**
+     * The list of social links that can be put under profile.
+     */
+    get ["guilded/profile/socialLinks"](): AddonApiExports<"guilded/profile/socialLinks"> {
+        return this.#getCached("guilded/profile/socialLinks");
+    }
+
+    // Roles
+    /**
+     * Captain, former member, admin, etc. infos and names.
+     */
+    get ["guilded/roles/membership"](): AddonApiExports<"guilded/roles/membership"> {
+        return this.#getCached("guilded/roles/membership");
+    }
+
+    // Groups
+    /**
+     * Model class for groups.
+     */
+    get ["guilded/groups"](): AddonApiExports<"guilded/groups"> {
+        return this.#getCached("guilded/groups");
+    }
+
+    // Channels
+    /**
+     * Model class for channels.
+     */
+    get ["guilded/channels"](): AddonApiExports<"guilded/channels"> {
+        return this.#getCached("guilded/channels");
+    }
+    /**
+     * The list of all channel and section types.
+     */
+    get ["guilded/channels/types"](): AddonApiExports<"guilded/channels/types"> {
+        return this.#getCached("guilded/channels/types");
+    }
+    /**
+     * Methods related to channel management.
+     */
+    get ["guilded/channels/management"](): AddonApiExports<"guilded/channels/management"> {
+        return this.#getCachedWithPermissions(AddonPermission.ExtraInfo, "guilded/channels/management");
+    }
+    /**
+     * The lengths of channel names, IDs and other things related to channel settings.
+     */
+    get ["guilded/channels/settings"](): AddonApiExports<"guilded/channels/settings"> {
+        return this.#getCached("guilded/channels/settings");
+    }
+    /**
+     * Model class for announcement posts.
+     */
+    get ["guilded/channels/content/AnnouncementModel"](): AddonApiExports<"guilded/channels/content/AnnouncementModel"> {
+        return this.#getCached("guilded/channels/content/AnnouncementModel");
+    }
+    /**
+     * Model class for document channel documents.
+     */
+    get ["guilded/channels/content/DocumentModel"](): AddonApiExports<"guilded/channels/content/DocumentModel"> {
+        return this.#getCached("guilded/channels/content/DocumentModel");
+    }
+    /**
+     * Model class for calendar events.
+     */
+    get ["guilded/channels/content/EventModel"](): AddonApiExports<"guilded/channels/content/EventModel"> {
+        return this.#getCached("guilded/channels/content/EventModel");
+    }
+    /**
+     * Model class for list channel items/tasks.
+     */
+    get ["guilded/channels/content/ListItemModel"](): AddonApiExports<"guilded/channels/content/ListItemModel"> {
+        return this.#getCached("guilded/channels/content/ListItemModel");
+    }
+    /**
+     * Model class for chat messages.
+     */
+    get ["guilded/channels/content/MessageModel"](): AddonApiExports<"guilded/channels/content/MessageModel"> {
+        return this.#getCached("guilded/channels/content/MessageModel");
+    }
+    /**
+     * Gets event configuration limitations.
+     */
+    get ["guilded/channels/content/eventInfo"](): AddonApiExports<"guilded/channels/content/eventInfo"> {
+        return this.#getCached("guilded/channels/content/eventInfo");
+    }
+
+    // URLs
+    /**
+     * Links to various Guilded help-center articles.
+     */
+    get ["guilded/urls/articles"](): AddonApiExports<"guilded/urls/articles"> {
+        return this.#getCached("guilded/urls/articles");
+    }
+    /**
+     * Links and information about guilded.gg domain.
+     */
+    get ["guilded/urls/domain"](): AddonApiExports<"guilded/urls/domain"> {
+        return this.#getCached("guilded/urls/domain");
+    }
+    /**
+     * The list of all external sites Guilded embeds support.
+     */
+    get ["guilded/urls/externalSites"](): AddonApiExports<"guilded/urls/externalSites"> {
+        return this.#getCached("guilded/urls/externalSites");
+    }
+    /**
+     * Information about external sites Guilded embeds support, such as colours and icons.
+     */
+    get ["guilded/urls/externalSiteInfos"](): AddonApiExports<"guilded/urls/externalSiteInfos"> {
+        return this.#getCached("guilded/urls/externalSiteInfos");
+    }
+    /**
+     * All of the social medias that Guilded client recognizes.
+     */
+    get ["guilded/urls/socialMedia"](): AddonApiExports<"guilded/urls/socialMedia"> {
+        return this.#getCached("guilded/urls/socialMedia");
+    }
+
+    // Editors and Markdown
+    /**
+     * Returns the Prism.js library.
+     */
+    get prism(): AddonApiExports<"prism"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "prism");
+    }
+    /**
+     * Returns the plugins and language settings of Prism.js.
+     */
+    get ["prism/components"](): AddonApiExports<"prism/components"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "prism/info")?.prismComponents;
+    }
+    // /**
+    //  * The list of all Slate nodes.
+    //  */
+    // get ["guilded/editor/nodes"](): AddonApiExports<"guilded/editor/nodes"> {
+    //     return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/editor/nodes");
+    // }
+    /**
+     * The list of nodes sorted by reactions, bare, etc.
+     */
+    get ["guilded/editor/nodeInfos"](): AddonApiExports<"guilded/editor/nodeInfos"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/editor/nodeInfos");
+    }
+    /**
+     * A dictionary of Markdown grammars.
+     */
+    get ["guilded/editor/grammars"](): AddonApiExports<"guilded/editor/grammars"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/editor/grammars");
+    }
+    /**
+     * The list of language identifiers and their display names.
+     */
+    get ["guilded/editor/languageCodes"](): AddonApiExports<"guilded/editor/languageCodes"> {
+        return this.#getCached("guilded/editor/languageCodes");
+    }
+
+    // App
+    /**
+     * The list of all client sounds.
+     */
+    get ["guilded/app/sounds"](): AddonApiExports<"guilded/app/sounds"> {
+        return this.#getCachedWithPermissions(AddonPermission.ExtraInfo, "guilded/app/sounds");
+    }
+
+    // Settings
+    get ["guilded/settings/savableSettings"](): AddonApiExports<"guilded/settings/savableSettings"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/settings/savableSettings");
+    }
+    /**
+     * The list of settings tabs.
+     */
+    get ["guilded/settings/tabs"](): AddonApiExports<"guilded/settings/tabs"> {
+        return this.#getCached("guilded/settings/tabs");
+    }
+
+    // Overlays
+    /**
+     * Provides overlay portal.
+     */
+    get ["guilded/overlays/portal"](): AddonApiExports<"guilded/overlays/portal"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/overlays/portal");
+    }
+    /**
+     * Provides a container that displays a set of overlays.
+     */
+    get ["guilded/overlays/OverlayStack"](): AddonApiExports<"guilded/overlays/OverlayStack"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/overlays/OverlayStack");
+    }
+    /**
+     * Decorator for getting specific set of overlays.
+     */
+    get ["guilded/overlays/overlayProvider"](): AddonApiExports<"guilded/overlays/overlayProvider"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/overlays/overlayProvider");
+    }
+
+    // Context
+    /**
+     * Module with context of what channel client is looking at, channel messages, etc.
+     */
+    get ["guilded/context/chatContext"](): AddonApiExports<"guilded/context/chatContext"> {
+        return this.#getCachedWithPermissions(AddonPermission.UseApi, "guilded/context/chatContext");
+    }
+    /**
+     * Provides layer context for Guilded portals.
+     */
+    get ["guilded/context/layerContext"](): AddonApiExports<"guilded/context/layerContext"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/context/layerContext");
+    }
+    get ["guilded/context/teamContextProvider"](): AddonApiExports<"guilded/context/teamContextProvider"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/context/teamContextProvider");
+    }
+    get ["guilded/context/defaultContextProvider"](): AddonApiExports<"guilded/context/defaultContextProvider"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/context/defaultContextProvider");
+    }
+
+    // Util
+    /**
+     * Returns the utilities related to functions.
+     */
+    get ["guilded/util/functions"](): AddonApiExports<"guilded/util/functions"> {
+        return this.#getCached("guilded/util/functions");
+    }
+
+    // Components
+    /**
+     * Displays the specified list of form fields and their sections.
+     */
+    get ["guilded/components/Form"](): AddonApiExports<"guilded/components/Form"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/Form");
+    }
+    /**
+     * Returns the list of available field types in forms.
+     */
+    get ["guilded/components/formFieldTypes"](): AddonApiExports<"guilded/components/formFieldTypes"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/formFieldTypes");
+    }
+    /**
+     * Returns the class that contains a set of validators, which either return string (error message) or void.
+     */
+    get ["guilded/components/formValidations"](): AddonApiExports<"guilded/components/formValidations"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/formValidations");
+    }
+
+    /**
+     * Displays a formatted text based on provided Markdown content.
+     */
+    get ["guilded/components/MarkdownRenderer"](): AddonApiExports<"guilded/components/MarkdownRenderer"> {
+        //typeof React.Component<{ plainText: string, grammar: PrismGrammar }, {}>
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/MarkdownRenderer");
+    }
+    /**
+     * Displays a badge to label content.
+     */
+    get ["guilded/components/CalloutBadge"](): AddonApiExports<"guilded/components/CalloutBadge"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/CalloutBadge");
+    }
+    /**
+     * Displays a text with a lot of parameters.
+     */
+    get ["guilded/components/GuildedText"](): AddonApiExports<"guilded/components/GuildedText"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/GuildedText");
+    }
+    /**
+     * Displays a hyperlink that can navigate to a certain app's area.
+     */
+    get ["guilded/components/RouteLink"](): AddonApiExports<"guilded/components/RouteLink"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/RouteLink");
+    }
+    /**
+     * Displays a clickable Guilded icon.
+     */
+    get ["guilded/components/Button"](): AddonApiExports<"guilded/components/Button"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/Button");
+    }
+    /**
+     * Displays any available Guilded SVG.
+     */
+    get ["guilded/components/SvgIcon"](): AddonApiExports<"guilded/components/SvgIcon"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/SvgIcon");
+    }
+    /**
+     * Displays a screen for the missing content.
+     */
+    get ["guilded/components/NullState"](): AddonApiExports<"guilded/components/NullState"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/NullState");
+    }
+    /**
+     * Displays a tabbed panel.
+     */
+    get ["guilded/components/HorizontalTabs"](): AddonApiExports<"guilded/components/HorizontalTabs"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/HorizontalTabs");
+    }
+    /**
+     * Displays a tab for HorizontalTabs component.
+     */
+    get ["guilded/components/HorizontalTab"](): AddonApiExports<"guilded/components/HorizontalTab"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/HorizontalTabs");
+    }
+    /**
+     * Displays a toggle with labels, styles and more.
+     */
+    get ["guilded/components/ToggleFieldWrapper"](): AddonApiExports<"guilded/components/ToggleFieldWrapper"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ToggleFieldWrapper");
+    }
+    /**
+     * Displays a toggle with an optional label.
+     */
+    get ["guilded/components/SimpleToggle"](): AddonApiExports<"guilded/components/SimpleToggle"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/SimpleToggle");
+    }
+    /**
+     * Displays a message image.
+     */
+    get ["guilded/components/MediaRenderer"](): AddonApiExports<"guilded/components/MediaRenderer"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/MediaRenderer");
+    }
+    /**
+     * Displays a code block.
+     *
+     * This is similar to message's code blocks, except that it also allows setting a header message for it and adding copy button at the right.
+     */
+    get ["guilded/components/CodeContainer"](): AddonApiExports<"guilded/components/CodeContainer"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/CodeContainer");
+    }
+    /**
+     * Displays an input meant for searching.
+     */
+    get ["guilded/components/SearchBarV2"](): AddonApiExports<"guilded/components/SearchBarV2"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/SearchBarV2");
+    }
+    /**
+     * Displays a table of content.
+     *
+     * It allows searching and filtering of content, among other things.
+     */
+    get ["guilded/components/ItemManager"](): AddonApiExports<"guilded/components/ItemManager"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ItemManager");
+    }
+    /**
+     * Displays 3 vertically aligned dots that once clicked, show a context menu.
+     */
+    get ["guilded/components/OverflowButton"](): AddonApiExports<"guilded/components/OverflowButton"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/OverflowButton");
+    }
+    /**
+     * Displays a panel with optional icon, text and an optional button.
+     *
+     * It has 3 flavours:
+     * - Warning — the bot role warning message
+     * - Info — the archived message when viewing archived channels and threads
+     * - Error
+     */
+    get ["guilded/components/BannerWithButton"](): AddonApiExports<"guilded/components/BannerWithButton"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/BannerWithButton");
+    }
+    /**
+     * Displays an icon and a label.
+     */
+    get ["guilded/components/IconAndLabel"](): AddonApiExports<"guilded/components/IconAndLabel"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/IconAndLabel");
+    }
+    /**
+     * Displays the name, profile picture, badges and other things of the specified user.
+     *
+     * If some part of the content does not need to be displayed, it can be specified.
+     */
+    get ["guilded/components/UserBasicInfoDisplay"](): AddonApiExports<"guilded/components/UserBasicInfoDisplay"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/UserBasicInfoDisplay");
+    }
+    /**
+     * Displays the profile picture of a user.
+     */
+    get ["guilded/components/ProfilePicture"](): AddonApiExports<"guilded/components/ProfilePicture"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ProfilePicture");
+    }
+    /**
+     * Displays the list of items that can overflow in certain direction and can be scrolled.
+     */
+    get ["guilded/components/CarouselList"](): AddonApiExports<"guilded/components/CarouselList"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/CarouselList");
+    }
+    /**
+     * Displays the loading dots that takes up the whole page.
+     */
+    get ["guilded/components/LoadingPage"](): AddonApiExports<"guilded/components/LoadingPage"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/LoadingPage");
+    }
+    /**
+     * Displays the loading animated dots.
+     */
+    get ["guilded/components/LoadingAnimationMicro"](): AddonApiExports<"guilded/components/LoadingAnimationMicro"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/LoadingAnimationMicro");
+    }
+    /**
+     * Displays a red notification badge.
+     */
+    get ["guilded/components/BadgeV2"](): AddonApiExports<"guilded/components/BadgeV2"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/BadgeV2");
+    }
+    /**
+     * Displays a static image that fades into background.
+     */
+    get ["guilded/components/StretchFadeBackground"](): AddonApiExports<"guilded/components/StretchFadeBackground"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/StretchFadeBackground");
+    }
+    /**
+     * Displays a line that separates content with a line and a text in the middle.
+     */
+    get ["guilded/components/WordDividerLine"](): AddonApiExports<"guilded/components/WordDividerLine"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/component/WordDividerLine");
+    }
+    /**
+     * Displays a header of a page at the top of the screen.
+     */
+    get ["guilded/components/ScreenHeader"](): AddonApiExports<"guilded/components/ScreenHeader"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/component/ScreenHeader");
+    }
+    /**
+     * Displays a section in channel sidebar.
+     */
+    get ["guilded/components/TeamNavSectionItem"](): AddonApiExports<"guilded/components/TeamNavSectionItem"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/TeamNavSectionItem");
+    }
+    /**
+     * Displays a section list in channel sidebar.
+     */
+    get ["guilded/components/TeamNavSectionsList"](): AddonApiExports<"guilded/components/TeamNavSectionsList"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/TeamNavSectionsList");
+    }
+    /**
+     * Displays three columns, where the middle one covers rest of the space.
+     */
+    get ["guilded/components/ThreeColumns"](): AddonApiExports<"guilded/components/ThreeColumns"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ThreeColumns");
+    }
+    /**
+     * Draggable element names and infos.
+     */
+    get ["guilded/components/draggable"](): AddonApiExports<"guilded/components/draggable"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/draggable");
+    }
+    /**
+     * Displays a panel whose content can be moved around by dragging.
+     *
+     * This can be used for images or charts of some sorts, where showing a lot of details could make content too small.
+     */
+    get ["guilded/components/DragViewer"](): AddonApiExports<"guilded/components/DragViewer"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/DragViewer");
+    }
+    /**
+     * Displays context menu that can be access either by right clicking or by clicking overflow menu icon.
+     */
+    get ["guilded/components/ActionMenu"](): AddonApiExports<"guilded/components/ActionMenu"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ActionMenu");
+    }
+    /**
+     * Displays context menu's section
+     */
+    get ["guilded/components/ActionMenuSection"](): AddonApiExports<"guilded/components/ActionMenuSection"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ActionMenuSection");
+    }
+    /**
+     * Displays context menu's action.
+     */
+    get ["guilded/components/ActionMenuItem"](): AddonApiExports<"guilded/components/ActionMenuItem"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ActionMenuItem");
+    }
+    /**
+     * Displays a panel more forward than the rest of the content.
+     */
+    get ["guilded/components/ModalV2"](): AddonApiExports<"guilded/components/ModalV2"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ModalV2");
+    }
+    get ["guilded/components/MarkRenderer"](): AddonApiExports<"guilded/components/MarkRenderer"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/MarkRenderer");
     }
     /**
      * Removes the item with the given name from the cached list to be racached later.
      * @param name The name of the cached value
      * @returns The cached value
      */
-    uncache(name: string): any | void {
-        const i = this._cachedList.indexOf(name);
+    static uncache(name: string): any | void {
+        const i = AddonApi._cachedList.indexOf(name);
 
-        if (~i)
-            return this._cachedList.splice(i, 1)[0];
-    }
-
-    // Additional stuff(ReGuilded only)
-    /**
-     * Renders provided Markdown plain text as a React element.
-     * @param plainText Plain text formatted in Guilded-flavoured Markdown
-     * @returns Rendered Markdown
-     */
-    renderMarkdown(plainText: string): _React.ReactNode {
-        return new this.MarkdownRenderer({ plainText, grammar: this.markdownGrammars.WebhookEmbed }).render();
-    }
-    /**
-     * Wraps around the element to make it available to be rendered into a portal.
-     * @param component The React element to wrap into a full overlay
-     * @param onClose What to do when the overlay gets clicked outside
-     * @returns Wrapped overlay as DOM Element
-     */
-    wrapOverlay(component: _React.Component, onClose: () => void): Element {
-        // FIXME: Normal approach to context
-        component.context = { layerContext: this.layerContext.object };
-
-        return overlayWrapper({
-            component,
-            onClose,
-            ReactDOM: this.ReactDOM
-        });
-    }
-    /**
-     * Creates a new portal and renders the given overlay in it.
-     * @param element Element to render as overlay
-     * @param portalName The name of the portal that will be rendered on
-     * @returns The identifier of the portal created
-     */
-    renderOverlay(element: Element, portalName: string): string {
-        const portalId = this.OverlayStack.addPortal(element, portalName);
-
-        // Render overlay onto the created portal
-        setImmediate(() => {
-            const portalElem = this.portal.Portals[portalId]
-            
-            portalElem.appendChild(element);
-        });
-        
-        // For it to be available for destruction
-        return portalId;
-    }
-    /**
-     * Gets the React component instance that owns given element.
-     * @returns React owner instance
-     */
-    get getOwnerInstance(): (element: Element) => React.Component | void {
-        return getOwnerInstance;
-    }
-    /**
-     * 
-     */
-    get patchElementRenderer() {
-        return patchElementRenderer;
-    }
-    /**
-     * Waits for the given DOM element to get created.
-     * @returns Created element
-     */
-    get waitForElement(): (query: string) => Promise<Element | Node> {
-        return waitForElement;
-    }
-
-    // Private
-    get transientMenuPortal() {
-        return this.getCached("transientMenuPortal");
-    }
-    get transientMenuPortalUnmaskedContext() {
-        return this.transientMenuPortal.__reactInternalMemoizedUnmaskedChildContext;
-    }
-
-    // Alphabetical, not categorized
-    /**
-     * Provides a component for action menu button/item.
-     */
-    get ActionMenuItem() {
-        return this.getCached("ActionMenuItem")?.default;
-    }
-    /**
-     * Provides action menu component for rendering Guilded right click, overflow and other kinds of menus.
-     */
-    get ActionMenu() {
-        return this.getCached("ActionMenu")?.default;
-    }
-    /**
-     * Provides an action menu section that categorizes menu items.
-     */
-    get ActionMenuSection() {
-        return this.getCached("ActionMenuSection")?.default;
-    }
-    /**
-     * Model class for announcement posts.
-     */
-    get AnnouncementModel() {
-        return this.getCached("AnnouncementModel")?.default;
-    }
-    /**
-     * A clickable Guilded button.
-     */
-    get Button() {
-        return this.getCached("Button")?.default;
-    }
-    /**
-     * A badge or a flair for anything.
-     */
-    get CalloutBadge() {
-        return this.getCached("CalloutBadge")?.default;
-    }
-    /**
-     * Methods related to channel management.
-     */
-    get channelManagement() {
-        return this.getCached("channelManagement")?.default;
-    }
-    /**
-     * Model class for channels.
-     */
-    get ChannelModel() {
-        return this.getCached("ChannelModel")?.ChannelModel;
-    }
-    /**
-     * The lengths of channel names, IDs and other things related to channel settings.
-     */
-    get channelSettingsInfo() {
-        return this.getCached("channelSettingsInfo");
-    }
-    /**
-     * The list of all channel and section types.
-     */
-    get channelTypes() {
-        return this.getCached("channelTypes");
-    }
-    /**
-     * Module with context of what channel client is looking at, channel messages, etc.
-     */
-    get chatContext() {
-        return this.getCached("chatContext")?.default;
-    }
-    /**
-     * A custom embed in a chat.
-     */
-    get ChatEmbed() {
-        return this.getCached("ChatEmbed")?.default;
-    }
-    /**
-     * Various methods related to cookies in the client.
-     */
-    get cookies() {
-        return this.getCached("cookies")?.default;
-    }
-    get DefaultContextProvider(): <T>(cls: T) => T {
-        return this.getCached("DefaultContextProvider")?.default;
-    }
-    /**
-     * Gets the default title message for new documents.
-     */
-    get defaultDocTitle(): string {
-        return this.getCached("DocumentModel")?.DefaultDocTitle;
-    }
-    /**
-     * Model class for document channel documents.
-     */
-    get DocumentModel() {
-        return this.getCached("DocumentModel")?.default;
-    }
-    /**
-     * Links and information about guilded.gg domain.
-     */
-    get domainUri() {
-        return this.getCached("domainUri")?.default;
-    }
-    /**
-     * Draggable element names and infos.
-     */
-    get draggable() {
-        return this.getCached("draggable");
-    }
-
-
-    /**
-     * The list of nodes sorted by reactions, bare, etc.
-     */
-    get editorNodeInfos() {
-        return this.getCached("editorNodeInfos");
-    }
-    /**
-     * The list of all Slate nodes.
-     */
-    get editorNodes() {
-        return this.getCached("editorNodes");
-    }
-    /**
-     * Gets event configuration limitations.
-     */
-    get eventConfig() {
-        return this.getCached("eventConfig");
-    }
-    /**
-     * Model class for calendar events.
-     */
-    get EventModel() {
-        return this.getCached("EventModel")?.default;
-    }
-    /**
-     * The list of all external sites Guilded embeds support.
-     */
-    get externalSites() {
-        return this.getCached("externalSites")?.default;
-    }
-    /**
-     * Information about external sites Guilded embeds support, such as colours and icons.
-     */
-    get externalSiteInfo() {
-        return this.getCached("externalSiteInfo")?.default;
-    }
-    get Form(): typeof Form {
-        return this.getCached("Form")?.default;
-    }
-    /**
-     * The list of available field types in forms.
-     */
-    get formFieldTypes() {
-        return this.getCached("formFieldTypes")?.default;
-    }
-    /**
-     * The utilities related to functions.
-     */
-    get functionUtil(): Function & { coroutine: <T extends Function>(fn: T) => any } {
-        return this.getCached("functionUtil");
-    }
-    /**
-     * The list of supported games.
-     */
-    get gameList() {
-        return this.getCached("gameList")?.default;
-    }
-    /**
-     * Fetches a model for the given member.
-     */
-    get getMemberModel(): (memberInfo: { teamId: string; userId: string; }) => object {
-        return this.getCached("MemberModel")?.getMemberModel;
-    }
-    /**
-     * The list of all global badges.
-     */
-    get globalBadges() {
-        return this.getCached("globalBadges")?.default;
-    }
-    /**
-     * The list of all global flairs display info.
-     */
-    get globalFlairsDisplayInfo() {
-        return this.getCached("globalFlairsDisplayInfo");
-    }
-    /**
-     * The list of all global flairs tooltip info.
-     */
-    get globalFlairsTooltipInfo() {
-        return this.getCached("globalFlairsTooltipInfo");
-    }
-    /**
-     * Model class for groups.
-     */
-    get GroupModel() {
-        return this.getCached("GroupModel")?.GroupModel;
-    }
-    /**
-     * Links to various Guilded help-center articles.
-     */
-    get guildedArticles() {
-        return this.getCached("guildedArticles")?.default;
-    }
-    get GuildedText() {
-        return this.getCached("GuildedText")?.default;
-    }
-    /**
-     * The component that creates horizontal selectable content tabs.
-     */
-    get HorizontalTabs() {
-        return this.getCached("HorizontalTabs")?.default;
-    }
-    /**
-     * Returns the class that contains a set of validators, which either return string (error message) or void. 
-     */
-    get inputFieldValidations() {
-        return this.getCached("inputFieldValidations")?.default;
-    }
-    /**
-     * Returns a searchable table with filtering and other features.
-     */
-    get ItemManager(): typeof ItemManager {
-        return this.getCached("ItemManager")?.default;
-    }
-    /**
-     * The list of language identifiers and their display names.
-     */
-    get languageCodes(): { [languageId: string]: string } {
-        return this.getCached("languageCodes");
-    }
-    /**
-     * Provides layer context for Guilded portals.
-     */
-    get layerContext() {
-        return this.getCached("layerContext");
-    }
-    /**
-     * Model class for list channel items/tasks.
-     */
-    get ListItemModel() {
-        return this.getCached("ListItemModel")?.default;
-    }
-    
-    /**
-     * A dictionary of Markdown grammars.
-     */
-    get markdownGrammars() {
-        return this.getCached("markdownGrammars")?.default;
-    }
-    /**
-     * Provides a component that displays Markdown plain text.
-     */
-    get MarkdownRenderer(): typeof _React.Component //typeof React.Component<{ plainText: string, grammar: PrismGrammar }, {}>
-    {
-        return this.getCached("MarkdownRenderer")?.default;
-    }
-    /**
-     * Model class for team members.
-     */
-    get MemberModel() {
-        return this.getCached("MemberModel")?.MemberModel;
-    }
-    /**
-     * Captain, former member, admin, etc. infos and names.
-     */
-    get membershipRoles() {
-        return this.getCached("membershipRoles");
-    }
-    /**
-     * Model class for chat messages.
-     */
-    get MessageModel() {
-        return this.getCached("MessageModel")?.default;
-    }
-    /**
-     * Provides a component to render a Modal. Does not provide full Modal overlay.
-     */
-    get Modal() {
-        return this.getCached("Modal")?.default;
-    }
-    /**
-     * Provides a null-state screen component.
-     */
-    get NullState(): typeof NullState {
-        return this.getCached("NullState")?.default;
-    }
-    /**
-     * Returns an overflow button component that opens a menu.
-     */
-    get OverflowButton(): typeof OverflowButton {
-        return this.getCached("OverflowButton")?.default;
-    }
-    /**
-     * Provides a container that displays a set of overlays.
-     */
-    get OverlayStack() {
-        return this.getCached("OverlayStack")?.default;
-    }
-    /**
-     * Decorator for getting specific set of overlays.
-     */
-    get OverlayProvider() {
-        return this.getCached("OverlayProvider")?.default;
-    }
-    /**
-     * Provides overlay portal.
-     */
-    get portal() {
-        return this.getCached("portal")?.default;
-    }
-    /**
-     * Gets Prism library.
-     */
-    get prism() {
-        return this.getCached("prism");
-    }
-    /**
-     * Gets the plugins and language settings of Prism.js.
-     */
-    get prismSettings() {
-        return this.getCached("prismSettings");
-    }
-    /**
-     * Profile picture of someone.
-     */
-    get ProfilePicture() {
-        return this.getCached("ProfilePicture")?.default;
-    }
-    /**
-     * Model class for users' profile posts.
-     */
-    get ProfilePostModel() {
-        return this.getCached("ProfilePostModel")?.default;
-    }
-    /**
-     * The list of social links that can be put under profile.
-     */
-    get profileSocialLinks() {
-        return this.getCached("profileSocialLinks");
-    }
-    /**
-     * React.JS framework stuff.
-     */
-    get React(): typeof _React {
-        return this.getCached("React");
-    }
-    /**
-     * React.JS framework DOM-related things.
-     */
-    get ReactDOM(): typeof _ReactDOM {
-        return this.getCached("ReactDOM");
-    }
-    /**
-     * Method for creating React elements.
-     */
-    get ReactElement() {
-        return this.getCached("ReactElement");
-    }
-    /**
-     * The list of REST methods for interacting with Guilded API.
-     */
-    get restMethods() {
-        return this.getCached("restMethods")?.default;
-    }
-    /**
-     * A clickable hyperlink component.
-     */
-    get RouteLink() {
-        return this.getCached("RouteLink")?.default;
-    }
-    get SavableSettings(): <T>(settings: T) => T {
-        return this.getCached("SavableSettings")?.default;
-    }
-    /**
-     * An input made for searching.
-     */
-    get SearchBar() {
-        return this.getCached("SearchBar")?.default;
-    }
-    /**
-     * The list of settings tabs.
-     */
-    get settingsTabs(): { [tabName: string]: { id: string; label: string; calloutBadgeProps?: { text: string; color: string; }; }; } {
-        return this.getCached("settingsTabs")?.default;
-    }
-    /**
-     * Provides a simple Guilded toggle with optional label.
-     */
-    get SimpleToggle() {
-        return this.getCached("SimpleToggle")?.default;
-    }
-    /**
-     * All of the social medias that Guilded client recognizes.
-     */
-    get socialMedia(): { SocialMediaTypes: { [socialMediaName: string]: string; }; default: { [socialMediaName: string]: { label: string; icon: string; href?: string; }; }; } {
-        return this.getCached("socialMedia");
-    }
-    /**
-     * The list of all client sounds.
-     */
-    get sounds() {
-        return this.getCached("sounds")?.default;
-    }
-    get styleGenerator(): (e: boolean) => ([number, string, ""][] & { toString(): string, i(e, t, a): any, local: object }) {
-        return this.getCached("styleGenerator")?.default;
-    }
-    get stylePusher(): (style: [number, [number, string, ""][], ""], config: { insert: "head" | "body", singleton: boolean }) => Function {
-        return this.getCached("stylePusher")?.default;
-    }
-    get SvgIcon(): typeof SvgIcon {
-        return this.getCached("SvgIcon")?.default;
-    }
-    get TeamContextProvider(): <T>(cls: T) => T {
-        return this.getCached("TeamContextProvider")?.default;
-    }
-    /**
-     * Model class for teams.
-     */
-    get TeamModel() {
-        return this.getCached("TeamModel")?.default;
-    }
-    /**
-     * Component that renders user's name, profile picture, badges and other things in a line.
-     */
-    get UserBasicInfo() {
-        return this.getCached("UserBasicInfo")?.default;
-    }
-    /**
-     * Model class for users.
-     */
-    get UserModel() {
-        return this.getCached("UserModel")?.UserModel;
-    }
-    /**
-     * Utilities related to user model.
-     */
-    get UserModelHelper() {
-        return this.getCached("UserModel")?.default;
-    }
-    /**
-     * Divider that separates content with a line and a text in the middle.
-     */
-    get WordDividerLine(): typeof WordDividerLine {
-        return this.getCached("WordDividerLine")?.default;
+        if (~i) return AddonApi._cachedList.splice(i, 1)[0];
+    }
+    static getApiCachedProperty<T extends string>(name: T, webpackManager: WebpackManager): AddonApiExports<T> {
+        // If cached object exists, get it. Else, add it to cached array,
+        // cache it and return cached value.
+        return ~AddonApi._cachedList.indexOf(name)
+            ? AddonApi._cached[name]
+            : // Honestly, the only convenient thing about JS
+              (AddonApi._cachedList.push(name),
+              (AddonApi._cached[name] = cacheFns[name](webpackManager)) ?? AddonApi._moduleNotFound);
     }
 }

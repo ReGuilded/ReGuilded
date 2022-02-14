@@ -1,52 +1,98 @@
-import { badges, flairs, all } from "./badges-flairs";
-import SettingsManager from "./managers/settings";
-import WebpackManager from "../addons/webpack";
-import ThemesManager from "./managers/themes";
-import AddonManager from "./managers/addon";
-import AddonApi from "../addons/addonApi";
+import { types as badgeTypes, injectBadge, uninjectBadge, createFlairFromBadge } from "./badges-flairs";
+import { AddonApiExports } from "../addons/addonApi.types";
 import { WebpackRequire } from "../types/webpack";
+import SettingsHandler from "./handlers/settings";
+import WebpackHandler from "../addons/webpack";
+import { UserFlair } from "../guilded/models";
+import ThemeHandler from "./handlers/themes";
+import { FormSpecs } from "../guilded/form";
+import AddonHandler from "./handlers/addon";
+import AddonApi from "../addons/addonApi";
+
+import reGuildedMainCss from "../css/main.styl";
+import reGuildedCss from "../css/styles.styl";
 
 /**
  * ReGuilded's full manager's class.
  */
 export default class ReGuilded {
-    settingsManager: SettingsManager;
-    themesManager: ThemesManager;
-    addonManager: AddonManager;
-    webpackManager?: WebpackManager;
-    addonApi?: AddonApi;
+    themes: ThemeHandler;
+    addons: AddonHandler;
+    settingsHandler: SettingsHandler;
+    webpack?: WebpackHandler;
+    styling?: Element;
     /**
      * A class that contains all of ReGuilded's configurations and settings.
      */
     constructor() {
-        // Creates settings manager for configuration
-        this.settingsManager = new SettingsManager();
-
+        this.settingsHandler = new SettingsHandler();
         // Creates Themes & Addons manager
-        this.themesManager = new ThemesManager(this.settingsManager.themesDir, this.settingsManager.getValueTyped("themes", "object"), this.settingsManager);
-        this.addonManager = new AddonManager(this.settingsManager.addonsDir, this.settingsManager.getValueTyped("addons", "object"), this.settingsManager);
+        this.themes = new ThemeHandler(this, this.settingsHandler.settings.themes, this.settingsHandler, window.ReGuildedConfig.themes);
+        this.addons = new AddonHandler(this, this.settingsHandler.settings.addons, this.settingsHandler, window.ReGuildedConfig.addons);
     }
 
     /**
      * Initiates ReGuilded
      * @param webpackRequire A function that gets Guilded modules.
      */
-    init(webpackRequire: WebpackRequire) {
-        this.webpackManager = new WebpackManager(webpackRequire);
-        this.addonApi = new AddonApi(this.webpackManager, this.addonManager);
+    async init(webpackRequire: WebpackRequire) {
+        return new Promise<void[]>(
+            async (resolve, reject) => {
+                this.webpack = new WebpackHandler(webpackRequire);
 
-        window.ReGuildedApi = this.addonApi;
+                // For add-on and theme CSS
+                this.styling = Object.assign(document.createElement("datagroup"), {
+                    id: "ReGuildedStyle-container"
+                });
+                this.styling.append(
+                    Object.assign(document.createElement("style"), {
+                        id: "ReGuildedStyle-datagroup",
+                        innerHTML: reGuildedMainCss
+                    }),
+                    Object.assign(document.createElement("style"), {
+                        id: "ReGuildedStyle-reguilded",
+                        innerHTML: reGuildedCss
+                    })
+                );
+                document.body.appendChild(this.styling);
 
-        // Load ReGuilded developer badges & contributor flairs
-        this.loadUser(this.addonApi.UserModel);
+                // I don't even have any idea why they are being disabled
+                try {
+                    window.__SENTRY__.hub.getClient().close(0);
+                    window.__SENTRY__.logger.disable();
+                } catch(e) {
+                    console.warn("Failed to disable sentries:", e);
+                }
 
-        // Initialize both Themes & Addon manager, pass both enabled arrays into such
-        this.themesManager.init();
-        this.addonManager.webpack = this.webpackManager;
-        this.addonManager.init(this.addonApi);
+                this.addons.webpack = this.webpack;
 
-        if (window.firstLaunch)
-            this.handleFirstLaunch();
+                await Promise.all([
+                    this.addons.init(),
+                    this.themes.init()
+                ])
+                    .then(resolve)
+                    .catch(reject);
+            }
+        )
+            .catch(e => console.error("ReGuilded failed to initialize:", e))
+            .then(async () =>
+                // Tasks that aren't critical
+                await Promise.all([
+                    import("./settings/settings").then(async ({ default: SettingsInjector }) =>
+                        await (window.settingsInjector = new SettingsInjector()).init()
+                    ),
+
+                    // Global badges
+                    new Promise<void>(resolve => (this.loadUserBadges(), resolve())),
+
+                    // Only do it if user has enabled auto-update
+                    this.settingsHandler.settings.autoUpdate &&
+                        window.ReGuildedConfig.doUpdateIfPossible()
+                            .then((isUpdated) => isUpdated && location.reload()),
+
+                    window.ReGuildedConfig.isFirstLaunch && this.handleFirstLaunch(),
+                ]).then(() => console.log("ReGuilded done initializing"))
+            );
     }
 
 
@@ -55,48 +101,108 @@ export default class ReGuilded {
      * Uninitiates ReGuilded
      */
     uninit(): void {
-        this.themesManager.unloadAll();
-        this.addonManager.unloadAll();
+        this.themes.unloadAll();
+        this.addons.unloadAll();
     }
 
     /**
      * Loads ReGuilded developer badges & contributor flairs.
-     * @param UserModel The class that represents user object.
      */
-    loadUser(UserModel): void {
+    loadUserBadges(): void {
+        if (!this.settingsHandler.settings.badge) return;
+
+        const { UserModel } = this.getApiProperty("guilded/users");
+
         if (!UserModel) return;
 
-        // Pushes RG Contributor Flair into the Global Flairs array, along with a Duplication Tooltip Handler from the Gil Gang flair.
-        const globalFlairsInfo = this.addonApi.globalFlairsDisplayInfo;
-        const globalFlairsTooltipInfo = this.addonApi.globalFlairsTooltipInfo;
-        globalFlairsInfo.default["rg_contrib"] = all.contrib;
-        globalFlairsTooltipInfo.default["rg_contrib"] = globalFlairsTooltipInfo.default["gil_gang"];
+        // Either flair of badge depending on settings
+        const [injectDevBadgeIntoFlairs, devBadge] =
+            this.settingsHandler.settings.badge === 1 ? [true, definedFlairs.dev || createFlairFromBadge(badgeTypes.dev)] : [false, badgeTypes.dev];
 
-        // Badge Getters.
-        const badgeGetter = badges.genBadgeGetter(UserModel.prototype.__lookupGetter__("badges"));
-        const flairGetter = flairs.genFlairGetter(UserModel.prototype.__lookupGetter__("flairInfos"));
+        // Always flair
+        const contribFlair = definedFlairs.contrib || createFlairFromBadge(badgeTypes.contrib);
 
-        console.log('Injecting');
+        const flairTable: { [name: string]: UserFlair } = { contrib: contribFlair };
 
-        // Adds ReGuilded developer badges
-        badges.injectBadgeGetter(UserModel.prototype, badgeGetter);
-        flairs.injectFlairGetter(UserModel.prototype, flairGetter);
+        if (injectDevBadgeIntoFlairs) flairTable.dev = devBadge as UserFlair;
+        else injectBadge(UserModel.prototype, "badges", { dev: devBadge });
+
+        injectBadge(UserModel.prototype, "flairInfos", flairTable);
+    }
+    /**
+     * Unloads ReGuilded developer badges & contributor flairs.
+     */
+    unloadUserBadges(): void {
+        const { UserModel } = this.getApiProperty("guilded/users");
+
+        if (!UserModel) return;
+
+        uninjectBadge(UserModel.prototype, "badges");
+        uninjectBadge(UserModel.prototype, "flairInfos");
+    }
+
+    getApiProperty<T extends string>(name: T): AddonApiExports<T> {
+        return AddonApi.getApiCachedProperty<T>(name, this.webpack);
     }
 
     async handleFirstLaunch() {
-        const { transientMenuPortalUnmaskedContext: portalContext, RouteLink, React } = this.addonApi;
+        const transientMenuPortal = window.ReGuilded.getApiProperty("transientMenuPortal"),
+            RouteLink = window.ReGuilded.getApiProperty("guilded/components/RouteLink");
 
-        await portalContext.SimpleContinueOverlay.Open(portalContext, {
-            heading: "Successfully Installed",
-            subText: [
-                "ReGuilded has successfully installed! You can now open ",
-                // TODO: Link to settings "Themes"
-                "theme settings",
-                " or ",
-                // TODO: Link to settings "Add-ons"
-                "add-on settings",
-                " to install any themes or add-ons you would like."
-            ]
+        const menuPortalContext = transientMenuPortal.__reactInternalMemoizedUnmaskedChildContext;
+
+        const formSpecs: FormSpecs =
+            {
+                description: [
+                    "ReGuilded has successfully installed! You can now open ",
+                    // TODO: Link to settings "Themes"
+                    "theme settings",
+                    " or ",
+                    // TODO: Link to settings "Addons"
+                    "addon settings",
+                    " to install any themes or addons you would like. If you would like to receive ReGuilded updates out of the box, be sure to check the checkbox below:"
+                ],
+                sections: [
+                    {
+                        fieldSpecs: [
+                            {
+                                type: "Checkboxes",
+                                fieldName: "settings",
+
+                                isOptional: true,
+
+                                options: [
+                                    {
+                                        optionName: "autoUpdate",
+                                        label: "Auto-Update ReGuilded",
+                                        description: "Any time Guilded gets refreshed or launches, ReGuilded will check for its own updates and install them if they exist."
+                                    }
+                                ],
+                                defaultValue: [
+                                    {
+                                        optionName: "autoUpdate",
+                                        value: false
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            };
+
+        const { values, isChanged } = await menuPortalContext.SimpleFormOverlay.Open(menuPortalContext, {
+            header: "Successfully Installed",
+            confirmText: "Continue",
+            controlConfiguration: "Confirm",
+            formSpecs
         });
+
+        // Only apply settings if any of the settings were modified
+        if (isChanged) {
+            // Use mapping if more options appear
+            const [ { optionName, value } ] = values.settings;
+            this.settingsHandler.updateSettings({ [optionName]: value });
+        }
     }
 };
+const definedFlairs: { dev?: UserFlair, contrib?: UserFlair } = {};

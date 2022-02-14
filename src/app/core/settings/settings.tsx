@@ -1,26 +1,18 @@
-﻿import { patchElementRenderer } from "../../addons/lib";
-import AddonSettings from "./components/extensions/AddonSettings";
-import ThemeSettings from "./components/extensions/ThemeSettings";
-import patcher from "../../addons/patcher";
-import TabbedSettings from "./components/TabbedSettings";
-import ExtensionView from "./components/extensions/ExtensionView"
+﻿import AddonSettings from "./components/enhancements/AddonSettings";
+import ThemeSettings from "./components/enhancements/ThemeSettings";
 import GeneralSettings from "./components/GeneralSettings";
-import AddonView from "./components/extensions/AddonView";
-import ThemeView from "./components/extensions/ThemeView";
+import AddonView from "./components/enhancements/AddonView";
+import ThemeView from "./components/enhancements/ThemeView";
+import TabbedSettings from "./components/TabbedSettings";
+import { patchElementRenderer } from "../../addons/lib";
+import patcher from "../../addons/patcher";
 
 export default class SettingsInjector {
     id = "SettingsInjector";
 
-    init() {
-        //const { styleGenerator, stylePusher } = window.ReGuildedApi;
-        
-        // To stylize ReGuilded stuff (mostly spacing)
-        // const style = styleGenerator(false);
-        // style.push([9998, ".ReGuildedExtensionPage-wrapper { background-color: red; }", ""]);
-        // style.local = {};
-        // stylePusher([9999, style, ""], { insert: "head", singleton: false });
+    async init() {
         // Patch the settings renderer
-        patchElementRenderer(".SettingsMenu-container", this.id, "before", this.renderSettings.bind(this))
+        await patchElementRenderer(".SettingsMenu-container", this.id, "before", this.renderSettings.bind(this))
             // Then run this awful nightmare, since forceUpdate doesn't work
             .then(this.forceUpdateOverlay)
             // If an oopsies happens, notify us
@@ -35,16 +27,16 @@ export default class SettingsInjector {
         buttons[1].click();
         setImmediate(() => buttons[0].click());
     }
-    
+
     // Inject our settings entries
     renderSettings({ props }) {
         // If the app settings categories isn't in the sections, return
         // This is to prevent from rendering on server settings and other settings
         if (!props.settingsOptions.sections.some(sect => sect.name === "App settings")) return;
-        
+
         // If our category already exists, nothing to do here
         if (props.settingsOptions.sections.some(sect => sect.id === "reguilded")) return;
-        
+
         // Push the sections to the props before they get rendered
         props.settingsOptions.sections.push({
             id: "reguilded",
@@ -57,7 +49,7 @@ export default class SettingsInjector {
                 },
                 {
                     id: "rgAddons",
-                    label: "Add-ons",
+                    label: "Addons",
                     Component: TabbedSettings,
                     hasNestedOptionsMenuPage: true,
                     props: {
@@ -82,20 +74,21 @@ export default class SettingsInjector {
                     }
                 },
                 // {
-                //     id: "rgAddon-extension",
-                //     label: "Extension Name",
+                //     id: "rgAddon-enhancement",
+                //     label: "Enhancement Name",
                 //     Component: ThemeSettings,
                 //     calloutBadgeProps: {
                 //         text: "Addon",
                 //         style: {
-                //             backgroundColor: "#CC5555"
+                //             backgroundColor: "#CC5555",
+                //             className: "ReGuildedSettings-badge"
                 //         }
                 //     }
                 // }
             ]
         });
     }
-    
+
     // Cleanup time, even though this probably never gets called, considering it's the settings
     uninit() {
         patcher.unpatchAll(this.id);

@@ -2,43 +2,55 @@ import { join } from "path";
 
 const platforms = {
     linux: {
-        dir: "/opt/Guilded/resources/app",
-        get execPath() {
-            return "/opt/Guilded/guilded";
-        },
         close: "killall guilded",
+        appName: "guilded",
+        reguildedDir: "/usr/local/share/ReGuilded",
+        resourcesDir: "/opt/Guilded/resources",
+        get appDir() {
+            return join(this.resourcesDir, "app")
+        },
         get open() {
-            return this.execPath + "& disown"
+            return "/opt/Guilded/guilded& disown"
         }
     },
     darwin: {
-        dir: "/Applications/Guilded.app/Contents/Resources/app",
-        get appPath() {
-            return "/Applications/Guilded.app/Contents/Resources/app";
-        },
         close: "killall Guilded",
+        appName: "Guilded",
+        reguildedDir: "/Applications/ReGuilded",
+        resourcesDir: "/Applications/Guilded.app/Contents/Resources",
+        get appDir() {
+            return join(this.resourcesDir, "app");
+        },
         get open() {
-            return "open " + this.appPath
+            return "/Applications/Guilded.app";
         }
     },
     win32: {
-        get dir() {
-            return join(process.env.LOCALAPPDATA, "Programs/Guilded/resources/app");
-        },
-        get name() {
-            return "Guilded";
-        },
-        get execPath() {
-            return process.env.LOCALAPPDATA + "/Programs/Guilded/Guilded.exe";
-        },
         close: "taskkill /f /IM Guilded.exe >nul",
+        appName: "Guilded.exe",
+        get reguildedDir() {
+            return join(process.env.ProgramW6432, "ReGuilded");
+        },
+        get resourcesDir() {
+            return join(process.env.LOCALAPPDATA, "Programs/Guilded/resources");
+        },
+        get appDir() {
+            return join(this.resourcesDir, "app");
+        },
         get open() {
-            return "start " + this.execPath
-        }
+            return join(process.env.LOCALAPPDATA, "Programs/Guilded/Guilded.exe") + " >nul";
+        },
     }
 }
-const current: { dir: string, close: string, open: string } | undefined
-             = platforms[process.platform];
+
+const current: {
+    close: string,
+    appName: string,
+    reguildedDir: string,
+    resourcesDir: string,
+    appDir: string,
+    open: string
+} | undefined = platforms[process.platform];
 
 if (!current)
     // TODO: Possible make it so this also opens a window on the default browser with a prefilled out issue on GitHub.

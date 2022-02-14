@@ -1,0 +1,44 @@
+@require "./util.styl"
+
+.ReGuilded
+    // Util
+    &ErrorBoundary-error
+        // Align code block to the left, because we set text alignment to center in the ErrorBoundary's error display
+        text-align: left
+    // Settings
+    &Enhancement
+        // All
+        &s-container
+            // Looks awful when enhancement touches the very bottom
+            padding-bottom: 10px
+        &s-topbar
+            margin-bottom: 16px
+        &s-search
+            float: left
+            width: 246px
+        &s-sort
+            float: right
+        &s-grid
+            // Enhancement height
+            grid-auto-rows: 260px
+
+        // Single enhancement
+        &-container
+            transition: transform 0.1s ease-out
+            &:hover
+                transform: translateY(-2px)
+
+        // Enhancement page
+        &Page-warning
+            margin-bottom: 16px
+        &Images-image
+            // Otherwise carousel won't work
+            position: relative
+
+            min-width: 250px
+            height: 250px
+
+            &:not(:first-child)
+                margin-left: 10px
+    &Settings-container-padded
+        padding-horizontal: 32px

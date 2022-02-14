@@ -1,8 +1,9 @@
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
-import root from "rollup-plugin-root-import";
 import { terser } from "rollup-plugin-terser";
+import postcss from "rollup-plugin-postcss";
 import ts from "@rollup/plugin-typescript";
+import styles from "rollup-plugin-styles";
 import json from "@rollup/plugin-json";
 import { join } from "path";
 
@@ -19,25 +20,22 @@ const globalModules = {
     electron: 'require("electron")',
     child_process: 'require("child_process")'
 };
-const resolvableModules = [
-    // ReGuilded used
-    "fs", "os", "path", "util", "events", "stream", "module", "tslib", "chokidar",
-    // Dependencies of the dependecies
-    "readdirp", "anymatch", "glob-parent", "is-glob", "braces", "normalize-path", "is-binary-path",
-    "picomatch", "is-extglob", "fill-range", "binary-extensions", "to-regex-range", "is-number"
-];
+
+const resolvableModules = [/^(?!electron$).*$/];
 
 // npm run watch -- --environment WATCH_PATH:...
 const watchCopyLocation = process.env.WATCH_PATH,
-      isWatching = Boolean(process.env.ROLLUP_WATCH);
+    isWatching = Boolean(process.env.ROLLUP_WATCH);
 
 const modPath = watchCopyLocation ? watchCopyLocation : "./out/app";
 
 // To not configure it every time
 const configuredPlugins = {
-    terser: !isWatching && terser({
-        compress: true
-    }),
+    terser:
+        !isWatching &&
+        terser({
+            compress: true
+        }),
     json: json({
         compact: true
     }),
@@ -48,58 +46,34 @@ const configuredPlugins = {
 
 /** @type {import("rollup").RollupOptions[]} */
 const config = [
-    // Patcher
+    // ReGuilded Electron Injection
     {
         input: "./src/patcher/main.js",
         output: {
-            file: join(modPath, "reguilded.patcher.js"),
+            file: join(modPath, "electron.patcher.js"),
             format: "cjs",
-            name: "bundle",
+            name: "patcher",
             globals: globalModules
         },
         plugins: [
             commonjs(),
             resolve({
                 browser: true,
-                resolveOnly: resolvableModules
+                resolveOnly: resolvableModules,
+                ignoreDynamicRequires: true
             }),
             configuredPlugins.terser
         ]
     },
-    // Preload splash
     {
-        input: "./src/splash/main.js",
+        input: "./src/splash/preload/main.ts",
         output: {
-            file: join(modPath, "reguilded.preload-splash.js"),
+            file: join(modPath, "electron.preload-splash.js"),
             format: "cjs",
-            name: "bundle",
+            name: "preloadSplash",
             globals: globalModules
         },
         plugins: [
-            commonjs(),
-            resolve({
-                browser: true,
-                resolveOnly: resolvableModules
-            }),
-            configuredPlugins.terser
-        ]
-    },
-    // Preload
-    {
-        input: "./src/app/main.ts",
-        preserveEntrySignatures: false,
-        output: {
-            dir: modPath,
-            format: "cjs",
-            name: "bundle",
-            globals: globalModules,
-            entryFileNames: "reguilded.preload.js",
-            chunkFileNames: "reguilded.[name].js",
-        },
-        plugins: [
-            root({
-                root: "./src/app"
-            }),
             commonjs(),
             resolve({
                 browser: true,
@@ -110,7 +84,75 @@ const config = [
             configuredPlugins.terser
         ]
     },
-    // Injector
+    {
+        input: "./src/splash/main.ts",
+        output: {
+            file: join(modPath, "electron.splash.js"),
+            format: "cjs",
+            name: "splash",
+            globals: globalModules
+        },
+        plugins: [
+            commonjs(),
+            resolve({
+                browser: true,
+                resolveOnly: resolvableModules
+            }),
+            configuredPlugins.json,
+            configuredPlugins.terser
+        ]
+    },
+    {
+        input: "./src/preload/main.ts",
+        output: {
+            file: join(modPath, "electron.preload.js"),
+            format: "cjs",
+            name: "preload",
+            globals: globalModules
+        },
+        plugins: [
+            commonjs(),
+            resolve({
+                browser: false,
+                resolveOnly: resolvableModules,
+                ignoreDynamicRequires: true
+            }),
+            configuredPlugins.json,
+            configuredPlugins.ts,
+            configuredPlugins.terser
+        ]
+    },
+
+    // ReGuilded Client Injection
+    {
+        input: "./src/app/main.ts",
+        preserveEntrySignatures: false,
+        output: {
+            dir: modPath,
+            format: "system",
+            name: "reguilded",
+            globals: globalModules,
+            entryFileNames: "reguilded.main.js",
+            chunkFileNames: "reguilded.[name].js"
+        },
+        plugins: [
+            resolve({ browser: true }),
+            styles({
+                mode: "emit"
+            }),
+            postcss({
+                extract: false,
+                inject: false,
+                extensions: [".css", ".styl"],
+                minimize: true
+            }),
+            configuredPlugins.json,
+            configuredPlugins.ts,
+            configuredPlugins.terser
+        ]
+    },
+
+    // ReGuilded Guilded Injection
     {
         input: "./src/inject/index.ts",
         output: {
@@ -119,30 +161,10 @@ const config = [
             name: "injector"
         },
         plugins: [
-            commonjs({
-                ignoreDynamicRequires: true
-            }),
+            commonjs(),
             resolve({
-                browser: false
-            }),
-            configuredPlugins.json,
-            configuredPlugins.ts,
-            configuredPlugins.terser
-        ]
-    },
-    {
-        input: "./src/inject/helper/linux-inject.ts",
-        output: {
-            file: "./out/injector.linux-inject.js",
-            format: "cjs",
-            name: "linuxInjector"
-        },
-        plugins: [
-            commonjs({
+                browser: false,
                 ignoreDynamicRequires: true
-            }),
-            resolve({
-                browser: false
             }),
             configuredPlugins.json,
             configuredPlugins.ts,
