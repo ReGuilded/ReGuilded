@@ -1,4 +1,5 @@
-﻿import { AnyEnhancement } from "../../../../../common/enhancements";
+﻿//#region Imports
+import { AnyEnhancement } from "../../../../../common/enhancements";
 import { MenuSpecs } from "../../../../guilded/menu";
 import { UserInfo } from "../../../../guilded/models";
 import ErrorBoundary from "../ErrorBoundary";
@@ -14,6 +15,7 @@ const React = window.ReGuilded.getApiProperty("react"),
     { default: restMethods } = window.ReGuilded.getApiProperty("guilded/http/rest"),
     { default: MarkdownRenderer } = window.ReGuilded.getApiProperty("guilded/components/MarkdownRenderer"),
     { default: { WebhookEmbed } } = window.ReGuilded.getApiProperty("guilded/editor/grammars");
+//#endregion
 
 type AdditionalProps = {
     type: string,
@@ -29,7 +31,7 @@ export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> 
     protected overflowMenuSpecs: MenuSpecs;
     private hasToggled: boolean;
 
-    constructor(props, context) {
+    constructor(props: P & AdditionalProps, context?: any) {
         super(props, context);
 
         // Can't put it into props because of JavaScript schenanigans
@@ -54,7 +56,7 @@ export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> 
     }
     protected abstract onToggle(enabled: boolean): Promise<void>;
     async componentWillMount() {
-        if (this.props.author && window.ReGuilded.settingsHandler.settings.loadAuthors) {
+        if (this.props.author && window.ReGuilded.settingsHandler.config.loadAuthors) {
             await restMethods.getUserById(this.props.author)
                 .then(userInfo => this.setState({author: userInfo.user}))
                 .catch(() => {});

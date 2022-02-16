@@ -1,14 +1,16 @@
 import { types as badgeTypes, injectBadge, uninjectBadge, createFlairFromBadge } from "./badges-flairs";
+import { ReGuildedSettings, ReGuildedState } from "../../common/reguilded-settings";
 import { AddonApiExports } from "../addons/addonApi.types";
 import { WebpackRequire } from "../types/webpack";
-import SettingsHandler from "./handlers/settings";
 import WebpackHandler from "../addons/webpack";
 import { UserFlair } from "../guilded/models";
+import ConfigHandler from "./handlers/config";
 import ThemeHandler from "./handlers/themes";
 import { FormSpecs } from "../guilded/form";
 import AddonHandler from "./handlers/addon";
 import AddonApi from "../addons/addonApi";
 
+import reGuildedJson from "../../common/reguilded.json";
 import reGuildedMainCss from "../css/main.styl";
 import reGuildedCss from "../css/styles.styl";
 
@@ -18,17 +20,23 @@ import reGuildedCss from "../css/styles.styl";
 export default class ReGuilded {
     themes: ThemeHandler;
     addons: AddonHandler;
-    settingsHandler: SettingsHandler;
+    settingsHandler: ConfigHandler<ReGuildedSettings>;
+    stateHandler: ConfigHandler<ReGuildedState>;
     webpack?: WebpackHandler;
     styling?: Element;
+    version: string;
+
     /**
      * A class that contains all of ReGuilded's configurations and settings.
      */
     constructor() {
-        this.settingsHandler = new SettingsHandler();
+        this.settingsHandler = new ConfigHandler(window.ReGuildedConfig.settings);
+        this.stateHandler = new ConfigHandler(window.ReGuildedConfig.state);
         // Creates Themes & Addons manager
-        this.themes = new ThemeHandler(this, this.settingsHandler.settings.themes, this.settingsHandler, window.ReGuildedConfig.themes);
-        this.addons = new AddonHandler(this, this.settingsHandler.settings.addons, this.settingsHandler, window.ReGuildedConfig.addons);
+        this.themes = new ThemeHandler(this, this.settingsHandler.config.themes, this.settingsHandler, window.ReGuildedConfig.themes);
+        this.addons = new AddonHandler(this, this.settingsHandler.config.addons, this.settingsHandler, window.ReGuildedConfig.addons);
+
+        this.version = reGuildedJson.version;
     }
 
     /**
@@ -86,7 +94,7 @@ export default class ReGuilded {
                     new Promise<void>(resolve => (this.loadUserBadges(), resolve())),
 
                     // Only do it if user has enabled auto-update
-                    this.settingsHandler.settings.autoUpdate &&
+                    this.settingsHandler.config.autoUpdate &&
                         window.ReGuildedConfig.doUpdateIfPossible()
                             .then((isUpdated) => isUpdated && location.reload()),
 
@@ -109,7 +117,7 @@ export default class ReGuilded {
      * Loads ReGuilded developer badges & contributor flairs.
      */
     loadUserBadges(): void {
-        if (!this.settingsHandler.settings.badge) return;
+        if (!this.settingsHandler.config.badge) return;
 
         const { UserModel } = this.getApiProperty("guilded/users");
 
@@ -117,7 +125,7 @@ export default class ReGuilded {
 
         // Either flair of badge depending on settings
         const [injectDevBadgeIntoFlairs, devBadge] =
-            this.settingsHandler.settings.badge === 1 ? [true, definedFlairs.dev || createFlairFromBadge(badgeTypes.dev)] : [false, badgeTypes.dev];
+            this.settingsHandler.config.badge === 1 ? [true, definedFlairs.dev || createFlairFromBadge(badgeTypes.dev)] : [false, badgeTypes.dev];
 
         // Always flair
         const contribFlair = definedFlairs.contrib || createFlairFromBadge(badgeTypes.contrib);
@@ -201,7 +209,7 @@ export default class ReGuilded {
         if (isChanged) {
             // Use mapping if more options appear
             const [ { optionName, value } ] = values.settings;
-            this.settingsHandler.updateSettings({ [optionName]: value });
+            this.settingsHandler.update({ [optionName]: value });
         }
     }
 };

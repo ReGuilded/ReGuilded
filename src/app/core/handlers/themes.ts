@@ -1,9 +1,10 @@
-import { ReGuildedEnhancementSettings } from "../../../common/reguilded-settings.js";
+import { ReGuildedEnhancementSettings, ReGuildedSettings } from "../../../common/reguilded-settings.js";
 import { RGThemeConfig } from "../../types/reguilded.js";
 import { Theme } from "../../../common/enhancements.js";
 import EnhancementHandler from "./enhancement.js";
-import SettingsHandler from "./settings.js";
+import SettingsHandler from "./config.js";
 import ReGuilded from "../ReGuilded.js";
+import ConfigHandler from "./config.js";
 
 /**
  * Manager that manages ReGuilded's themes
@@ -24,7 +25,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
     constructor(
         parent: ReGuilded,
         settings: ReGuildedEnhancementSettings,
-        settingsHandler: SettingsHandler,
+        settingsHandler: ConfigHandler<ReGuildedSettings>,
         config: RGThemeConfig
     ) {
         super(parent, settings, settingsHandler, config);
@@ -33,7 +34,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
      * Initiates themes for ReGuilded and theme manager.
      */
     async init(): Promise<void> {
-        this.settingsHandler.settings.debugMode && console.log("Initiating theme manager");
+        this.settingsHandler.config.debugMode && console.log("Initiating theme manager");
 
         // For themes
         this.parent.styling.appendChild(
@@ -66,7 +67,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
      * @param metadata The ReGuilded theme to load
      */
     async load(metadata: Theme): Promise<void> {
-        this.settingsHandler.settings.debugMode && console.log(`Loading theme by ID '${metadata.id}'`);
+        this.settingsHandler.config.debugMode && console.log(`Loading theme by ID '${metadata.id}'`);
 
         await this.addStyleSheets(metadata);
     }
@@ -160,7 +161,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
         this.unloadWithId(metadata.id);
     }
     private unloadWithId(themeId: string) {
-        this.settingsHandler.settings.debugMode && console.log(`Unloading theme by ID '${themeId}'`);
+        this.settingsHandler.config.debugMode && console.log(`Unloading theme by ID '${themeId}'`);
 
         const themeElement = document.getElementById(`ReGuildedStyleTheme-theme-${themeId}`);
         themeElement && themeElement.remove();

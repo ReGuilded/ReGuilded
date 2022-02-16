@@ -3,18 +3,16 @@ import { createWriteStream } from "fs-extra";
 import { stream } from "got";
 import { join } from "path";
 
-
 export default async function handleUpdate(updateInfo: VersionJson) {
     const downloadUrl = updateInfo.assets[0].browser_download_url;
     const downloadPath = join(__dirname);
 
     return new Promise<boolean>(resolve => {
-
         try {
             stream(downloadUrl)
                 .pipe(createWriteStream(downloadPath))
                 .on("finish", () => {
-                    window.ReGuilded.settingsHandler.settings.debugMode && console.log("Download Finished");
+                    window.ReGuilded.settingsHandler.config.debugMode && console.log("Download Finished");
 
                     process.noAsar = false;
                     resolve(true);

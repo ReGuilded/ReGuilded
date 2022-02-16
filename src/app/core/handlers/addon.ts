@@ -1,12 +1,13 @@
-import { ReGuildedAddonSettings } from "../../../common/reguilded-settings";
+import { ReGuildedAddonSettings, ReGuildedSettings } from "../../../common/reguilded-settings";
 import { RGAddonConfig } from "../../types/reguilded";
 import { Addon } from "../../../common/enhancements";
 import WebpackManager from "../../addons/webpack";
 import AddonApi from "../../addons/addonApi";
 import EnhancementHandler from "./enhancement";
-import SettingsHandler from "./settings";
+import SettingsHandler from "./config";
 import ReGuilded from "../ReGuilded";
 import { handleErrorsOf } from "../../util";
+import ConfigHandler from "./config";
 
 /**
  * Manager that manages ReGuilded's addons
@@ -27,7 +28,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
     constructor(
         parent: ReGuilded,
         settings: ReGuildedAddonSettings,
-        settingsHandler: SettingsHandler,
+        settingsHandler: ConfigHandler<ReGuildedSettings>,
         config: RGAddonConfig
     ) {
         super(parent, settings, settingsHandler, config);
@@ -39,7 +40,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
      * Initiates addons for ReGuilded and addon manager
      */
     async init(): Promise<void> {
-        this.settingsHandler.settings.debugMode && console.log("Initiating addon manager");
+        this.settingsHandler.config.debugMode && console.log("Initiating addon manager");
 
         await super.init();
     }
@@ -94,7 +95,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
     async load(metadata: Addon): Promise<void> {
         // Try-catch errors to prevent conflicts with other plugins
         try {
-            this.settingsHandler.settings.debugMode && console.log(`Loading addon by ID '${metadata.id}'`);
+            this.settingsHandler.config.debugMode && console.log(`Loading addon by ID '${metadata.id}'`);
             // Check if it's first time loading
             if (!~this.initialized.indexOf(metadata.id)) {
                 this.addonApis[metadata.id] = new AddonApi(this.webpack, this, metadata.id);
@@ -133,7 +134,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
      */
     unload(metadata: Addon) {
         try {
-            this.settingsHandler.settings.debugMode && console.log(`Unloading addon by ID '${metadata.id}'`);
+            this.settingsHandler.config.debugMode && console.log(`Unloading addon by ID '${metadata.id}'`);
             AddonHandler._functionExists(metadata, "unload") && metadata.exports.unload();
         } catch (e) {
             console.error(`Failed to unload an addon by ID '${metadata.id}':\n`, e);
@@ -188,7 +189,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
             }
 
             // We updated the settings (permissions), time to sync it with settings handler and manager
-            await this.settingsHandler.updateSettings({ addons: this.settings });
+            await this.settingsHandler.update({ addons: this.settings });
         }
     }
 }

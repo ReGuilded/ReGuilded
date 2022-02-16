@@ -1,6 +1,6 @@
-import {ReGuildedSettings, ReGuildedWhitelist} from "../common/reguilded-settings";
-import { defaultSettings, defaultWhitelist } from "./settings";
-import {readFileSync, promises as fsPromises } from "fs";
+import { ReGuildedSettings, ReGuildedWhitelist, ReGuildedState } from "../common/reguilded-settings";
+import { defaultSettings, defaultWhitelist } from "./managers/settings";
+import { promises as fsPromises } from "fs";
 import { join } from "path";
 
 /**
@@ -8,15 +8,31 @@ import { join } from "path";
  * @param settingsPath The path to settings
  * @returns Settings
  */
-export default function getSettingsFile(settingsPath: string) {
-    return new Promise<[ReGuildedSettings, ReGuildedWhitelist]>((resolve, reject) => {
+export default function getConfiguration(settingsPath: string) {
+    return new Promise<[ReGuildedSettings, ReGuildedWhitelist, ReGuildedState]>((resolve, reject) => {
         fsPromises
             .access(settingsPath)
             // Settings were found, just read the file
-            .then(() => {
+            .then(async () => {
                 window.isFirstLaunch = false;
-                resolve([JSON.parse(readFileSync(join(settingsPath, "settings.json"), { encoding: "utf8" })), JSON.parse(readFileSync(join(settingsPath, "custom-csp-whitelist.json"), { encoding: "utf8" }))]);
+                return await Promise.all([
+                    fsPromises.readFile(join(settingsPath, "settings.json"), "utf8").then(json => JSON.parse(json)),
+                    fsPromises
+                        .readFile(join(settingsPath, "custom-csp-whitelist.json"), "utf8")
+                        .then(json => JSON.parse(json)),
+                    // Forgiving state file
+                    fsPromises
+                        .readFile(join(settingsPath, "state.json"), "utf8")
+                        .then(json => JSON.parse(json))
+                        // Forgive if no state.json is present;
+                        // user may have deleted it on purpose or it was never created
+                        .catch((error: NodeJS.ErrnoException) => {
+                            if (error.code === "ENOENT") return {};
+                            else reject(error);
+                        })
+                ]);
             })
+            .then(resolve)
             // Settings doesn't exist, create them and give default settings
             .catch(e => {
                 // Reject if file exists, but it's other error
@@ -32,10 +48,12 @@ export default function getSettingsFile(settingsPath: string) {
 
                     await Promise.all([
                         fsPromises.writeFile(join(settingsPath, "settings.json"), settingsJson, { encoding: "utf-8" }),
-                        fsPromises.writeFile(join(settingsPath, "custom-csp-whitelist.json"), customWhitelistJson, { encoding: "utf-8" }),
+                        fsPromises.writeFile(join(settingsPath, "custom-csp-whitelist.json"), customWhitelistJson, {
+                            encoding: "utf-8"
+                        }),
                         fsPromises.mkdir(join(settingsPath, "themes")),
-                        fsPromises.mkdir(join(settingsPath, "addons")),
-                    ]).then(() => resolve([defaultSettings, defaultWhitelist]));
+                        fsPromises.mkdir(join(settingsPath, "addons"))
+                    ]).then(() => resolve([defaultSettings, defaultWhitelist, {}]));
                 });
             });
     });

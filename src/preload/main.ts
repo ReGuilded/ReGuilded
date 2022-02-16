@@ -1,13 +1,14 @@
-import {ReGuildedSettings, ReGuildedSettingsUpdate, ReGuildedWhitelist} from "../common/reguilded-settings";
+import { ReGuildedSettings, ReGuildedWhitelist, ReGuildedState } from "../common/reguilded-settings";
 import { contextBridge, ipcRenderer, shell, webFrame } from "electron";
 import handleUpdate, { checkForUpdate, VersionJson } from "./update";
-import getSettingsFile from "./get-settings";
-import { promises as fsPromises, writeFile } from "fs";
-import AddonManager from "./addon-manager";
-import ThemeManager from "./theme-manager";
-import SettingsManager from "./settings";
+import SettingsManager from "./managers/settings";
+import getConfiguration from "./get-settings";
+import AddonManager from "./managers/addon";
+import ThemeManager from "./managers/theme";
+import { promises as fsPromises } from "fs";
 import createSystem from "./fake-system";
 import { join } from "path";
+import ConfigManager from "./managers/config";
 
 const settingsPath = join(process.env.APPDATA || process.env.HOME, ".reguilded");
 
@@ -15,8 +16,13 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
     themeManager = new ThemeManager(join(settingsPath, "themes"));
 
 (async () => {
-    const reGuildedConfigAndSettings = async () => {
-        const settingsManager = new SettingsManager(settingsPath, await getSettingsFile(settingsPath));
+    const reGuildedConfigAndSettings = async ([settings, cspWhitelist, state]: [
+        ReGuildedSettings,
+        ReGuildedWhitelist,
+        ReGuildedState
+    ]) => {
+        const settingsManager = new SettingsManager(settingsPath, [settings, cspWhitelist]);
+        const stateManager = new ConfigManager(settingsPath, "state.json", state || {});
 
         let customCSPWhitelist = settingsManager.whitelist;
         const saveChanges = () => settingsManager.saveWhitelist();
@@ -28,8 +34,7 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
                 if (!Array.isArray(sites) || (sources && !Array.isArray(sources)))
                     return console.error(new Error("Sites and/or sources must be an array!"));
 
-                if (!sites || sites.length === 0)
-                    return console.error(new Error("At least one site must be specified!"));
+                if (!sites || sites.length === 0) return console.error(new Error("At least one site must be specified!"));
 
                 sources.forEach((source: string) => {
                     sites.forEach(site => {
@@ -42,40 +47,39 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
                 if (!Array.isArray(sites) || (sources && !Array.isArray(sources)))
                     return console.error(new Error("Sites and/or sources must be an array!"));
 
-                if (!sites || sites.length === 0)
-                    return console.error(new Error("At least one site must be specified!"));
+                if (!sites || sites.length === 0) return console.error(new Error("At least one site must be specified!"));
 
                 if (sources) {
                     sources.forEach((source: string) => {
                         sites.forEach(site => {
-                            customCSPWhitelist[source] = customCSPWhitelist[source].filter((entry: string) => entry !== site);
+                            customCSPWhitelist[source] = customCSPWhitelist[source].filter(
+                                (entry: string) => entry !== site
+                            );
                         });
                     });
-                }
-                else {
-                    for(const source in customCSPWhitelist) {
+                } else {
+                    for (const source in customCSPWhitelist) {
                         sites.forEach(site => {
-                            customCSPWhitelist[source] = customCSPWhitelist[source].filter((entry: string) => entry !== site);
+                            customCSPWhitelist[source] = customCSPWhitelist[source].filter(
+                                (entry: string) => entry !== site
+                            );
                         });
-                    };
-                };
+                    }
+                }
                 saveChanges();
             },
             reset: (sources: string[]) => {
-                if(sources && !Array.isArray(sources))
-                    return console.error(new Error("Sources must be an array!"))
-
+                if (sources && !Array.isArray(sources)) return console.error(new Error("Sources must be an array!"));
 
                 if (sources && sources.length > 0) {
                     sources.forEach((source: string) => {
-                        customCSPWhitelist[source] = []
+                        customCSPWhitelist[source] = [];
                     });
-                }
-                else {
+                } else {
                     for (const source in customCSPWhitelist) {
                         customCSPWhitelist[source] = [];
-                    };
-                };
+                    }
+                }
                 saveChanges();
             }
         };
@@ -84,19 +88,8 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
         // Allow reconfiguration of settings
         contextBridge.exposeInMainWorld("ReGuildedConfig", {
             isFirstLaunch: window.isFirstLaunch,
-            // Settings manager communication
-            settings: {
-                getSettings(): ReGuildedSettings {
-                    return settingsManager.settings;
-                },
-                /**
-                 * Updates the properties of the settings and saves them.
-                 * @param settingsProps Properties to update in the settings
-                 */
-                async updateSettings(settingsProps: ReGuildedSettingsUpdate): Promise<void> {
-                    await settingsManager.updateSettings(settingsProps);
-                }
-            },
+            settings: settingsManager.exportable,
+            state: stateManager.exportable,
             themes: themeManager.exportable,
             addons: addonManager.exportable,
             /**
@@ -122,7 +115,8 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
         });
     };
 
-    await reGuildedConfigAndSettings()
+    await getConfiguration(settingsPath)
+        .then(reGuildedConfigAndSettings)
         .then(() => (themeManager.watch(), addonManager.watch()))
         .then(async () => {
             const preload = ipcRenderer.sendSync("reguilded-preload");
@@ -161,6 +155,6 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
         .catch(console.error);
 })();
 
-async function doUpdate([updateExists, updateInfo]: [boolean, VersionJson]) : Promise<boolean> {
+async function doUpdate([updateExists, updateInfo]: [boolean, VersionJson]): Promise<boolean> {
     return updateExists && (await handleUpdate(updateInfo));
 }

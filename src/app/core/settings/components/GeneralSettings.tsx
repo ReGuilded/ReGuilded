@@ -42,7 +42,7 @@ export default class GeneralSettings extends React.Component {
             // (E.g., radios always returning { optionName: "xyz" } instead of "xyz")
             const configValues = { loadAuthors, loadImages, badge: badge, keepSplash, debugMode, autoUpdate };
 
-            yield window.ReGuilded.settingsHandler.updateSettings(configValues)
+            yield window.ReGuilded.settingsHandler.update(configValues)
                 .then(() => {
                     if (changedValues.badge) {
                         window.ReGuilded.unloadUserBadges();
@@ -91,7 +91,7 @@ export default class GeneralSettings extends React.Component {
             });
     }
     render() {
-        const { settings } = window.ReGuilded.settingsHandler;
+        const { config } = window.ReGuilded.settingsHandler;
 
         // TODO: Make badge radio functional with onChange
         return (
@@ -110,7 +110,7 @@ export default class GeneralSettings extends React.Component {
                                     label: "Auto-Update",
                                     description: "Every time Guilded is launched or gets refreshed, ReGuilded checks for its own updates and installs them if they exists.",
 
-                                    defaultValue: settings.autoUpdate
+                                    defaultValue: config.autoUpdate
                                 },
                                 {
                                     type: "Radios",
@@ -147,7 +147,7 @@ export default class GeneralSettings extends React.Component {
                                             description: "This hides all ReGuilded badges."
                                         },
                                     ],
-                                    defaultValue: { optionName: settings.badge }
+                                    defaultValue: { optionName: config.badge }
                                 }
                             ]
                         },
@@ -174,7 +174,7 @@ export default class GeneralSettings extends React.Component {
                                     label: "Load Enhancement Authors",
                                     description: "Loads addon and theme authors.",
 
-                                    defaultValue: settings.loadAuthors
+                                    defaultValue: config.loadAuthors
                                 },
                                 {
                                     type: "Switch",
@@ -183,7 +183,7 @@ export default class GeneralSettings extends React.Component {
                                     label: "Load Enhancement Images",
                                     description: "Loads addon and theme previews and banner.",
 
-                                    defaultValue: settings.loadImages
+                                    defaultValue: config.loadImages
                                 }
                             ]
                         },
@@ -199,7 +199,7 @@ export default class GeneralSettings extends React.Component {
                                     label: "Keep Loading Screen",
                                     description: "Keeps Splash/Loading Screen Open",
 
-                                    defaultValue: settings.keepSplash
+                                    defaultValue: config.keepSplash
                                 },
                                 {
                                     type: "Switch",
@@ -207,7 +207,7 @@ export default class GeneralSettings extends React.Component {
                                     label: "Debug Mode",
                                     description: "Enabled Debug Mode, meaning ReGuilded will output debug lines to Dev Tools.",
 
-                                    defaultValue: settings.debugMode
+                                    defaultValue: config.debugMode
                                 }
                             ]
                         }

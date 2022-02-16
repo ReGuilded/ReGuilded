@@ -1,9 +1,10 @@
-import { ReGuildedEnhancementSettings } from "../../../common/reguilded-settings";
+import { ReGuildedEnhancementSettings, ReGuildedSettings } from "../../../common/reguilded-settings";
 import { AnyEnhancement } from "../../../common/enhancements";
 import { RGEnhancementConfig } from "../../types/reguilded";
-import SettingsHandler from "./settings";
+import SettingsHandler from "./config";
 import ReGuilded from "../ReGuilded";
 import { AbstractEventTarget } from "./eventTarget";
+import ConfigHandler from "./config";
 
 /**
  * Manages different components of ReGuilded to allow them to be extended.
@@ -24,7 +25,7 @@ export default abstract class EnhancementHandler<
     config: C;
     parent: ReGuilded;
     allLoaded: boolean;
-    settingsHandler: SettingsHandler;
+    settingsHandler: ConfigHandler<ReGuildedSettings>;
     settings: S;
     idsToMetadata: { [enhancementId: string]: T };
 
@@ -35,7 +36,7 @@ export default abstract class EnhancementHandler<
      * @param settingsHandler The enhancement settings handler
      * @param config The preload configuration of the enhancements
      */
-    constructor(parent: ReGuilded, settings: S, settingsHandler: SettingsHandler, config: C) {
+    constructor(parent: ReGuilded, settings: S, settingsHandler: ConfigHandler<ReGuildedSettings>, config: C) {
         super();
 
         this.all = [];
@@ -90,8 +91,7 @@ export default abstract class EnhancementHandler<
             .then(() => this.config.delete(enhancement.id))
             .then(
                 () =>
-                    this.settingsHandler.settings.debugMode &&
-                    console.log(`Deleted enhancement by ID '${enhancement.id}'`),
+                    this.settingsHandler.config.debugMode && console.log(`Deleted enhancement by ID '${enhancement.id}'`),
                 e => console.error(`Failed to delete enhancement by ID '${enhancement.id}':\n`, e)
             );
     }

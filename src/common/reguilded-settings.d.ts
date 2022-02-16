@@ -13,15 +13,6 @@ export type ReGuildedSettings = {
     addons: ReGuildedAddonSettings;
     themes: ReGuildedEnhancementSettings;
 };
-export type ReGuildedSettingsUpdate = {
-    autoUpdate?: boolean;
-    badge?: BadgeHandling;
-    loadAuthors?: boolean;
-    keepSplash?: boolean;
-    debugMode?: boolean;
-    addons?: ReGuildedEnhancementSettings;
-    themes?: ReGuildedEnhancementSettings;
-};
 export type ReGuildedWhitelist = {
     all: Array<string>;
     connect: Array<string>;
@@ -32,9 +23,16 @@ export type ReGuildedWhitelist = {
     script: Array<string>;
     style: Array<string>;
 };
-export interface ReGuildedEnhancementSettings {
+export type ReGuildedState = {
+    lastViewedChangelogVersion?: string;
+};
+export declare interface ReGuildedConfigCommon<T> {
+    getConfig(): T;
+    updateConfig(props: Partial<T>): Promise<void>;
+}
+export declare interface ReGuildedEnhancementSettings {
     enabled: string[];
 }
-export interface ReGuildedAddonSettings extends ReGuildedEnhancementSettings {
+export declare interface ReGuildedAddonSettings extends ReGuildedEnhancementSettings {
     permissions: { [addonId: string]: number };
 }

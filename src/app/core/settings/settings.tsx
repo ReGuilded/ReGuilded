@@ -6,6 +6,7 @@ import ThemePage from "./components/enhancements/ThemePage";
 import PagedSettings from "./components/PagedSettings";
 import { patchElementRenderer } from "../../addons/lib";
 import patcher from "../../addons/patcher";
+import Changelog from "./components/Changelog";
 
 export default class SettingsInjector {
     id = "SettingsInjector";
@@ -73,18 +74,18 @@ export default class SettingsInjector {
                         defaultTab: "list"
                     }
                 },
-                // {
-                //     id: "rgAddon-enhancement",
-                //     label: "Enhancement Name",
-                //     Component: ThemeSettings,
-                //     calloutBadgeProps: {
-                //         text: "Addon",
-                //         style: {
-                //             backgroundColor: "#CC5555",
-                //             className: "ReGuildedSettings-badge"
-                //         }
-                //     }
-                // }
+                {
+                    id: "rgChangelog",
+                    label: "Changelog",
+                    Component: Changelog,
+                    calloutBadgeProps: window.ReGuilded.stateHandler.config.lastViewedChangelogVersion !== window.ReGuilded.version && {
+                        text: "New",
+                        style: {
+                            backgroundColor: "#FF3232",
+                            className: "ReGuildedSettings-badge ReGuildedSettings-badge-new"
+                        }
+                    }
+                }
             ]
         });
     }

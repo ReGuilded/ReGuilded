@@ -174,7 +174,7 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
                                     {/* Description */}
                                     { enhancement.readme?.length ? <MarkdownRenderer plainText={enhancement.readme} grammar={WebhookEmbed}/> : null }
                                     {/* Preview images carousel */}
-                                    { enhancement.images && window.ReGuilded.settingsHandler.settings.loadImages &&
+                                    { enhancement.images && window.ReGuilded.settingsHandler.config.loadImages &&
                                         <PreviewCarousel enhancementId={enhancement.id} enhancementHandler={this.props.enhancementHandler} />
                                     }
                                     { this.renderActionForm() }

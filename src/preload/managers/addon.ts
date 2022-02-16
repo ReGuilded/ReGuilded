@@ -1,7 +1,7 @@
-import { promises as fsPromises, statSync, readFileSync } from "fs";
+import { Addon, AddonExports } from "../../common/enhancements";
 import { join, resolve as pathResolve, extname } from "path";
-import EnhancementManager from "./enhancement-manager";
-import { Addon, AddonExports } from "../common/enhancements";
+import { promises as fsPromises, statSync } from "fs";
+import EnhancementManager from "./enhancement";
 import { webFrame } from "electron";
 
 type ExecutableModule<T> = (__filename: string, __dirname: string, require: (file: string) => any) => T;

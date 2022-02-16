@@ -1,13 +1,16 @@
-import { promises as fsPromises, stat, readdirSync, readFile } from "fs";
-import { AnyEnhancement } from "../common/enhancements";
+import { promises as fsPromises, stat, readdirSync } from "fs";
+import { AnyEnhancement } from "../../common/enhancements";
+import { getImageUrl, getSmallImageUrl } from "../util";
 import { watch as chokidarWatch } from "chokidar";
 import { ipcRenderer } from "electron";
 import { copy } from "fs-extra";
 import path from "path";
-import { getImageUrl, getSmallImageUrl } from "./util";
+import { BaseManager } from "./base";
 
-// TODO: Checking
-export default abstract class EnhancementManager<T extends AnyEnhancement> {
+// TODO: Introduce checking
+export default abstract class EnhancementManager<T extends AnyEnhancement>
+    implements BaseManager<{ [prop: string]: any }>
+{
     /**
      * The list of all enhancements.
      */

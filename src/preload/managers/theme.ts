@@ -1,7 +1,7 @@
 import { promises as fsPromises, readFile, writeFile } from "fs";
 import { isAbsolute, join, resolve as pathResolve } from "path";
-import EnhancementManager from "./enhancement-manager";
-import { Theme } from "../common/enhancements";
+import EnhancementManager from "./enhancement";
+import { Theme } from "../../common/enhancements";
 
 // TODO: Checking
 export default class ThemeManager extends EnhancementManager<Theme> {

@@ -17,14 +17,15 @@ function webpackModule(index: number, svgModule: WebpackBundle): WebpackBundle {
 
         // Make sure Bundle doesn't fail because of ReGuilded and wait for other modules
         setImmediate(() => {
-            window.ReGuilded.settingsHandler.settings.debugMode && console.log("Initializing ReGuilded");
+            window.ReGuilded.settingsHandler.config.debugMode && console.log("Initializing ReGuilded");
             window.ReGuilded.init(webpackRequire);
         });
     }
 
     // Get the SVG module's main method's ID
     const [[svgId], svgFunctions] = svgModule;
-    window.ReGuilded.settingsHandler.settings.debugMode && console.log("SVG Module Id:", svgId, "\nSVG Module Functions:", svgFunctions, "\nSVG Module:", svgModule);
+    window.ReGuilded.settingsHandler.config.debugMode &&
+        console.log("SVG Module Id:", svgId, "\nSVG Module Functions:", svgFunctions, "\nSVG Module:", svgModule);
 
     const fakeFns = {};
 
