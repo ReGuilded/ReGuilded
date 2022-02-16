@@ -95,7 +95,6 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
         try {
             this.settingsHandler.settings.debugMode && console.log(`Loading addon by ID '${metadata.id}'`);
             // Check if it's first time loading
-            console.log("Load initialized", JSON.stringify(metadata.id));
             if (!~this.initialized.indexOf(metadata.id)) {
                 this.addonApis[metadata.id] = new AddonApi(this.webpack, this, metadata.id);
 
@@ -107,9 +106,10 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
                         // One-time `init` function
                         AddonHandler._functionExists(metadata, "init") && metadata.exports.init();
 
-                        console.log("Loading first time");
                         this.initialized.push(metadata.id);
-                        metadata.exports.load();
+
+                        if (AddonHandler._functionExists(metadata, "load")) metadata.exports.load();
+                        else throw new Error("An addon must export load function");
                     })
                     .catch(e => console.error(`Error while getting exports of addon by ID '${metadata.id}':`, e));
             } else metadata.exports.load();
@@ -124,7 +124,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
      */
     unload(metadata: Addon) {
         try {
-            this.settingsHandler.settings.debugMode && console.log(`Unloading addon by ID '${metadata.id}''`);
+            this.settingsHandler.settings.debugMode && console.log(`Unloading addon by ID '${metadata.id}'`);
             AddonHandler._functionExists(metadata, "unload") && metadata.exports.unload(this, this.webpack);
         } catch (e) {
             console.error(`Failed to unload an addon by ID '${metadata.id}':\n`, e);
@@ -162,8 +162,25 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
      * @param permissions The permission to set for the addon
      */
     async setPermissions(addonId: string, permissions: AddonPermission) {
-        this.settings.permissions[addonId] = permissions;
-        await this.settingsHandler.updateSettings({ addons: this.settings });
+        const addon = this.all.find(addon => addon.id === addonId);
+
+        if (addon) {
+            this.settings.permissions[addonId] = permissions;
+
+            // Since the addon might look like it's broken
+            if (~this.enabled.indexOf(addonId)) {
+                this.unload(addon);
+
+                // Large chance it has top-level "await require"
+                const initIndex = this.initialized.indexOf(addonId);
+                this.initialized.splice(initIndex, 1);
+
+                this.load(addon);
+            }
+
+            // We updated the settings (permissions), time to sync it with settings handler and manager
+            await this.settingsHandler.updateSettings({ addons: this.settings });
+        }
     }
 }
 export enum AddonPermission {

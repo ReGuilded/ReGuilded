@@ -21,11 +21,9 @@ export default class AddonView extends EnhancementView<Addon> {
         this._SaveBinded = this._handleSaveChangesClick.bind(this);
     }
     protected override *onSaveChanges({ values: { permissions }, isValid }: FormOutput<{ permissions: Array<{ optionName: number, value: boolean }> }>) {
-        if (isValid) {
-            const givenPermissions = permissions.map(x => x.value && x.optionName).reduce((a, b) => a | b);
+        const givenPermissions = permissions.map(x => x.value && x.optionName).reduce((a, b) => a | b);
 
-            this.enhancementHandler.setPermissions(this.props.enhancement.id, givenPermissions);
-        }
+        this.enhancementHandler.setPermissions(this.props.enhancement.id, givenPermissions);
     }
     protected override renderTabs(addon: Addon) {
         const { requiredPermissions } = addon;
