@@ -6,6 +6,7 @@ import AddonApi from "../../addons/addonApi";
 import EnhancementHandler from "./enhancement";
 import SettingsHandler from "./settings";
 import ReGuilded from "../ReGuilded";
+import { handleErrorsOf } from "../../util";
 
 /**
  * Manager that manages ReGuilded's addons
@@ -110,9 +111,17 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
 
                         if (AddonHandler._functionExists(metadata, "load")) metadata.exports.load();
                         else throw new Error("An addon must export load function");
+
+                        // If such is present
+                        delete metadata._error;
                     })
-                    .catch(e => console.error(`Error while getting exports of addon by ID '${metadata.id}':`, e));
-            } else metadata.exports.load();
+                    .catch(
+                        e => (
+                            (metadata._error = e),
+                            console.error(`Error while getting exports of addon by ID '${metadata.id}':`, e)
+                        )
+                    );
+            } else handleErrorsOf<any>(metadata.exports.load, e => (metadata._error = e));
         } catch (e) {
             console.error(`Failed to load addon by ID '${metadata.id}':\n`, e);
         }
@@ -125,7 +134,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
     unload(metadata: Addon) {
         try {
             this.settingsHandler.settings.debugMode && console.log(`Unloading addon by ID '${metadata.id}'`);
-            AddonHandler._functionExists(metadata, "unload") && metadata.exports.unload(this, this.webpack);
+            AddonHandler._functionExists(metadata, "unload") && metadata.exports.unload();
         } catch (e) {
             console.error(`Failed to unload an addon by ID '${metadata.id}':\n`, e);
         }

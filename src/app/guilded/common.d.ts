@@ -11,3 +11,8 @@ export type Direction = DirectionVertical | DirectionHorizontal;
  * It is recommended to use string here most of the time, unless it is really necessary.
  */
 export type ComponentText = ReactNode | ReactNode[];
+
+export declare interface HasDisabledState {
+    disabledTooltip?: string;
+    disabledTooltipDirection?: Direction;
+}

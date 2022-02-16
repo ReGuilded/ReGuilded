@@ -2,7 +2,7 @@
 import { MenuSpecs } from "../../../../guilded/menu";
 import { UserInfo } from "../../../../guilded/models";
 import ErrorBoundary from "../ErrorBoundary";
-import { SwitchTab } from "../TabbedSettings";
+import { SwitchTab } from "../PagedSettings";
 
 const React = window.ReGuilded.getApiProperty("react"),
     { default: OverflowButton } = window.ReGuilded.getApiProperty("guilded/components/OverflowButton"),
@@ -28,7 +28,6 @@ type State = {
 export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> extends React.Component<P & AdditionalProps, State & S> {
     protected overflowMenuSpecs: MenuSpecs;
     private hasToggled: boolean;
-    private _onToggleBinded: (enabled: boolean) => Promise<void>;
 
     constructor(props, context) {
         super(props, context);

@@ -1,6 +1,6 @@
 import { ComponentText, DirectionVertical, Size } from "../common";
 import React, { CSSProperties } from "react";
-import { ButtonProps } from "../input";
+import { ButtonProps } from "./input";
 
 //#region BadgeV2
 export declare class BadgeV2 extends React.Component<{
@@ -19,7 +19,7 @@ export declare class BannerWithButton extends React.Component<{
     imgSrc?: string;
     theme?: "warning" | "error" | "info" | string;
     children?: React.ReactNode | React.ReactNode[];
-    buttonProps?: any;
+    buttonProps?: ButtonProps;
 }> {
     get hasText(): boolean;
 }

@@ -33,15 +33,17 @@ export declare interface Theme extends Enhancement<string[]> {
      */
     settingsProps: string[];
 }
-type AddonExports = {
-    load: Function;
-    init?: Function;
-    unload?: Function;
+export type AddonExports = {
+    load: () => any;
+    init?: () => any;
+    unload?: () => any;
     [otherExport: string]: any;
 };
 export declare interface Addon extends Enhancement<string> {
     requiredPermissions: number;
     execute: (importable: (path: string) => [boolean, any?]) => Promise<AddonExports>;
     exports?: AddonExports;
+
+    _error?: Error | string;
 }
 export type AnyEnhancement = Enhancement<string | string[]>;

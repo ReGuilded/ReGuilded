@@ -1,6 +1,6 @@
 import React from "react";
 import { ComponentText, Direction } from "../common";
-import { ButtonType } from "../input";
+import { ButtonType } from "./input";
 
 //#region Modal
 export declare interface ModalV2Props {

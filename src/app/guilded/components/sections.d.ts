@@ -28,7 +28,7 @@ export declare class DragViewer extends React.Component<{
 //#endregion
 
 //#region HorizontalTabs
-type TabOption = {
+export type TabOption = {
     iconName?: string;
     name?: ComponentText;
 };

@@ -29,16 +29,21 @@
                 transform: translateY(-2px)
 
         // Enhancement page
-        &Page-warning
+        &Page-banner
             margin-bottom: 16px
-        &Images-image
-            // Otherwise carousel won't work
-            position: relative
+        &Images
+            &-container
+                margin: 16px 0
+            &-heading
+                margin-bottom: 8px
+            &-image
+                // Otherwise carousel won't work
+                position: relative
 
-            min-width: 250px
-            height: 250px
+                min-width: 250px
+                height: 250px
 
-            &:not(:first-child)
-                margin-left: 10px
+                &:not(:first-child)
+                    margin-left: 10px
     &Settings-container-padded
         padding-horizontal: 32px

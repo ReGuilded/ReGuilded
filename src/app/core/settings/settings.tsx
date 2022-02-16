@@ -1,9 +1,9 @@
 ﻿import AddonSettings from "./components/enhancements/AddonSettings";
 import ThemeSettings from "./components/enhancements/ThemeSettings";
 import GeneralSettings from "./components/GeneralSettings";
-import AddonView from "./components/enhancements/AddonView";
-import ThemeView from "./components/enhancements/ThemeView";
-import TabbedSettings from "./components/TabbedSettings";
+import AddonPage from "./components/enhancements/AddonPage";
+import ThemePage from "./components/enhancements/ThemePage";
+import PagedSettings from "./components/PagedSettings";
 import { patchElementRenderer } from "../../addons/lib";
 import patcher from "../../addons/patcher";
 
@@ -50,12 +50,12 @@ export default class SettingsInjector {
                 {
                     id: "rgAddons",
                     label: "Addons",
-                    Component: TabbedSettings,
+                    Component: PagedSettings,
                     hasNestedOptionsMenuPage: true,
                     props: {
                         tabs: {
                             list: AddonSettings,
-                            specific: AddonView
+                            specific: AddonPage
                         },
                         defaultTab: "list"
                     }
@@ -63,12 +63,12 @@ export default class SettingsInjector {
                 {
                     id: "rgThemes",
                     label: "Themes",
-                    Component: TabbedSettings,
+                    Component: PagedSettings,
                     hasNestedOptionsMenuPage: true,
                     props: {
                         tabs: {
                             list: ThemeSettings,
-                            specific: ThemeView
+                            specific: ThemePage
                         },
                         defaultTab: "list"
                     }

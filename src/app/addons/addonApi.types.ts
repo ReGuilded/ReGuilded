@@ -19,7 +19,7 @@ import {
     WordDividerLine
 } from "../guilded/components/content";
 import { MediaRenderer, UserBasicInfoDisplay } from "../guilded/components/display";
-import { Button, GuildedSelect, SearchBarV2, SimpleToggle } from "../guilded/input";
+import { Button, GuildedSelect, SearchBarV2, SimpleToggle } from "../guilded/components/input";
 import { OverflowButton } from "../guilded/menu";
 import {
     Carousel as CarouselList,

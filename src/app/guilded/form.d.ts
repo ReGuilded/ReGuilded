@@ -1,7 +1,8 @@
 import { MessageContent, TemplateParameterOptions } from "./rich-text";
 import React, { ReactElement, ReactNode } from "react";
-import { Alignment, Size } from "./common";
+import { Alignment, HasDisabledState, Size } from "./common";
 import { Moment } from "moment";
+import { ButtonProps } from "./components/input";
 
 //#region Form specs
 export type FormSpecs = {
@@ -81,7 +82,7 @@ export type FieldAnySpecs =
     ) & { [unusedProp: string]: any };
 
 //#region Interfaces
-declare interface FieldDefaultSpecs<V> {
+declare interface FieldDefaultSpecs<V> extends HasDisabledState {
     label?: string;
 
     /**
@@ -98,10 +99,6 @@ declare interface FieldDefaultSpecs<V> {
      * @default false
      */
     isDisabled?: boolean;
-    /**
-     * What the tooltip says when hovering over the disabled field.
-     */
-    disabledTooltip?: string;
 
     /**
      * The identifier of the row that this field will be included in with other fields.
@@ -423,57 +420,7 @@ declare interface FieldIconMenuSpecs extends FieldSpecs<"IconMenu", string>, Fie
 /**
  * The field for doing an action upon pressing the button.
  */
-declare interface FieldButtonSpecs extends FieldSpecs<"Button", undefined> {
-    /**
-     * The text of the button.
-     */
-    buttonText?: string;
-    /**
-     * The function to use when the button is clicked.
-     */
-    onClick?: (event: MouseEvent) => void;
-    /**
-     * The style of the button.
-     * @default "filled"
-     */
-    style?: "filled" | "hollow";
-    /**
-     * The type of the button it is.
-     *
-     * Success is only used in mobile version, while monochrome is never used and bleached is only used as hollow button.
-     * @default "gilded"
-     */
-    buttonType?: "gilded" | "delete" | "success" | "bleached" | "monochrome";
-    /**
-     * The size of the button.
-     * @default "md"
-     */
-    size?: Size;
-    /**
-     * @default false
-     */
-    isWide?: boolean;
-    /**
-     * @default false
-     */
-    loading?: boolean;
-    /**
-     * The name of the icon to use before the button's text.
-     */
-    prefixIconName?: string;
-    /**
-     * The name of the icon to use after the button's text.
-     */
-    suffixIconName?: string;
-    /**
-     * The class to use for the prefix icon.
-     */
-    prefixIconClassname?: string;
-    /**
-     * The class to use for the suffix icon.
-     */
-    suffixIconClassname?: string;
-}
+declare interface FieldButtonSpecs extends FieldSpecs<"Button", undefined>, ButtonProps {}
 /**
  * The field for getting the range between 2 dates and times.
  *

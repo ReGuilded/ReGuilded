@@ -18,6 +18,7 @@ export default abstract class EnhancementHandler<
      */
     static idRegex: RegExp = /^[A-Za-z0-9]+$/g;
     static versionRegex = /^([0-9]+)(?:[.]([0-9]+))+(?:\-([Aa]lpha|[Bb]eta|[Gg]amma))?$/;
+    static repoRegex = /^((?:https:\/\/)?(?:www\.)?(?:github|gitlab)\.com\/[A-Za-z0-9-]+\/[A-Za-z0-9-.]+)\/?$/;
 
     all: T[];
     config: C;
@@ -170,15 +171,23 @@ export default abstract class EnhancementHandler<
      * @returns Checks identifier's syntax
      */
     protected checkEnhancement(enhancement: T): void {
-        const { id, version } = enhancement;
+        const { id, version, repoUrl } = enhancement;
 
         if (!(typeof id === "string" && id.match(EnhancementHandler.idRegex)))
             throw new Error(`Incorrect syntax of the property 'id'`);
-        else if (version && !(typeof version === "string" && this.versionFormatIsFine(enhancement, version))) {
+        if (version && !(typeof version === "string" && this.versionFormatIsFine(enhancement, version))) {
             console.warn(
-                `The property 'version' must be a number array with optionally last string or have "rolling" as a value — Enhancement by ID '${enhancement.id}'`
+                `The property 'version' must be a number array with optionally last string or have "rolling" as a value — Enhancement by ID '%s'`,
+                enhancement.id
             );
-            enhancement.version = enhancement._versionMatches = undefined;
+            enhancement.version = enhancement._versionMatches = null;
+        }
+        if (repoUrl && !(typeof repoUrl === "string" && this.repoFormatIsFine(enhancement, repoUrl))) {
+            console.warn(
+                `The property 'version' must be a string that contains URL to the repository of the enhancement — Enhancement by ID '%s'`,
+                enhancement.id
+            );
+            enhancement.repoUrl = null;
         }
     }
     /**
@@ -188,9 +197,15 @@ export default abstract class EnhancementHandler<
      * @returns >0 if the format is fine
      */
     private versionFormatIsFine(enhancement: T, version: string): number {
-        let versionMatch = version.match(EnhancementHandler.versionRegex);
+        const versionMatch = version.match(EnhancementHandler.versionRegex);
 
         return versionMatch && (enhancement._versionMatches = versionMatch.slice(1)).length;
+    }
+    private repoFormatIsFine(enhancement: T, repoUrl: string): string {
+        const repoMatch = repoUrl.match(EnhancementHandler.repoRegex);
+
+        // Trim `/`
+        return repoMatch && (enhancement.repoUrl = repoMatch[0]);
     }
     /**
      * Checks if property is given type and if it isn't, throws an error.
