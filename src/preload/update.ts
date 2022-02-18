@@ -5,11 +5,10 @@ import { join } from "path";
 
 
 export default async function handleUpdate(updateInfo: VersionJson) {
-    const downloadUrl = updateInfo.assets[0].browser_download_url;
+    const downloadUrl = updateInfo.assets.find(x => x.name === "reguilded.asar").browser_download_url;
     const downloadPath = join(__dirname);
 
     return new Promise<boolean>(resolve => {
-
         try {
             stream(downloadUrl)
                 .pipe(createWriteStream(downloadPath))
