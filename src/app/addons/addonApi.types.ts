@@ -9,6 +9,7 @@ import {
     BannerWithButton,
     CalloutBadge,
     CalloutBadgeProps,
+    CalloutBadgeWithText,
     CodeContainer,
     GuildedText,
     IconAndLabel,
@@ -257,6 +258,8 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof BadgeV2 }
     : N extends "guilded/components/StretchFadeBackground"
     ? { default: typeof React.Component }
+    : N extends "guilded/components/CalloutBadgeWithText"
+    ? { default: typeof CalloutBadgeWithText }
     : N extends "guilded/components/WordDividerLine"
     ? { default: typeof WordDividerLine }
     : N extends "guilded/components/ScreenHeader"

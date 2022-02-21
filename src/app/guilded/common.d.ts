@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, ComponentFactory, Component } from "react";
 
 export type Size = "xl" | "lg" | "md" | "sm" | "xsm";
 export type Alignment = "vertical" | "horizontal";
@@ -16,3 +16,4 @@ export declare interface HasDisabledState {
     disabledTooltip?: string;
     disabledTooltipDirection?: Direction;
 }
+export type AnyComponent = (new (...args: any[]) => Component) | ComponentFactory<{}, Component>;

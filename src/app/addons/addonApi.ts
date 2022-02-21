@@ -4,6 +4,11 @@ import { AddonApiExports } from "./addonApi.types";
 import { MenuSectionSpecs } from "../guilded/menu";
 import { EditorPlugin } from "../guilded/slate";
 import WebpackManager from "./webpack";
+import { createRegistry, Registry } from "./registry";
+import React from "react";
+import { AnyComponent } from "../guilded/common";
+import { CalloutBadgeProps } from "../guilded/components/content";
+import { SettingsTab } from "../guilded/components/modals";
 
 // Provides API for addons to interact with Guilded.
 // TODO: Better documentation and probably TS declaration files.
@@ -117,6 +122,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/components/LoadingAnimationMicro": webpack => webpack.withClassProperty("containerStyle"),
     "guilded/components/LoadingPage": webpack => webpack.withCode("LoadingPage"),
     "guilded/components/BadgeV2": webpack => webpack.withCode("BadgeV2"),
+    "guilded/components/CalloutBadgeWithText": webpack => webpack.withCode("CalloutBadgeWithText"),
     "guilded/components/WordDividerLine": webpack => webpack.withCode("WordDividerLine"),
     "guilded/components/StretchFadeBackground": webpack => webpack.withCode("StretchFadeBackground"),
     "guilded/components/TeamNavSectionItem": webpack => webpack.withCode("TeamNavSectionItem"),
@@ -145,18 +151,38 @@ export default class AddonApi {
     static reguildedPatchUtil = {
         patchElementRenderer
     };
+    static registries = createRegistry();
 
     // Don't allow addons to fetch this with `require("webpackManager")`
     #webpackManager: WebpackManager;
     #addonManager: AddonHandler;
     #addonId: string;
+    /**
+     * The identifier or index of the last item.
+     *
+     * This makes sure that addon does not reference the identifier of another addon's settings to destroy it.
+     */
+    #addonLastItemIndex: number = 0;
+
     #reguildedSlateUtil: {};
+    #reguildedModalUtil: {};
+    #addonBadgeProps: CalloutBadgeProps;
 
     // If addon needs it
     constructor(webpackManager: WebpackManager, addonManager: AddonHandler, addonId: string) {
         this.#webpackManager = webpackManager;
         this.#addonManager = addonManager;
         this.#addonId = addonId;
+        this.#addonBadgeProps = {
+            text: "Addon",
+            hoverText: `By ID '${this.#addonId}'`,
+            style: {
+                backgroundColor: "#CC5555"
+            },
+            className: "ReGuildedBadge-type-addon"
+        };
+
+        // API
         this.#reguildedSlateUtil = {
             defaultInsertPlugins: { media: 0, form: 1 },
             addInsertPlugin: (plugin: EditorPlugin) => this["guilded/editor/nodeInfos"].InsertPlugins.push(plugin),
@@ -191,6 +217,33 @@ export default class AddonApi {
             getPluginByType: (type: string) =>
                 this["guilded/editor/nodeInfos"].default.find(plugin => plugin.type === type)
         };
+
+        this.#reguildedModalUtil = {
+            // App/user
+            addUserSettingsTab: (label: string, Component: AnyComponent) =>
+                this.#addSetting(AddonApi.registries.userSettings, label, Component),
+            removeUserSettingsTab: (index: number) => this.#removeSetting(AddonApi.registries.userSettings, index),
+
+            // Team/server/guild
+            addServerSettingsTab: (label: string, Component: AnyComponent) =>
+                this.#addSetting(AddonApi.registries.serverSettings, label, Component),
+            removeServerSettingsTab: (index: number) => this.#removeSetting(AddonApi.registries.serverSettings, index)
+        };
+    }
+    #addSetting(registry: Registry<SettingsTab>, label: string, Component: AnyComponent): number {
+        const index = this.#addonLastItemIndex++;
+
+        registry.add({
+            id: `rgAddon-${this.#addonId}-${index}`,
+            label,
+            Component,
+            calloutBadgeProps: this.#addonBadgeProps
+        });
+
+        return index;
+    }
+    #removeSetting(registry: Registry<SettingsTab>, index: number): void {
+        registry.remove(`rgAddon-${this.#addonId}-${index}`);
     }
     /**
      * Caches the value if it's not already cached and returns it.
@@ -207,7 +260,8 @@ export default class AddonApi {
      * @returns The cached value
      */
     #getCachedWithPermissions(permissions: AddonPermission, name: string) {
-        return this.#hasPermission(permissions) && this.#getCached(name);
+        if (this.#hasPermission(permissions)) return this.#getCached(name);
+        else throw new ReferenceError(`Insufficient permissions for the addon by ID '${this.#addonId}'`);
     }
     /**
      * Gets whether there is the specified permission.
@@ -222,14 +276,33 @@ export default class AddonApi {
     }
 
     // ReGuilded
+    /**
+     * Various utilities related to patching React.js elements.
+     */
     get ["guilded/reguilded-util/patch"]() {
         return this.#hasPermission(AddonPermission.Elements) && AddonApi.reguildedPatchUtil;
     }
+    /**
+     * Various utilities related to React.js.
+     */
     get ["guilded/reguilded-util/react"]() {
         return this.#hasPermission(AddonPermission.Elements) && AddonApi.reguildedUtil;
     }
+    /**
+     * Various utilities related to editors, Prism.js and Slate.js.
+     *
+     * Allows adding toolbar items, plus menu items, etc.
+     */
     get ["guilded/reguilded-util/editor"]() {
         return this.#hasPermission(AddonPermission.Elements) && this.#reguildedSlateUtil;
+    }
+    /**
+     * Various utilities related to modals and settings.
+     *
+     * Allows adding and removing settings.
+     */
+    get ["guilded/reguilded-util/modals"]() {
+        return this.#hasPermission(AddonPermission.Elements) && this.#reguildedModalUtil;
     }
 
     // React
@@ -248,7 +321,7 @@ export default class AddonApi {
     /**
      * Method for creating React elements.
      */
-    get ["react-element"]() {
+    get ["react/jsx-runtime"]() {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "react-element");
     }
 
@@ -714,6 +787,12 @@ export default class AddonApi {
      */
     get ["guilded/components/StretchFadeBackground"](): AddonApiExports<"guilded/components/StretchFadeBackground"> {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/StretchFadeBackground");
+    }
+    /**
+     * Displays a text and a badge to the left of the badge. The badge is CalloutBadge and the text is GuildedText.
+     */
+    get ["guilded/components/CalloutBadgeWithText"](): AddonApiExports<"guilded/components/CalloutBadgeWithText"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/component/WordDividerLine");
     }
     /**
      * Displays a line that separates content with a line and a text in the middle.

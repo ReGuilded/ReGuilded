@@ -1,5 +1,5 @@
 import { ComponentText, DirectionVertical, Size } from "../common";
-import React, { CSSProperties } from "react";
+import React, { CSSProperties, ReactNode } from "react";
 import { ButtonProps } from "./input";
 
 //#region BadgeV2
@@ -37,6 +37,11 @@ export type CalloutBadgeProps = {
 export declare class CalloutBadge extends React.Component<CalloutBadgeProps> {
     get style(): React.CSSProperties;
 }
+export declare class CalloutBadgeWithText extends React.Component<{
+    text: string;
+    textProps: GuildedTextProps;
+    badgeProps: CalloutBadgeProps;
+}> {}
 //#endregion
 
 //#region CheckmarkIcon
@@ -66,7 +71,7 @@ export declare class CodeContainer extends React.Component<{
 //#endregion
 
 //#region GuildedText
-export declare class GuildedText extends React.Component<{
+export type GuildedTextProps = {
     type:
         | "title"
         | "heading1"
@@ -93,7 +98,9 @@ export declare class GuildedText extends React.Component<{
     centered?: boolean;
     breakUserContent?: boolean;
     title?: string;
-}> {}
+    children?: ReactNode | ReactNode[];
+};
+export declare class GuildedText extends React.Component<GuildedTextProps> {}
 //#endregion
 
 //#region IconAndLabel
