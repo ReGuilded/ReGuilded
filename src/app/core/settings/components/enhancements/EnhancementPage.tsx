@@ -49,7 +49,7 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
     // From decorators
     protected DeleteConfirmationOverlay: ProvidedOverlay<"DeleteConfirmationOverlay">;
 
-    private static defaultTabs: TabOption[] = [ { name: "Overview" } ];
+    private static defaultTabs: TabOption[] = [ { name: "Description" } ];
 
     constructor(props: Props<T>, context?: any) {
         super(props, context);
@@ -159,6 +159,7 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
             <ErrorBoundary>
                 <div className="OptionsMenuPageWrapper-container ReGuildedEnhancementPage-wrapper" style={{ paddingLeft: 32, paddingRight: 32, maxWidth: "100%" }}>
                     <div className="ReGuildedEnhancementPage-container">
+                        {/* TODO: Overhaul */}
                         <header className="ReGuildedEnhancementPage-header DocsDisplayV2-title">
                             {/* <| */}
                             <div className="BackLink-container BackLink-container-desktop BackLink-container-size-md ScreenHeader-back" onClick={() => switchTab("list", { enhancement: {} })}>
@@ -167,16 +168,21 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
                             {/* Title */}
                             <GuildedText type="heading3">{ enhancement.name } settings</GuildedText>
                         </header>
+                        {/* Short Description */}
+                        <GuildedText type="subheading">{ enhancement.subtitle || "No subtitle provided." }</GuildedText>
+                        {/* Preview images carousel */}
+                        { enhancement.images && window.ReGuilded.settingsHandler.config.loadImages &&
+                            <PreviewCarousel enhancementId={enhancement.id} enhancementHandler={this.props.enhancementHandler} />
+                        }
                         <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: EnhancementPage.defaultTabs.concat(tabOptions) }} defaultSelectedTabIndex={defaultTabIndex}>
                             <div className="ReGuildedEnhancementPage-tab">
                                 <ErrorBoundary>
                                     { overviewBanner }
-                                    {/* Description */}
-                                    { enhancement.readme?.length ? <MarkdownRenderer plainText={enhancement.readme} grammar={WebhookEmbed}/> : null }
-                                    {/* Preview images carousel */}
-                                    { enhancement.images && window.ReGuilded.settingsHandler.config.loadImages &&
-                                        <PreviewCarousel enhancementId={enhancement.id} enhancementHandler={this.props.enhancementHandler} />
-                                    }
+                                    {/* Long description */}
+                                    { enhancement.readme
+                                        ? <MarkdownRenderer plainText={enhancement.readme} grammar={WebhookEmbed} />
+                                        : <GuildedText block type="subtext">No description has been provided.</GuildedText> }
+                                    {/* Buttons */}
                                     { this.renderActionForm() }
                                 </ErrorBoundary>
                             </div>

@@ -4,7 +4,6 @@ import { Addon } from "../../../common/enhancements";
 import WebpackManager from "../../addons/webpack";
 import AddonApi from "../../addons/addonApi";
 import EnhancementHandler from "./enhancement";
-import SettingsHandler from "./config";
 import ReGuilded from "../ReGuilded";
 import { handleErrorsOf } from "../../util";
 import ConfigHandler from "./config";
@@ -193,6 +192,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
         }
     }
 }
+
 export enum AddonPermission {
     Elements = 1,
     _RESERVED = 2,

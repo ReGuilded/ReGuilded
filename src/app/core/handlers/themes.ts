@@ -2,7 +2,6 @@ import { ReGuildedEnhancementSettings, ReGuildedSettings } from "../../../common
 import { RGThemeConfig } from "../../types/reguilded.js";
 import { Theme } from "../../../common/enhancements.js";
 import EnhancementHandler from "./enhancement.js";
-import SettingsHandler from "./config.js";
 import ReGuilded from "../ReGuilded.js";
 import ConfigHandler from "./config.js";
 

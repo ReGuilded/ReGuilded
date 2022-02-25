@@ -4,14 +4,24 @@ export declare interface Enhancement<T extends string | string[]> {
     files: T;
     dirname: string;
 
+    subtitle?: string;
+    readme?: string;
+    repoUrl?: string;
+
+    icon?: string;
+    banner?: string;
+    images?: string[];
+
     author?: string;
     contributors?: string[];
     version?: string;
+
+    // Private
     _versionMatches?: string[];
-    repoUrl?: string;
-    banner?: string;
-    images?: string[];
-    readme?: string;
+    _repoInfo?: {
+        platform: string;
+        path: string;
+    };
 }
 export declare interface Theme extends Enhancement<string[]> {
     /**

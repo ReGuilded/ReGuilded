@@ -102,7 +102,10 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/components/RouteLink": webpack => webpack.withClassProperty("href"),
     "guilded/components/Button": webpack => webpack.withClassProperty("useHoverContext"),
     "guilded/components/SvgIcon": webpack => webpack.withClassProperty("iconComponentProps"),
+    // Both have imageSrc properties
+    "guilded/components/TabEmptyState": webpack => webpack.withCode("TabEmptyState"),
     "guilded/components/NullState": webpack => webpack.withClassProperty("imageSrc"),
+
     "guilded/components/HorizontalTabs": webpack => webpack.withClassProperty("tabOptions"),
     "guilded/components/HorizontalTab": webpack => webpack.withClassProperty("tabOption"),
     "guilded/components/ToggleFieldWrapper": webpack => webpack.withCode("ToggleFieldWrapper-container"),
@@ -259,8 +262,18 @@ export default class AddonApi {
      * @param name The name of cachable value
      * @returns The cached value
      */
-    #getCachedWithPermissions(permissions: AddonPermission, name: string) {
+    #getCachedWithPermission(permissions: AddonPermission, name: string) {
         if (this.#hasPermission(permissions)) return this.#getCached(name);
+        else throw new ReferenceError(`Insufficient permissions for the addon by ID '${this.#addonId}'`);
+    }
+    /**
+     * Caches the value if it's not already cached and returns it. Requires specified permissions.
+     * @param permissions The permissions that it requires
+     * @param name The name of cachable value
+     * @returns The cached value
+     */
+    #getCachedWithAllPermissions(permissions: AddonPermission, name: string) {
+        if (this.#hasAllPermissions(permissions)) return this.#getCached(name);
         else throw new ReferenceError(`Insufficient permissions for the addon by ID '${this.#addonId}'`);
     }
     /**
@@ -310,19 +323,19 @@ export default class AddonApi {
      * React.JS framework stuff.
      */
     get react(): AddonApiExports<"react"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "react");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "react");
     }
     /**
      * React.JS framework DOM-related things.
      */
     get ["react-dom"](): AddonApiExports<"react-dom"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "react-dom");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "react-dom");
     }
     /**
      * Method for creating React elements.
      */
     get ["react/jsx-runtime"]() {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "react-element");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "react-element");
     }
 
     // HTTPS and WS
@@ -330,7 +343,7 @@ export default class AddonApi {
      * The list of REST methods for interacting with Guilded API.
      */
     get ["guilded/http/rest"](): AddonApiExports<"guilded/http/rest"> {
-        return this.#getCachedWithPermissions(AddonPermission.UseApi, "guilded/http/rest");
+        return this.#getCachedWithPermission(AddonPermission.UseApi, "guilded/http/rest");
     }
 
     // Teams / Servers
@@ -376,7 +389,7 @@ export default class AddonApi {
      * Fetches a model for the given member.
      */
     get ["guilded/users/members"](): AddonApiExports<"guilded/users/members"> {
-        return this.#getCachedWithPermissions(AddonPermission.ExtraInfo, "guilded/users/members");
+        return this.#getCachedWithPermission(AddonPermission.ExtraInfo, "guilded/users/members");
     }
     /**
      * Model class for users' profile posts.
@@ -424,7 +437,7 @@ export default class AddonApi {
      * Methods related to channel management.
      */
     get ["guilded/channels/management"](): AddonApiExports<"guilded/channels/management"> {
-        return this.#getCachedWithPermissions(AddonPermission.ExtraInfo, "guilded/channels/management");
+        return this.#getCachedWithPermission(AddonPermission.ExtraInfo, "guilded/channels/management");
     }
     /**
      * The lengths of channel names, IDs and other things related to channel settings.
@@ -506,13 +519,13 @@ export default class AddonApi {
      * Returns the Prism.js library.
      */
     get prism(): AddonApiExports<"prism"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "prism");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "prism");
     }
     /**
      * Returns the plugins and language settings of Prism.js.
      */
     get ["prism/components"](): AddonApiExports<"prism/components"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "prism/info")?.prismComponents;
+        return this.#getCachedWithPermission(AddonPermission.Elements, "prism/info")?.prismComponents;
     }
     // /**
     //  * The list of all Slate nodes.
@@ -524,13 +537,13 @@ export default class AddonApi {
      * The list of nodes sorted by reactions, bare, etc.
      */
     get ["guilded/editor/nodeInfos"](): AddonApiExports<"guilded/editor/nodeInfos"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/editor/nodeInfos");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/editor/nodeInfos");
     }
     /**
      * A dictionary of Markdown grammars.
      */
     get ["guilded/editor/grammars"](): AddonApiExports<"guilded/editor/grammars"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/editor/grammars");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/editor/grammars");
     }
     /**
      * The list of language identifiers and their display names.
@@ -544,12 +557,12 @@ export default class AddonApi {
      * The list of all client sounds.
      */
     get ["guilded/app/sounds"](): AddonApiExports<"guilded/app/sounds"> {
-        return this.#getCachedWithPermissions(AddonPermission.ExtraInfo, "guilded/app/sounds");
+        return this.#getCachedWithPermission(AddonPermission.ExtraInfo, "guilded/app/sounds");
     }
 
     // Settings
     get ["guilded/settings/savableSettings"](): AddonApiExports<"guilded/settings/savableSettings"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/settings/savableSettings");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/settings/savableSettings");
     }
     /**
      * The list of settings tabs.
@@ -563,19 +576,19 @@ export default class AddonApi {
      * Provides overlay portal.
      */
     get ["guilded/overlays/portal"](): AddonApiExports<"guilded/overlays/portal"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/overlays/portal");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/overlays/portal");
     }
     /**
      * Provides a container that displays a set of overlays.
      */
     get ["guilded/overlays/OverlayStack"](): AddonApiExports<"guilded/overlays/OverlayStack"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/overlays/OverlayStack");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/overlays/OverlayStack");
     }
     /**
      * Decorator for getting specific set of overlays.
      */
     get ["guilded/overlays/overlayProvider"](): AddonApiExports<"guilded/overlays/overlayProvider"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/overlays/overlayProvider");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/overlays/overlayProvider");
     }
 
     // Context
@@ -583,19 +596,19 @@ export default class AddonApi {
      * Module with context of what channel client is looking at, channel messages, etc.
      */
     get ["guilded/context/chatContext"](): AddonApiExports<"guilded/context/chatContext"> {
-        return this.#getCachedWithPermissions(AddonPermission.UseApi, "guilded/context/chatContext");
+        return this.#getCachedWithPermission(AddonPermission.UseApi, "guilded/context/chatContext");
     }
     /**
      * Provides layer context for Guilded portals.
      */
     get ["guilded/context/layerContext"](): AddonApiExports<"guilded/context/layerContext"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/context/layerContext");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/context/layerContext");
     }
     get ["guilded/context/teamContextProvider"](): AddonApiExports<"guilded/context/teamContextProvider"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/context/teamContextProvider");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/context/teamContextProvider");
     }
     get ["guilded/context/defaultContextProvider"](): AddonApiExports<"guilded/context/defaultContextProvider"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/context/defaultContextProvider");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/context/defaultContextProvider");
     }
 
     // Util
@@ -611,19 +624,19 @@ export default class AddonApi {
      * Displays the specified list of form fields and their sections.
      */
     get ["guilded/components/Form"](): AddonApiExports<"guilded/components/Form"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/Form");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/Form");
     }
     /**
      * Returns the list of available field types in forms.
      */
     get ["guilded/components/formFieldTypes"](): AddonApiExports<"guilded/components/formFieldTypes"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/formFieldTypes");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/formFieldTypes");
     }
     /**
      * Returns the class that contains a set of validators, which either return string (error message) or void.
      */
     get ["guilded/components/formValidations"](): AddonApiExports<"guilded/components/formValidations"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/formValidations");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/formValidations");
     }
 
     /**
@@ -631,73 +644,79 @@ export default class AddonApi {
      */
     get ["guilded/components/MarkdownRenderer"](): AddonApiExports<"guilded/components/MarkdownRenderer"> {
         //typeof React.Component<{ plainText: string, grammar: PrismGrammar }, {}>
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/MarkdownRenderer");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/MarkdownRenderer");
     }
     /**
      * Displays a badge to label content.
      */
     get ["guilded/components/CalloutBadge"](): AddonApiExports<"guilded/components/CalloutBadge"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/CalloutBadge");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/CalloutBadge");
     }
     /**
      * Displays a text with a lot of parameters.
      */
     get ["guilded/components/GuildedText"](): AddonApiExports<"guilded/components/GuildedText"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/GuildedText");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/GuildedText");
     }
     /**
      * Displays a hyperlink that can navigate to a certain app's area.
      */
     get ["guilded/components/RouteLink"](): AddonApiExports<"guilded/components/RouteLink"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/RouteLink");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/RouteLink");
     }
     /**
      * Displays a clickable Guilded icon.
      */
     get ["guilded/components/Button"](): AddonApiExports<"guilded/components/Button"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/Button");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/Button");
     }
     /**
      * Displays any available Guilded SVG.
      */
     get ["guilded/components/SvgIcon"](): AddonApiExports<"guilded/components/SvgIcon"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/SvgIcon");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/SvgIcon");
+    }
+    /**
+     * Displays a screen for the missing content.
+     */
+    get ["guilded/components/TabEmptyState"](): AddonApiExports<"guilded/components/TabEmptyState"> {
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/TabEmptyState");
     }
     /**
      * Displays a screen for the missing content.
      */
     get ["guilded/components/NullState"](): AddonApiExports<"guilded/components/NullState"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/NullState");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/NullState");
     }
     /**
      * Displays a tabbed panel.
      */
     get ["guilded/components/HorizontalTabs"](): AddonApiExports<"guilded/components/HorizontalTabs"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/HorizontalTabs");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/HorizontalTabs");
     }
     /**
      * Displays a tab for HorizontalTabs component.
      */
     get ["guilded/components/HorizontalTab"](): AddonApiExports<"guilded/components/HorizontalTab"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/HorizontalTabs");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/HorizontalTabs");
     }
     /**
      * Displays a toggle with labels, styles and more.
      */
     get ["guilded/components/ToggleFieldWrapper"](): AddonApiExports<"guilded/components/ToggleFieldWrapper"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ToggleFieldWrapper");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/ToggleFieldWrapper");
     }
     /**
      * Displays a toggle with an optional label.
      */
     get ["guilded/components/SimpleToggle"](): AddonApiExports<"guilded/components/SimpleToggle"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/SimpleToggle");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/SimpleToggle");
     }
     /**
      * Displays a message image.
      */
     get ["guilded/components/MediaRenderer"](): AddonApiExports<"guilded/components/MediaRenderer"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/MediaRenderer");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/MediaRenderer");
     }
     /**
      * Displays a code block.
@@ -705,13 +724,13 @@ export default class AddonApi {
      * This is similar to message's code blocks, except that it also allows setting a header message for it and adding copy button at the right.
      */
     get ["guilded/components/CodeContainer"](): AddonApiExports<"guilded/components/CodeContainer"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/CodeContainer");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/CodeContainer");
     }
     /**
      * Displays an input meant for searching.
      */
     get ["guilded/components/SearchBarV2"](): AddonApiExports<"guilded/components/SearchBarV2"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/SearchBarV2");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/SearchBarV2");
     }
     /**
      * Displays a table of content.
@@ -719,13 +738,13 @@ export default class AddonApi {
      * It allows searching and filtering of content, among other things.
      */
     get ["guilded/components/ItemManager"](): AddonApiExports<"guilded/components/ItemManager"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ItemManager");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/ItemManager");
     }
     /**
      * Displays 3 vertically aligned dots that once clicked, show a context menu.
      */
     get ["guilded/components/OverflowButton"](): AddonApiExports<"guilded/components/OverflowButton"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/OverflowButton");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/OverflowButton");
     }
     /**
      * Displays a panel with optional icon, text and an optional button.
@@ -736,13 +755,13 @@ export default class AddonApi {
      * - Error
      */
     get ["guilded/components/BannerWithButton"](): AddonApiExports<"guilded/components/BannerWithButton"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/BannerWithButton");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/BannerWithButton");
     }
     /**
      * Displays an icon and a label.
      */
     get ["guilded/components/IconAndLabel"](): AddonApiExports<"guilded/components/IconAndLabel"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/IconAndLabel");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/IconAndLabel");
     }
     /**
      * Displays the name, profile picture, badges and other things of the specified user.
@@ -750,85 +769,88 @@ export default class AddonApi {
      * If some part of the content does not need to be displayed, it can be specified.
      */
     get ["guilded/components/UserBasicInfoDisplay"](): AddonApiExports<"guilded/components/UserBasicInfoDisplay"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/UserBasicInfoDisplay");
+        return this.#getCachedWithAllPermissions(
+            AddonPermission.Elements | AddonPermission.ExtraInfo,
+            "guilded/components/UserBasicInfoDisplay"
+        );
     }
     /**
      * Displays the profile picture of a user.
      */
     get ["guilded/components/ProfilePicture"](): AddonApiExports<"guilded/components/ProfilePicture"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ProfilePicture");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/ProfilePicture");
     }
     /**
      * Displays the list of items that can overflow in certain direction and can be scrolled.
      */
     get ["guilded/components/CarouselList"](): AddonApiExports<"guilded/components/CarouselList"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/CarouselList");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/CarouselList");
     }
     /**
      * Displays the loading dots that takes up the whole page.
      */
     get ["guilded/components/LoadingPage"](): AddonApiExports<"guilded/components/LoadingPage"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/LoadingPage");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/LoadingPage");
     }
     /**
      * Displays the loading animated dots.
      */
     get ["guilded/components/LoadingAnimationMicro"](): AddonApiExports<"guilded/components/LoadingAnimationMicro"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/LoadingAnimationMicro");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/LoadingAnimationMicro");
     }
     /**
      * Displays a red notification badge.
      */
     get ["guilded/components/BadgeV2"](): AddonApiExports<"guilded/components/BadgeV2"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/BadgeV2");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/BadgeV2");
     }
     /**
      * Displays a static image that fades into background.
      */
     get ["guilded/components/StretchFadeBackground"](): AddonApiExports<"guilded/components/StretchFadeBackground"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/StretchFadeBackground");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/StretchFadeBackground");
     }
     /**
      * Displays a text and a badge to the left of the badge. The badge is CalloutBadge and the text is GuildedText.
      */
     get ["guilded/components/CalloutBadgeWithText"](): AddonApiExports<"guilded/components/CalloutBadgeWithText"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/component/WordDividerLine");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/component/WordDividerLine");
     }
     /**
      * Displays a line that separates content with a line and a text in the middle.
      */
     get ["guilded/components/WordDividerLine"](): AddonApiExports<"guilded/components/WordDividerLine"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/component/WordDividerLine");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/component/WordDividerLine");
     }
     /**
      * Displays a header of a page at the top of the screen.
      */
     get ["guilded/components/ScreenHeader"](): AddonApiExports<"guilded/components/ScreenHeader"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/component/ScreenHeader");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/component/ScreenHeader");
     }
     /**
      * Displays a section in channel sidebar.
      */
     get ["guilded/components/TeamNavSectionItem"](): AddonApiExports<"guilded/components/TeamNavSectionItem"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/TeamNavSectionItem");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/TeamNavSectionItem");
     }
     /**
      * Displays a section list in channel sidebar.
      */
     get ["guilded/components/TeamNavSectionsList"](): AddonApiExports<"guilded/components/TeamNavSectionsList"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/TeamNavSectionsList");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/TeamNavSectionsList");
     }
     /**
      * Displays three columns, where the middle one covers rest of the space.
      */
     get ["guilded/components/ThreeColumns"](): AddonApiExports<"guilded/components/ThreeColumns"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ThreeColumns");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/ThreeColumns");
     }
     /**
      * Draggable element names and infos.
      */
     get ["guilded/components/draggable"](): AddonApiExports<"guilded/components/draggable"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/draggable");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/draggable");
     }
     /**
      * Displays a panel whose content can be moved around by dragging.
@@ -836,34 +858,43 @@ export default class AddonApi {
      * This can be used for images or charts of some sorts, where showing a lot of details could make content too small.
      */
     get ["guilded/components/DragViewer"](): AddonApiExports<"guilded/components/DragViewer"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/DragViewer");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/DragViewer");
     }
     /**
      * Displays context menu that can be access either by right clicking or by clicking overflow menu icon.
      */
     get ["guilded/components/ActionMenu"](): AddonApiExports<"guilded/components/ActionMenu"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ActionMenu");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/ActionMenu");
     }
     /**
      * Displays context menu's section
      */
     get ["guilded/components/ActionMenuSection"](): AddonApiExports<"guilded/components/ActionMenuSection"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ActionMenuSection");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/ActionMenuSection");
     }
     /**
      * Displays context menu's action.
      */
     get ["guilded/components/ActionMenuItem"](): AddonApiExports<"guilded/components/ActionMenuItem"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ActionMenuItem");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/ActionMenuItem");
     }
     /**
      * Displays a panel more forward than the rest of the content.
      */
     get ["guilded/components/ModalV2"](): AddonApiExports<"guilded/components/ModalV2"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ModalV2");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/ModalV2");
     }
     get ["guilded/components/MarkRenderer"](): AddonApiExports<"guilded/components/MarkRenderer"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/MarkRenderer");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/MarkRenderer");
+    }
+    /**
+     * Displays a list of blogs of the specified team.
+     */
+    get ["guilded/components/BlogPage"](): AddonApiExports<"guilded/components/BlogPage"> {
+        return this.#getCachedWithAllPermissions(
+            AddonPermission.Elements | AddonPermission.ExtraInfo,
+            "guilded/components/BlogPage"
+        );
     }
     /**
      * Removes the item with the given name from the cached list to be racached later.

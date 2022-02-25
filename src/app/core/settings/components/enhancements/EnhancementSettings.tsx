@@ -6,6 +6,7 @@ import ErrorBoundary from "../ErrorBoundary";
 import { EnhancementGrid } from "./EnhancementGrid";
 
 const React = window.ReGuilded.getApiProperty("react"),
+    { default: TabEmptyState } = window.ReGuilded.getApiProperty("guilded/components/TabEmptyState"),
     { default: NullState } = window.ReGuilded.getApiProperty("guilded/components/NullState"),
     { default: HorizontalTabs } = window.ReGuilded.getApiProperty("guilded/components/HorizontalTabs"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),

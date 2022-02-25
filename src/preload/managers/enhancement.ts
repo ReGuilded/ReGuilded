@@ -291,7 +291,7 @@ async function addToMetadata<T extends AnyEnhancement>(enhancement: T, dirname: 
         enhancement.author = undefined;
     }
     await Promise.all([
-        // README.md
+        // README.md/.json
         fsPromises
             .readFile(path.join(dirname, "README.md"), "utf8")
             .then(data => (enhancement.readme = data))
@@ -303,6 +303,10 @@ async function addToMetadata<T extends AnyEnhancement>(enhancement: T, dirname: 
         enhancement.banner &&
             getSmallImageUrl(dirname, enhancement.banner)
                 .then(url => (enhancement.banner = url))
-                .catch(e => console.error("Error while fetching banner of an enhancement by ID '%s':", enhancement.id, e))
+                .catch(e => console.error("Error while fetching banner of an enhancement by ID '%s':", enhancement.id, e)),
+        enhancement.icon &&
+            getSmallImageUrl(dirname, enhancement.icon)
+                .then(url => (enhancement.icon = url))
+                .catch(e => console.error("Error while fetching icon of an enhancement by ID '%s':", enhancement.id, e))
     ]);
 }

@@ -11,10 +11,9 @@ const React = window.ReGuilded.getApiProperty("react"),
     { default: UserBasicInfoDisplay } = window.ReGuilded.getApiProperty("guilded/components/UserBasicInfoDisplay"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
     { default: StretchFadeBackground } = window.ReGuilded.getApiProperty("guilded/components/StretchFadeBackground"),
-    { UserModel } = window.ReGuilded.getApiProperty("guilded/users"),
+    { default: IconAndLabel } = window.ReGuilded.getApiProperty("guilded/components/IconAndLabel"),
     { default: restMethods } = window.ReGuilded.getApiProperty("guilded/http/rest"),
-    { default: MarkdownRenderer } = window.ReGuilded.getApiProperty("guilded/components/MarkdownRenderer"),
-    { default: { WebhookEmbed } } = window.ReGuilded.getApiProperty("guilded/editor/grammars");
+    { UserModel } = window.ReGuilded.getApiProperty("guilded/users");
 //#endregion
 
 type AdditionalProps = {
@@ -63,9 +62,7 @@ export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> 
         }
     }
     render() {
-        const { overflowMenuSpecs, props: { name, readme, version, switchTab, banner }, state: { enabled } } = this;
-
-        const readmeLength = readme?.length;
+        const { overflowMenuSpecs, props: { name, subtitle, version, repoUrl, _repoInfo, switchTab, banner }, state: { enabled } } = this;
 
         return (
             <span className={"CardWrapper-container CardWrapper-container-desktop PlayerAliasCard-container PlayerAliasCard-container-type-game UserProfileGamesTab-card ReGuildedEnhancement-container ReGuildedEnhancement-container-" + (enabled ? "enabled" : "disabled") } onClick={() => switchTab("specific", { enhancement: this.props })}>
@@ -74,6 +71,7 @@ export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> 
                     <StretchFadeBackground type="full-blur" className="PlayerBanner-container PlayerCard-banner" position="centered" src={banner || "/asset/TeamSplash/Minecraft-sm.jpg"} />
                     {/* Header */}
                     <div className="PlayerCardGameInfo-container PlayerCard-info ReGuildedEnhancement-header">
+                        {/* TODO: Icon */}
                         {/* Icon can be inputed here, if it will be ever necessary */}
                         {/* Header info */}
                         <div className="PlayerCardGameInfo-name-alias" onClick={e => e.stopPropagation()}>
@@ -99,11 +97,10 @@ export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> 
                 </div>
                 <div className="UserSocialPresence-container PlayerAliasCard-info">
                     {/* Description */}
-                    <div className="UserRichSocialLink-container">
+                    <div className="UserRichSocialLink-container ReGuildedEnhancement-footer">
                         <div className="ReGuildedEnhancement-description">
-                            { readmeLength
-                                ? <MarkdownRenderer plainText={(readmeLength > 150 ? readme.slice(0, 150) + "..." : readme)} grammar={WebhookEmbed}/>
-                                : <GuildedText type="gray" block={true}>No description provided.</GuildedText> }
+                            <GuildedText block type="gray" className="ReGuildedEnhancement-subtitle">{ subtitle || "No subtitle provided." }</GuildedText>
+                            { repoUrl && <IconAndLabel iconName="icon-github" label={_repoInfo.path} labelClassName="GuildedText-container-type-gray" /> }
                         </div>
                     </div>
                 </div>

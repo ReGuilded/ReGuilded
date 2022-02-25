@@ -17,6 +17,7 @@ import {
     LoadingAnimationMicro,
     NullState,
     SvgIcon,
+    TabEmptyState,
     WordDividerLine
 } from "../guilded/components/content";
 import { MediaRenderer, UserBasicInfoDisplay } from "../guilded/components/display";
@@ -35,7 +36,7 @@ import { ModalV2, ModalV2Props } from "../guilded/components/modals";
 import { EditorPlugin, NodeType } from "../guilded/slate";
 import { UserModel } from "../guilded/models";
 import { OverlayProvider, TypeMixin } from "../guilded/decorators";
-import { ScreenHeader } from "../guilded/components/page";
+import { BlogPage, ScreenHeader } from "../guilded/components/page";
 //#endregion
 
 //#region OverlayProvider, decorators & type mixins
@@ -218,6 +219,8 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof Button }
     : N extends "guilded/components/SvgIcon"
     ? { default: typeof SvgIcon }
+    : N extends "guilded/components/TabEmptyState"
+    ? { default: typeof TabEmptyState }
     : N extends "guilded/components/NullState"
     ? { default: typeof NullState }
     : N extends "guilded/components/HorizontalTabs"
@@ -282,6 +285,8 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof ModalV2 }
     : N extends "guilded/components/MarkRenderer"
     ? { default: typeof React.Component }
+    : N extends "guilded/components/BlogPage"
+    ? { default: typeof BlogPage }
     : N extends "guilded/components/draggable"
     ? any
     : unknown;

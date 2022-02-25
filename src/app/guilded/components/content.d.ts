@@ -160,6 +160,26 @@ export type SvgIconProps = {
 export declare class SvgIcon extends React.Component<SvgIconProps> {}
 //#endregion
 
+//#region TabEmptyState
+export declare class TabEmptyState extends React.Component<{
+    className?: string;
+    orientation?: "vertical" | "horizontal";
+
+    // Image
+    tabName?: string;
+    imageSrc?: string;
+
+    // Text
+    title: ComponentText;
+    subtitle: ComponentText;
+
+    // Buttons
+    buttons?: Array<{ content: string; props?: ButtonProps }>;
+}> {
+    get imageSrc(): string;
+}
+//#endregion
+
 //#region WordDividerLine
 export declare class WordDividerLine extends React.Component<{
     word?: ComponentText;
