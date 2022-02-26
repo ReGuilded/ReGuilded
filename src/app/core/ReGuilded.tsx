@@ -154,8 +154,7 @@ export default class ReGuilded {
     }
 
     async handleFirstLaunch() {
-        const transientMenuPortal = window.ReGuilded.getApiProperty("transientMenuPortal"),
-            RouteLink = window.ReGuilded.getApiProperty("guilded/components/RouteLink");
+        const transientMenuPortal = window.ReGuilded.getApiProperty("transientMenuPortal");
 
         const menuPortalContext = transientMenuPortal.__reactInternalMemoizedUnmaskedChildContext;
 

@@ -2,6 +2,7 @@
 import { ReactNode } from "react";
 import { Theme } from "../../../../../common/enhancements";
 import { TabOption } from "../../../../guilded/components/sections";
+import { modifyProps } from "../../decorators";
 import ErrorBoundary from "../ErrorBoundary";
 import { PagedSettingsChildProps } from "../PagedSettings";
 import EnhancementPage from "./EnhancementPage";
@@ -22,6 +23,9 @@ type Props = PagedSettingsChildProps & {
 /**
  * The page of a theme in the settings.
  */
+@modifyProps({
+    className: "ReGuildedSettingsWrapper-container ReGuildedSettingsWrapper-container-no-padding"
+})
 @savableSettings
 @defaultContextProvider
 export default class ThemePage extends React.Component<Props> {
@@ -52,6 +56,7 @@ export default class ThemePage extends React.Component<Props> {
             <ErrorBoundary>
                 <EnhancementPage
                     type="theme"
+                    iconName="icon-toolbar-images"
                     enhancement={this.props.enhancement}
                     enhancementHandler={window.ReGuilded.themes}
                     // Functions

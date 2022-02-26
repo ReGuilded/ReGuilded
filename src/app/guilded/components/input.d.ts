@@ -1,5 +1,5 @@
 import { FieldDropdownProps, OptionSpecs } from "../form";
-import { HasDisabledState, Size } from "../common";
+import { ComponentText, HasDisabledState, Size } from "../common";
 import React from "react";
 
 //#region Button
@@ -117,7 +117,7 @@ export declare class SearchBarV2 extends React.Component<{
 
 //#region SimpleToggle
 export declare class SimpleToggle extends React.Component<{
-    label: string;
+    label: ComponentText;
     onChange?: (enabled: boolean | number) => void;
     defaultValue?: boolean;
 }> {}

@@ -126,6 +126,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/components/LoadingPage": webpack => webpack.withCode("LoadingPage"),
     "guilded/components/BadgeV2": webpack => webpack.withCode("BadgeV2"),
     "guilded/components/CalloutBadgeWithText": webpack => webpack.withCode("CalloutBadgeWithText"),
+    "guilded/components/ScreenHeader": webpack => webpack.withClassProperty("hasLabels"),
     "guilded/components/WordDividerLine": webpack => webpack.withCode("WordDividerLine"),
     "guilded/components/StretchFadeBackground": webpack => webpack.withCode("StretchFadeBackground"),
     "guilded/components/TeamNavSectionItem": webpack => webpack.withCode("TeamNavSectionItem"),

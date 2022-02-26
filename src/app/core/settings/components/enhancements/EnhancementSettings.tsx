@@ -6,7 +6,7 @@ import ErrorBoundary from "../ErrorBoundary";
 import { EnhancementGrid } from "./EnhancementGrid";
 
 const React = window.ReGuilded.getApiProperty("react"),
-    { default: TabEmptyState } = window.ReGuilded.getApiProperty("guilded/components/TabEmptyState"),
+    //{ default: TabEmptyState } = window.ReGuilded.getApiProperty("guilded/components/TabEmptyState"),
     { default: NullState } = window.ReGuilded.getApiProperty("guilded/components/NullState"),
     { default: HorizontalTabs } = window.ReGuilded.getApiProperty("guilded/components/HorizontalTabs"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
@@ -31,7 +31,7 @@ export default class EnhancementSettings extends React.Component<PagedSettingsCh
 
         return (
             <ErrorBoundary>
-                <div className="OptionsMenuPageWrapper-container ReGuildedSettings-container ReGuildedSettings-container-padded">
+                <div className="ReGuildedSettings-container">
                     <GuildedText type="heading3" block={true} className="SettingsHeaderWithButton-header">{ name }</GuildedText>
                     <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: [{ name: "Installed" }, { name: "Browse" }, { name: "Import" }] }}>
                         {/* Installed */}

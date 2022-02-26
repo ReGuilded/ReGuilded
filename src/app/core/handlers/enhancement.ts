@@ -17,7 +17,8 @@ export default abstract class EnhancementHandler<
      * A Regex pattern for determining whether given enhancement's ID is correct.
      */
     static idRegex: RegExp = /^[A-Za-z0-9]+$/g;
-    static versionRegex = /^([0-9]+)(?:[.]([0-9]+))+(?:\-([Aa]lpha|[Bb]eta|[Gg]amma))?$/;
+    static versionRegex =
+        /^(0|[1-9]\d*)(?:[.](0|[1-9]\d*))+(?:\-([Aa]lpha|[Bb]eta|[Gg]amma|[Rr]c)(?:[.]([1-9]\d*))?(?:[+][A-Za-z0-9-]*(?:[.][A-Za-z0-9-])*))?$/;
     static repoRegex =
         /^((?:https:\/\/)?(?:www\.)?(?<platform>github|gitlab)\.com\/(?<path>[A-Za-z0-9-]+\/[A-Za-z0-9-.]+))\/?$/;
 

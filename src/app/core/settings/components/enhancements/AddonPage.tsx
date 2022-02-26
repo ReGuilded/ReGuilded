@@ -1,6 +1,7 @@
 //#region Imports
 import { Addon } from "../../../../../common/enhancements";
 import { FormOutput } from "../../../../guilded/form";
+import { modifyProps } from "../../decorators";
 import ErrorBoundary from "../ErrorBoundary";
 import { PagedSettingsChildProps } from "../PagedSettings";
 import EnhancementPage from "./EnhancementPage";
@@ -23,6 +24,10 @@ type Props = PagedSettingsChildProps & {
 /**
  * The page of an addon in the settings.
  */
+@modifyProps({
+    // FIXME: Doesn't modify OptionsMenuPageWrapper
+    className: "ReGuildedSettingsWrapper-container ReGuildedSettingsWrapper-container-no-padding"
+})
 @savableSettings
 @defaultContextProvider
 export default class AddonPage extends React.Component<Props> {
@@ -49,6 +54,7 @@ export default class AddonPage extends React.Component<Props> {
             <ErrorBoundary>
                 <EnhancementPage
                     type="addon"
+                    iconName="icon-toolbar-code"
                     enhancement={this.props.enhancement}
                     enhancementHandler={window.ReGuilded.addons}
                     // Functions

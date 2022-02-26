@@ -20,12 +20,19 @@
             float: right
         &s-grid
             // Enhancement height
-            grid-auto-rows: 240px
+            grid-auto-rows: 200px
+
         &-footer
             // Don't center it
             align-items: start
+        &-info-point:not(:first-child)
+            margin-top: 10px
+
         &-subtitle
-            margin-bottom: 5px
+            margin: 5px 0
+        &-text
+            word-break: break-all
+            hyphens: auto
 
         // Single enhancement
         &-container
@@ -34,21 +41,31 @@
                 transform: translateY(-2px)
 
         // Enhancement page
-        &Page-banner
-            margin-bottom: 16px
+        &Page
+            &-container
+                padding: 20px 32px
+                max-width: 100%
+            &-banner
+                margin-bottom: 16px
+            &-subtitle
+                margin-bottom: 15px
         &Images
             &-container
-                margin: 16px 0
+                margin-bottom: 15px
             &-heading
                 margin-bottom: 8px
             &-image
                 // Otherwise carousel won't work
                 position: relative
 
-                min-width: 250px
-                height: 250px
+                min-width: 100px
+                max-width: 900px
+                height: 300px
 
                 &:not(:first-child)
                     margin-left: 10px
-    &Settings-container-padded
-        padding-horizontal: 32px
+    &SettingsWrapper-container
+        &-no-padding
+            padding: 0
+        &-padded
+            padding-horizontal: 32px

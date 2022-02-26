@@ -11,9 +11,9 @@ import { BannerWithButton } from "../../../../guilded/components/content";
 import { TabOption } from "../../../../guilded/components/sections";
 
 const React = window.ReGuilded.getApiProperty("react"),
-    { default: SvgIcon } = window.ReGuilded.getApiProperty("guilded/components/SvgIcon"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
     { default: Form } = window.ReGuilded.getApiProperty("guilded/components/Form"),
+    { default: ScreenHeader } = window.ReGuilded.getApiProperty("guilded/components/ScreenHeader"),
     { default: overlayProvider } = window.ReGuilded.getApiProperty("guilded/overlays/overlayProvider"),
     { default: MarkdownRenderer } = window.ReGuilded.getApiProperty("guilded/components/MarkdownRenderer"),
     { default: { WebhookEmbed } } = window.ReGuilded.getApiProperty("guilded/editor/grammars"),
@@ -22,6 +22,7 @@ const React = window.ReGuilded.getApiProperty("react"),
 
 type Props<T extends AnyEnhancement> = {
     type: string,
+    iconName: string,
     enhancementHandler: EnhancementHandler<T, RGEnhancementConfig<T>>,
     enhancement: T,
 
@@ -143,6 +144,8 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
     render() {
         const {
             props: {
+                iconName,
+
                 switchTab,
                 enhancement,
 
@@ -157,19 +160,12 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
 
         return (
             <ErrorBoundary>
-                <div className="OptionsMenuPageWrapper-container ReGuildedEnhancementPage-wrapper" style={{ paddingLeft: 32, paddingRight: 32, maxWidth: "100%" }}>
+                <div className="ReGuildedEnhancementPage-wrapper">
+                    <ScreenHeader iconName={iconName} name={enhancement.name} isBackLinkVisible onBackClick={() => switchTab("list", { enhancement: {} })} />
+
                     <div className="ReGuildedEnhancementPage-container">
-                        {/* TODO: Overhaul */}
-                        <header className="ReGuildedEnhancementPage-header DocsDisplayV2-title">
-                            {/* <| */}
-                            <div className="BackLink-container BackLink-container-desktop BackLink-container-size-md ScreenHeader-back" onClick={() => switchTab("list", { enhancement: {} })}>
-                                <SvgIcon iconName="icon-back" className="BackLink-icon"/>
-                            </div>
-                            {/* Title */}
-                            <GuildedText type="heading3">{ enhancement.name } settings</GuildedText>
-                        </header>
                         {/* Short Description */}
-                        <GuildedText type="subheading">{ enhancement.subtitle || "No subtitle provided." }</GuildedText>
+                        <GuildedText block type="subheading" className="ReGuildedEnhancementPage-subtitle">{ enhancement.subtitle || "No subtitle provided." }</GuildedText>
                         {/* Preview images carousel */}
                         { enhancement.images && window.ReGuilded.settingsHandler.config.loadImages &&
                             <PreviewCarousel enhancementId={enhancement.id} enhancementHandler={this.props.enhancementHandler} />

@@ -62,7 +62,22 @@ export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> 
         }
     }
     render() {
-        const { overflowMenuSpecs, props: { name, subtitle, version, repoUrl, _repoInfo, switchTab, banner }, state: { enabled } } = this;
+        const {
+            overflowMenuSpecs,
+            props: {
+                name,
+                subtitle,
+                version,
+                repoUrl,
+                _repoInfo,
+                switchTab,
+                banner,
+                icon
+            },
+            state: {
+                enabled
+            }
+        } = this;
 
         return (
             <span className={"CardWrapper-container CardWrapper-container-desktop PlayerAliasCard-container PlayerAliasCard-container-type-game UserProfileGamesTab-card ReGuildedEnhancement-container ReGuildedEnhancement-container-" + (enabled ? "enabled" : "disabled") } onClick={() => switchTab("specific", { enhancement: this.props })}>
@@ -71,21 +86,19 @@ export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> 
                     <StretchFadeBackground type="full-blur" className="PlayerBanner-container PlayerCard-banner" position="centered" src={banner || "/asset/TeamSplash/Minecraft-sm.jpg"} />
                     {/* Header */}
                     <div className="PlayerCardGameInfo-container PlayerCard-info ReGuildedEnhancement-header">
-                        {/* TODO: Icon */}
-                        {/* Icon can be inputed here, if it will be ever necessary */}
+                        { icon && <img className="PlayerCardGameInfo-icon ReGuildedEnhancement-icon" src={icon} alt={`Icon of enhancement '${name}'`} /> }
                         {/* Header info */}
                         <div className="PlayerCardGameInfo-name-alias" onClick={e => e.stopPropagation()}>
                             {/* Name + Toggle */}
                             <SimpleToggle
-                                label={name}
+                                label={<span className="ReGuildedEnhancement-text">{ name }</span>}
                                 defaultValue={enabled}
                                 onChange={async (newState: boolean) => (this.hasToggled || (newState !== enabled && typeof newState !== "number")) && (this.hasToggled = true, await this.onToggle(newState))}/>
-                            <GuildedText type="subtext" block={true}>{ version ? `Version ${version}` : "Latest release" }</GuildedText>
+                            <GuildedText block className="ReGuildedEnhancement-subtitle ReGuildedEnhancement-text" type="subtext">{ subtitle || "No subtitle provided." }</GuildedText>
                             <div className="ReGuildedEnhancement-author">
-                                <br/>
                                 {this.state.author
                                     ? <UserBasicInfoDisplay size="sm" user={new UserModel(this.state.author)} />
-                                    : <GuildedText className="ReGuildedEnhancement-no-author" block={true} type="subtext">{this.props.author ? "By user " + this.props.author : "Unknown author"}</GuildedText>
+                                    : <GuildedText block className="ReGuildedEnhancement-no-author" type="subtext">{ this.props.author ? "By user " + this.props.author : "Unknown author" }</GuildedText>
                                 }
                             </div>
                         </div>
@@ -98,9 +111,9 @@ export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> 
                 <div className="UserSocialPresence-container PlayerAliasCard-info">
                     {/* Description */}
                     <div className="UserRichSocialLink-container ReGuildedEnhancement-footer">
-                        <div className="ReGuildedEnhancement-description">
-                            <GuildedText block type="gray" className="ReGuildedEnhancement-subtitle">{ subtitle || "No subtitle provided." }</GuildedText>
-                            { repoUrl && <IconAndLabel iconName="icon-github" label={_repoInfo.path} labelClassName="GuildedText-container-type-gray" /> }
+                        <div className="ReGuildedEnhancement-info">
+                            <IconAndLabel className="ReGuildedEnhancement-info-point" iconName="icon-star" label={version ? `Version ${version}` : "Latest release"} labelClassName="GuildedText-container-type-gray"/>
+                            { repoUrl && <IconAndLabel className="ReGuildedEnhancement-info-point" iconName="icon-github" label={_repoInfo.path} labelClassName="GuildedText-container-type-gray" /> }
                         </div>
                     </div>
                 </div>

@@ -7,6 +7,7 @@ export declare class MediaRenderer extends React.Component<{
     className?: string;
     progressiveImageSrc?: string;
     src: string;
+    cover: boolean;
     onClick?: () => void;
     onError?: Function;
 }> {
