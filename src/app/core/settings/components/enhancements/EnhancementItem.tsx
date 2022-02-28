@@ -2,6 +2,8 @@
 import { AnyEnhancement } from "../../../../../common/enhancements";
 import { MenuSpecs } from "../../../../guilded/menu";
 import { UserInfo } from "../../../../guilded/models";
+import { RGEnhancementConfig } from "../../../../types/reguilded";
+import EnhancementHandler, { AnyEnhancementHandler } from "../../../handlers/enhancement";
 import ErrorBoundary from "../ErrorBoundary";
 import { SwitchTab } from "../PagedSettings";
 
@@ -16,48 +18,49 @@ const React = window.ReGuilded.getApiProperty("react"),
     { UserModel } = window.ReGuilded.getApiProperty("guilded/users");
 //#endregion
 
-type AdditionalProps = {
-    type: string,
+type Props<T extends AnyEnhancement> = {
+    enhancement: T,
+    enhancementHandler: EnhancementHandler<T, RGEnhancementConfig<T>>,
     switchTab: SwitchTab
 };
 type State = {
     enabled: boolean,
-    dirname: string,
     author?: UserInfo
 };
 
-export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> extends React.Component<P & AdditionalProps, State & S> {
+export default abstract class EnhancementItem<E extends AnyEnhancement, P = {}> extends React.Component<Props<E> & P, State> {
     protected overflowMenuSpecs: MenuSpecs;
-    private hasToggled: boolean;
+    private hasToggled: boolean = false;
+    private _onToggleBinded: (enabled: boolean) => Promise<void>;
 
-    constructor(props: P & AdditionalProps, context?: any) {
+    constructor(props: Props<E> & P, context?: any) {
         super(props, context);
 
-        // Can't put it into props because of JavaScript schenanigans
-        this.overflowMenuSpecs = {
-            id: "EnhancementMenu",
-            sections: [
-                {
-                    name: "Enhancement",
-                    header: "Enhancement",
-                    type: "rows",
-                    actions: [
-                        {
-                            label: "Open directory",
-                            icon: "icon-team-stream-popout",
-                            onClick: () => window.ReGuildedConfig.openItem(this.state?.dirname)
-                        }
-                    ]
-                }
-            ]
+        const { enhancementHandler } = this.props;
+
+        const enabled = enhancementHandler.enabled.includes(this.props.enhancement.id);
+
+        this.state = {
+            enabled
         };
-        this.hasToggled = false;
+
+        this._onToggleBinded = handleToggle.bind(this, enabled, this._onToggle.bind(this, enhancementHandler));
+        this.overflowMenuSpecs = generateOverflowMenu(this.props.enhancement, enhancementHandler);
     }
-    protected abstract onToggle(enabled: boolean): Promise<void>;
+    /**
+     * Changes the state of the enhancement to either enabled or disabled.
+     * @param enabled The new state of the enhancement
+     */
+    private async _onToggle(enhancementHandler: EnhancementHandler<E, RGEnhancementConfig<E>>, enabled: boolean) {
+        await enhancementHandler[enabled ? "savedLoad" : "savedUnload"](this.props.enhancement)
+            .then(() => this.setState({ enabled }));
+    }
     async componentWillMount() {
-        if (this.props.author && window.ReGuilded.settingsHandler.config.loadAuthors) {
-            await restMethods.getUserById(this.props.author)
-                .then(userInfo => this.setState({author: userInfo.user}))
+        const { author } = this.props.enhancement;
+
+        if (author && window.ReGuilded.settingsHandler.config.loadAuthors) {
+            await restMethods.getUserById(author)
+                .then(userInfo => this.setState({ author: userInfo.user }))
                 .catch(() => {});
         }
     }
@@ -65,22 +68,25 @@ export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> 
         const {
             overflowMenuSpecs,
             props: {
-                name,
-                subtitle,
-                version,
-                repoUrl,
-                _repoInfo,
-                switchTab,
-                banner,
-                icon
+                enhancement: {
+                    name,
+                    subtitle,
+                    version,
+                    repoUrl,
+                    _repoInfo,
+                    banner,
+                    icon
+                },
+                switchTab
             },
             state: {
                 enabled
-            }
+            },
+            _onToggleBinded
         } = this;
 
         return (
-            <span className={"CardWrapper-container CardWrapper-container-desktop PlayerAliasCard-container PlayerAliasCard-container-type-game UserProfileGamesTab-card ReGuildedEnhancement-container ReGuildedEnhancement-container-" + (enabled ? "enabled" : "disabled") } onClick={() => switchTab("specific", { enhancement: this.props })}>
+            <span className={"CardWrapper-container CardWrapper-container-desktop PlayerAliasCard-container PlayerAliasCard-container-type-game UserProfileGamesTab-card ReGuildedEnhancement-container ReGuildedEnhancement-container-" + (enabled ? "enabled" : "disabled") } onClick={() => switchTab("specific", { enhancement: this.props.enhancement, className: "ReGuildedSettingsWrapper-container ReGuildedSettingsWrapper-container-no-padding ReGuildedSettingsWrapper-container-cover" })}>
                 <div className="PlayerCard-container PlayerCard-container-desktop PlayerAliasCard-card">
                     {/* Banner */}
                     <StretchFadeBackground type="full-blur" className="PlayerBanner-container PlayerCard-banner" position="centered" src={banner || "/asset/TeamSplash/Minecraft-sm.jpg"} />
@@ -93,12 +99,12 @@ export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> 
                             <SimpleToggle
                                 label={<span className="ReGuildedEnhancement-text">{ name }</span>}
                                 defaultValue={enabled}
-                                onChange={async (newState: boolean) => (this.hasToggled || (newState !== enabled && typeof newState !== "number")) && (this.hasToggled = true, await this.onToggle(newState))}/>
+                                onChange={_onToggleBinded}/>
                             <GuildedText block className="ReGuildedEnhancement-subtitle ReGuildedEnhancement-text" type="subtext">{ subtitle || "No subtitle provided." }</GuildedText>
                             <div className="ReGuildedEnhancement-author">
                                 {this.state.author
                                     ? <UserBasicInfoDisplay size="sm" user={new UserModel(this.state.author)} />
-                                    : <GuildedText block className="ReGuildedEnhancement-no-author" type="subtext">{ this.props.author ? "By user " + this.props.author : "Unknown author" }</GuildedText>
+                                    : <GuildedText block className="ReGuildedEnhancement-no-author" type="subtext">{ this.props.enhancement.author ? "By user " + this.props.enhancement.author : "Unknown author" }</GuildedText>
                                 }
                             </div>
                         </div>
@@ -119,5 +125,51 @@ export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> 
                 </div>
             </span>
         );
+    }
+}
+/**
+ * Generates overflow menu specifications for the specified enhancement.
+ * @param enhancement The enhancement to generate overflow menu for
+ * @param enhancementHandler The enhancement's handler
+ * @returns Overflow menu specifications
+ */
+export function generateOverflowMenu(enhancement: AnyEnhancement, enhancementHandler: AnyEnhancementHandler): MenuSpecs {
+    return {
+        id: "EnhancementMenu",
+        sections: [
+            {
+                name: "Files",
+                header: "Files",
+                type: "rows",
+                actions: [
+                    {
+                        label: "Open directory",
+                        icon: "icon-team-stream-popout",
+                        onClick: () => window.ReGuildedConfig.openItem(this.state?.dirname)
+                    },
+                    {
+                        label: "Delete enhancement",
+                        icon: "icon-trash",
+                        destructive: true,
+                        onClick: () => enhancementHandler.delete(enhancement)
+                    }
+                ]
+            }
+        ]
+    };
+}
+/**
+ * Abstracts away junk from toggling, such as `-1` or `0` that are given even when the toggle wasn't clicked upon.
+ *
+ * This won't be used once Guilded fixes toggling.
+ * @param this The parent class
+ * @param oldState The default state it was rendered with
+ * @param onToggle The callback to use for toggling
+ * @param newState The newer state received from toggling
+ */
+export async function handleToggle<T extends { hasToggled: boolean }>(this: T, oldState: boolean, onToggle: (enabled: boolean) => Promise<void>, newState: boolean) {
+    if (this.hasToggled || (newState !== oldState && typeof newState === "boolean")) {
+        this.hasToggled = true;
+        await onToggle(newState);
     }
 }

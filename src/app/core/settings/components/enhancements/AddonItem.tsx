@@ -2,34 +2,33 @@ import { ProvidedOverlay } from "../../../../guilded/decorators";
 import { Addon } from "../../../../../common/enhancements";
 import EnhancementItem from "./EnhancementItem";
 
-export default class AddonItem extends EnhancementItem<Addon, { fp: string }> {
+export default class AddonItem extends EnhancementItem<Addon> {
     SimpleFormOverlay: ProvidedOverlay<"SimpleFormOverlay">;
 
     constructor(props, context) {
         super(props, context);
 
         this.state = {
-            dirname: props.dirname,
-            fp: props.dirname,
             enabled: window.ReGuilded.addons.enabled.includes(props.id)
         };
 
         const { switchTab } = this.props;
 
-        this.overflowMenuSpecs.sections.push({
+        this.overflowMenuSpecs.sections.unshift({
             name: "Addon",
+            header: "Addon",
             type: "rows",
             actions: [
                 {
                     label: "Permissions",
                     icon: "icon-filter",
-                    onClick: () => switchTab("specific", { enhancement: this.props, defaultTabIndex: 1 }),
+                    onClick: () => switchTab("specific", {
+                        enhancement: this.props.enhancement,
+                        defaultTabIndex: 1,
+                        className: "ReGuildedSettingsWrapper-container ReGuildedSettingsWrapper-container-no-padding ReGuildedSettingsWrapper-container-cover"
+                    })
                 }
             ]
         });
-    }
-    protected override async onToggle(enabled: boolean): Promise<void> {
-        await window.ReGuilded.addons[enabled ? "savedLoad" : "savedUnload"](this.props)
-            .then(() => this.setState({ enabled }));
     }
 }

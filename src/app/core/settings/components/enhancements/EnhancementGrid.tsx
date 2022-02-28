@@ -103,7 +103,7 @@ export class EnhancementGrid<T extends AnyEnhancement, C extends RGEnhancementCo
         return (
             items.length
             ? <div className="ReGuildedEnhancements-grid UserProfileGamesTab-grid">
-                { sorted.map(enhancement => <ItemTemplate {...enhancement} switchTab={switchTab} />) }
+                { sorted.map(enhancement => <ItemTemplate enhancement={enhancement} switchTab={switchTab} enhancementHandler={this.props.enhancementHandler} />) }
               </div>
             : <NullState type={nullStateType} title={nullStateTitle} subtitle={nullStateSubtitle} alignment="center" />
         );

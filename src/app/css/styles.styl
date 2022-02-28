@@ -54,18 +54,20 @@
                 margin-bottom: 15px
             &-heading
                 margin-bottom: 8px
-            &-image
+            &-media
                 // Otherwise carousel won't work
                 position: relative
 
-                min-width: 100px
+                min-width: 400px
                 max-width: 900px
-                height: 300px
 
                 &:not(:first-child)
                     margin-left: 10px
-    &SettingsWrapper-container
-        &-no-padding
-            padding: 0
-        &-padded
+    &Settings
+        &-container
             padding-horizontal: 32px
+        &Wrapper-container
+            &-no-padding
+                padding: 0
+            &-cover
+                width: 100%

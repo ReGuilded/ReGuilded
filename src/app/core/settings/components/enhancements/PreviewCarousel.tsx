@@ -32,9 +32,9 @@ export default class PreviewCarousel<T extends AnyEnhancement> extends React.Com
             <div className="ReGuildedEnhancementImages-container">
                 <GuildedText className="ReGuildedEnhancementImages-heading" type="heading2" block={true}>Preview</GuildedText>
                 { images
-                    ? <CarouselList scrollOnChildrenChange={true} arrowSize="md" className="ReGuildedEnhancementImages-list" minHeight={250}>
-                        { images.map(image => <div className="ReGuildedEnhancementImages-image">
-                            <MediaRenderer src={image} cover className="MediaRenderer-content"/>
+                    ? <CarouselList scrollOnChildrenChange={true} arrowSize="md" className="ReGuildedEnhancementImages-list" minHeight={100}>
+                        { images.map(image => <div className="ReGuildedEnhancementImages-media">
+                            <MediaRenderer src={image} cover className="MediaRenderer-content ReGuildedEnhancementImages-image"/>
                         </div>) }
                     </CarouselList>
                     : <LoadingPage />

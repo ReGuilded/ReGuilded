@@ -36,6 +36,7 @@ export declare interface MenuActionSpecs {
      * @example "This action does things"
      */
     bodyText?: string;
+    className?: string;
 
     onClick: () => void;
     /**

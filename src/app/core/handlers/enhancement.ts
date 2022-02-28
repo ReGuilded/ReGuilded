@@ -5,6 +5,8 @@ import ReGuilded from "../ReGuilded";
 import { AbstractEventTarget } from "./eventTarget";
 import ConfigHandler from "./config";
 
+export type AnyEnhancementHandler = EnhancementHandler<AnyEnhancement, RGEnhancementConfig<AnyEnhancement>>;
+
 /**
  * Manages different components of ReGuilded to allow them to be extended.
  */

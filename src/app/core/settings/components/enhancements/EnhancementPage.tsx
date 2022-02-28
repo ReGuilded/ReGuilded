@@ -9,14 +9,18 @@ import { ReactElement, ReactNode } from "react";
 import { FormOutput } from "../../../../guilded/form";
 import { BannerWithButton } from "../../../../guilded/components/content";
 import { TabOption } from "../../../../guilded/components/sections";
+import { MenuSpecs } from "../../../../guilded/menu";
+import { generateOverflowMenu, handleToggle } from "./EnhancementItem";
 
 const React = window.ReGuilded.getApiProperty("react"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
     { default: Form } = window.ReGuilded.getApiProperty("guilded/components/Form"),
+    { default: SimpleToggle } = window.ReGuilded.getApiProperty("guilded/components/SimpleToggle"),
     { default: ScreenHeader } = window.ReGuilded.getApiProperty("guilded/components/ScreenHeader"),
     { default: overlayProvider } = window.ReGuilded.getApiProperty("guilded/overlays/overlayProvider"),
     { default: MarkdownRenderer } = window.ReGuilded.getApiProperty("guilded/components/MarkdownRenderer"),
     { default: { WebhookEmbed } } = window.ReGuilded.getApiProperty("guilded/editor/grammars"),
+    { default: OverflowButton } = window.ReGuilded.getApiProperty("guilded/components/OverflowButton"),
     { default: HorizontalTabs } = window.ReGuilded.getApiProperty("guilded/components/HorizontalTabs");
 //#endregion
 
@@ -34,31 +38,36 @@ type Props<T extends AnyEnhancement> = {
     // Tabs
     defaultTabIndex?: number,
     children?: ReactNode | ReactNode[],
-    overviewBanner?: ReactNode
+    pageInfoBanner?: ReactNode
 };
 
 /**
  * The page of an enhancement in the settings. Appears when clicking on an enhancement in its settings.
  */
 @overlayProvider(["DeleteConfirmationOverlay"])
-export default abstract class EnhancementPage<T extends AnyEnhancement> extends React.Component<Props<T>, { enabled: boolean | number, overviewBannerProps?: BannerWithButton }> {
+export default abstract class EnhancementPage<T extends AnyEnhancement> extends React.Component<Props<T>, { enabled: boolean, overviewBannerProps?: BannerWithButton }> {
     // Class functions with proper `this` to not rebind every time
-    private _onToggleBinded: () => Promise<void>;
+    private _onToggleBinded: (enabled: boolean) => Promise<void>;
     private _onDeleteBinded: () => Promise<void>;
     private _openDirectory: () => Promise<void>;
+    protected overflowMenuSpecs: MenuSpecs;
 
     // From decorators
     protected DeleteConfirmationOverlay: ProvidedOverlay<"DeleteConfirmationOverlay">;
 
-    private static defaultTabs: TabOption[] = [ { name: "Description" } ];
+    private hasToggled: boolean = false;
+
+    private static defaultTabs: TabOption[] = [ { name: "Overview" } ];
 
     constructor(props: Props<T>, context?: any) {
         super(props, context);
 
+        const enabled = this.props.enhancementHandler.enabled.includes(this.props.enhancement.id);
+
         this.state = {
-            enabled: ~window.ReGuilded.themes.enabled.indexOf(this.props.enhancement.id)
+            enabled
         };
-        this._onToggleBinded = this._onToggle.bind(this);
+        this._onToggleBinded = handleToggle.bind(this, enabled, this._onToggle.bind(this));
         this._onDeleteBinded = this._onDelete.bind(this);
         this._openDirectory = window.ReGuildedConfig.openItem.bind(null, this.props.enhancement.dirname);
     }
@@ -71,12 +80,12 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
             .then(() => this.setState({ enabled: !this.state.enabled }));
     }
     /**
-     * Confirms whether the enhancement should be deleted and deletes it if the modal is confirmed.
+     * Confirms whether to delete the enhancement and deletes it.
      */
     private async _onDelete(): Promise<void> {
         await this.DeleteConfirmationOverlay.Open({ name: this.props.type })
             .then(async ({ confirmed }) => confirmed && await this.props.enhancementHandler.delete(this.props.enhancement))
-            // To not stay in the screen and break something
+            // There is no reason to keep someone at the enhancement page when the enhancement is deleted
             .then(() => this.props.switchTab("list", { enhancement: {} }));
     }
     /**
@@ -90,8 +99,7 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
      * @returns Form element
      */
     private renderActionForm(): ReactElement {
-        const [toggleButtonType, toggleButtonText] = this.state.enabled ? ["delete", "Disable"] : ["success", "Enable"],
-              { _onToggleBinded, _onDeleteBinded, _openDirectory } = this;
+        const { _onDeleteBinded, _openDirectory } = this;
 
         return (
             <Form formSpecs={{
@@ -100,17 +108,6 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
                     {
                         header: "Actions",
                         fieldSpecs: [
-                            {
-                                type: "Button",
-                                fieldName: "stateChange",
-                                buttonText: toggleButtonText,
-
-                                buttonType: toggleButtonType,
-                                grow: 0,
-                                rowCollapseId: "button-list",
-
-                                onClick: _onToggleBinded
-                            },
                             {
                                 type: "Button",
                                 fieldName: "directory",
@@ -149,31 +146,41 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
                 switchTab,
                 enhancement,
 
-                overviewBanner,
+                pageInfoBanner,
 
                 // Tabs
                 children,
                 defaultTabIndex,
                 tabOptions
-            }
+            },
+            state: {
+                enabled
+            },
+            _onToggleBinded
         } = this;
 
         return (
             <ErrorBoundary>
                 <div className="ReGuildedEnhancementPage-wrapper">
-                    <ScreenHeader iconName={iconName} name={enhancement.name} isBackLinkVisible onBackClick={() => switchTab("list", { enhancement: {} })} />
+                    <ScreenHeader className="ReGuildedEnhancementPage-screen-header"
+                        iconName={iconName}
+                        isBackLinkVisible
+                        onBackClick={() => switchTab("list", { enhancement: {} })}
+                        name={
+                            <SimpleToggle label={enhancement.name} defaultValue={enabled} onChange={_onToggleBinded} />
+                        }/>
 
                     <div className="ReGuildedEnhancementPage-container">
                         {/* Short Description */}
                         <GuildedText block type="subheading" className="ReGuildedEnhancementPage-subtitle">{ enhancement.subtitle || "No subtitle provided." }</GuildedText>
-                        {/* Preview images carousel */}
-                        { enhancement.images && window.ReGuilded.settingsHandler.config.loadImages &&
-                            <PreviewCarousel enhancementId={enhancement.id} enhancementHandler={this.props.enhancementHandler} />
-                        }
+                        { pageInfoBanner }
                         <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: EnhancementPage.defaultTabs.concat(tabOptions) }} defaultSelectedTabIndex={defaultTabIndex}>
                             <div className="ReGuildedEnhancementPage-tab">
                                 <ErrorBoundary>
-                                    { overviewBanner }
+                                    {/* Preview images carousel */}
+                                    { enhancement.images && window.ReGuilded.settingsHandler.config.loadImages &&
+                                        <PreviewCarousel enhancementId={enhancement.id} enhancementHandler={this.props.enhancementHandler} />
+                                    }
                                     {/* Long description */}
                                     { enhancement.readme
                                         ? <MarkdownRenderer plainText={enhancement.readme} grammar={WebhookEmbed} />

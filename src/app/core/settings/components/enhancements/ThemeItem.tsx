@@ -7,33 +7,31 @@ export default class ThemeItem extends EnhancementItem<Theme, { settings: object
     constructor(props, context) {
         super(props, context);
 
-        const { id, settings, settingsProps, dirname } = props;
-
-        this.state = {
-            dirname,
-            settings,
-            settingsProps,
-            enabled: window.ReGuilded.themes.enabled.includes(id)
-        };
+        const { enhancement: { settings } } = this.props;
 
         const { switchTab } = this.props;
 
         // Add "Settings" button if settings are present
         if (settings)
-            this.overflowMenuSpecs.sections.push({
+            this.overflowMenuSpecs.sections.unshift({
                 name: "Theme",
+                header: "Theme",
                 type: "rows",
                 actions: [
                     {
                         label: "Settings",
                         icon: "icon-settings",
-                        onClick: () => switchTab("specific", { enhancement: this.props, defaultTabIndex: 1 })
+                        onClick: () => switchTab("specific", {
+                            enhancement: this.props.enhancement,
+                            defaultTabIndex: 1,
+                            className: "ReGuildedSettingsWrapper-container ReGuildedSettingsWrapper-container-no-padding ReGuildedSettingsWrapper-container-cover"
+                        })
                     }
                 ]
             });
     }
     get formSpecs() {
-        const { settings, settingsProps } = this.state;
+        const { settings, settingsProps } = this.props.enhancement;
 
         return {
             sections: [
@@ -42,10 +40,6 @@ export default class ThemeItem extends EnhancementItem<Theme, { settings: object
                 }
             ]
         }
-    }
-    protected override async onToggle(enabled: boolean): Promise<void> {
-        await window.ReGuilded.themes[enabled ? "savedLoad" : "savedUnload"](this.props)
-            .then(() => this.setState({ enabled }));
     }
     static generateSettingsFields(settings: object, settingsProps: string[]): FieldAnySpecs[] {
         return settingsProps.map(id => {

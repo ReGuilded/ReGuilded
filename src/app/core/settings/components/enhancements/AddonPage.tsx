@@ -1,7 +1,6 @@
 //#region Imports
 import { Addon } from "../../../../../common/enhancements";
 import { FormOutput } from "../../../../guilded/form";
-import { modifyProps } from "../../decorators";
 import ErrorBoundary from "../ErrorBoundary";
 import { PagedSettingsChildProps } from "../PagedSettings";
 import EnhancementPage from "./EnhancementPage";
@@ -18,16 +17,13 @@ const React = window.ReGuilded.getApiProperty("react"),
 
 type Props = PagedSettingsChildProps & {
     enhancement: Addon,
+    className?: string,
     defaultTabIndex?: number
 };
 
 /**
  * The page of an addon in the settings.
  */
-@modifyProps({
-    // FIXME: Doesn't modify OptionsMenuPageWrapper
-    className: "ReGuildedSettingsWrapper-container ReGuildedSettingsWrapper-container-no-padding"
-})
 @savableSettings
 @defaultContextProvider
 export default class AddonPage extends React.Component<Props> {
@@ -63,7 +59,7 @@ export default class AddonPage extends React.Component<Props> {
                     // Tabs
                     tabOptions={[ { name: "Permissions" } ]}
                     defaultTabIndex={this.props.defaultTabIndex}
-                    overviewBanner={this.renderErrorBannerIfNeeded()}>
+                    pageInfoBanner={this.renderErrorBannerIfNeeded()}>
 
                     { this.renderTabs() }
                 </EnhancementPage>
