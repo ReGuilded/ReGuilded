@@ -1,6 +1,7 @@
 ﻿import { ProvidedOverlay } from "../../../guilded/decorators";
 import reGuildedInfo from "../../../../common/reguilded.json";
 import ErrorBoundary from "./ErrorBoundary";
+import { InlineCode } from "../util";
 
 
 const React = window.ReGuilded.getApiProperty("react"),
@@ -100,18 +101,30 @@ export default class GeneralSettings extends React.Component {
         return (
             <ErrorBoundary>
                 <div className="ReGuildedSettings-container">
-                    {/* FIXME: 4 fail points: Form, WordDividerLine, GuildedText and IconAndLabel. One of them may be changed and this might fail, forcing the user to reinject */}
+                    {/*
+                      * FIXME: 4 fail points: Form, WordDividerLine, GuildedText and IconAndLabel. One of them may be changed and this might fail, forcing the user to reinject
+                      * TODO: R-CTRL + R-SHIFT + R + U adds non-Guilded styled update prompt with custom keybinds allowed
+                      */}
                     <GuildedText block type="heading3" className="SettingsHeaderWithButton-header ReGuildedSettings-header">ReGuilded General Settings</GuildedText>
                     <div className="ReGuildedSettings-section ReGuildedSettings-info">
                         {/* TODO: Injection of ReGuilded icon */}
-                        <IconAndLabel className="ReGuildedSettings-info-item" iconName="icon-reguilded" label={`ReGuilded version: ${window.ReGuilded.version}`} />
-                        <IconAndLabel className="ReGuildedSettings-info-item" iconName="brand-wordmark" label={`Guilded version: ${window.GuildedNative?.appVersion}`} />
-                        <IconAndLabel className="ReGuildedSettings-info-item" iconName="icon-star" label={`Electron version: ${window.GuildedNative?.electronVersion}`} />
+                        <IconAndLabel className="ReGuildedSettings-info-item" iconName="icon-star" label={[
+                            "ReGuilded version: ",
+                            <InlineCode>{ window.ReGuilded.version }</InlineCode>
+                        ]} />
+                        <IconAndLabel className="ReGuildedSettings-info-item" iconName="brand-logomark" label={[
+                            "Guilded version: ",
+                            <InlineCode>{ window.GuildedNative?.appVersion }</InlineCode>
+                        ]} />
+                        <IconAndLabel className="ReGuildedSettings-info-item" iconName="icon-desktop" label={[
+                            "Electron version: ",
+                            <InlineCode>{ window.GuildedNative?.electronVersion }</InlineCode>
+                        ]} />
                     </div>
                     <WordDividerLine word="Settings" className="ReGuildedSettings-divider" />
                     <div className="ReGuildedSettings-section">
                         <Form onChange={this._handleOptionsChange} formSpecs={{
-                            sectionStyle: "border",
+                            sectionStyle: "no-border-unpadded",
                             sections: [
                                 {
                                     rowMarginSize: "lg",
@@ -165,16 +178,6 @@ export default class GeneralSettings extends React.Component {
                                     ]
                                 },
                                 {
-                                    fieldSpecs: [
-                                        {
-                                            type: "Button",
-                                            buttonText: "Check for updates",
-                                            description: `Currently installed version: ${reGuildedInfo.version}`,
-                                            onClick: this.Update
-                                        }
-                                    ]
-                                },
-                                {
                                     header: "Advanced",
                                     isCollapsible: true,
                                     rowMarginSize: "md",
@@ -223,7 +226,16 @@ export default class GeneralSettings extends React.Component {
                                             defaultValue: config.debugMode
                                         }
                                     ]
-                                }
+                                },
+                                {
+                                    fieldSpecs: [
+                                        {
+                                            type: "Button",
+                                            buttonText: "Check for updates",
+                                            onClick: this.Update
+                                        }
+                                    ]
+                                },
                             ]
                         }}/>
                     </div>
