@@ -208,6 +208,7 @@ export declare class TabEmptyState extends React.Component<{
 
 //#region WordDividerLine
 export declare class WordDividerLine extends React.Component<{
+    className?: string;
     word?: ComponentText;
     wordStyle?: "normal" | "semibold" | "bold" | "chat" | "alert";
     onGetRef?: Function;

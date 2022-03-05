@@ -32,7 +32,7 @@ export default class EnhancementSettings extends React.Component<PagedSettingsCh
         return (
             <ErrorBoundary>
                 <div className="ReGuildedSettings-container">
-                    <GuildedText type="heading3" block={true} className="SettingsHeaderWithButton-header">{ name }</GuildedText>
+                    <GuildedText block type="heading3" className="SettingsHeaderWithButton-header ReGuildedSettings-header">{ name }</GuildedText>
                     <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: [{ name: "Installed" }, { name: "Browse" }, { name: "Import" }] }}>
                         {/* Installed */}
                         <ErrorBoundary>
