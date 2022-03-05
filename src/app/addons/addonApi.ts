@@ -1,5 +1,5 @@
 import { getReactInstance, patchElementRenderer, waitForElement } from "./lib";
-import AddonHandler, { AddonPermission } from "../core/handlers/addon";
+import AddonHandler from "../core/handlers/addon";
 import { AddonApiExports } from "./addonApi.types";
 import { MenuSectionSpecs } from "../guilded/menu";
 import { EditorPlugin } from "../guilded/slate";
@@ -9,6 +9,8 @@ import React from "react";
 import { AnyComponent } from "../guilded/common";
 import { CalloutBadgeProps } from "../guilded/components/content";
 import { SettingsTab } from "../guilded/components/modals";
+import { Addon } from "../../common/enhancements";
+import { AddonPermission } from "./addonPermission";
 
 // Provides API for addons to interact with Guilded.
 // TODO: Better documentation and probably TS declaration files.
@@ -119,6 +121,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/components/BannerWithButton": webpack => webpack.withClassProperty("hasText"),
     "guilded/components/IconAndLabel": webpack => webpack.withCode("IconAndLabel"),
     "guilded/components/UserBasicInfoDisplay": webpack => webpack.withClassProperty("userPresenceContext"),
+    "guilded/components/CheckboxV2": webpack => webpack.withClassProperty("isChecked"),
     "guilded/components/CheckmarkIcon": webpack => webpack.withCode("CheckmarkIcon"),
     "guilded/components/ProfilePicture": webpack => webpack.withClassProperty("borderType"),
     "guilded/components/CarouselList": webpack => webpack.withClassProperty("overflowRight"),
@@ -155,11 +158,15 @@ export default class AddonApi {
     static reguildedPatchUtil = {
         patchElementRenderer
     };
+    /**
+     * The registries for user, server, channel, etc. settings, menu items and anything else for modification.
+     */
     static registries = createRegistry();
 
     // Don't allow addons to fetch this with `require("webpackManager")`
     #webpackManager: WebpackManager;
     #addonManager: AddonHandler;
+    #addon: Addon;
     #addonId: string;
     /**
      * The identifier or index of the last item.
@@ -170,13 +177,16 @@ export default class AddonApi {
 
     #reguildedSlateUtil: {};
     #reguildedModalUtil: {};
+    #reguildedAddonInfo: {};
     #addonBadgeProps: CalloutBadgeProps;
 
     // If addon needs it
-    constructor(webpackManager: WebpackManager, addonManager: AddonHandler, addonId: string) {
+    constructor(webpackManager: WebpackManager, addonManager: AddonHandler, addon: Addon) {
         this.#webpackManager = webpackManager;
         this.#addonManager = addonManager;
-        this.#addonId = addonId;
+
+        this.#addonId = addon.id;
+        this.#addon = addon;
         this.#addonBadgeProps = {
             text: "Addon",
             hoverText: `By ID '${this.#addonId}'`,
@@ -265,7 +275,10 @@ export default class AddonApi {
      */
     #getCachedWithPermission(permissions: AddonPermission, name: string) {
         if (this.#hasPermission(permissions)) return this.#getCached(name);
-        else throw new ReferenceError(`Insufficient permissions for the addon by ID '${this.#addonId}'`);
+        else {
+            this.#addon._missingPerms = permissions;
+            throw new ReferenceError(`Insufficient permissions for the addon by ID '${this.#addonId}'`);
+        }
     }
     /**
      * Caches the value if it's not already cached and returns it. Requires specified permissions.
@@ -275,7 +288,10 @@ export default class AddonApi {
      */
     #getCachedWithAllPermissions(permissions: AddonPermission, name: string) {
         if (this.#hasAllPermissions(permissions)) return this.#getCached(name);
-        else throw new ReferenceError(`Insufficient permissions for the addon by ID '${this.#addonId}'`);
+        else {
+            this.#addon._missingPerms = permissions;
+            throw new ReferenceError(`Insufficient permissions for the addon by ID '${this.#addonId}'`);
+        }
     }
     /**
      * Gets whether there is the specified permission.
@@ -287,6 +303,18 @@ export default class AddonApi {
     }
     #hasAllPermissions(permissions: AddonPermission) {
         return this.#addonManager.hasAllPermissions(this.#addonId, permissions);
+    }
+
+    // Addon information
+    /**
+     * Returns the information about the addon.
+     */
+    get ["reguilded/me"]() {
+        return {
+            version: this.#addon.version,
+            dirname: this.#addon.dirname,
+            receivedPermissions: this.#addonManager.getPermissionsOf(this.#addonId)
+        };
     }
 
     // ReGuilded
@@ -774,6 +802,18 @@ export default class AddonApi {
             AddonPermission.Elements | AddonPermission.ExtraInfo,
             "guilded/components/UserBasicInfoDisplay"
         );
+    }
+    /**
+     * Displays a checkbox field with a label and a description.
+     */
+    get ["guilded/components/CheckboxV2"](): AddonApiExports<"guilded/components/CheckboxV2"> {
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/CheckboxV2");
+    }
+    /**
+     * Displays a simple checkmark with some styling.
+     */
+    get ["guilded/components/CheckmarkIcon"](): AddonApiExports<"guilded/components/CheckmarkIcon"> {
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/CheckmarkIcon");
     }
     /**
      * Displays the profile picture of a user.

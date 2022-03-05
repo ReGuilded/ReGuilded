@@ -1,9 +1,13 @@
-import { ProvidedOverlay } from "../../../../guilded/decorators";
+import { EnhancementGridItemProps } from "./EnhancementGrid";
 import { Addon } from "../../../../../common/enhancements";
 import EnhancementItem from "./EnhancementItem";
+import { MenuSectionSpecs } from "../../../../guilded/menu";
 
-export default class AddonItem extends EnhancementItem<Addon> {
-    SimpleFormOverlay: ProvidedOverlay<"SimpleFormOverlay">;
+const React = window.ReGuilded.getApiProperty("react"),
+    { default: IconAndLabel } = window.ReGuilded.getApiProperty("guilded/components/IconAndLabel");
+
+export default class AddonItem extends React.Component<EnhancementGridItemProps<Addon>> {
+    private _overflowMainSection: MenuSectionSpecs;
 
     constructor(props, context) {
         super(props, context);
@@ -14,7 +18,7 @@ export default class AddonItem extends EnhancementItem<Addon> {
 
         const { switchTab } = this.props;
 
-        this.overflowMenuSpecs.sections.unshift({
+        this._overflowMainSection = {
             name: "Addon",
             header: "Addon",
             type: "rows",
@@ -29,6 +33,16 @@ export default class AddonItem extends EnhancementItem<Addon> {
                     })
                 }
             ]
-        });
+        };
+    }
+    render() {
+        const { props, props: { enhancement: { _error } } } = this;
+
+        return (
+            <EnhancementItem {...props} overflowMenuSection={this._overflowMainSection}>
+                {/* Additional info in the footer */}
+                { typeof _error !== "undefined" && <IconAndLabel className="ReGuildedEnhancement-info-point ReGuildedEnhancement-error-point" iconName="icon-failed-send" label="An error occurred" labelClassName="GuildedText-container-color-errorRed" /> }
+            </EnhancementItem>
+        );
     }
 }

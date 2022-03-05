@@ -36,6 +36,10 @@ export declare interface Theme extends Enhancement<string[]> {
             name?: string;
             type?: "url" | "size" | "color" | "number" | "percent" | undefined | null;
             value?: string | number | boolean | undefined | null;
+            options?: Array<{
+                name: string;
+                value: string;
+            }>;
         };
     };
     /**
@@ -55,5 +59,6 @@ export declare interface Addon extends Enhancement<string> {
     exports?: AddonExports;
 
     _error?: Error | string;
+    _missingPerms?: number;
 }
 export type AnyEnhancement = Enhancement<string | string[]>;

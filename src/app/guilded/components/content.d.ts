@@ -44,6 +44,32 @@ export declare class CalloutBadgeWithText extends React.Component<{
 }> {}
 //#endregion
 
+//#region CheckboxV2
+export declare class CheckboxV2 extends React.Component<{
+    className?: string;
+    labelClassName?: string;
+    descriptionClassName?: string;
+    allowMultilineLabel?: boolean;
+
+    label?: string;
+    description?: string;
+
+    disabled?: boolean;
+    isChecked?: boolean;
+    isCircular?: boolean;
+    defaultValue?: boolean | any;
+}> {
+    /**
+     * Gets whether the checkmark will be checked.
+     */
+    get isChecked(): boolean;
+    /**
+     * Gets whether the default value will render the checkmark as checked.
+     */
+    get _isChecked(): boolean;
+}
+//#endregion
+
 //#region CheckmarkIcon
 export declare class CheckmarkIcon extends React.Component<{
     className?: string;

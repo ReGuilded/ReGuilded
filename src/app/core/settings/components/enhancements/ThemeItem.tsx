@@ -1,9 +1,15 @@
-import { FieldAnySpecs } from "../../../../guilded/form";
+import { EnhancementGridItemProps } from "./EnhancementGrid";
+import { MenuSectionSpecs } from "../../../../guilded/menu";
 import { Theme } from "../../../../../common/enhancements";
+import { FieldAnySpecs } from "../../../../guilded/form";
 import EnhancementItem from "./EnhancementItem";
 import validations from "../../validation";
 
-export default class ThemeItem extends EnhancementItem<Theme, { settings: object, settingsProps: string[] }> {
+const React = window.ReGuilded.getApiProperty("react");
+
+export default class ThemeItem extends React.Component<EnhancementGridItemProps<Theme>> {
+    private _overflowMainSection?: MenuSectionSpecs;
+
     constructor(props, context) {
         super(props, context);
 
@@ -13,7 +19,7 @@ export default class ThemeItem extends EnhancementItem<Theme, { settings: object
 
         // Add "Settings" button if settings are present
         if (settings)
-            this.overflowMenuSpecs.sections.unshift({
+            this._overflowMainSection = {
                 name: "Theme",
                 header: "Theme",
                 type: "rows",
@@ -28,18 +34,17 @@ export default class ThemeItem extends EnhancementItem<Theme, { settings: object
                         })
                     }
                 ]
-            });
+            };
     }
-    get formSpecs() {
-        const { settings, settingsProps } = this.props.enhancement;
+    render() {
+        const {
+            props,
+            _overflowMainSection
+        } = this;
 
-        return {
-            sections: [
-                {
-                    fieldSpecs: ThemeItem.generateSettingsFields(settings, settingsProps)
-                }
-            ]
-        }
+        return (
+            <EnhancementItem {...props} overflowMenuSection={_overflowMainSection} />
+        )
     }
     static generateSettingsFields(settings: object, settingsProps: string[]): FieldAnySpecs[] {
         return settingsProps.map(id => {

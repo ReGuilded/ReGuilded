@@ -10,6 +10,8 @@ import {
     CalloutBadge,
     CalloutBadgeProps,
     CalloutBadgeWithText,
+    CheckboxV2,
+    CheckmarkIcon,
     CodeContainer,
     GuildedText,
     IconAndLabel,
@@ -249,6 +251,10 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof IconAndLabel }
     : N extends "guilded/components/UserBasicInfoDisplay"
     ? { default: typeof UserBasicInfoDisplay }
+    : N extends "guilded/components/CheckboxV2"
+    ? { default: typeof CheckboxV2 }
+    : N extends "guilded/components/CheckmarkIcon"
+    ? { default: typeof CheckmarkIcon }
     : N extends "guilded/components/ProfilePicture"
     ? { default: typeof React.Component }
     : N extends "guilded/components/CarouselList"

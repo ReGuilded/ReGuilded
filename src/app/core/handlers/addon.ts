@@ -7,6 +7,7 @@ import EnhancementHandler from "./enhancement";
 import ReGuilded from "../ReGuilded";
 import { handleErrorsOf } from "../../util";
 import ConfigHandler from "./config";
+import { AddonPermission } from "../../addons/addonPermission";
 
 /**
  * Manager that manages ReGuilded's addons
@@ -97,7 +98,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
             this.settingsHandler.config.debugMode && console.log(`Loading addon by ID '${metadata.id}'`);
             // Check if it's first time loading
             if (!~this.initialized.indexOf(metadata.id)) {
-                this.addonApis[metadata.id] = new AddonApi(this.webpack, this, metadata.id);
+                this.addonApis[metadata.id] = new AddonApi(this.webpack, this, metadata);
 
                 await metadata
                     // Allow requiring stuff from its very own API
@@ -109,11 +110,11 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
 
                         this.initialized.push(metadata.id);
 
-                        if (AddonHandler._functionExists(metadata, "load")) metadata.exports.load();
-                        else throw new Error("An addon must export load function");
-
-                        // If such is present
-                        delete metadata._error;
+                        if (AddonHandler._functionExists(metadata, "load")) {
+                            metadata.exports.load();
+                            // If such is present
+                            delete metadata._error;
+                        } else throw new Error("An addon must export load function");
                     })
                     .catch(
                         e => (
@@ -191,12 +192,4 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
             await this.settingsHandler.update({ addons: this.settings });
         }
     }
-}
-
-export enum AddonPermission {
-    Elements = 1,
-    _RESERVED = 2,
-    ExtraInfo = 4,
-    UseApi = 8,
-    UseExternalApi = 16
 }

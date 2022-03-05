@@ -1,9 +1,10 @@
 //#region Imports
+import { AddonPermissionInfos, AddonPermissionValues } from "../../../../addons/addonPermission";
 import { Addon } from "../../../../../common/enhancements";
-import { FormOutput } from "../../../../guilded/form";
-import ErrorBoundary from "../ErrorBoundary";
 import { PagedSettingsChildProps } from "../PagedSettings";
+import { FormOutput } from "../../../../guilded/form";
 import EnhancementPage from "./EnhancementPage";
+import ErrorBoundary from "../ErrorBoundary";
 
 const React = window.ReGuilded.getApiProperty("react"),
     { default: Form } = window.ReGuilded.getApiProperty("guilded/components/Form"),
@@ -11,6 +12,7 @@ const React = window.ReGuilded.getApiProperty("react"),
     { default: savableSettings } = window.ReGuilded.getApiProperty("guilded/settings/savableSettings"),
     { default: defaultContextProvider } = window.ReGuilded.getApiProperty("guilded/context/defaultContextProvider"),
     { coroutine } = window.ReGuilded.getApiProperty("guilded/util/functions"),
+    { default: CheckboxV2 } = window.ReGuilded.getApiProperty("guilded/components/CheckboxV2"),
     { default: BannerWithButton } = window.ReGuilded.getApiProperty("guilded/components/BannerWithButton"),
     { default: CodeContainer } = window.ReGuilded.getApiProperty("guilded/components/CodeContainer");
 //#endregion
@@ -71,20 +73,49 @@ export default class AddonPage extends React.Component<Props> {
      * @returns Optional error banner
      */
     private renderErrorBannerIfNeeded() {
-        const { _error, repoUrl } = this.props.enhancement;
+        const { _error, _missingPerms, repoUrl } = this.props.enhancement;
 
         return (
             typeof _error !== "undefined" &&
-                // TODO: Insufficient permissions should have a different error
+                // Error banner
                 <BannerWithButton theme="error"
                     title="An error occurred"
                     className="ReGuildedEnhancementPage-banner"
-                    text={[
-                        "The addon has threw an error while getting its exports or loading it:",
-                        <CodeContainer language="javascript" readOnly={true} canCopyContents={true} code={_error.toString()} />,
-                        "Make sure it's given sufficient permissions for it to start."
-                    ]}
-                    buttonProps={repoUrl && {
+                    text={_missingPerms
+                        // Permission error
+                        ? <div className="ReGuildedEnhancementPage-banner-content">
+                            The addon has required a module that required the given permissions:
+                            <div className="ReGuildedEnhancementPage-missing-perms">
+                                { AddonPermissionValues.filter(permission => _missingPerms & permission)
+                                    .map(permission => {
+                                        const presentPermissions = window.ReGuilded.addons.getPermissionsOf(this.props.enhancement.id),
+                                            permissionInfo = AddonPermissionInfos[permission];
+
+                                        // Indicates if it was given. This is only for methods that
+                                        // require multiple permissions
+                                        return (
+                                            <CheckboxV2
+                                                className="ReGuildedEnhancementPage-missing-perm"
+                                                isCircular
+                                                // Disallow it from checking
+                                                disabled
+
+                                                label={permissionInfo.name}
+                                                description={permissionInfo.description}
+
+                                                defaultValue={presentPermissions & permission} />
+                                        );
+                                    }) }
+                            </div>
+                        </div>
+                        // Regular error
+                        : [
+                            "The addon has threw an error while getting its exports or loading it:",
+                            <CodeContainer language="javascript" readOnly={true} canCopyContents={true} code={_error.toString()} />,
+                            "Make sure it's given sufficient permissions for it to start."
+                        ]
+                    }
+                    buttonProps={repoUrl && !_missingPerms && {
                         buttonText: "Report",
                         buttonType: "bleached",
                         style: "hollow",
@@ -115,47 +146,20 @@ export default class AddonPage extends React.Component<Props> {
                                             type: "Checkboxes",
                                             fieldName: "permissions",
 
-                                            options: [
-                                                requiredPermissions & 1 && {
-                                                    optionName: 1,
-                                                    label: "Use DOM & React",
-                                                    description: "Allows using elements and React components to create some kind of UI, or even modify them.\nCons: This may be used to break GUI, create unwanted content, change the look of the app or even disable themes.\nPros: This allows creating settings or GUI that addon needs or display its contents."
-                                                },
-                                                requiredPermissions & 4 && {
-                                                    optionName: 4,
-                                                    label: "Extra Data",
-                                                    description: "Adds extra data to an addon. This can be used to gather information that the addon typically wouldn't need to use, but may be mandatory for some.\nE.g., this allows fetching data of certain member in a team. While this isn't necessarily bad, this could be used to do unknown exploits."
-                                                },
-                                                requiredPermissions & 8 && {
-                                                    optionName: 8,
-                                                    label: "Use Guilded API",
-                                                    description: "Allows doing anything on behalf of you. This does not hand out your passwords or any sensitive information, but it can still be used to make malicious API calls under your account (including password resetting) or gather more information about you. This may be mandatory to some addons."
-                                                },
-                                                requiredPermissions & 16 && {
-                                                    optionName: 16,
-                                                    label: "Use External API",
-                                                    description: "Allows doing calls to an external server outside Guilded. This may be mandatory for some addons to function, but can be used to send unwanted information to a server."
-                                                }
-                                            ].filter(Boolean),
+                                            options: AddonPermissionValues
+                                                .filter(permission => requiredPermissions & permission)
+                                                // Checkbox
+                                                .map(permission => ({
+                                                    optionName: permission,
+                                                    label: AddonPermissionInfos[permission].name,
+                                                    description: AddonPermissionInfos[permission].description
+                                                })),
 
-                                            defaultValue: [
-                                                {
-                                                    optionName: 1,
-                                                    value: presentPermissions & 1
-                                                },
-                                                {
-                                                    optionName: 4,
-                                                    value: presentPermissions & 4
-                                                },
-                                                {
-                                                    optionName: 8,
-                                                    value: presentPermissions & 8
-                                                },
-                                                {
-                                                    optionName: 16,
-                                                    value: presentPermissions & 16
-                                                }
-                                            ]
+                                            defaultValue: AddonPermissionValues
+                                                .map(permission => ({
+                                                    optionName: permission,
+                                                    value: presentPermissions & permission
+                                                }))
                                         },
                                         {
                                             type: "Button",

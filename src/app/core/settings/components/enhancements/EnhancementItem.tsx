@@ -1,6 +1,7 @@
 ﻿//#region Imports
+import { ReactElement } from "react";
 import { AnyEnhancement } from "../../../../../common/enhancements";
-import { MenuSpecs } from "../../../../guilded/menu";
+import { MenuSectionSpecs, MenuSpecs } from "../../../../guilded/menu";
 import { UserInfo } from "../../../../guilded/models";
 import { RGEnhancementConfig } from "../../../../types/reguilded";
 import EnhancementHandler, { AnyEnhancementHandler } from "../../../handlers/enhancement";
@@ -21,22 +22,24 @@ const React = window.ReGuilded.getApiProperty("react"),
 type Props<T extends AnyEnhancement> = {
     enhancement: T,
     enhancementHandler: EnhancementHandler<T, RGEnhancementConfig<T>>,
-    switchTab: SwitchTab
+    switchTab: SwitchTab,
+
+    overflowMenuSection?: MenuSectionSpecs
 };
 type State = {
     enabled: boolean,
     author?: UserInfo
 };
 
-export default abstract class EnhancementItem<E extends AnyEnhancement, P = {}> extends React.Component<Props<E> & P, State> {
+export default class EnhancementItem<E extends AnyEnhancement> extends React.Component<Props<E>, State> {
     protected overflowMenuSpecs: MenuSpecs;
     private hasToggled: boolean = false;
     private _onToggleBinded: (enabled: boolean) => Promise<void>;
 
-    constructor(props: Props<E> & P, context?: any) {
+    constructor(props: Props<E>, context?: any) {
         super(props, context);
 
-        const { enhancementHandler } = this.props;
+        const { enhancementHandler, overflowMenuSection } = this.props;
 
         const enabled = enhancementHandler.enabled.includes(this.props.enhancement.id);
 
@@ -46,6 +49,10 @@ export default abstract class EnhancementItem<E extends AnyEnhancement, P = {}> 
 
         this._onToggleBinded = handleToggle.bind(this, enabled, this._onToggle.bind(this, enhancementHandler));
         this.overflowMenuSpecs = generateOverflowMenu(this.props.enhancement, enhancementHandler);
+
+        // Addon and Theme item custom section
+        if (overflowMenuSection)
+            this.overflowMenuSpecs.sections.unshift(overflowMenuSection);
     }
     /**
      * Changes the state of the enhancement to either enabled or disabled.
@@ -77,7 +84,8 @@ export default abstract class EnhancementItem<E extends AnyEnhancement, P = {}> 
                     banner,
                     icon
                 },
-                switchTab
+                switchTab,
+                children
             },
             state: {
                 enabled
@@ -120,6 +128,7 @@ export default abstract class EnhancementItem<E extends AnyEnhancement, P = {}> 
                         <div className="ReGuildedEnhancement-info">
                             <IconAndLabel className="ReGuildedEnhancement-info-point" iconName="icon-star" label={version ? `Version ${version}` : "Latest release"} labelClassName="GuildedText-container-type-gray"/>
                             { repoUrl && <IconAndLabel className="ReGuildedEnhancement-info-point" iconName="icon-github" label={_repoInfo.path} labelClassName="GuildedText-container-type-gray" /> }
+                            { children }
                         </div>
                     </div>
                 </div>

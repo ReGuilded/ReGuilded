@@ -12,7 +12,7 @@ export type AnyEnhancementHandler = EnhancementHandler<AnyEnhancement, RGEnhance
  */
 export default abstract class EnhancementHandler<
     T extends AnyEnhancement,
-    C extends RGEnhancementConfig<T>,
+    C extends RGEnhancementConfig<T> = RGEnhancementConfig<T>,
     S extends ReGuildedEnhancementSettings = ReGuildedEnhancementSettings
 > extends AbstractEventTarget {
     /**
