@@ -1,15 +1,21 @@
-import React from "react";
+import React, { LegacyRef } from "react";
 import { DirectionVertical, Size } from "../common";
 import { UserInfo, UserModel } from "../models";
 
-//#region MediaRenderer
-export declare class MediaRenderer extends React.Component<{
+//#region GuildedImage
+export declare class GuildedImage extends React.Component<{
     className?: string;
+
     progressiveImageSrc?: string;
-    src: string;
-    cover: boolean;
-    onClick?: () => void;
-    onError?: Function;
+    src?: string;
+
+    cover?: boolean;
+    showLoadingIndicator?: boolean;
+    shouldRenderSkeleton?: boolean;
+
+    onClick?: () => PromiseLike<void> | void;
+    onError?: (error: any) => PromiseLike<void> | void;
+    onGetRef?: (ref: LegacyRef<HTMLDivElement>) => PromiseLike<void> | void;
 }> {
     get progressiveImageHasLoaded(): boolean;
 }
@@ -32,6 +38,7 @@ export declare class UserBasicInfoDisplay extends React.Component<{
     user?: UserModel;
 
     // Display
+    className?: string;
     size?: Size;
     avatarSize?: Size;
     /**

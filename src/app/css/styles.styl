@@ -25,8 +25,6 @@
         &-footer
             // Don't center it
             align-items: start
-        &-info-point:not(:first-child)
-            margin-top: 10px
 
         &-subtitle
             margin: 5px 0
@@ -49,6 +47,37 @@
                 margin-bottom: 16px
             &-subtitle
                 margin-bottom: 15px
+            &-columns
+                display: grid
+                grid-template-columns: 1fr 250px
+                grid-gap: 0 20px
+
+            &-header
+                position: relative
+                width: 100%
+                height: 240px
+                margin-bottom: 20px
+            &-banner
+                position: absolute
+                top: 0
+                left: 0
+                right: 0
+                height: 150px
+            &-banner-image
+                size: 100%
+            &-icon
+                size: 150px
+            &-header-content
+                z-index: 2
+                size: 100%
+
+                display: flex
+                flex-direction: column
+                align-items: center
+                justify-content: end
+            &-header-name
+                text-align: center
+                margin-top: 10px
         &Images
             &-container
                 margin-bottom: 15px
@@ -63,6 +92,14 @@
 
                 &:not(:first-child)
                     margin-left: 10px
+        &Info
+            &-section-header
+                margin-bottom: 4px
+            &-point:not(:first-child)
+                margin-top: 10px
+            &-section:not(:first-child)
+                margin-top: 16px
+
     &Settings
         &-container
             padding-horizontal: 32px

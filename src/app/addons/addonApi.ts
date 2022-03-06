@@ -112,7 +112,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/components/HorizontalTab": webpack => webpack.withClassProperty("tabOption"),
     "guilded/components/ToggleFieldWrapper": webpack => webpack.withCode("ToggleFieldWrapper-container"),
     "guilded/components/SimpleToggle": webpack => webpack.withClassProperty("input"),
-    "guilded/components/MediaRenderer": webpack => webpack.withClassProperty("progressiveImageHasLoaded"),
+    "guilded/components/Image": webpack => webpack.withClassProperty("progressiveImageHasLoaded"),
     "guilded/components/CodeContainer": webpack => webpack.withClassProperty("tokenCodeLines"),
     "guilded/components/SearchBarV2": webpack => webpack.withClassProperty("_inputRef"),
     "guilded/components/GuildedSelect": webpack => webpack.withClassProperty("selectedValue"),
@@ -742,10 +742,10 @@ export default class AddonApi {
         return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/SimpleToggle");
     }
     /**
-     * Displays a message image.
+     * Displays an image with additional functions.
      */
-    get ["guilded/components/MediaRenderer"](): AddonApiExports<"guilded/components/MediaRenderer"> {
-        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/MediaRenderer");
+    get ["guilded/components/Image"](): AddonApiExports<"guilded/components/Image"> {
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/Image");
     }
     /**
      * Displays a code block.

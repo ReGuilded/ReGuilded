@@ -22,7 +22,7 @@ import {
     TabEmptyState,
     WordDividerLine
 } from "../guilded/components/content";
-import { MediaRenderer, UserBasicInfoDisplay } from "../guilded/components/display";
+import { GuildedImage, UserBasicInfoDisplay } from "../guilded/components/display";
 import { Button, GuildedSelect, SearchBarV2, SimpleToggle } from "../guilded/components/input";
 import { OverflowButton } from "../guilded/menu";
 import {
@@ -233,8 +233,8 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof React.Component }
     : N extends "guilded/components/SimpleToggle"
     ? { default: typeof SimpleToggle }
-    : N extends "guilded/components/MediaRenderer"
-    ? { default: typeof MediaRenderer }
+    : N extends "guilded/components/Image"
+    ? { default: typeof GuildedImage }
     : N extends "guilded/components/CodeContainer"
     ? { default: typeof CodeContainer }
     : N extends "guilded/components/SearchBarV2"

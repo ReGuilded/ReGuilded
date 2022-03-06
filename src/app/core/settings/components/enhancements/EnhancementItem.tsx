@@ -7,6 +7,7 @@ import { RGEnhancementConfig } from "../../../../types/reguilded";
 import EnhancementHandler, { AnyEnhancementHandler } from "../../../handlers/enhancement";
 import ErrorBoundary from "../ErrorBoundary";
 import { SwitchTab } from "../PagedSettings";
+import { EnhancementInfo } from "./EnhancementPage";
 
 const React = window.ReGuilded.getApiProperty("react"),
     { default: OverflowButton } = window.ReGuilded.getApiProperty("guilded/components/OverflowButton"),
@@ -14,8 +15,6 @@ const React = window.ReGuilded.getApiProperty("react"),
     { default: UserBasicInfoDisplay } = window.ReGuilded.getApiProperty("guilded/components/UserBasicInfoDisplay"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
     { default: StretchFadeBackground } = window.ReGuilded.getApiProperty("guilded/components/StretchFadeBackground"),
-    { default: IconAndLabel } = window.ReGuilded.getApiProperty("guilded/components/IconAndLabel"),
-    { default: restMethods } = window.ReGuilded.getApiProperty("guilded/http/rest"),
     { UserModel } = window.ReGuilded.getApiProperty("guilded/users");
 //#endregion
 
@@ -63,13 +62,7 @@ export default class EnhancementItem<E extends AnyEnhancement> extends React.Com
             .then(() => this.setState({ enabled }));
     }
     async componentWillMount() {
-        const { author } = this.props.enhancement;
-
-        if (author && window.ReGuilded.settingsHandler.config.loadAuthors) {
-            await restMethods.getUserById(author)
-                .then(userInfo => this.setState({ author: userInfo.user }))
-                .catch(() => {});
-        }
+        await EnhancementInfo.fetchAuthor(this, this.props.enhancement);
     }
     render() {
         const {
@@ -126,9 +119,9 @@ export default class EnhancementItem<E extends AnyEnhancement> extends React.Com
                     {/* Description */}
                     <div className="UserRichSocialLink-container ReGuildedEnhancement-footer">
                         <div className="ReGuildedEnhancement-info">
-                            <IconAndLabel className="ReGuildedEnhancement-info-point" iconName="icon-star" label={version ? `Version ${version}` : "Latest release"} labelClassName="GuildedText-container-type-gray"/>
-                            { repoUrl && <IconAndLabel className="ReGuildedEnhancement-info-point" iconName="icon-github" label={_repoInfo.path} labelClassName="GuildedText-container-type-gray" /> }
-                            { children }
+                            <EnhancementInfo infoLabelClassName="GuildedText-container-type-gray" enhancement={this.props.enhancement}>
+                                { children }
+                            </EnhancementInfo>
                         </div>
                     </div>
                 </div>

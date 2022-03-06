@@ -5,12 +5,14 @@ import { RGEnhancementConfig } from "../../../../types/reguilded";
 import EnhancementHandler from "../../../handlers/enhancement";
 import PreviewCarousel from "./PreviewCarousel";
 import ErrorBoundary from "../ErrorBoundary";
-import { ReactElement, ReactNode } from "react";
+import { ReactNode } from "react";
 import { FormOutput } from "../../../../guilded/form";
 import { BannerWithButton } from "../../../../guilded/components/content";
 import { TabOption } from "../../../../guilded/components/sections";
 import { MenuSpecs } from "../../../../guilded/menu";
-import { generateOverflowMenu, handleToggle } from "./EnhancementItem";
+import { handleToggle } from "./EnhancementItem";
+import { InlineCode } from "../../util";
+import { UserInfo } from "../../../../guilded/models";
 
 const React = window.ReGuilded.getApiProperty("react"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
@@ -20,7 +22,11 @@ const React = window.ReGuilded.getApiProperty("react"),
     { default: overlayProvider } = window.ReGuilded.getApiProperty("guilded/overlays/overlayProvider"),
     { default: MarkdownRenderer } = window.ReGuilded.getApiProperty("guilded/components/MarkdownRenderer"),
     { default: { WebhookEmbed } } = window.ReGuilded.getApiProperty("guilded/editor/grammars"),
-    { default: OverflowButton } = window.ReGuilded.getApiProperty("guilded/components/OverflowButton"),
+    { default: restMethods } = window.ReGuilded.getApiProperty("guilded/http/rest"),
+    { default: UserBasicInfoDisplay } = window.ReGuilded.getApiProperty("guilded/components/UserBasicInfoDisplay"),
+    { default: Image } = window.ReGuilded.getApiProperty("guilded/components/Image"),
+    { default: IconAndLabel } = window.ReGuilded.getApiProperty("guilded/components/IconAndLabel"),
+    { UserModel } = window.ReGuilded.getApiProperty("guilded/users"),
     { default: HorizontalTabs } = window.ReGuilded.getApiProperty("guilded/components/HorizontalTabs");
 //#endregion
 
@@ -89,16 +95,10 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
             .then(() => this.props.switchTab("list", { enhancement: {} }));
     }
     /**
-     * Renders additional content for the enhancement.
-     * @param enhancement The current enhancement
-     * @returns Additional content
-     */
-    protected abstract renderTabs(enhancement: T): ReactElement | ReactElement[];
-    /**
      * Returns the action form component depending on the state.
      * @returns Form element
      */
-    private renderActionForm(): ReactElement {
+    private renderActionForm(): ReactNode {
         const { _onDeleteBinded, _openDirectory } = this;
 
         return (
@@ -171,8 +171,19 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
                         }/>
 
                     <div className="ReGuildedEnhancementPage-container">
-                        {/* Short Description */}
-                        <GuildedText block type="subheading" className="ReGuildedEnhancementPage-subtitle">{ enhancement.subtitle || "No subtitle provided." }</GuildedText>
+                        <div className="ReGuildedEnhancementPage-header">
+                            {/* Cover banner */}
+                            { enhancement.banner && <div className="ReGuildedEnhancementPage-banner">
+                                <Image cover src={enhancement.banner} className="ReGuildedEnhancementPage-banner-image" />
+                            </div> }
+                            {/* Header content */}
+                            <div className="ReGuildedEnhancementPage-header-content">
+                                { enhancement.icon && <Image src={enhancement.icon} className="ReGuildedEnhancementPage-icon" /> }
+                                <GuildedText block type="heading3" className="ReGuildedEnhancementPage-header-name">{ enhancement.name }</GuildedText>
+                                <GuildedText block type="subheading" className="ReGuildedEnhancementPage-subtitle">{ enhancement.subtitle || "No subtitle provided." }</GuildedText>
+                            </div>
+                        </div>
+                        {/* Content */}
                         { pageInfoBanner }
                         <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: EnhancementPage.defaultTabs.concat(tabOptions) }} defaultSelectedTabIndex={defaultTabIndex}>
                             <div className="ReGuildedEnhancementPage-tab">
@@ -181,10 +192,18 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
                                     { enhancement.images && window.ReGuilded.settingsHandler.config.loadImages &&
                                         <PreviewCarousel enhancementId={enhancement.id} enhancementHandler={this.props.enhancementHandler} />
                                     }
-                                    {/* Long description */}
-                                    { enhancement.readme
-                                        ? <MarkdownRenderer plainText={enhancement.readme} grammar={WebhookEmbed} />
-                                        : <GuildedText block type="subtext">No description has been provided.</GuildedText> }
+                                    <div className="ReGuildedEnhancementPage-columns">
+                                        {/* Readme */}
+                                        <div className="ReGuildedEnhancementPage-column">
+                                            { enhancement.readme
+                                                ? <MarkdownRenderer plainText={enhancement.readme} grammar={WebhookEmbed} />
+                                                : <GuildedText block type="subtext">No description has been provided.</GuildedText> }
+                                        </div>
+                                        {/* Side info */}
+                                        <div className="ReGuildedEnhancementPage-column">
+                                            <EnhancementInfo expanded enhancement={enhancement} />
+                                        </div>
+                                    </div>
                                     {/* Buttons */}
                                     { this.renderActionForm() }
                                 </ErrorBoundary>
@@ -195,5 +214,67 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
                 </div>
             </ErrorBoundary>
         )
+    }
+}
+
+type EnhancementInfoProps = {
+    infoLabelClassName?: string;
+    enhancement: AnyEnhancement;
+    expanded?: boolean;
+};
+/**
+ * Displays information about the enhancement.
+ */
+export class EnhancementInfo extends React.Component<EnhancementInfoProps, { author?: UserInfo }> {
+    constructor(props: EnhancementInfoProps, context?: any) {
+        super(props, context);
+
+        this.state = {};
+    }
+    async componentDidMount() {
+        // TODO: Once multiple users can be fetched, add contributors
+        if (this.props.expanded)
+            await EnhancementInfo.fetchAuthor(this, this.props.enhancement);
+    }
+    static async fetchAuthor<T extends { author?: UserInfo }>(self: React.Component<any, T>, enhancement: AnyEnhancement) {
+        const { author } = enhancement;
+
+        if (author && window.ReGuilded.settingsHandler.config.loadAuthors)
+            await restMethods.getUserById(author)
+                .then(({ user }) => self.setState({ author: user }))
+                .catch(() => {});
+    }
+    render() {
+        const { expanded, enhancement, children, infoLabelClassName } = this.props;
+
+        return (
+            <div className="ReGuildedEnhancementInfo-container">
+                {/* Information */}
+                <div className="ReGuildedEnhancementInfo-section">
+                    {/* In minimal mode header and identifier are unnecessary */}
+                    { expanded && [
+                        <GuildedText block type="heading4" className="ReGuildedEnhancementInfo-section-header">Information</GuildedText>,
+                        <IconAndLabel iconName="icon-hashtag-new" label={[
+                            "Identifier: ",
+                            <InlineCode>{ enhancement.id }</InlineCode>
+                        ]} labelClassName={infoLabelClassName} className="ReGuildedEnhancementInfo-point" />
+                    ] }
+                    <IconAndLabel iconName="icon-star" label={enhancement.version ? `Version ${enhancement.version}` : "Latest release"} className="ReGuildedEnhancementInfo-point" />
+                    { enhancement.repoUrl &&
+                        <IconAndLabel iconName="icon-github" label={[
+                            enhancement._repoInfo.path,
+                            <GuildedText type="subtext"> ({ enhancement._repoInfo.platform })</GuildedText>
+                        ]} labelClassName={infoLabelClassName} className="ReGuildedEnhancementInfo-point" /> }
+                    { children }
+                </div>
+                {/* Author(s) */}
+                { expanded && <div className="ReGuildedEnhancementInfo-section">
+                    <GuildedText block type="heading4" className="ReGuildedEnhancementInfo-section-header">Author</GuildedText>
+                    { this.state.author
+                        ? <UserBasicInfoDisplay size="xl" className="ReGuildedEnhancementInfo-point" showSecondaryInfo user={new UserModel(this.state.author)} />
+                        : <GuildedText block type="subtext">{ enhancement.author ? "By user " + enhancement.author : "No author provided" }</GuildedText> }
+                </div> }
+            </div>
+        );
     }
 }
