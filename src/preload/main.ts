@@ -114,7 +114,7 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
             },
             // Anything else does not need to be exposed
             openItem(path: string): void {
-                shell.openItem(path);
+                shell.openPath(path);
             },
             openExternal(path: string): void {
                 shell.openExternal(path);
