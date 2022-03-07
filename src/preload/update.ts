@@ -5,6 +5,8 @@ import { join } from "path";
 
 
 export default async function handleUpdate(updateInfo: VersionJson) {
+    process.noAsar = true;
+
     const downloadUrl = updateInfo.assets.find(x => x.name === "reguilded.asar").browser_download_url;
     const downloadPath = join(__dirname);
 
