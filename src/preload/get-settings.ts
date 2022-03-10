@@ -27,7 +27,7 @@ export default function getConfiguration(settingsPath: string) {
                         // Forgive if no state.json is present;
                         // user may have deleted it on purpose or it was never created
                         .catch((error: NodeJS.ErrnoException) => {
-                            if (error.code === "ENOENT") return {};
+                            if (error.code == "ENOENT") return {};
                             else reject(error);
                         })
                 ]);
@@ -36,7 +36,7 @@ export default function getConfiguration(settingsPath: string) {
             // Settings doesn't exist, create them and give default settings
             .catch(e => {
                 // Reject if file exists, but it's other error
-                if (!e || !e.code || e.code !== "ENOENT") return reject(e);
+                if (!e || !e.code || e.code != "ENOENT") return reject(e);
 
                 // There are no settings, so it's the first time
                 window.isFirstLaunch = true;

@@ -34,7 +34,7 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
                 if (!Array.isArray(sites) || (sources && !Array.isArray(sources)))
                     return console.error(new Error("Sites and/or sources must be an array!"));
 
-                if (!sites || sites.length === 0) return console.error(new Error("At least one site must be specified!"));
+                if (!sites) return console.error(new Error("At least one site must be specified!"));
 
                 sources.forEach((source: string) => {
                     sites.forEach(site => {
@@ -47,7 +47,7 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
                 if (!Array.isArray(sites) || (sources && !Array.isArray(sources)))
                     return console.error(new Error("Sites and/or sources must be an array!"));
 
-                if (!sites || sites.length === 0) return console.error(new Error("At least one site must be specified!"));
+                if (!sites) return console.error(new Error("At least one site must be specified!"));
 
                 if (sources) {
                     sources.forEach((source: string) => {
@@ -101,7 +101,7 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
              */
             async doUpdateIfPossible(): Promise<boolean> {
                 // If its info was already fetched, don't refetch it
-                return await (window.updateExists !== undefined
+                return await (window.updateExists != undefined
                     ? doUpdate([window.updateExists, window.latestVersionInfo])
                     : checkForUpdate().then(doUpdate));
             },

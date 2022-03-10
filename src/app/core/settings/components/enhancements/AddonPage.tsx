@@ -76,7 +76,7 @@ export default class AddonPage extends React.Component<Props> {
         const { _error, _missingPerms, repoUrl } = this.props.enhancement;
 
         return (
-            typeof _error !== "undefined" &&
+            typeof _error != "undefined" &&
                 // Error banner
                 <BannerWithButton theme="error"
                     title="An error occurred"

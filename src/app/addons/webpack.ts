@@ -74,7 +74,7 @@ export default class WebpackManager {
             const { default: fn } = this.asEsModule(x.exports);
 
             // Checks if it is a function and has part of the code
-            return typeof fn === "function" && fn.toString().includes(code);
+            return typeof fn == "function" && fn.toString().includes(code);
         });
     }
     /**
@@ -135,10 +135,9 @@ export default class WebpackManager {
             const { default: type } = this.asEsModule(x?.exports);
 
             return (
-                typeof type === "function" &&
+                typeof type == "function" &&
                 // Functions vs classes check
-                type.prototype !== void 0 &&
-                type.prototype !== null &&
+                type.prototype != null &&
                 name in type.prototype
             );
         });
@@ -152,7 +151,7 @@ export default class WebpackManager {
         return this.withFilter(x => {
             const { default: type } = this.asEsModule(x?.exports);
 
-            if (typeof type !== "function" || typeof type.prototype === "undefined") return false;
+            if (typeof type != "function" || typeof type.prototype == "undefined") return false;
 
             // It does not need to check other properties, because it will always be false
             for (let name of names) if (!(name in type)) return false;
@@ -166,7 +165,7 @@ export default class WebpackManager {
      * @returns WebpackJsonp module
      */
     getPushedModule(id: number) {
-        return window.webpackJsonp.find(x => x[0][0] === id);
+        return window.webpackJsonp.find(x => x[0][0] == id);
     }
     /**
      * Pushes a new module to webpackJsonp

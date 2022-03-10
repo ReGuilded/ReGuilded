@@ -21,7 +21,7 @@ export default class ThemeManager extends EnhancementManager<Theme> {
 
         if (!metadata) throw new Error(`Theme by ID '${themeId}' does not exist.`);
 
-        if (typeof props !== "object") throw new TypeError("Expected 'setThemeSettings' second argument to be object.");
+        if (typeof props != "object") throw new TypeError("Expected 'setThemeSettings' second argument to be object.");
 
         for (let prop in props) metadata.settings[prop].value = props[prop];
 
@@ -33,7 +33,7 @@ export default class ThemeManager extends EnhancementManager<Theme> {
     protected override async onFileChange(metadata: Theme): Promise<void> {
         const { dirname: themeDirname } = metadata;
 
-        const files = typeof metadata.files === "string" ? [metadata.files] : metadata.files;
+        const files = typeof metadata.files == "string" ? [metadata.files] : metadata.files;
 
         await Promise.all([
             // CSS files
@@ -71,13 +71,13 @@ export default class ThemeManager extends EnhancementManager<Theme> {
                     let settings = JSON.parse(d);
 
                     // Validate settings
-                    if (typeof settings !== "object")
+                    if (typeof settings != "object")
                         throw new TypeError(`Expected to have object at the root of settings.json`);
 
                     metadata.settings = settings;
                 })
                 .catch(e => {
-                    if (e.code !== "ENOENT")
+                    if (e.code != "ENOENT")
                         console.error("Error while fetching settings of theme by ID '%s':\n", metadata.id, e);
                 })
         ]);

@@ -122,7 +122,7 @@ export default abstract class EnhancementManager<T extends AnyEnhancement>
                             for (let importedDir of filePaths) {
                                 stat(path.join(importedDir, "metadata.json"), async (e, d) => {
                                     if (e)
-                                        if (e.code === "ENOENT")
+                                        if (e.code == "ENOENT")
                                             throw new Error(
                                                 `Directory '${importedDir}' cannot be imported as an enhancement: it has no metadata.json file.`
                                             );
@@ -186,19 +186,19 @@ export default abstract class EnhancementManager<T extends AnyEnhancement>
                     const extPath = path.join(this.dirname, extName);
                     // Get the metadata.json file path, and if it doesn't exist, ignore it
                     const metadataPath = path.join(extPath, "metadata.json");
-                    const changeIsMetadata = fp === metadataPath;
+                    const changeIsMetadata = fp == metadataPath;
 
                     // Leave no trace
-                    if ((changeIsMetadata || fp === extPath) && (changeType === "unlink" || changeType === "unlinkDir"))
+                    if ((changeIsMetadata || fp == extPath) && (changeType == "unlink" || changeType == "unlinkDir"))
                         return this.watchOnMetadataDeletion(extName, extPath, loaded, deBouncers);
 
                     // For both getting the metadata and removing it
-                    const metadataIndex = this.all.findIndex(metadata => metadata.dirname === extPath);
+                    const metadataIndex = this.all.findIndex(metadata => metadata.dirname == extPath);
 
                     let metadata: T = this.all[metadataIndex],
                         previousId: string;
 
-                    const newMetadata = metadata === undefined;
+                    const newMetadata = metadata == undefined;
 
                     if (!newMetadata && changeIsMetadata) {
                         previousId = metadata.id;
@@ -253,8 +253,8 @@ export default abstract class EnhancementManager<T extends AnyEnhancement>
         loaded: { [enhancementId: string]: T },
         deBouncers: { [extName: string]: NodeJS.Timeout }
     ) {
-        const existingExt = this.all.find(metadata => metadata.dirname === extPath);
-        if (existingExt !== undefined) {
+        const existingExt = this.all.find(metadata => metadata.dirname == extPath);
+        if (existingExt != undefined) {
             // Since allIds and all will have the same indexes
             const index = this.all.indexOf(existingExt);
 
@@ -282,7 +282,7 @@ async function addToMetadata<T extends AnyEnhancement>(enhancement: T, dirname: 
         enhancement.images = undefined;
     }
     // Make sure author is an ID
-    if (enhancement.author && (typeof enhancement.author !== "string" || enhancement.author.length !== 8)) {
+    if (enhancement.author && (typeof enhancement.author != "string" || enhancement.author.length != 8)) {
         console.warn(
             "Enhancement metadata property 'author' must be a Guilded identifier in enhancement by ID '%s'",
             enhancement.id
@@ -296,7 +296,7 @@ async function addToMetadata<T extends AnyEnhancement>(enhancement: T, dirname: 
             .readFile(path.join(dirname, "README.md"), "utf8")
             .then(data => (enhancement.readme = data))
             .catch(err => {
-                if (err.code !== "ENOENT")
+                if (err.code != "ENOENT")
                     console.error("Error while fetching readme file of an enhancement by ID '%s':", enhancement.id, err);
             }),
         // Cover/banner

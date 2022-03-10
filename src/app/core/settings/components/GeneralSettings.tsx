@@ -85,7 +85,7 @@ export default class GeneralSettings extends React.Component {
 
                                 })
                                 .catch(e => {
-                                    if (typeof e === "string")
+                                    if (typeof e == "string")
                                         statusContext.displayError({ message: e, error: e });
                                     else statusContext.displayError({ message: e.message, error: e });
                                 })

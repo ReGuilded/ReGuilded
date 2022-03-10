@@ -32,7 +32,7 @@ export default function createSystem(
      * @param value The value of the export
      */
     function exporter(name: string, value: any) {
-        if (typeof name === "string") exports[name] = value;
+        if (typeof name == "string") exports[name] = value;
         else Object.assign(exports, name);
 
         return value || name;
@@ -41,7 +41,7 @@ export default function createSystem(
         register(_: string, dependencies: string[], initFn: InitFunction) {
             const mod = initFn(exporter, systemUtils);
 
-            if (mod.setters !== undefined) for (let i in dependencies) mod.setters[i](imported[dependencies[i]]);
+            if (mod.setters != undefined) for (let i in dependencies) mod.setters[i](imported[dependencies[i]]);
 
             mod.execute();
         }

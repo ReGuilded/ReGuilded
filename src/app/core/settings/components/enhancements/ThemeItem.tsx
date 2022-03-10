@@ -57,7 +57,7 @@ export default class ThemeItem extends React.Component<EnhancementGridItemProps<
                 label: type ? `Value (${type})` : "Value",
                 defaultValue: value,
 
-                inputType: type === "number" ? type : undefined,
+                inputType: type == "number" ? type : undefined,
                 validationFunction: validations[type],
 
                 grow: 1

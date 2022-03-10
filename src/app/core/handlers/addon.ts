@@ -50,7 +50,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
         if (loaded) {
             if (~this.enabled.indexOf(currentOrPreviousId)) {
                 // FIXME: We already kind of do that in EnhancementHandler, but with index
-                const previousMetadata = this.all.find(addon => addon.id === currentOrPreviousId);
+                const previousMetadata = this.all.find(addon => addon.id == currentOrPreviousId);
                 this.unload(previousMetadata);
             }
 
@@ -68,14 +68,14 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
      * @returns Function exists
      */
     private static _functionExists(addon: Addon, name: string): boolean {
-        if (typeof addon.exports === "undefined") return false;
-        else if (typeof addon.exports[name] === "function") return true;
+        if (typeof addon.exports == "undefined") return false;
+        else if (typeof addon.exports[name] == "function") return true;
         // It doesn't exist, but it's also valid
-        else if (typeof addon.exports[name] === "undefined") {
+        else if (typeof addon.exports[name] == "undefined") {
             const { default: def } = addon.exports;
             const defType = typeof def;
 
-            if ((defType === "function" || defType === "object") && typeof def[name] === "function") {
+            if ((defType == "function" || defType == "object") && typeof def[name] == "function") {
                 addon.exports[name] = def[name];
                 return true;
             } else return false;
@@ -172,7 +172,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
      * @param permissions The permission to set for the addon
      */
     async setPermissions(addonId: string, permissions: AddonPermission) {
-        const addon = this.all.find(addon => addon.id === addonId);
+        const addon = this.all.find(addon => addon.id == addonId);
 
         if (addon) {
             this.settings.permissions[addonId] = permissions;

@@ -222,14 +222,13 @@ export default class AddonApi {
 
                         // Remove by name
                         sections.splice(
-                            sections.findIndex(section => section.name === sectionName),
+                            sections.findIndex(section => section.name == sectionName),
                             1
                         );
                     }
                 }
             },
-            getPluginByType: (type: string) =>
-                this["guilded/editor/nodeInfos"].default.find(plugin => plugin.type === type)
+            getPluginByType: (type: string) => this["guilded/editor/nodeInfos"].default.find(plugin => plugin.type == type)
         };
 
         this.#reguildedModalUtil = {

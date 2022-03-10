@@ -5,7 +5,7 @@ import { nativeImage } from "electron";
 function getImageWebUrl(path: string) {
     const protocol = path.split(":")[0];
 
-    if (protocol === "http" || protocol === "https" || path.startsWith("/")) return path;
+    if (protocol == "http" || protocol == "https" || path.startsWith("/")) return path;
 }
 export function getImageUrl(dirname: string, path: string) {
     return getImageWebUrl(path) || nativeImage.createFromPath(pathResolve(dirname, path)).toDataURL();

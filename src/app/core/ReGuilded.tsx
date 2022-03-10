@@ -126,7 +126,7 @@ export default class ReGuilded {
 
         // Either flair of badge depending on settings
         const [injectDevBadgeIntoFlairs, devBadge] =
-            this.settingsHandler.config.badge === 1 ? [true, definedFlairs.dev || createFlairFromBadge(badgeTypes.dev)] : [false, badgeTypes.dev];
+            this.settingsHandler.config.badge == 1 ? [true, definedFlairs.dev || createFlairFromBadge(badgeTypes.dev)] : [false, badgeTypes.dev];
 
         // Always flair
         const contribFlair = definedFlairs.contrib || createFlairFromBadge(badgeTypes.contrib);

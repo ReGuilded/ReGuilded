@@ -16,10 +16,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
  * @param reguildedDir Path to ReGuilded's install directory
  * @param elevator Elevation command on Linux
  */
-export function inject(
-    platformModule: { appDir: string; resourcesDir: string, reguildedDir: string },
-    elevator?: string
-) {
+export function inject(platformModule: { appDir: string; resourcesDir: string; reguildedDir: string }, elevator?: string) {
     return new Promise<void>((resolve, reject) => {
         const src = join(__dirname, "./reguilded.asar");
 
@@ -30,17 +27,21 @@ export function inject(
             err => {
                 if (err) reject(err);
 
-                injection(platformModule).then(() => {
-                    ["linux", "darwin"].includes(process.platform) && exec(`chmod -R 777 ${platform.reguildedDir}`);
-                    process.platform === "win32" && exec(`icacls ${platform.reguildedDir} "Authenticated Users":(OI)(CI)F`);
-                }).then(resolve).catch((err) => {
-                    // If there was an error, try uninjecting ReGuilded
-                    console.log("There was an error, reverting process more details will follow shortly...");
+                injection(platformModule)
+                    .then(() => {
+                        ["linux", "darwin"].includes(process.platform) && exec(`chmod -R 777 ${platform.reguildedDir}`);
+                        process.platform == "win32" &&
+                            exec(`icacls ${platform.reguildedDir} "Authenticated Users":(OI)(CI)F`);
+                    })
+                    .then(resolve)
+                    .catch(err => {
+                        // If there was an error, try uninjecting ReGuilded
+                        console.log("There was an error, reverting process more details will follow shortly...");
 
-                    uninject(platformModule, elevator).catch(reject);
+                        uninject(platformModule, elevator).catch(reject);
 
-                    reject(err);
-                })
+                        reject(err);
+                    });
             }
         );
     });
@@ -52,10 +53,7 @@ export function inject(
  * @param reguildedDir Path to ReGuilded's install directory
  * @param elevator Elevation command on Linux
  */
-export async function uninject(
-    platformModule: { appDir: string; resourcesDir: string },
-    elevator?: string
-) {
+export async function uninject(platformModule: { appDir: string; resourcesDir: string }, elevator?: string) {
     return new Promise<void>((resolve, reject) => {
         // If there is an injection, then remove the injection
         uninjection(platformModule).then(resolve).catch(reject);
@@ -71,10 +69,11 @@ export async function prepareAndPackResources() {
             join(__dirname, "app", "package.json"),
             `{"name":"reguilded","main":"electron.patcher.js", "version":"${reGuildedInfo.version}"}`,
             "utf8"
-        ).then(() => exec("asar pack ./out/app ./out/reguilded.asar", (err) => {
-            if (err) reject(err);
-            resolve();
-        }));
+        ).then(() =>
+            exec("asar pack ./out/app ./out/reguilded.asar", err => {
+                if (err) reject(err);
+                resolve();
+            })
+        );
     });
-
 }

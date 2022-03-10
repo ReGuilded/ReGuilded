@@ -33,11 +33,11 @@ export default class SettingsInjector {
     // Inject our settings entries
     renderSettings({ props }) {
         // If our category already exists, nothing to do here
-        if (props.settingsOptions.sections.some(sect => sect.id === "reguilded")) return;
+        if (props.settingsOptions.sections.some(sect => sect.id == "reguilded")) return;
 
         // If the app settings categories isn't in the sections, return
         // This is to prevent from rendering on server settings and other settings
-        if (props.settingsOptions.sections.some(sect => sect.name === "App settings")) {
+        if (props.settingsOptions.sections.some(sect => sect.name == "App settings")) {
 
             // Push the sections to the props before they get rendered
             props.settingsOptions.sections.push({
@@ -79,7 +79,7 @@ export default class SettingsInjector {
                         id: "rgChangelog",
                         label: "Changelog",
                         Component: Changelog,
-                        calloutBadgeProps: window.ReGuilded.stateHandler.config.lastViewedChangelogVersion !== window.ReGuilded.version && {
+                        calloutBadgeProps: window.ReGuilded.stateHandler.config.lastViewedChangelogVersion != window.ReGuilded.version && {
                             text: "New",
                             style: {
                                 backgroundColor: "#FF3232",
@@ -99,7 +99,7 @@ export default class SettingsInjector {
                     name: "ReGuilded Addons",
                     actions: allAddonSettings
                 });
-        } else if (props.settingsOptions.sections[0].name === "Server settings") {
+        } else if (props.settingsOptions.sections[0].name == "Server settings") {
             const allAddonSettings = AddonApi.registries.serverSettings.allItems;
 
             // To not add empty category

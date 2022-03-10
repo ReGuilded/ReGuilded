@@ -39,7 +39,7 @@ function webpackModule(index: number, svgModule: WebpackBundle): WebpackBundle {
  */
 export default function push(this: WebpackJsonp, mod: WebpackBundle | undefined) {
     // Makes sure that undefined is not pushed
-    if (typeof mod === "undefined") return;
+    if (typeof mod == "undefined") return;
     // Pushes fake module instead
     this._push(webpackModule(window.webpackJsonp.length, mod));
 

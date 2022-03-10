@@ -17,7 +17,7 @@ import * as electron from "electron";
 import { _load } from "module";
 
 // Ensures application isn't ran as root on linux
-if (platform === "linux" && getuid() === 0) {
+if (platform == "linux" && getuid() == 0) {
     console.warn(
         "\x1b[1m\x1b[33m%s\x1b[0m",
         "Seems this application was ran as root, it has been closed by ReGuilded to prevent issues, run as a regular user instead!"
@@ -145,7 +145,7 @@ app.whenReady().then(() => {
                                 if (modifiedPolicyStr.includes(`${directive}-elem`)) directive = `${directive}-elem`;
 
                                 // If directive (-elem or otherwise) is still not found, just append to default-src, failing that make it from scratch
-                                if (entry !== "all") {
+                                if (entry != "all") {
                                     if (modifiedPolicyStr.includes(directive))
                                         modifiedPolicyStr = modifiedPolicyStr.replace(
                                             directive,
@@ -179,7 +179,7 @@ app.whenReady().then(() => {
                 });
                 // Apply Custom Whitelist
                 for (const directive in customCspWhitelistParam) {
-                    if (directive !== "all")
+                    if (directive != "all")
                         cspWhitelist[directive] = cspWhitelist[directive]
                             .concat(customCspWhitelist[directive])
                             .concat(customCspWhitelist["all"]);

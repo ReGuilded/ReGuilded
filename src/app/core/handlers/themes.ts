@@ -49,7 +49,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
         // Since we already have it loaded, we need to update it and unload
         if (loaded && ~this.enabled.indexOf(currentOrPreviousId)) this.unloadWithId(currentOrPreviousId);
 
-        const propFiles = typeof metadata.files === "string" ? [metadata.files] : metadata.files;
+        const propFiles = typeof metadata.files == "string" ? [metadata.files] : metadata.files;
         metadata.files = propFiles;
 
         // Since we turned string into single-item array,
@@ -108,7 +108,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
                         return reject(`Incorrect syntax of the name of the property '${propId}'`);
 
                     const prop = metadata.settings[propId];
-                    if (typeof prop !== "object") return reject(`Expected property '${propId}' to be of type 'object'`);
+                    if (typeof prop != "object") return reject(`Expected property '${propId}' to be of type 'object'`);
 
                     if (!prop.name) prop.name = propId;
 
@@ -133,7 +133,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
                                 // If it's of type url, wrap it in url(...)
                                 // --id:value
                                 // --id:url(value)
-                                return `--${id}:${prop.type === "url" ? `url(${prop.value})` : prop.value}`;
+                                return `--${id}:${prop.type == "url" ? `url(${prop.value})` : prop.value}`;
                             })
                             .join(";")}}`
                     })
@@ -143,7 +143,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
             new Promise<void>((resolve, reject) => {
                 if (!metadata.extensions) return resolve();
 
-                if (typeof metadata.extensions !== "object")
+                if (typeof metadata.extensions != "object")
                     return reject(
                         `Unexpected type of the metadata.extensions. Expected 'object', got '${typeof metadata.extensions}' instead`
                     );

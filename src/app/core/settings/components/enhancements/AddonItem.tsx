@@ -41,7 +41,7 @@ export default class AddonItem extends React.Component<EnhancementGridItemProps<
         return (
             <EnhancementItem {...props} overflowMenuSection={this._overflowMainSection}>
                 {/* Additional info in the footer */}
-                { typeof _error !== "undefined" && <IconAndLabel className="ReGuildedEnhancement-info-point ReGuildedEnhancement-error-point" iconName="icon-failed-send" label="An error occurred" labelClassName="GuildedText-container-color-errorRed" /> }
+                { typeof _error != "undefined" && <IconAndLabel className="ReGuildedEnhancement-info-point ReGuildedEnhancement-error-point" iconName="icon-failed-send" label="An error occurred" labelClassName="GuildedText-container-color-errorRed" /> }
             </EnhancementItem>
         );
     }

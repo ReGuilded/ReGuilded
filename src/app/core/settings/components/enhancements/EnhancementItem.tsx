@@ -170,7 +170,7 @@ export function generateOverflowMenu(enhancement: AnyEnhancement, enhancementHan
  * @param newState The newer state received from toggling
  */
 export async function handleToggle<T extends { hasToggled: boolean }>(this: T, oldState: boolean, onToggle: (enabled: boolean) => Promise<void>, newState: boolean) {
-    if (this.hasToggled || (newState !== oldState && typeof newState === "boolean")) {
+    if (this.hasToggled || (newState != oldState && typeof newState == "boolean")) {
         this.hasToggled = true;
         await onToggle(newState);
     }

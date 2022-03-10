@@ -104,7 +104,7 @@ export default abstract class EnhancementHandler<
      */
     loadAll(): void {
         for (let enhancementId of this.enabled) {
-            const enhancement = this.all.find(x => x.id === enhancementId);
+            const enhancement = this.all.find(x => x.id == enhancementId);
 
             if (enhancement) this.load(enhancement);
         }
@@ -146,7 +146,7 @@ export default abstract class EnhancementHandler<
         if (~this.enabled.indexOf(metadata.id)) this.unload(metadata);
 
         this.all.splice(
-            this.all.findIndex(other => other.id === metadata.id),
+            this.all.findIndex(other => other.id == metadata.id),
             1
         );
 
@@ -157,7 +157,7 @@ export default abstract class EnhancementHandler<
         this.checkEnhancement(metadata);
 
         // Update its metadata
-        const inAll = this.all.findIndex(other => other.id === currentOrPreviousId);
+        const inAll = this.all.findIndex(other => other.id == currentOrPreviousId);
         if (~inAll) this.all.splice(inAll, 1);
 
         this.all.push(metadata);
@@ -177,10 +177,10 @@ export default abstract class EnhancementHandler<
         const { id, version, repoUrl, subtitle } = enhancement;
 
         // ID
-        if (!(typeof id === "string" && id.match(EnhancementHandler.idRegex)))
+        if (!(typeof id == "string" && id.match(EnhancementHandler.idRegex)))
             throw new Error(`Incorrect syntax of the property 'id'`);
         // Version
-        if (version && !(typeof version === "string" && this.versionFormatIsFine(enhancement, version))) {
+        if (version && !(typeof version == "string" && this.versionFormatIsFine(enhancement, version))) {
             console.warn(
                 `The property 'version' must be a number array with optionally last string or have "rolling" as a value — Enhancement by ID '%s'`,
                 enhancement.id
@@ -188,7 +188,7 @@ export default abstract class EnhancementHandler<
             enhancement.version = enhancement._versionMatches = null;
         }
         // Repo URL
-        if (repoUrl && !(typeof repoUrl === "string" && this.repoFormatIsFine(enhancement, repoUrl))) {
+        if (repoUrl && !(typeof repoUrl == "string" && this.repoFormatIsFine(enhancement, repoUrl))) {
             console.warn(
                 `The property 'version' must be a string that contains URL to the repository of the enhancement — Enhancement by ID '%s'`,
                 enhancement.id
@@ -197,7 +197,7 @@ export default abstract class EnhancementHandler<
         }
         // Short description; README can be weirdly cut
         if (subtitle) {
-            if (typeof subtitle !== "string")
+            if (typeof subtitle != "string")
                 console.warn(
                     `The property 'shortDescription' must be a one-line string with maximum of 200 characters — Enhancement by ID '%s'`,
                     enhancement.id
