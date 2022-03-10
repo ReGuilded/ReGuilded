@@ -2,6 +2,7 @@ import { promises as fsPromises, readFile, writeFile } from "fs";
 import { isAbsolute, join, resolve as pathResolve } from "path";
 import EnhancementManager from "./enhancement";
 import { Theme } from "../../common/enhancements";
+import { fetchCss } from "../util";
 
 // TODO: Checking
 export default class ThemeManager extends EnhancementManager<Theme> {
@@ -30,13 +31,39 @@ export default class ThemeManager extends EnhancementManager<Theme> {
         });
     }
     protected override async onFileChange(metadata: Theme): Promise<void> {
+        const { dirname: themeDirname } = metadata;
+
         const files = typeof metadata.files === "string" ? [metadata.files] : metadata.files;
 
         await Promise.all([
             // CSS files
-            Promise.all(files.map(file => fsPromises.readFile(pathResolve(metadata.dirname, file), "utf8")))
+            Promise.all(files.map(file => fetchCss(metadata.dirname, file)))
                 .then(styleSheets => (metadata.css = styleSheets))
                 .catch(e => console.error("Failed to get CSS file", e)),
+            // Extension CSS files
+            new Promise(async (resolve, reject) => {
+                const extType = typeof metadata.extensions;
+
+                if (extType != "undefined" && extType != "object")
+                    return reject(new TypeError(`Expected to have metadata.extensions to be object or undefined`));
+
+                for (let extId in metadata.extensions) {
+                    const ext = metadata.extensions[extId];
+
+                    // Ensure types
+                    if (typeof ext != "object")
+                        return reject(new TypeError(`Expected all items in metadata.extensions dictionary to be objects`));
+                    if (typeof ext.file != "string")
+                        return reject(new TypeError(`Expected metadata.extensions[x].file to be a string`));
+
+                    await fetchCss(themeDirname, ext.file)
+                        .then(content => (ext.file = content))
+                        .then(resolve);
+                }
+            }).catch(e => {
+                console.error("Error while fetching extensions of theme by ID '%s':\n", metadata.id, e);
+                metadata.extensions = null;
+            }),
             // Settings file
             fsPromises
                 .readFile(join(metadata.dirname, "settings.json"), "utf8")
@@ -45,14 +72,13 @@ export default class ThemeManager extends EnhancementManager<Theme> {
 
                     // Validate settings
                     if (typeof settings !== "object")
-                        throw new TypeError(
-                            `Expected theme by ID '${metadata.id}' to have object at the root of settings.json.`
-                        );
-                    else metadata.settingsProps = Object.keys((metadata.settings = settings));
+                        throw new TypeError(`Expected to have object at the root of settings.json`);
+
+                    metadata.settings = settings;
                 })
                 .catch(e => {
                     if (e.code !== "ENOENT")
-                        console.error("Error while fetching settings of theme by ID '%s'", metadata.id, e);
+                        console.error("Error while fetching settings of theme by ID '%s':\n", metadata.id, e);
                 })
         ]);
     }

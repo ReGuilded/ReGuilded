@@ -29,3 +29,10 @@ export async function getSmallImageUrl(dirname: string, path: string) {
         })
         .then(() => nativeImage.createFromPath(filePath).toDataURL());
 }
+
+export async function fetchCss(dirname: string, cssPath: string) {
+    const protocol = cssPath.split("://", 1)[0].toLowerCase();
+
+    if (protocol == "https" || protocol == "http") return `@import url("${cssPath}");`;
+    else return await fsPromises.readFile(pathResolve(dirname, cssPath), "utf8");
+}

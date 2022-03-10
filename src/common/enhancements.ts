@@ -1,4 +1,4 @@
-export declare interface Enhancement<T extends string | string[]> {
+export declare interface Enhancement<T> {
     id: string;
     name: string;
     files: T;
@@ -45,7 +45,16 @@ export declare interface Theme extends Enhancement<string[]> {
     /**
      * The list of `settings` properties.
      */
-    settingsProps: string[];
+    _settingsProps: string[];
+
+    extensions: {
+        [id: string]: {
+            name?: string;
+            description?: string;
+            file: string;
+        };
+    };
+    _extensionIds: string[];
 }
 export type AddonExports = {
     load: () => any;
@@ -61,4 +70,4 @@ export declare interface Addon extends Enhancement<string> {
     _error?: Error | string;
     _missingPerms?: number;
 }
-export type AnyEnhancement = Enhancement<string | string[]>;
+export type AnyEnhancement = Enhancement<any>;

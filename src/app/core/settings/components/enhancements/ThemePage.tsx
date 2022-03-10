@@ -83,7 +83,7 @@ export default class ThemePage extends React.Component<Props> {
                     sectionStyle: "border-unpadded",
                     sections: [
                         {
-                            fieldSpecs: ThemeItem.generateSettingsFields(enhancement.settings, enhancement.settingsProps)
+                            fieldSpecs: ThemeItem.generateSettingsFields(enhancement.settings, enhancement._settingsProps)
                         },
                         {
                             fieldSpecs: [

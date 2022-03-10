@@ -11,7 +11,7 @@ export type ReGuildedSettings = {
     keepSplash: boolean;
     debugMode: boolean;
     addons: ReGuildedAddonSettings;
-    themes: ReGuildedEnhancementSettings;
+    themes: ReGuildedThemeSettings;
 };
 export type ReGuildedWhitelist = {
     all: Array<string>;
@@ -35,4 +35,7 @@ export declare interface ReGuildedEnhancementSettings {
 }
 export declare interface ReGuildedAddonSettings extends ReGuildedEnhancementSettings {
     permissions: { [addonId: string]: number };
+}
+export declare interface ReGuildedThemeSettings extends ReGuildedEnhancementSettings {
+    enabledExtensions: { [addonId: string]: string[] };
 }

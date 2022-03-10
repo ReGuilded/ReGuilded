@@ -15,7 +15,7 @@ export const defaultSettings: ReGuildedSettings = {
     keepSplash: false,
     debugMode: false,
     addons: { enabled: [], permissions: {} },
-    themes: { enabled: [] }
+    themes: { enabled: [], enabledExtensions: {} }
 };
 
 /**
@@ -42,6 +42,9 @@ export default class SettingsManager extends ConfigManager<ReGuildedSettings> {
      */
     constructor(directory: string, [settings, whitelist]: [ReGuildedSettings, ReGuildedWhitelist]) {
         super(directory, "settings.json", Object.assign({}, defaultSettings, settings));
+
+        // Update config from previous versions
+        if (!this.config.themes.enabledExtensions) this.config.themes.enabledExtensions = {};
 
         // Removes Src from whitelist entries if found
         for (const entry in whitelist) {

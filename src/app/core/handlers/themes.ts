@@ -95,53 +95,64 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
      * @param metadata Theme metadata
      * @param group The datagroup element of the theme
      */
-    checkAndDoSettings(metadata: Theme, group: Element) {
-        if (!metadata.settings) return;
+    async checkAndDoSettings(metadata: Theme, group: Element) {
+        return await Promise.all([
+            // Settings
+            new Promise<void>((resolve, reject) => {
+                if (!metadata.settings) return resolve();
 
-        // Using keys instead of values to validate id as well
-        for (let propId of metadata.settingsProps) {
-            // Validate ID
-            if (!propId.match(EnhancementHandler.idRegex))
-                return console.warn("Incorrect syntax for property", propId, ". Theme ID:", metadata.id);
+                // Using keys instead of values to validate id as well
+                for (let propId of (metadata._settingsProps = Object.keys(metadata.settings))) {
+                    // Validate ID
+                    if (!propId.match(EnhancementHandler.idRegex))
+                        return reject(`Incorrect syntax of the name of the property '${propId}'`);
 
-            const prop = metadata.settings[propId];
-            if (typeof prop !== "object")
-                return console.warn(
-                    "Expected theme settings property",
-                    propId,
-                    "to be of type 'object'. Theme ID:",
-                    metadata.id
-                );
+                    const prop = metadata.settings[propId];
+                    if (typeof prop !== "object") return reject(`Expected property '${propId}' to be of type 'object'`);
 
-            if (!prop.name) prop.name = propId;
+                    if (!prop.name) prop.name = propId;
 
-            // Validate property's type (not JS type)
-            if (!~ThemeHandler.allowedSettingsTypes.indexOf(prop.type)) {
-                console.warn("Unknown settings property type", prop.type, "in theme", metadata.id);
-                prop.type = undefined;
-            }
-            // Check value's type
-            const valueType = typeof prop.value;
-            if (!~ThemeHandler.allowedSettingsValues.indexOf(valueType)) {
-                console.warn("Unknown settings property value type", valueType, "in theme", metadata.id);
-                prop.value = prop.value.toString();
-            }
-        }
-        group.appendChild(
-            Object.assign(document.createElement("style"), {
-                id: "ReGuildedStyleTheme-settings",
-                // #app { --a: b; --c: d }
-                innerHTML: `#app{${metadata.settingsProps
-                    .map(id => {
-                        const prop = metadata.settings[id];
-                        // If it's of type url, wrap it in url(...)
-                        // --id:value
-                        // --id:url(value)
-                        return `--${id}:${prop.type === "url" ? `url(${prop.value})` : prop.value}`;
+                    // Validate property's type (not JS type)
+                    if (!~ThemeHandler.allowedSettingsTypes.indexOf(prop.type))
+                        return reject(`Unknown settings property type ${prop.type}`);
+
+                    // Check value's type
+                    const valueType = typeof prop.value;
+                    if (!~ThemeHandler.allowedSettingsValues.indexOf(valueType))
+                        return reject(`Unknown settings property value type ${valueType}`);
+                }
+                // If warnings instead of rejections get reimplemented, make sure to not use
+                // _settingsProps or use copy of it with removed invalid properties
+                group.appendChild(
+                    Object.assign(document.createElement("style"), {
+                        id: "ReGuildedStyleTheme-settings",
+                        // #app { --a: b; --c: d }
+                        innerHTML: `#app{${metadata._settingsProps
+                            .map(id => {
+                                const prop = metadata.settings[id];
+                                // If it's of type url, wrap it in url(...)
+                                // --id:value
+                                // --id:url(value)
+                                return `--${id}:${prop.type === "url" ? `url(${prop.value})` : prop.value}`;
+                            })
+                            .join(";")}}`
                     })
-                    .join(";")}}`
+                );
+            }).catch(error => console.warn("Failed to do settings of the theme by ID '%s': ", metadata.id, error)),
+            // Extensions
+            new Promise<void>((resolve, reject) => {
+                if (!metadata.extensions) return resolve();
+
+                if (typeof metadata.extensions !== "object")
+                    return reject(
+                        `Unexpected type of the metadata.extensions. Expected 'object', got '${typeof metadata.extensions}' instead`
+                    );
+
+                for (let extensionId of (metadata._extensionIds = Object.keys(metadata.extensions))) {
+                    // TODO: Extensions client-sided, extension sub-tab in theme pages
+                }
             })
-        );
+        ]);
     }
     /**
      * Assigns properties to theme settings.

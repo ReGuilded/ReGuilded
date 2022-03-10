@@ -32,6 +32,7 @@ export default class ReGuilded {
     constructor() {
         this.settingsHandler = new ConfigHandler(window.ReGuildedConfig.settings);
         this.stateHandler = new ConfigHandler(window.ReGuildedConfig.state);
+
         // Creates Themes & Addons manager
         this.themes = new ThemeHandler(this, this.settingsHandler.config.themes, this.settingsHandler, window.ReGuildedConfig.themes);
         this.addons = new AddonHandler(this, this.settingsHandler.config.addons, this.settingsHandler, window.ReGuildedConfig.addons);
