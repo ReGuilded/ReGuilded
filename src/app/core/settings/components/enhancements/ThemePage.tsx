@@ -1,11 +1,12 @@
 //#region Imports
 import { ReactNode } from "react";
-import { Theme } from "../../../../../common/enhancements";
+import { Theme, ThemeCssVariableType, ThemeSettings } from "../../../../../common/enhancements";
 import { TabOption } from "../../../../guilded/components/sections";
+import { FieldAnySpecs, FieldRadioSpecs, FieldTextSpecs, OptionRadioSpecs } from "../../../../guilded/form";
+import validation from "../../validation";
 import ErrorBoundary from "../ErrorBoundary";
 import { PagedSettingsChildProps } from "../PagedSettings";
 import EnhancementPage from "./EnhancementPage";
-import ThemeItem from "./ThemeItem";
 
 const React = window.ReGuilded.getApiProperty("react"),
     { default: savableSettings } = window.ReGuilded.getApiProperty("guilded/settings/savableSettings"),
@@ -43,9 +44,12 @@ export default class ThemePage extends React.Component<Props> {
      * @param param0 Settings form output
      */
     protected *onSaveChanges({ values, isValid }) {
-        if (isValid)
+        if (isValid) {
+            const fixedValues = ThemePage.fixFormValues(values, this.props.enhancement.settings, this.props.enhancement._settingsProps);
+
             // Change this if colour fields will be used
-            window.ReGuilded.themes.assignProperties(this.props.enhancement, values);
+            window.ReGuilded.themes.assignProperties(this.props.enhancement, fixedValues);
+        }
     }
     render() {
         return (
@@ -83,7 +87,7 @@ export default class ThemePage extends React.Component<Props> {
                     sectionStyle: "border-unpadded",
                     sections: [
                         {
-                            fieldSpecs: ThemeItem.generateSettingsFields(enhancement.settings, enhancement._settingsProps)
+                            fieldSpecs: ThemePage.generateSettingsFields(enhancement.settings, enhancement._settingsProps)
                         },
                         {
                             fieldSpecs: [
@@ -100,5 +104,47 @@ export default class ThemePage extends React.Component<Props> {
                 }}/>
             </div>
         );
+    }
+    static generateSettingsFields(settings: ThemeSettings, settingsProps: string[]): FieldAnySpecs[] {
+        return settingsProps.map<FieldRadioSpecs | FieldTextSpecs>(prop => {
+            const { type, name, value, options } = settings[prop];
+
+            return options
+                ? {
+                    type: "Radios",
+                    fieldName: prop,
+
+                    label: name,
+                    defaultValue: { optionName: value as number },
+
+                    options: options.map((option, index) => ({
+                        optionName: index,
+                        label: option.name
+                    }))
+                }
+                : {
+                    type: "Text",
+                    fieldName: prop,
+
+                    header: name,
+                    label: type ? `Value (${type})` : "Value",
+                    defaultValue: value as string,
+
+                    inputType: type == "number" ? type : undefined,
+                    validationFunction: validation[type],
+
+                    grow: 1
+                }
+        });
+    }
+    static fixFormValues(values: { [fieldName: string]: string | number | undefined | null | OptionRadioSpecs }, settings: ThemeSettings, settingsProps: string[]): { [name: string]: ThemeCssVariableType } {
+        const valuesCopy = Object.assign({}, values);
+
+        for (let prop of settingsProps)
+            // Since .options forces to use radio
+            if (settings[prop].options)
+                valuesCopy[prop] = (values[prop] as OptionRadioSpecs).optionName as ThemeCssVariableType;
+
+        return valuesCopy as { [name: string]: ThemeCssVariableType };
     }
 }

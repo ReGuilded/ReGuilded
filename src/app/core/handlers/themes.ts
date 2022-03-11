@@ -108,6 +108,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
                         return reject(`Incorrect syntax of the name of the property '${propId}'`);
 
                     const prop = metadata.settings[propId];
+
                     if (typeof prop != "object") return reject(`Expected property '${propId}' to be of type 'object'`);
 
                     if (!prop.name) prop.name = propId;
@@ -118,9 +119,20 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
 
                     // Check value's type
                     const valueType = typeof prop.value;
+
                     if (!~ThemeHandler.allowedSettingsValues.indexOf(valueType))
                         return reject(`Unknown settings property value type ${valueType}`);
+
+                    if (Array.isArray(prop.options)) {
+                        const selectedOption = prop.options[prop.value as number];
+
+                        if (!selectedOption)
+                            return reject(`Could not index settings[x].options item based on given settings[x].value`);
+
+                        prop._optionValue = selectedOption.value;
+                    } else if (prop.options != undefined) return reject(`Expected settings[x].options to be an array`);
                 }
+
                 // If warnings instead of rejections get reimplemented, make sure to not use
                 // _settingsProps or use copy of it with removed invalid properties
                 group.appendChild(
@@ -130,26 +142,24 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
                         innerHTML: `#app{${metadata._settingsProps
                             .map(id => {
                                 const prop = metadata.settings[id];
+                                const propValue = prop._optionValue || prop.value;
                                 // If it's of type url, wrap it in url(...)
                                 // --id:value
                                 // --id:url(value)
-                                return `--${id}:${prop.type == "url" ? `url(${prop.value})` : prop.value}`;
+                                return `--${id}:${prop.type == "url" ? `url(${propValue})` : propValue}`;
                             })
                             .join(";")}}`
                     })
                 );
-            }).catch(error => console.warn("Failed to do settings of the theme by ID '%s': ", metadata.id, error)),
+                resolve();
+            }).catch(error => console.error("Failed to do settings of the theme by ID '%s':", metadata.id, error)),
             // Extensions
             new Promise<void>((resolve, reject) => {
                 if (!metadata.extensions) return resolve();
 
-                if (typeof metadata.extensions != "object")
-                    return reject(
-                        `Unexpected type of the metadata.extensions. Expected 'object', got '${typeof metadata.extensions}' instead`
-                    );
-
-                for (let extensionId of (metadata._extensionIds = Object.keys(metadata.extensions))) {
+                for (const extension of metadata.extensions) {
                     // TODO: Extensions client-sided, extension sub-tab in theme pages
+                    resolve();
                 }
             })
         ]);

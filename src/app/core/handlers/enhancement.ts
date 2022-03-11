@@ -18,7 +18,7 @@ export default abstract class EnhancementHandler<
     /**
      * A Regex pattern for determining whether given enhancement's ID is correct.
      */
-    static idRegex: RegExp = /^[A-Za-z0-9]+$/g;
+    static idRegex: RegExp = /^[A-Za-z0-9\-_.]+$/g;
     static versionRegex =
         /^(0|[1-9]\d*)(?:[.](0|[1-9]\d*))+(?:\-([Aa]lpha|[Bb]eta|[Gg]amma|[Rr]c)(?:[.]([1-9]\d*))?(?:[+][A-Za-z0-9-]*(?:[.][A-Za-z0-9-])*))?$/;
     static repoRegex =
@@ -59,6 +59,10 @@ export default abstract class EnhancementHandler<
     }
     async init(): Promise<void> {
         this.config.setWatchCallback(this.watchCallback.bind(this));
+
+        const fetched = this.config.getAll();
+
+        this.settingsHandler.config.debugMode && console.log("Fetched enhancements:", fetched);
 
         // Load the ones that were too early and were added before watch callback was set
         await Promise.all(

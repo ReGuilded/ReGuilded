@@ -1,7 +1,7 @@
 import { promises as fsPromises, readFile, writeFile } from "fs";
 import { isAbsolute, join, resolve as pathResolve } from "path";
 import EnhancementManager from "./enhancement";
-import { Theme } from "../../common/enhancements";
+import { Theme, ThemeCssVariableType } from "../../common/enhancements";
 import { fetchCss } from "../util";
 
 // TODO: Checking
@@ -16,7 +16,7 @@ export default class ThemeManager extends EnhancementManager<Theme> {
      * @param themeId The name of the theme
      * @param props The settings property values
      */
-    setThemeSettings(themeId: string, props: { [settingsProp: string]: string | number | boolean | undefined }) {
+    setThemeSettings(themeId: string, props: { [settingsProp: string]: ThemeCssVariableType }) {
         const metadata = this.idsToMetadata[themeId];
 
         if (!metadata) throw new Error(`Theme by ID '${themeId}' does not exist.`);
@@ -31,42 +31,41 @@ export default class ThemeManager extends EnhancementManager<Theme> {
         });
     }
     protected override async onFileChange(metadata: Theme): Promise<void> {
-        const { dirname: themeDirname } = metadata;
+        const { dirname: themesDirname } = metadata;
 
         const files = typeof metadata.files == "string" ? [metadata.files] : metadata.files;
 
         await Promise.all([
             // CSS files
-            Promise.all(files.map(file => fetchCss(metadata.dirname, file)))
+            Promise.all(files.map(file => fetchCss(themesDirname, file)))
                 .then(styleSheets => (metadata.css = styleSheets))
-                .catch(e => console.error("Failed to get CSS file", e)),
+                .catch(e => console.error("Failed to get CSS file:", e)),
             // Extension CSS files
-            new Promise(async (resolve, reject) => {
-                const extType = typeof metadata.extensions;
+            new Promise<void>(async (resolve, reject) => {
+                const { extensions } = metadata;
 
-                if (extType != "undefined" && extType != "object")
-                    return reject(new TypeError(`Expected to have metadata.extensions to be object or undefined`));
+                if (extensions == null) resolve();
+                // Easier to handle arrays than objects
+                else if (Array.isArray(extensions)) {
+                    for (const extension of metadata.extensions) {
+                        // Ensure types
+                        if (typeof extension != "object")
+                            return reject(new TypeError(`Expected all items in metadata.extensions array to be objects`));
+                        else if (typeof extension.file != "string")
+                            return reject(new TypeError(`Expected metadata.extensions[i].file to be a string`));
 
-                for (let extId in metadata.extensions) {
-                    const ext = metadata.extensions[extId];
-
-                    // Ensure types
-                    if (typeof ext != "object")
-                        return reject(new TypeError(`Expected all items in metadata.extensions dictionary to be objects`));
-                    if (typeof ext.file != "string")
-                        return reject(new TypeError(`Expected metadata.extensions[x].file to be a string`));
-
-                    await fetchCss(themeDirname, ext.file)
-                        .then(content => (ext.file = content))
-                        .then(resolve);
-                }
+                        await fetchCss(themesDirname, extension.file)
+                            .then(content => void (extension.file = content))
+                            .then(resolve);
+                    }
+                } else reject(new TypeError(`Expected to have metadata.extensions as an array or undefined`));
             }).catch(e => {
                 console.error("Error while fetching extensions of theme by ID '%s':\n", metadata.id, e);
                 metadata.extensions = null;
             }),
             // Settings file
             fsPromises
-                .readFile(join(metadata.dirname, "settings.json"), "utf8")
+                .readFile(join(themesDirname, "settings.json"), "utf8")
                 .then(d => {
                     let settings = JSON.parse(d);
 

@@ -23,6 +23,21 @@ export declare interface Enhancement<T> {
         path: string;
     };
 }
+
+export type ThemeCssVariableType = string | number | undefined | null;
+export type ThemeSettings = {
+    [id: string]: {
+        name?: string;
+        type?: "url" | "size" | "color" | "number" | "percent" | undefined | null;
+        value?: ThemeCssVariableType;
+        options?: Array<{
+            name: string;
+            value: ThemeCssVariableType;
+        }>;
+        _optionValue?: ThemeCssVariableType;
+    };
+};
+
 export declare interface Theme extends Enhancement<string[]> {
     /**
      * The list of CSS content of this theme.
@@ -31,30 +46,18 @@ export declare interface Theme extends Enhancement<string[]> {
     /**
      * The settings of the theme.
      */
-    settings: {
-        [id: string]: {
-            name?: string;
-            type?: "url" | "size" | "color" | "number" | "percent" | undefined | null;
-            value?: string | number | boolean | undefined | null;
-            options?: Array<{
-                name: string;
-                value: string;
-            }>;
-        };
-    };
+    settings?: ThemeSettings;
     /**
      * The list of `settings` properties.
      */
-    _settingsProps: string[];
+    _settingsProps?: string[];
 
-    extensions: {
-        [id: string]: {
-            name?: string;
-            description?: string;
-            file: string;
-        };
-    };
-    _extensionIds: string[];
+    extensions?: Array<{
+        id: string;
+        name?: string;
+        description?: string;
+        file: string;
+    }>;
 }
 export type AddonExports = {
     load: () => any;

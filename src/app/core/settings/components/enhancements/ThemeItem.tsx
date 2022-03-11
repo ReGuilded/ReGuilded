@@ -46,22 +46,4 @@ export default class ThemeItem extends React.Component<EnhancementGridItemProps<
             <EnhancementItem {...props} overflowMenuSection={_overflowMainSection} />
         )
     }
-    static generateSettingsFields(settings: object, settingsProps: string[]): FieldAnySpecs[] {
-        return settingsProps.map(id => {
-            const { type, value, name } = settings[id];
-
-            return {
-                type: "Text",
-                fieldName: id,
-                header: name,
-                label: type ? `Value (${type})` : "Value",
-                defaultValue: value,
-
-                inputType: type == "number" ? type : undefined,
-                validationFunction: validations[type],
-
-                grow: 1
-            };
-        });
-    }
 }
