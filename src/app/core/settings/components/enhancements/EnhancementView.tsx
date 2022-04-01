@@ -51,7 +51,7 @@ export default abstract class EnhancementView<T extends AnyEnhancement> extends 
         };
         this._onToggleBinded = this._onToggle.bind(this);
         this._onDeleteBinded = this._onDelete.bind(this);
-        this._openDirectory = window.ReGuildedConfig.openItem.bind(null, this.props.enhancement.dirname);
+        this._openDirectory = window.ReGuildedConfig.openItem.bind(this.props.enhancement.dirname);
         this.SaveChanges = coroutine(this.onSaveChanges);
     }
     protected abstract onSaveChanges(formOutput: FormOutput): Iterable<PromiseLike<unknown>>;
