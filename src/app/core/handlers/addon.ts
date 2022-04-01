@@ -38,7 +38,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
      * Initiates addons for ReGuilded and addon manager
      */
     async init(): Promise<void> {
-        this.settingsHandler.settings.debugMode && console.log("Initiating addon manager");
+        console.debug("Initiating addon manager");
 
         await super.init();
     }
@@ -93,9 +93,9 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
     async load(metadata: Addon): Promise<void> {
         // Try-catch errors to prevent conflicts with other plugins
         try {
-            this.settingsHandler.settings.debugMode && console.log(`Loading addon by ID '${metadata.id}'`);
+            console.debug(`Loading addon by ID '${metadata.id}'`);
             // Check if it's first time loading
-            console.log("Load initialized", JSON.stringify(metadata.id));
+            console.debug("Load initialized", JSON.stringify(metadata.id));
             if (!~this.initialized.indexOf(metadata.id)) {
                 this.addonApis[metadata.id] = new AddonApi(this.webpack, this, metadata.id);
 
@@ -107,7 +107,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
                         // One-time `init` function
                         AddonHandler._functionExists(metadata, "init") && metadata.exports.init();
 
-                        console.log("Loading first time");
+                        console.debug("Loading first time");
                         this.initialized.push(metadata.id);
                         metadata.exports.load();
                     })
@@ -124,7 +124,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
      */
     unload(metadata: Addon) {
         try {
-            this.settingsHandler.settings.debugMode && console.log(`Unloading addon by ID '${metadata.id}''`);
+            console.debug(`Unloading addon by ID '${metadata.id}''`);
             AddonHandler._functionExists(metadata, "unload") && metadata.exports.unload(this, this.webpack);
         } catch (e) {
             console.error(`Failed to unload an addon by ID '${metadata.id}':\n`, e);

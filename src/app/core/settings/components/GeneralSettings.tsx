@@ -13,8 +13,7 @@ const { default: Form } = window.ReGuilded.getApiProperty("guilded/components/Fo
 type GeneralSettingsValues = {
     loadImages: boolean,
     loadAuthors: boolean,
-    keepSplash: boolean,
-    debugMode: boolean,
+    keepSplash: boolean
     badge: { optionName: number },
     autoUpdate: boolean
 }
@@ -37,10 +36,10 @@ export default class GeneralSettings extends React.Component {
     }
     private *onSaveChanges({ changedValues, values, isValid }) {
         if(isValid) {
-            const { loadAuthors, loadImages, badge: { optionName: badge }, keepSplash, debugMode, autoUpdate }: GeneralSettingsValues = values;
+            const { loadAuthors, loadImages, badge: { optionName: badge }, keepSplash, autoUpdate }: GeneralSettingsValues = values;
             // Since we need to convert form values to proper values
             // (E.g., radios always returning { optionName: "xyz" } instead of "xyz")
-            const configValues = { loadAuthors, loadImages, badge: badge, keepSplash, debugMode, autoUpdate };
+            const configValues = { loadAuthors, loadImages, badge: badge, keepSplash, autoUpdate };
 
             yield window.ReGuilded.settingsHandler.updateSettings(configValues)
                 .then(() => {
@@ -200,14 +199,6 @@ export default class GeneralSettings extends React.Component {
                                     description: "Keeps Splash/Loading Screen Open",
 
                                     defaultValue: settings.keepSplash
-                                },
-                                {
-                                    type: "Switch",
-                                    fieldName: "debugMode",
-                                    label: "Debug Mode",
-                                    description: "Enabled Debug Mode, meaning ReGuilded will output debug lines to Dev Tools.",
-
-                                    defaultValue: settings.debugMode
                                 }
                             ]
                         }

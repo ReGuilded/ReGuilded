@@ -15,7 +15,7 @@ export default async function handleUpdate(updateInfo: VersionJson) {
             stream(downloadUrl)
                 .pipe(createWriteStream(downloadPath))
                 .on("finish", () => {
-                    window.ReGuilded.settingsHandler.settings.debugMode && console.log("Download Finished");
+                    console.debug("Download Finished");
 
                     process.noAsar = false;
                     resolve(true);
