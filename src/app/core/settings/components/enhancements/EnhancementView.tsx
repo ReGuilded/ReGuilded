@@ -9,8 +9,7 @@ import { ReactElement } from "react";
 import { FormOutput } from "../../../../guilded/form";
 
 const React = window.ReGuilded.getApiProperty("react"),
-    { default: SvgIcon } = window.ReGuilded.getApiProperty("guilded/components/SvgIcon"),
-    { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
+    { default: ScreenHeader } = window.ReGuilded.getApiProperty("guilded/components/ScreenHeader"),
     { default: Form } = window.ReGuilded.getApiProperty("guilded/components/Form"),
     { default: overlayProvider } = window.ReGuilded.getApiProperty("guilded/overlays/overlayProvider"),
     { default: savableSettings } = window.ReGuilded.getApiProperty("guilded/settings/savableSettings"),
@@ -139,28 +138,26 @@ export default abstract class EnhancementView<T extends AnyEnhancement> extends 
 
         return (
             <ErrorBoundary>
-                <div className="OptionsMenuPageWrapper-container ReGuildedEnhancementPage-wrapper" style={{ paddingLeft: 32, paddingRight: 32, maxWidth: "100%" }}>
+                <div className="ReGuildedEnhancementPage-wrapper">
                     <div className="ReGuildedEnhancementPage-container">
-                        <header className="ReGuildedEnhancementPage-header DocsDisplayV2-title">
-                            {/* <| */}
-                            <div className="BackLink-container BackLink-container-desktop BackLink-container-size-md ScreenHeader-back" onClick={() => switchTab("list", { enhancement: {} })}>
-                                <SvgIcon iconName="icon-back" className="BackLink-icon"/>
-                            </div>
-                            {/* Title */}
-                            <GuildedText type="heading3">{ enhancement.name } settings</GuildedText>
-                        </header>
-                        <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: tabs }} defaultSelectedTabIndex={defaultTabIndex}>
-                            <div className="ReGuildedEnhancementPage-tab">
-                                {/* Description */}
-                                { enhancement.readme?.length ? <MarkdownRenderer plainText={enhancement.readme} grammar={WebhookEmbed}/> : null }
-                                {/* Preview images carousel */}
-                                { enhancement.images && window.ReGuilded.settingsHandler.settings.loadImages &&
-                                    <PreviewCarousel enhancementId={enhancement.id} enhancementHandler={this.enhancementHandler} />
-                                }
-                                { this.renderActionForm() }
-                            </div>
-                            { this.renderTabs(enhancement) }
-                        </HorizontalTabs>
+                        <ScreenHeader className="ReGuildedEnhancementPage-screen-header"
+                            isBackLinkVisible
+                            onBackClick={() => switchTab("list", { enhancement: {} })}
+                            name={enhancement.name + " settings"} />
+                        <div className="ReGuildedSettings-container ReGuildedSettings-container-padded ReGuildedSettings-container-top-padded">
+                            <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: tabs }} defaultSelectedTabIndex={defaultTabIndex}>
+                                <div className="ReGuildedEnhancementPage-tab">
+                                    {/* Description */}
+                                    { enhancement.readme?.length ? <MarkdownRenderer plainText={enhancement.readme} grammar={WebhookEmbed}/> : null }
+                                    {/* Preview images carousel */}
+                                    { enhancement.images && window.ReGuilded.settingsHandler.settings.loadImages &&
+                                        <PreviewCarousel enhancementId={enhancement.id} enhancementHandler={this.enhancementHandler} />
+                                    }
+                                    { this.renderActionForm() }
+                                </div>
+                                { this.renderTabs(enhancement) }
+                            </HorizontalTabs>
+                        </div>
                     </div>
                 </div>
             </ErrorBoundary>
