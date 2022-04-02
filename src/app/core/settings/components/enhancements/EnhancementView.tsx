@@ -28,7 +28,6 @@ export default abstract class EnhancementView<T extends AnyEnhancement> extends 
     // Class functions with proper `this` to not rebind every time
     private _onToggleBinded: () => Promise<void>;
     private _onDeleteBinded: () => Promise<void>;
-    private _openDirectory: () => Promise<void>;
 
     // Configuration
     protected type: string;
@@ -50,7 +49,6 @@ export default abstract class EnhancementView<T extends AnyEnhancement> extends 
         };
         this._onToggleBinded = this._onToggle.bind(this);
         this._onDeleteBinded = this._onDelete.bind(this);
-        this._openDirectory = window.ReGuildedConfig.openItem.bind(this.props.enhancement.dirname);
         this.SaveChanges = coroutine(this.onSaveChanges);
     }
     protected abstract onSaveChanges(formOutput: FormOutput): Iterable<PromiseLike<unknown>>;
@@ -83,7 +81,7 @@ export default abstract class EnhancementView<T extends AnyEnhancement> extends 
      */
     private renderActionForm(): ReactElement {
         const [buttonType, buttonText] = this.state.enabled ? ["delete", "Disable"] : ["success", "Enable"],
-              { _onToggleBinded, _onDeleteBinded, _openDirectory } = this;
+              { _onToggleBinded, _onDeleteBinded } = this;
 
         return (
             <Form formSpecs={{
@@ -113,7 +111,7 @@ export default abstract class EnhancementView<T extends AnyEnhancement> extends 
                                 grow: 0,
                                 rowCollapseId: "button-list",
 
-                                onClick: _openDirectory
+                                onClick: () => window.ReGuildedConfig.openItem(this.props.enhancement.dirname)
                             },
                             {
                                 type: "Button",
