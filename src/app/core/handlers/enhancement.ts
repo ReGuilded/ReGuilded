@@ -71,7 +71,7 @@ export default abstract class EnhancementHandler<
                     this.checkEnhancement(enhancement);
 
                     this.all.push(enhancement);
-                    return ~this.enabled.indexOf(enhancement.id) && this.load;
+                    return ~this.enabled.indexOf(enhancement.id) && this.load(enhancement);
                 } catch (e) {
                     return Promise.reject(e);
                 }
