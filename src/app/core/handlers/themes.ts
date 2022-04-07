@@ -33,7 +33,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
      * Initiates themes for ReGuilded and theme manager.
      */
     async init(): Promise<void> {
-        this.settingsHandler.config.debugMode && console.log("Initiating theme manager");
+        console.debug("Initiating theme manager");
 
         // For themes
         this.parent.styling.appendChild(
@@ -68,7 +68,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
      * @param metadata The ReGuilded theme to load
      */
     async load(metadata: Theme): Promise<void> {
-        this.settingsHandler.config.debugMode && console.log(`Loading theme by ID '${metadata.id}'`);
+        console.debug(`Loading theme by ID '${metadata.id}'`);
 
         await this.addStyleSheets(metadata);
     }
@@ -183,7 +183,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
         this.unloadWithId(metadata.id);
     }
     private unloadWithId(themeId: string) {
-        this.settingsHandler.config.debugMode && console.log(`Unloading theme by ID '${themeId}'`);
+        console.debug(`Unloading theme by ID '${themeId}'`);
 
         const themeElement = document.getElementById(`ReGuildedStyleTheme-theme-${themeId}`);
         themeElement && themeElement.remove();

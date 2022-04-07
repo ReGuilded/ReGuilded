@@ -197,7 +197,7 @@ app.whenReady().then(() => {
                 console.error(err);
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => console.error(err));
 });
 
 // Create Electron clone with modified BrowserWindow to inject ReGuilded preload

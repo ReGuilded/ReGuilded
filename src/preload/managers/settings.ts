@@ -13,7 +13,6 @@ export const defaultSettings: ReGuildedSettings = {
     loadImages: true,
     loadAuthors: true,
     keepSplash: false,
-    debugMode: false,
     addons: { enabled: [], permissions: {} },
     themes: { enabled: [], enabledExtensions: {} }
 };

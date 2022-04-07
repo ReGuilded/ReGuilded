@@ -27,16 +27,12 @@ export function inject(platformModule: { appDir: string; resourcesDir: string; r
             err => {
                 if (err) reject(err);
 
-                injection(platformModule)
-                    .then(() => {
-                        ["linux", "darwin"].includes(process.platform) && exec(`chmod -R 777 ${platform.reguildedDir}`);
-                        process.platform == "win32" &&
-                            exec(`icacls ${platform.reguildedDir} "Authenticated Users":(OI)(CI)F`);
-                    })
-                    .then(resolve)
-                    .catch(err => {
-                        // If there was an error, try uninjecting ReGuilded
-                        console.log("There was an error, reverting process more details will follow shortly...");
+                injection(platformModule).then(() => {
+                    ["linux", "darwin"].includes(process.platform) && exec(`chmod -R 777 ${platform.reguildedDir}`);
+                    process.platform == "win32" && exec(`icacls ${platform.reguildedDir} /grant "Authenticated Users":(OI)(CI)F`);
+                }).then(resolve).catch((err) => {
+                    // If there was an error, try uninjecting ReGuilded
+                    console.log("There was an error, reverting process more details will follow shortly...");
 
                         uninject(platformModule, elevator).catch(reject);
 

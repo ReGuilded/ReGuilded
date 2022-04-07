@@ -11,6 +11,7 @@ import { EnhancementInfo } from "./EnhancementPage";
 
 const React = window.ReGuilded.getApiProperty("react"),
     { default: OverflowButton } = window.ReGuilded.getApiProperty("guilded/components/OverflowButton"),
+    { default: CardWrapper } = window.ReGuilded.getApiProperty("guilded/components/CardWrapper"),
     { default: SimpleToggle } = window.ReGuilded.getApiProperty("guilded/components/SimpleToggle"),
     { default: UserBasicInfoDisplay } = window.ReGuilded.getApiProperty("guilded/components/UserBasicInfoDisplay"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
@@ -84,13 +85,13 @@ export default class EnhancementItem<E extends AnyEnhancement> extends React.Com
         } = this;
 
         return (
-            <span className={"CardWrapper-container CardWrapper-container-desktop PlayerAliasCard-container PlayerAliasCard-container-type-game UserProfileGamesTab-card ReGuildedEnhancement-container ReGuildedEnhancement-container-" + (enabled ? "enabled" : "disabled") } onClick={() => switchTab("specific", { enhancement: this.props.enhancement, className: "ReGuildedSettingsWrapper-container ReGuildedSettingsWrapper-container-no-padding ReGuildedSettingsWrapper-container-cover" })}>
-                <div className="PlayerCard-container PlayerCard-container-desktop PlayerAliasCard-card">
+            <CardWrapper isStandalone className={"ReGuildedEnhancement-container ReGuildedEnhancement-container-" + (enabled ? "enabled" : "disabled") } onClick={() => switchTab("specific", { enhancement: this.props })}>
+                <div className="ReGuildedEnhancement-top">
                     {/* Banner */}
-                    <StretchFadeBackground type={banner ? "full-blur" : "default"} className="PlayerBanner-container PlayerCard-banner ReGuildedEnhancement-banner" position="centered" src={banner || "/asset/Default/ProfileBannerSmall.png"} />
+                    <StretchFadeBackground type={banner ? "full-blur" : "default"} className="ReGuildedEnhancement-banner" position="centered" src={banner || "/asset/Default/ProfileBannerSmall.png"} />
                     {/* Header */}
-                    <div className="PlayerCardGameInfo-container PlayerCard-info ReGuildedEnhancement-header">
-                        { icon && <img className="PlayerCardGameInfo-icon ReGuildedEnhancement-icon" src={icon} alt={`Icon of enhancement '${name}'`} /> }
+                    <div className="ReGuildedEnhancement-header">
+                        {/* Icon can be inputed here, if it will be ever necessary */}
                         {/* Header info */}
                         <div className="PlayerCardGameInfo-name-alias" onClick={e => e.stopPropagation()}>
                             {/* Name + Toggle */}
@@ -109,20 +110,18 @@ export default class EnhancementItem<E extends AnyEnhancement> extends React.Com
                     </div>
                     {/* Settings */}
                     <ErrorBoundary>
-                        <OverflowButton className="PlayerCard-menu Card-menu" type="light" menuSpecs={overflowMenuSpecs}/>
+                        <OverflowButton className="ReGuildedEnhancement-overflow" type="light" menuSpecs={overflowMenuSpecs}/>
                     </ErrorBoundary>
                 </div>
-                <div className="UserSocialPresence-container PlayerAliasCard-info">
+                <div className="ReGuildedEnhancement-footer">
                     {/* Description */}
-                    <div className="UserRichSocialLink-container ReGuildedEnhancement-footer">
-                        <div className="ReGuildedEnhancement-info">
-                            <EnhancementInfo infoLabelClassName="GuildedText-container-type-gray" enhancement={this.props.enhancement}>
-                                { children }
-                            </EnhancementInfo>
-                        </div>
+                    <div className="ReGuildedEnhancement-info">
+                        <EnhancementInfo infoLabelClassName="GuildedText-container-type-gray" enhancement={this.props.enhancement}>
+                            { children }
+                        </EnhancementInfo>
                     </div>
                 </div>
-            </span>
+            </CardWrapper>
         );
     }
 }

@@ -123,6 +123,7 @@ export class EnhancementGrid<T extends AnyEnhancement, C extends RGEnhancementCo
             <div className="ReGuildedEnhancements-container UserProfileGamesTab-container ContentLoader-container">
                 <div className="ReGuildedEnhancements-topbar">
                     <SearchBarInput className="ReGuildedEnhancements-search" searchTerm={searchInput} placeholder={_searchPlaceholder} onChange={_onSearchBinded}/>
+                    <span />
                     <GuildedSelect className="ReGuildedEnhancements-sort" defaultValue={sortingOptions[0]} options={sortingOptions} grow={0} onChange={option => this.setState({ sort: option.value })} />
                 </div>
                 { searchInput

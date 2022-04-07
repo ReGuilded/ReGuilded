@@ -12,13 +12,13 @@
             // Looks awful when enhancement touches the very bottom
             padding-bottom: 10px
         &s-topbar
+            display: grid
+            grid-template-columns: 246px 1fr 246px
             margin-bottom: 16px
-        &s-search
-            float: left
-            width: 246px
-        &s-sort
-            float: right
         &s-grid
+            display: grid
+            gap: 20px
+            grid-template-columns: 1fr 1fr 1fr
             // Enhancement height
             grid-auto-rows: 210px
 
@@ -37,6 +37,34 @@
             transition: transform 0.1s ease-out
             &:hover
                 transform: translateY(-2px)
+        &-top
+            position: relative
+        &-banner
+            position: absolute
+            overflow: hidden
+            top: 0
+            left: 0
+            right: 0
+
+            height: 100%
+            opacity: 50%
+            pointer-events: none
+        &-header
+            padding: 20px 25px 5px 25px
+        &-footer
+            padding: 15px 25px 10px 25px
+        &-version
+            margin-top: 12px
+        &-author
+            margin-top: 12px
+        &-overflow
+            position: absolute
+            top: 20px
+            right: 12px
+            z-index: 3
+            opacity: 0
+        &-container:hover &-overflow
+            opacity: 1
 
         // Enhancement page
         &Page

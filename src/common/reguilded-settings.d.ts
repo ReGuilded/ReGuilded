@@ -9,9 +9,16 @@ export type ReGuildedSettings = {
     loadAuthors: boolean;
     loadImages: boolean;
     keepSplash: boolean;
-    debugMode: boolean;
     addons: ReGuildedAddonSettings;
     themes: ReGuildedThemeSettings;
+};
+export type ReGuildedSettingsUpdate = {
+    autoUpdate?: boolean;
+    badge?: BadgeHandling;
+    loadAuthors?: boolean;
+    keepSplash?: boolean;
+    addons?: ReGuildedEnhancementSettings;
+    themes?: ReGuildedEnhancementSettings;
 };
 export type ReGuildedWhitelist = {
     all: Array<string>;

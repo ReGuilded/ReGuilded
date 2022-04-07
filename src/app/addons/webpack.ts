@@ -78,6 +78,24 @@ export default class WebpackManager {
         });
     }
     /**
+     * Matches and returns the module with the component that contains the given part of code.
+     * @param code The part of code that component should contain.
+     * @returns Found component
+     */
+    withComponentCode(code: string): Function | { default: Function } | void {
+        return this.withFilter(x => {
+            const { default: fn } = this.asEsModule(x.exports);
+
+            // Checks if it is a function and has part of the code
+            return (
+                typeof fn === "function" &&
+                fn.prototype &&
+                "render" in fn.prototype &&
+                fn.prototype.render.toString().includes(code)
+            );
+        });
+    }
+    /**
      * Matches and returns the module that contains a property with the given name.
      * @param name The name of the property
      * @returns Webpack Module Exports

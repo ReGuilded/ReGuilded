@@ -4,7 +4,9 @@ import { stream } from "got";
 import { join } from "path";
 
 export default async function handleUpdate(updateInfo: VersionJson) {
-    const downloadUrl = updateInfo.assets[0].browser_download_url;
+    process.noAsar = true;
+
+    const downloadUrl = updateInfo.assets.find(x => x.name === "reguilded.asar").browser_download_url;
     const downloadPath = join(__dirname);
 
     return new Promise<boolean>(resolve => {
@@ -12,7 +14,7 @@ export default async function handleUpdate(updateInfo: VersionJson) {
             stream(downloadUrl)
                 .pipe(createWriteStream(downloadPath))
                 .on("finish", () => {
-                    window.ReGuilded.settingsHandler.config.debugMode && console.log("Download Finished");
+                    console.debug("Download Finished");
 
                     process.noAsar = false;
                     resolve(true);

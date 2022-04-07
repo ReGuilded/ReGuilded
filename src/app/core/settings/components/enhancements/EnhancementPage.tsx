@@ -55,8 +55,6 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
     // Class functions with proper `this` to not rebind every time
     private _onToggleBinded: (enabled: boolean) => Promise<void>;
     private _onDeleteBinded: () => Promise<void>;
-    private _openDirectory: () => Promise<void>;
-    protected overflowMenuSpecs: MenuSpecs;
 
     // From decorators
     protected DeleteConfirmationOverlay: ProvidedOverlay<"DeleteConfirmationOverlay">;
@@ -75,7 +73,6 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
         };
         this._onToggleBinded = handleToggle.bind(this, enabled, this._onToggle.bind(this));
         this._onDeleteBinded = this._onDelete.bind(this);
-        this._openDirectory = window.ReGuildedConfig.openItem.bind(null, this.props.enhancement.dirname);
     }
     /**
      * Toggles the enhancement's enabled state.
@@ -99,7 +96,7 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
      * @returns Form element
      */
     private renderActionForm(): ReactNode {
-        const { _onDeleteBinded, _openDirectory } = this;
+        const { _onDeleteBinded } = this;
 
         return (
             <Form formSpecs={{
@@ -118,7 +115,7 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
                                 grow: 0,
                                 rowCollapseId: "button-list",
 
-                                onClick: _openDirectory
+                                onClick: () => window.ReGuildedConfig.openItem(this.props.enhancement.dirname)
                             },
                             {
                                 type: "Button",

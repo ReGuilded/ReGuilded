@@ -62,7 +62,7 @@ export default abstract class EnhancementHandler<
 
         const fetched = this.config.getAll();
 
-        this.settingsHandler.config.debugMode && console.log("Fetched enhancements:", fetched);
+        console.debug("Fetched enhancements:", fetched);
 
         // Load the ones that were too early and were added before watch callback was set
         await Promise.all(
@@ -97,8 +97,7 @@ export default abstract class EnhancementHandler<
         this.savedUnload(enhancement)
             .then(() => this.config.delete(enhancement.id))
             .then(
-                () =>
-                    this.settingsHandler.config.debugMode && console.log(`Deleted enhancement by ID '${enhancement.id}'`),
+                () => console.debug(`Deleted enhancement by ID '${enhancement.id}'`),
                 e => console.error(`Failed to delete enhancement by ID '${enhancement.id}':\n`, e)
             );
     }
