@@ -12,6 +12,8 @@ const React = window.ReGuilded.getApiProperty("react"),
     { default: savableSettings } = window.ReGuilded.getApiProperty("guilded/settings/savableSettings"),
     { default: defaultContextProvider } = window.ReGuilded.getApiProperty("guilded/context/defaultContextProvider"),
     { coroutine } = window.ReGuilded.getApiProperty("guilded/util/functions"),
+    { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
+    { default: SimpleToggle } = window.ReGuilded.getApiProperty("guilded/components/SimpleToggle"),
     { default: Form } = window.ReGuilded.getApiProperty("guilded/components/Form");
 //#endregion
 
@@ -36,7 +38,9 @@ export default class ThemePage extends React.Component<Props> {
     constructor(props: Props, context?: any) {
         super(props, context);
 
+        this.props.enhancement.extensions && this.tabs.push({ name: "Extensions" });
         this.props.enhancement.settings && this.tabs.push({ name: "Settings" });
+
         this.SaveChanges = coroutine(this.onSaveChanges);
     }
     /**
@@ -78,10 +82,19 @@ export default class ThemePage extends React.Component<Props> {
     protected renderTabs(): ReactNode | ReactNode[] {
         const { enhancement } = this.props;
 
-        return (
+        return [
+            enhancement.extensions &&
+            <div className="ReGuildedEnhancementPage-tab ReGuildedEnhancementPage-tab-grid">
+                { enhancement.extensions.map(extension =>
+                    <div className="TeamOverviewContentItemCard-container ReGuildedThemeExtension-container">
+                        <SimpleToggle label={extension.name} className="ReGuildedThemeExtension-toggle" />
+                        <GuildedText block type="subtext">{extension.description || "No description provided."}</GuildedText>
+                    </div>
+                ) }
+            </div>,
+
             enhancement.settings &&
             <div className="ReGuildedEnhancementPage-tab">
-                {/* TODO: Settings saving */}
                 <Form onChange={this._handleOptionsChange} formSpecs={{
                     header: "Settings",
                     sectionStyle: "border-unpadded",
@@ -103,7 +116,7 @@ export default class ThemePage extends React.Component<Props> {
                     ]
                 }}/>
             </div>
-        );
+        ];
     }
     static generateSettingsFields(settings: ThemeSettings, settingsProps: string[]): FieldAnySpecs[] {
         return settingsProps.map<FieldRadioSpecs | FieldTextSpecs>(prop => {

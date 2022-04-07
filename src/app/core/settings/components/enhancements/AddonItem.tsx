@@ -21,7 +21,6 @@ export default class AddonItem extends React.Component<EnhancementGridItemProps<
         this._overflowMainSection = {
             name: "Addon",
             header: "Addon",
-            type: "rows",
             actions: [
                 {
                     label: "Permissions",

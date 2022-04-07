@@ -173,9 +173,9 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
                     <div className="ReGuildedEnhancementPage-container">
                         <div className="ReGuildedEnhancementPage-header">
                             {/* Cover banner */}
-                            { enhancement.banner && <div className="ReGuildedEnhancementPage-banner">
-                                <Image cover src={enhancement.banner} className="ReGuildedEnhancementPage-banner-image" />
-                            </div> }
+                            <div className="ReGuildedEnhancementPage-banner">
+                                <Image cover src={enhancement.banner || "/asset/Default/ProfileBannerLarge.png"} className="ReGuildedEnhancementPage-banner-image" />
+                            </div>
                             {/* Header content */}
                             <div className="ReGuildedEnhancementPage-header-content">
                                 { enhancement.icon && <Image src={enhancement.icon} className="ReGuildedEnhancementPage-icon" /> }
@@ -184,32 +184,34 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
                             </div>
                         </div>
                         {/* Content */}
-                        { pageInfoBanner }
-                        <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: EnhancementPage.defaultTabs.concat(tabOptions) }} defaultSelectedTabIndex={defaultTabIndex}>
-                            <div className="ReGuildedEnhancementPage-tab">
-                                <ErrorBoundary>
-                                    {/* Preview images carousel */}
-                                    { enhancement.images && window.ReGuilded.settingsHandler.config.loadImages &&
-                                        <PreviewCarousel enhancementId={enhancement.id} enhancementHandler={this.props.enhancementHandler} />
-                                    }
-                                    <div className="ReGuildedEnhancementPage-columns">
-                                        {/* Readme */}
-                                        <div className="ReGuildedEnhancementPage-column">
-                                            { enhancement.readme
-                                                ? <MarkdownRenderer plainText={enhancement.readme} grammar={WebhookEmbed} />
-                                                : <GuildedText block type="subtext">No description has been provided.</GuildedText> }
+                        <div className="ReGuildedEnhancementPage-content">
+                            { pageInfoBanner }
+                            <ErrorBoundary>
+                                <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: EnhancementPage.defaultTabs.concat(tabOptions) }} defaultSelectedTabIndex={defaultTabIndex}>
+                                    <div className="ReGuildedEnhancementPage-tab">
+                                        {/* Preview images carousel */}
+                                        { enhancement.images && window.ReGuilded.settingsHandler.config.loadImages &&
+                                            <PreviewCarousel enhancementId={enhancement.id} enhancementHandler={this.props.enhancementHandler} />
+                                        }
+                                        <div className="ReGuildedEnhancementPage-columns">
+                                            {/* Readme */}
+                                            <div className="ReGuildedEnhancementPage-column">
+                                                { enhancement.readme
+                                                    ? <MarkdownRenderer plainText={enhancement.readme} grammar={WebhookEmbed} />
+                                                    : <GuildedText block type="subtext">No description has been provided.</GuildedText> }
+                                            </div>
+                                            {/* Side info */}
+                                            <div className="ReGuildedEnhancementPage-column">
+                                                <EnhancementInfo expanded enhancement={enhancement} />
+                                            </div>
                                         </div>
-                                        {/* Side info */}
-                                        <div className="ReGuildedEnhancementPage-column">
-                                            <EnhancementInfo expanded enhancement={enhancement} />
-                                        </div>
+                                        {/* Buttons */}
+                                        { this.renderActionForm() }
                                     </div>
-                                    {/* Buttons */}
-                                    { this.renderActionForm() }
-                                </ErrorBoundary>
-                            </div>
-                            { children }
-                        </HorizontalTabs>
+                                    { children }
+                                </HorizontalTabs>
+                            </ErrorBoundary>
+                        </div>
                     </div>
                 </div>
             </ErrorBoundary>
@@ -259,7 +261,7 @@ export class EnhancementInfo extends React.Component<EnhancementInfoProps, { aut
                             <InlineCode>{ enhancement.id }</InlineCode>
                         ]} labelClassName={infoLabelClassName} className="ReGuildedEnhancementInfo-point" />
                     ] }
-                    <IconAndLabel iconName="icon-star" label={enhancement.version ? `Version ${enhancement.version}` : "Latest release"} className="ReGuildedEnhancementInfo-point" />
+                    <IconAndLabel iconName="icon-star" label={enhancement.version ? `Version ${enhancement.version}` : "Latest release"} className="ReGuildedEnhancementInfo-point" labelClassName={infoLabelClassName} />
                     { enhancement.repoUrl &&
                         <IconAndLabel iconName="icon-github" label={[
                             enhancement._repoInfo.path,

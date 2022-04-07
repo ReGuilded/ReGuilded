@@ -1,12 +1,12 @@
 @require "./util.styl"
 
-.ReGuilded
++prefix-classes("ReGuilded")
     // Util
-    &ErrorBoundary-error
+    .ErrorBoundary-error
         // Align code block to the left, because we set text alignment to center in the ErrorBoundary's error display
         text-align: left
     // Settings
-    &Enhancement
+    .Enhancement
         // All
         &s-container
             // Looks awful when enhancement touches the very bottom
@@ -40,9 +40,11 @@
 
         // Enhancement page
         &Page
-            &-container
-                padding: 20px 32px
+            &-container,
+            &-content
                 max-width: 100%
+            &-content
+                padding: 20px 32px
             &-banner
                 margin-bottom: 16px
             &-subtitle
@@ -50,7 +52,12 @@
             &-columns
                 display: grid
                 grid-template-columns: 1fr 250px
-                grid-gap: 0 20px
+                gap: 0 20px
+
+            &-tab-grid
+                display: grid
+                grid-template-columns: 1fr 1fr 1fr 1fr
+                gap: 20px
 
             &-header
                 position: relative
@@ -100,7 +107,11 @@
             &-section:not(:first-child)
                 margin-top: 16px
 
-    &Settings
+    .ThemeExtension
+        &-toggle
+            margin-bottom: 10px
+
+    .Settings
         &-container
             padding-horizontal: 32px
         &-divider

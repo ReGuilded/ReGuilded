@@ -1,4 +1,4 @@
-export declare interface Enhancement<T> {
+export declare interface Enhancement<T, S extends {}> {
     id: string;
     name: string;
     files: T;
@@ -22,6 +22,7 @@ export declare interface Enhancement<T> {
         platform: string;
         path: string;
     };
+    _state?: S;
 }
 
 export type ThemeCssVariableType = string | number | undefined | null;
@@ -38,7 +39,7 @@ export type ThemeSettings = {
     };
 };
 
-export declare interface Theme extends Enhancement<string[]> {
+export declare interface Theme extends Enhancement<string[], { settings: { [name: string]: ThemeCssVariableType } }> {
     /**
      * The list of CSS content of this theme.
      */
@@ -65,7 +66,7 @@ export type AddonExports = {
     unload?: () => any;
     [otherExport: string]: any;
 };
-export declare interface Addon extends Enhancement<string> {
+export declare interface Addon extends Enhancement<string, {}> {
     requiredPermissions: number;
     execute: (importable: (path: string) => [boolean, any?]) => Promise<AddonExports>;
     exports?: AddonExports;
@@ -73,4 +74,4 @@ export declare interface Addon extends Enhancement<string> {
     _error?: Error | string;
     _missingPerms?: number;
 }
-export type AnyEnhancement = Enhancement<any>;
+export type AnyEnhancement = Enhancement<any, any>;

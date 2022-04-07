@@ -71,9 +71,6 @@ export default class EnhancementItem<E extends AnyEnhancement> extends React.Com
                 enhancement: {
                     name,
                     subtitle,
-                    version,
-                    repoUrl,
-                    _repoInfo,
                     banner,
                     icon
                 },
@@ -90,7 +87,7 @@ export default class EnhancementItem<E extends AnyEnhancement> extends React.Com
             <span className={"CardWrapper-container CardWrapper-container-desktop PlayerAliasCard-container PlayerAliasCard-container-type-game UserProfileGamesTab-card ReGuildedEnhancement-container ReGuildedEnhancement-container-" + (enabled ? "enabled" : "disabled") } onClick={() => switchTab("specific", { enhancement: this.props.enhancement, className: "ReGuildedSettingsWrapper-container ReGuildedSettingsWrapper-container-no-padding ReGuildedSettingsWrapper-container-cover" })}>
                 <div className="PlayerCard-container PlayerCard-container-desktop PlayerAliasCard-card">
                     {/* Banner */}
-                    <StretchFadeBackground type="full-blur" className="PlayerBanner-container PlayerCard-banner" position="centered" src={banner || "/asset/TeamSplash/Minecraft-sm.jpg"} />
+                    <StretchFadeBackground type={banner ? "full-blur" : "default"} className="PlayerBanner-container PlayerCard-banner ReGuildedEnhancement-banner" position="centered" src={banner || "/asset/Default/ProfileBannerSmall.png"} />
                     {/* Header */}
                     <div className="PlayerCardGameInfo-container PlayerCard-info ReGuildedEnhancement-header">
                         { icon && <img className="PlayerCardGameInfo-icon ReGuildedEnhancement-icon" src={icon} alt={`Icon of enhancement '${name}'`} /> }
@@ -103,7 +100,7 @@ export default class EnhancementItem<E extends AnyEnhancement> extends React.Com
                                 onChange={_onToggleBinded}/>
                             <GuildedText block className="ReGuildedEnhancement-subtitle ReGuildedEnhancement-text" type="subtext">{ subtitle || "No subtitle provided." }</GuildedText>
                             <div className="ReGuildedEnhancement-author">
-                                {this.state.author
+                                { this.state.author
                                     ? <UserBasicInfoDisplay size="sm" user={new UserModel(this.state.author)} />
                                     : <GuildedText block className="ReGuildedEnhancement-no-author" type="subtext">{ this.props.enhancement.author ? "By user " + this.props.enhancement.author : "Unknown author" }</GuildedText>
                                 }
@@ -142,7 +139,6 @@ export function generateOverflowMenu(enhancement: AnyEnhancement, enhancementHan
             {
                 name: "Files",
                 header: "Files",
-                type: "rows",
                 actions: [
                     {
                         label: "Open directory",

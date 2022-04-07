@@ -111,8 +111,7 @@ export default class AddonPage extends React.Component<Props> {
                         // Regular error
                         : [
                             "The addon has threw an error while getting its exports or loading it:",
-                            <CodeContainer language="javascript" readOnly={true} canCopyContents={true} code={_error.toString()} />,
-                            "Make sure it's given sufficient permissions for it to start."
+                            <CodeContainer language="javascript" readOnly={true} canCopyContents={true} code={_error.toString()} />
                         ]
                     }
                     buttonProps={repoUrl && !_missingPerms && {

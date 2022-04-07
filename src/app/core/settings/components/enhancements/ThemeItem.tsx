@@ -22,7 +22,6 @@ export default class ThemeItem extends React.Component<EnhancementGridItemProps<
             this._overflowMainSection = {
                 name: "Theme",
                 header: "Theme",
-                type: "rows",
                 actions: [
                     {
                         label: "Settings",

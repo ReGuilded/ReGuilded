@@ -117,6 +117,7 @@ export declare class SearchBarV2 extends React.Component<{
 
 //#region SimpleToggle
 export declare class SimpleToggle extends React.Component<{
+    className?: string;
     label: ComponentText;
     onChange?: (enabled: boolean | number) => void;
     defaultValue?: boolean;

@@ -52,6 +52,8 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
         const propFiles = typeof metadata.files == "string" ? [metadata.files] : metadata.files;
         metadata.files = propFiles;
 
+        if (metadata.settings) metadata._settingsProps = Object.keys(metadata.settings);
+
         // Since we turned string into single-item array,
         // we don't need to check for both types
         if (!Array.isArray(propFiles))
@@ -102,7 +104,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
                 if (!metadata.settings) return resolve();
 
                 // Using keys instead of values to validate id as well
-                for (let propId of (metadata._settingsProps = Object.keys(metadata.settings))) {
+                for (let propId of metadata._settingsProps) {
                     // Validate ID
                     if (!propId.match(EnhancementHandler.idRegex))
                         return reject(`Incorrect syntax of the name of the property '${propId}'`);
