@@ -15,6 +15,7 @@ const React = window.ReGuilded.getApiProperty("react"),
     { default: SimpleToggle } = window.ReGuilded.getApiProperty("guilded/components/SimpleToggle"),
     { default: UserBasicInfoDisplay } = window.ReGuilded.getApiProperty("guilded/components/UserBasicInfoDisplay"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
+    { default: Image } = window.ReGuilded.getApiProperty("guilded/components/Image"),
     { default: StretchFadeBackground } = window.ReGuilded.getApiProperty("guilded/components/StretchFadeBackground"),
     { UserModel } = window.ReGuilded.getApiProperty("guilded/users");
 //#endregion
@@ -85,13 +86,13 @@ export default class EnhancementItem<E extends AnyEnhancement> extends React.Com
         } = this;
 
         return (
-            <CardWrapper isStandalone className={"ReGuildedEnhancement-container ReGuildedEnhancement-container-" + (enabled ? "enabled" : "disabled") } onClick={() => switchTab("specific", { enhancement: this.props })}>
+            <CardWrapper isStandalone className={"ReGuildedEnhancement-container ReGuildedEnhancement-container-" + (enabled ? "enabled" : "disabled") } onClick={() => switchTab("specific", { enhancement: this.props.enhancement })}>
                 <div className="ReGuildedEnhancement-top">
                     {/* Banner */}
                     <StretchFadeBackground type={banner ? "full-blur" : "default"} className="ReGuildedEnhancement-banner" position="centered" src={banner || "/asset/Default/ProfileBannerSmall.png"} />
                     {/* Header */}
                     <div className="ReGuildedEnhancement-header">
-                        {/* Icon can be inputed here, if it will be ever necessary */}
+                        { icon && <Image src={icon} className="ReGuildedEnhancement-icon" /> }
                         {/* Header info */}
                         <div className="PlayerCardGameInfo-name-alias" onClick={e => e.stopPropagation()}>
                             {/* Name + Toggle */}
