@@ -7,6 +7,7 @@ import { SwitchTab } from "../PagedSettings";
 
 const React = window.ReGuilded.getApiProperty("react"),
     { default: OverflowButton } = window.ReGuilded.getApiProperty("guilded/components/OverflowButton"),
+    { default: CardWrapper } = window.ReGuilded.getApiProperty("guilded/components/CardWrapper"),
     { default: SimpleToggle } = window.ReGuilded.getApiProperty("guilded/components/SimpleToggle"),
     { default: UserBasicInfoDisplay } = window.ReGuilded.getApiProperty("guilded/components/UserBasicInfoDisplay"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
@@ -68,12 +69,12 @@ export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> 
         const readmeLength = readme?.length;
 
         return (
-            <span className={"CardWrapper-container CardWrapper-container-desktop PlayerAliasCard-container PlayerAliasCard-container-type-game UserProfileGamesTab-card ReGuildedEnhancement-container ReGuildedEnhancement-container-" + (enabled ? "enabled" : "disabled") } onClick={() => switchTab("specific", { enhancement: this.props })}>
-                <div className="PlayerCard-container PlayerCard-container-desktop PlayerAliasCard-card">
+            <CardWrapper isStandalone className={"ReGuildedEnhancement-container ReGuildedEnhancement-container-" + (enabled ? "enabled" : "disabled") } onClick={() => switchTab("specific", { enhancement: this.props })}>
+                <div className="ReGuildedEnhancement-top">
                     {/* Banner */}
-                    <StretchFadeBackground type="full-blur" className="PlayerBanner-container PlayerCard-banner" position="centered" src={banner || "/asset/TeamSplash/Minecraft-sm.jpg"} />
+                    <StretchFadeBackground type="full-blur" className="ReGuildedEnhancement-banner" position="centered" src={banner || "/asset/TeamSplash/Minecraft-sm.jpg"} />
                     {/* Header */}
-                    <div className="PlayerCardGameInfo-container PlayerCard-info ReGuildedEnhancement-header">
+                    <div className="ReGuildedEnhancement-header">
                         {/* Icon can be inputed here, if it will be ever necessary */}
                         {/* Header info */}
                         <div className="PlayerCardGameInfo-name-alias" onClick={e => e.stopPropagation()}>
@@ -82,10 +83,9 @@ export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> 
                                 label={name}
                                 defaultValue={enabled}
                                 onChange={async (newState: boolean) => (this.hasToggled || (newState !== enabled && typeof newState !== "number")) && (this.hasToggled = true, await this.onToggle(newState))}/>
-                            <GuildedText type="subtext" block={true}>{ version ? `Version ${version}` : "Latest release" }</GuildedText>
+                            <GuildedText type="subtext" block={true} className="ReGuildedEnhancement-version">{ version ? `Version ${version}` : "Latest release" }</GuildedText>
                             <div className="ReGuildedEnhancement-author">
-                                <br/>
-                                {this.state.author
+                                { this.state.author
                                     ? <UserBasicInfoDisplay size="sm" user={new UserModel(this.state.author)} />
                                     : <GuildedText className="ReGuildedEnhancement-no-author" block={true} type="subtext">{this.props.author ? "By user " + this.props.author : "Unknown author"}</GuildedText>
                                 }
@@ -94,20 +94,18 @@ export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> 
                     </div>
                     {/* Settings */}
                     <ErrorBoundary>
-                        <OverflowButton className="PlayerCard-menu Card-menu" type="light" menuSpecs={overflowMenuSpecs}/>
+                        <OverflowButton className="ReGuildedEnhancement-overflow" type="light" menuSpecs={overflowMenuSpecs}/>
                     </ErrorBoundary>
                 </div>
-                <div className="UserSocialPresence-container PlayerAliasCard-info">
+                <div className="ReGuildedEnhancement-footer">
                     {/* Description */}
-                    <div className="UserRichSocialLink-container">
-                        <div className="ReGuildedEnhancement-description">
-                            { readmeLength
-                                ? <MarkdownRenderer plainText={(readmeLength > 150 ? readme.slice(0, 150) + "..." : readme)} grammar={WebhookEmbed}/>
-                                : <GuildedText type="gray" block={true}>No description provided.</GuildedText> }
-                        </div>
+                    <div className="ReGuildedEnhancement-description">
+                        { readmeLength
+                            ? <MarkdownRenderer plainText={(readmeLength > 150 ? readme.slice(0, 150) + "..." : readme)} grammar={WebhookEmbed}/>
+                            : <GuildedText type="gray" block={true}>No description provided.</GuildedText> }
                     </div>
                 </div>
-            </span>
+            </CardWrapper>
         );
     }
 }

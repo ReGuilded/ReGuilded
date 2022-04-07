@@ -88,40 +88,44 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/util/functions": webpack => webpack.withProperty("coroutine"),
 
     // Components
+    "guilded/components/cssLoader": webpack => webpack.withCode("CSSLoader"),
+    "guilded/components/cssDictionary": webpack => webpack.withProperty("GuildedText"),
     "guilded/components/Form": webpack => webpack.withClassProperty("formValues"),
     "guilded/components/formFieldTypes": webpack => webpack.withProperty("Dropdown"),
     "guilded/components/formValidations": webpack => webpack.withProperty("ValidateUserUrl"),
     "guilded/components/MarkdownRenderer": webpack => webpack.withClassProperty("plainText"),
     "guilded/components/CalloutBadge": webpack => webpack.withClassProperty("style"),
-    "guilded/components/GuildedText": webpack => webpack.withCode("GuildedText"),
+    "guilded/components/GuildedText": webpack => webpack.withComponentCode("GuildedText"),
     "guilded/components/RouteLink": webpack => webpack.withClassProperty("href"),
     "guilded/components/Button": webpack => webpack.withClassProperty("useHoverContext"),
     "guilded/components/SvgIcon": webpack => webpack.withClassProperty("iconComponentProps"),
     "guilded/components/NullState": webpack => webpack.withClassProperty("imageSrc"),
     "guilded/components/HorizontalTabs": webpack => webpack.withClassProperty("tabOptions"),
     "guilded/components/HorizontalTab": webpack => webpack.withClassProperty("tabOption"),
-    "guilded/components/ToggleFieldWrapper": webpack => webpack.withCode("ToggleFieldWrapper-container"),
+    "guilded/components/ToggleFieldWrapper": webpack => webpack.withComponentCode("ToggleFieldWrapper-container"),
     "guilded/components/SimpleToggle": webpack => webpack.withClassProperty("input"),
     "guilded/components/MediaRenderer": webpack => webpack.withClassProperty("progressiveImageHasLoaded"),
     "guilded/components/CodeContainer": webpack => webpack.withClassProperty("tokenCodeLines"),
     "guilded/components/SearchBarV2": webpack => webpack.withClassProperty("_inputRef"),
+    "guilded/components/CardWrapper": webpack => webpack.withClassProperty("isActionable"),
     "guilded/components/GuildedSelect": webpack => webpack.withClassProperty("selectedValue"),
-    "guilded/components/ItemManager": webpack => webpack.withCode("ItemManager"),
+    "guilded/components/ItemManager": webpack => webpack.withComponentCode("ItemManager"),
     "guilded/components/OverflowButton": webpack => webpack.withClassProperty("isOpen"),
     "guilded/components/BannerWithButton": webpack => webpack.withClassProperty("hasText"),
-    "guilded/components/IconAndLabel": webpack => webpack.withCode("IconAndLabel"),
+    "guilded/components/IconAndLabel": webpack => webpack.withComponentCode("IconAndLabel"),
     "guilded/components/UserBasicInfoDisplay": webpack => webpack.withClassProperty("userPresenceContext"),
     "guilded/components/CheckmarkIcon": webpack => webpack.withCode("CheckmarkIcon"),
     "guilded/components/ProfilePicture": webpack => webpack.withClassProperty("borderType"),
     "guilded/components/CarouselList": webpack => webpack.withClassProperty("overflowRight"),
     "guilded/components/LoadingAnimationMicro": webpack => webpack.withClassProperty("containerStyle"),
-    "guilded/components/LoadingPage": webpack => webpack.withCode("LoadingPage"),
-    "guilded/components/BadgeV2": webpack => webpack.withCode("BadgeV2"),
-    "guilded/components/WordDividerLine": webpack => webpack.withCode("WordDividerLine"),
-    "guilded/components/StretchFadeBackground": webpack => webpack.withCode("StretchFadeBackground"),
-    "guilded/components/TeamNavSectionItem": webpack => webpack.withCode("TeamNavSectionItem"),
+    "guilded/components/LoadingPage": webpack => webpack.withComponentCode("LoadingPage"),
+    "guilded/components/BadgeV2": webpack => webpack.withComponentCode("BadgeV2"),
+    "guilded/components/ScreenHeader": webpack => webpack.withClassProperty("hasLabels"),
+    "guilded/components/WordDividerLine": webpack => webpack.withComponentCode("WordDividerLine"),
+    "guilded/components/StretchFadeBackground": webpack => webpack.withComponentCode("StretchFadeBackground"),
+    "guilded/components/TeamNavSectionItem": webpack => webpack.withComponentCode("TeamNavSectionItem"),
     "guilded/components/TeamNavSectionsList": webpack => webpack.withClassProperty("isSomeActionSelected"),
-    "guilded/components/ThreeColumns": webpack => webpack.withCode("ThreeColumns"),
+    "guilded/components/ThreeColumns": webpack => webpack.withComponentCode("ThreeColumns"),
     "guilded/components/DragViewer": webpack => webpack.withClassProperty("enableDrag"),
     "guilded/components/ActionMenu": webpack => webpack.withClassProperty("actionMenuHeight"),
     "guilded/components/ActionMenuSection": webpack => webpack.withCode("ActionMenu-section"),
@@ -535,6 +539,18 @@ export default class AddonApi {
 
     // Components
     /**
+     * Decorator that allows loading specific component's CSS.
+     */
+    get ["guilded/components/cssLoader"](): AddonApiExports<"guilded/components/cssLoader"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/cssLoader");
+    }
+    /**
+     * Contains the dictionary of component's names to their CSS' IDs.
+     */
+    get ["guilded/components/cssDictionary"](): AddonApiExports<"guilded/components/cssDictionary"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/cssDictionary");
+    }
+    /**
      * Displays the specified list of form fields and their sections.
      */
     get ["guilded/components/Form"](): AddonApiExports<"guilded/components/Form"> {
@@ -639,6 +655,12 @@ export default class AddonApi {
      */
     get ["guilded/components/SearchBarV2"](): AddonApiExports<"guilded/components/SearchBarV2"> {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/SearchBarV2");
+    }
+    /**
+     * Displays a simple card with its content.
+     */
+    get ["guilded/components/CardWrapper"](): AddonApiExports<"guilded/components/CardWrapper"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/CardWrapper");
     }
     /**
      * Displays a table of content.

@@ -11,8 +11,7 @@ import { BannerWithButton } from "../../../../guilded/components/content";
 import { TabOption } from "../../../../guilded/components/sections";
 
 const React = window.ReGuilded.getApiProperty("react"),
-    { default: SvgIcon } = window.ReGuilded.getApiProperty("guilded/components/SvgIcon"),
-    { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
+    { default: ScreenHeader } = window.ReGuilded.getApiProperty("guilded/components/ScreenHeader"),
     { default: Form } = window.ReGuilded.getApiProperty("guilded/components/Form"),
     { default: overlayProvider } = window.ReGuilded.getApiProperty("guilded/overlays/overlayProvider"),
     { default: MarkdownRenderer } = window.ReGuilded.getApiProperty("guilded/components/MarkdownRenderer"),
@@ -44,7 +43,6 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
     // Class functions with proper `this` to not rebind every time
     private _onToggleBinded: () => Promise<void>;
     private _onDeleteBinded: () => Promise<void>;
-    private _openDirectory: () => Promise<void>;
 
     // From decorators
     protected DeleteConfirmationOverlay: ProvidedOverlay<"DeleteConfirmationOverlay">;
@@ -59,7 +57,7 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
         };
         this._onToggleBinded = this._onToggle.bind(this);
         this._onDeleteBinded = this._onDelete.bind(this);
-        this._openDirectory = window.ReGuildedConfig.openItem.bind(null, this.props.enhancement.dirname);
+        this.SaveChanges = coroutine(this.onSaveChanges);
     }
     /**
      * Toggles the enhancement's enabled state.
@@ -89,8 +87,8 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
      * @returns Form element
      */
     private renderActionForm(): ReactElement {
-        const [toggleButtonType, toggleButtonText] = this.state.enabled ? ["delete", "Disable"] : ["success", "Enable"],
-              { _onToggleBinded, _onDeleteBinded, _openDirectory } = this;
+        const [buttonType, buttonText] = this.state.enabled ? ["delete", "Disable"] : ["success", "Enable"],
+              { _onToggleBinded, _onDeleteBinded } = this;
 
         return (
             <Form formSpecs={{
@@ -120,7 +118,7 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
                                 grow: 0,
                                 rowCollapseId: "button-list",
 
-                                onClick: _openDirectory
+                                onClick: () => window.ReGuildedConfig.openItem(this.props.enhancement.dirname)
                             },
                             {
                                 type: "Button",
@@ -157,31 +155,26 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
 
         return (
             <ErrorBoundary>
-                <div className="OptionsMenuPageWrapper-container ReGuildedEnhancementPage-wrapper" style={{ paddingLeft: 32, paddingRight: 32, maxWidth: "100%" }}>
+                <div className="ReGuildedEnhancementPage-wrapper">
                     <div className="ReGuildedEnhancementPage-container">
-                        <header className="ReGuildedEnhancementPage-header DocsDisplayV2-title">
-                            {/* <| */}
-                            <div className="BackLink-container BackLink-container-desktop BackLink-container-size-md ScreenHeader-back" onClick={() => switchTab("list", { enhancement: {} })}>
-                                <SvgIcon iconName="icon-back" className="BackLink-icon"/>
-                            </div>
-                            {/* Title */}
-                            <GuildedText type="heading3">{ enhancement.name } settings</GuildedText>
-                        </header>
-                        <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: EnhancementPage.defaultTabs.concat(tabOptions) }} defaultSelectedTabIndex={defaultTabIndex}>
-                            <div className="ReGuildedEnhancementPage-tab">
-                                <ErrorBoundary>
-                                    { overviewBanner }
+                        <ScreenHeader className="ReGuildedEnhancementPage-screen-header"
+                            isBackLinkVisible
+                            onBackClick={() => switchTab("list", { enhancement: {} })}
+                            name={enhancement.name + " settings"} />
+                        <div className="ReGuildedSettings-container ReGuildedSettings-container-padded ReGuildedSettings-container-top-padded">
+                            <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: tabs }} defaultSelectedTabIndex={defaultTabIndex}>
+                                <div className="ReGuildedEnhancementPage-tab">
                                     {/* Description */}
                                     { enhancement.readme?.length ? <MarkdownRenderer plainText={enhancement.readme} grammar={WebhookEmbed}/> : null }
                                     {/* Preview images carousel */}
-                                    { enhancement.images && window.ReGuilded.settingsHandler.config.loadImages &&
-                                        <PreviewCarousel enhancementId={enhancement.id} enhancementHandler={this.props.enhancementHandler} />
+                                    { enhancement.images && window.ReGuilded.settingsHandler.settings.loadImages &&
+                                        <PreviewCarousel enhancementId={enhancement.id} enhancementHandler={this.enhancementHandler} />
                                     }
                                     { this.renderActionForm() }
-                                </ErrorBoundary>
-                            </div>
-                            { children }
-                        </HorizontalTabs>
+                                </div>
+                                { this.renderTabs(enhancement) }
+                            </HorizontalTabs>
+                        </div>
                     </div>
                 </div>
             </ErrorBoundary>

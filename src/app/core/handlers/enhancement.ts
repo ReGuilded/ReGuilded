@@ -90,8 +90,7 @@ export default abstract class EnhancementHandler<
         this.savedUnload(enhancement)
             .then(() => this.config.delete(enhancement.id))
             .then(
-                () =>
-                    this.settingsHandler.config.debugMode && console.log(`Deleted enhancement by ID '${enhancement.id}'`),
+                () => console.debug(`Deleted enhancement by ID '${enhancement.id}'`),
                 e => console.error(`Failed to delete enhancement by ID '${enhancement.id}':\n`, e)
             );
     }

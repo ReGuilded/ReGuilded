@@ -166,7 +166,22 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     N extends "guilded/util/functions"
     ? Function & { coroutine: <R, T extends (...args: any[]) => R>(fn: T) => (...args: any[]) => Promise<R> }
     : // Components
-    N extends "guilded/components/Form"
+    N extends "guilded/components/cssLoader"
+    ? {
+          default: (prop: {
+              name: string;
+              loader: () => {
+                  default: {
+                      use: (...args: any[]) => any;
+                      unuse: (...args: any[]) => any;
+                      locals: { [colorName: string]: string };
+                  };
+              };
+          }) => Decorator;
+      }
+    : N extends "guilded/components/cssDictionary"
+    ? { default: { [componentName: string]: number } }
+    : N extends "guilded/components/Form"
     ? { default: typeof Form }
     : N extends "guilded/components/formFieldTypes"
     ? {
@@ -233,6 +248,8 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof CodeContainer }
     : N extends "guilded/components/SearchBarV2"
     ? { default: typeof SearchBarV2 }
+    : N extends "guilded/components/CardWrapper"
+    ? { default: typeof React.Component }
     : N extends "guilded/components/GuildedSelect"
     ? { default: typeof GuildedSelect }
     : N extends "guilded/components/ItemManager"
