@@ -5,7 +5,7 @@ import { nativeImage } from "electron";
 function getImageWebUrl(path: string) {
     const protocol = path.split(":")[0];
 
-    if (protocol === "http" || protocol === "https" || path.startsWith("/")) return path;
+    if (protocol == "http" || protocol == "https" || path.startsWith("/")) return path;
 }
 export function getImageUrl(dirname: string, path: string) {
     return getImageWebUrl(path) || nativeImage.createFromPath(pathResolve(dirname, path)).toDataURL();
@@ -28,4 +28,11 @@ export async function getSmallImageUrl(dirname: string, path: string) {
             if (stats.size > maxSmallImageSize) throw new Error("File cannot be over 150kb in size");
         })
         .then(() => nativeImage.createFromPath(filePath).toDataURL());
+}
+
+export async function fetchCss(dirname: string, cssPath: string) {
+    const protocol = cssPath.split("://", 1)[0].toLowerCase();
+
+    if (protocol == "https" || protocol == "http") return `@import url("${cssPath}");`;
+    else return await fsPromises.readFile(pathResolve(dirname, cssPath), "utf8");
 }

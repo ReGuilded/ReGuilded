@@ -1,11 +1,12 @@
 import { AnyEnhancement } from "../../../../../common/enhancements";
 import { RGEnhancementConfig } from "../../../../types/reguilded";
 import EnhancementHandler from "../../../handlers/enhancement";
-import { ChildTabProps } from "../TabbedSettings";
+import { PagedSettingsChildProps } from "../PagedSettings";
 import ErrorBoundary from "../ErrorBoundary";
 import { EnhancementGrid } from "./EnhancementGrid";
 
 const React = window.ReGuilded.getApiProperty("react"),
+    //{ default: TabEmptyState } = window.ReGuilded.getApiProperty("guilded/components/TabEmptyState"),
     { default: NullState } = window.ReGuilded.getApiProperty("guilded/components/NullState"),
     { default: HorizontalTabs } = window.ReGuilded.getApiProperty("guilded/components/HorizontalTabs"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
@@ -16,13 +17,13 @@ type AnyEnhancementHandler = EnhancementHandler<AnyEnhancement, RGEnhancementCon
 
 @savableSettings
 @defaultContextProvider
-export default class EnhancementSettings extends React.Component<ChildTabProps, { dirname: string, all: object[] }> {
+export default class EnhancementSettings extends React.Component<PagedSettingsChildProps, { dirname: string, all: object[] }> {
     protected name: string;
     protected type: string;
     protected ItemTemplate: any; // TODO: Change this to typeof EnhancementItem child
     protected enhancementHandler: AnyEnhancementHandler;
 
-    constructor(props: ChildTabProps, context?: any) {
+    constructor(props: PagedSettingsChildProps, context?: any) {
         super(props, context);
     }
     render() {
@@ -30,8 +31,8 @@ export default class EnhancementSettings extends React.Component<ChildTabProps, 
 
         return (
             <ErrorBoundary>
-                <div className="ReGuildedSettings-container ReGuildedSettings-container-padded">
-                    <GuildedText type="heading3" block={true} className="SettingsHeaderWithButton-header">{ name }</GuildedText>
+                <div className="ReGuildedSettings-container">
+                    <GuildedText block type="heading3" className="SettingsHeaderWithButton-header ReGuildedSettings-header">{ name }</GuildedText>
                     <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: [{ name: "Installed" }, { name: "Browse" }, { name: "Import" }] }}>
                         {/* Installed */}
                         <ErrorBoundary>

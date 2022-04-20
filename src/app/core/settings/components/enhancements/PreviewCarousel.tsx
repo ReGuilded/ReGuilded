@@ -5,7 +5,7 @@ import EnhancementHandler from "../../../handlers/enhancement";
 const React = window.ReGuilded.getApiProperty("react"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
     { default: CarouselList } = window.ReGuilded.getApiProperty("guilded/components/CarouselList"),
-    { default: MediaRenderer } = window.ReGuilded.getApiProperty("guilded/components/MediaRenderer"),
+    { default: Image } = window.ReGuilded.getApiProperty("guilded/components/Image"),
     { default: LoadingPage } = window.ReGuilded.getApiProperty("guilded/components/LoadingPage");
 
 type Props<T extends AnyEnhancement> = { enhancementId: string, enhancementHandler: EnhancementHandler<T, RGEnhancementConfig<T>> }
@@ -32,8 +32,10 @@ export default class PreviewCarousel<T extends AnyEnhancement> extends React.Com
             <div className="ReGuildedEnhancementImages-container">
                 <GuildedText className="ReGuildedEnhancementImages-heading" type="heading2" block={true}>Preview</GuildedText>
                 { images
-                    ? <CarouselList scrollOnChildrenChange={true} arrowSize="md" className="ReGuildedEnhancementImages-list" minHeight={108}>
-                        { images.map(image => <div className="ReGuildedEnhancementImages-image"><MediaRenderer src={image} className="MediaRenderer-content"/></div>) }
+                    ? <CarouselList scrollOnChildrenChange={true} arrowSize="md" className="ReGuildedEnhancementImages-list" minHeight={100}>
+                        { images.map(image => <div className="ReGuildedEnhancementImages-media">
+                            <Image src={image} cover className="MediaRenderer-content ReGuildedEnhancementImages-image"/>
+                        </div>) }
                     </CarouselList>
                     : <LoadingPage />
                 }

@@ -3,7 +3,6 @@ import { createWriteStream } from "fs-extra";
 import { stream } from "got";
 import { join } from "path";
 
-
 export default async function handleUpdate(updateInfo: VersionJson) {
     process.noAsar = true;
 
@@ -59,7 +58,7 @@ export async function checkForUpdate(forceUpdate: boolean = false): Promise<[boo
         });
     }).then(json => [
         (window.updateExists =
-            !json.noRelease && json.assets.length !== 0 && (forceUpdate || json.version !== reGuildedInfo.version)),
+            !json.noRelease && json.assets.length != 0 && (forceUpdate || json.version != reGuildedInfo.version)),
         (window.latestVersionInfo = json)
     ]);
 }

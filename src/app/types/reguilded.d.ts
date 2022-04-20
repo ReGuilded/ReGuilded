@@ -1,6 +1,6 @@
 import React from "react";
 import { Addon, AnyEnhancement, Theme } from "../../common/enhancements";
-import { ReGuildedSettings, ReGuildedSettingsUpdate } from "../../common/reguilded-settings";
+import { ReGuildedConfigCommon, ReGuildedSettings, ReGuildedState } from "../../common/reguilded-settings";
 import ReGuilded from "../core/ReGuilded";
 import SettingsInjector from "../core/settings/settings";
 
@@ -9,10 +9,8 @@ declare global {
         // Exposed via preload
         ReGuildedConfig: {
             isFirstLaunch: boolean;
-            settings: {
-                getSettings(): ReGuildedSettings;
-                updateSettings(settingsProps: ReGuildedSettingsUpdate): Promise<void>;
-            };
+            settings: ReGuildedConfigCommon<ReGuildedSettings>;
+            state: ReGuildedConfigCommon<ReGuildedState>;
             addons: RGAddonConfig;
             themes: RGThemeConfig;
             openItem(path: string): void;

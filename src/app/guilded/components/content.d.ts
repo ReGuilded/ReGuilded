@@ -1,6 +1,6 @@
 import { ComponentText, DirectionVertical, Size } from "../common";
-import React, { CSSProperties } from "react";
-import { ButtonProps } from "../input";
+import React, { CSSProperties, ReactNode } from "react";
+import { ButtonProps } from "./input";
 
 //#region BadgeV2
 export declare class BadgeV2 extends React.Component<{
@@ -19,7 +19,7 @@ export declare class BannerWithButton extends React.Component<{
     imgSrc?: string;
     theme?: "warning" | "error" | "info" | string;
     children?: React.ReactNode | React.ReactNode[];
-    buttonProps?: any;
+    buttonProps?: ButtonProps;
 }> {
     get hasText(): boolean;
 }
@@ -36,6 +36,37 @@ export type CalloutBadgeProps = {
 };
 export declare class CalloutBadge extends React.Component<CalloutBadgeProps> {
     get style(): React.CSSProperties;
+}
+export declare class CalloutBadgeWithText extends React.Component<{
+    text: string;
+    textProps: GuildedTextProps;
+    badgeProps: CalloutBadgeProps;
+}> {}
+//#endregion
+
+//#region CheckboxV2
+export declare class CheckboxV2 extends React.Component<{
+    className?: string;
+    labelClassName?: string;
+    descriptionClassName?: string;
+    allowMultilineLabel?: boolean;
+
+    label?: string;
+    description?: string;
+
+    disabled?: boolean;
+    isChecked?: boolean;
+    isCircular?: boolean;
+    defaultValue?: boolean | any;
+}> {
+    /**
+     * Gets whether the checkmark will be checked.
+     */
+    get isChecked(): boolean;
+    /**
+     * Gets whether the default value will render the checkmark as checked.
+     */
+    get _isChecked(): boolean;
 }
 //#endregion
 
@@ -66,7 +97,7 @@ export declare class CodeContainer extends React.Component<{
 //#endregion
 
 //#region GuildedText
-export declare class GuildedText extends React.Component<{
+export type GuildedTextProps = {
     type:
         | "title"
         | "heading1"
@@ -93,7 +124,9 @@ export declare class GuildedText extends React.Component<{
     centered?: boolean;
     breakUserContent?: boolean;
     title?: string;
-}> {}
+    children?: ReactNode | ReactNode[];
+};
+export declare class GuildedText extends React.Component<GuildedTextProps> {}
 //#endregion
 
 //#region IconAndLabel
@@ -153,8 +186,29 @@ export type SvgIconProps = {
 export declare class SvgIcon extends React.Component<SvgIconProps> {}
 //#endregion
 
+//#region TabEmptyState
+export declare class TabEmptyState extends React.Component<{
+    className?: string;
+    orientation?: "vertical" | "horizontal";
+
+    // Image
+    tabName?: string;
+    imageSrc?: string;
+
+    // Text
+    title: ComponentText;
+    subtitle: ComponentText;
+
+    // Buttons
+    buttons?: Array<{ content: string; props?: ButtonProps }>;
+}> {
+    get imageSrc(): string;
+}
+//#endregion
+
 //#region WordDividerLine
 export declare class WordDividerLine extends React.Component<{
+    className?: string;
     word?: ComponentText;
     wordStyle?: "normal" | "semibold" | "bold" | "chat" | "alert";
     onGetRef?: Function;

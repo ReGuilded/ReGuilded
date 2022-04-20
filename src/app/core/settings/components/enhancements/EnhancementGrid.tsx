@@ -3,6 +3,7 @@ import { AnyEnhancement } from "../../../../../common/enhancements";
 import { RGEnhancementConfig } from "../../../../types/reguilded";
 import EnhancementHandler from "../../../handlers/enhancement";
 import { OptionSpecs } from "../../../../guilded/form";
+import { SwitchTab } from "../PagedSettings";
 
 const React = window.ReGuilded.getApiProperty("react"),
     { default: SearchBarInput } = window.ReGuilded.getApiProperty("guilded/components/SearchBarV2"),
@@ -50,6 +51,13 @@ const sortFns: Array<(a: AnyEnhancement, b: AnyEnhancement) => number> = [
     versionSorter,
     (a, b) => -versionSorter(a, b)
 ];
+
+export type EnhancementGridItemProps<T extends AnyEnhancement> = {
+    enhancement: T,
+    enhancementHandler: EnhancementHandler<T>,
+
+    switchTab: SwitchTab
+};
 
 export class EnhancementGrid<T extends AnyEnhancement, C extends RGEnhancementConfig<T>, S extends ReGuildedEnhancementSettings = ReGuildedEnhancementSettings> extends React.Component<
     { type: string, enhancementHandler: EnhancementHandler<T, C, S>, ItemTemplate: typeof React.Component, switchTab: Function },
@@ -103,7 +111,7 @@ export class EnhancementGrid<T extends AnyEnhancement, C extends RGEnhancementCo
         return (
             items.length
             ? <div className="ReGuildedEnhancements-grid UserProfileGamesTab-grid">
-                { sorted.map(enhancement => <ItemTemplate {...enhancement} switchTab={switchTab} />) }
+                { sorted.map(enhancement => <ItemTemplate enhancement={enhancement} switchTab={switchTab} enhancementHandler={this.props.enhancementHandler} />) }
               </div>
             : <NullState type={nullStateType} title={nullStateTitle} subtitle={nullStateSubtitle} alignment="center" />
         );

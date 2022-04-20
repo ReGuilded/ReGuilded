@@ -12,15 +12,15 @@ type State = {
     tabProps: object
 };
 export type SwitchTab = (tabName: string, tabProps: object) => void;
-export type ChildTabProps = {
+export type PagedSettingsChildProps = {
     switchTab: SwitchTab,
     [tabProp: string]: any
 };
 
 /**
- * Allows settings to be changed between tabs.
+ * Allows settings to have multiple settings that can be switched to.
  */
-export default class TabbedSettings extends React.Component<Props, State> {
+export default class PagedSettings extends React.Component<Props, State> {
     private switchTab: SwitchTab;
     constructor(props: Props, context?: any) {
         super(props, context);

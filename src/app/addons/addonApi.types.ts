@@ -9,6 +9,9 @@ import {
     BannerWithButton,
     CalloutBadge,
     CalloutBadgeProps,
+    CalloutBadgeWithText,
+    CheckboxV2,
+    CheckmarkIcon,
     CodeContainer,
     GuildedText,
     IconAndLabel,
@@ -16,10 +19,11 @@ import {
     LoadingAnimationMicro,
     NullState,
     SvgIcon,
+    TabEmptyState,
     WordDividerLine
 } from "../guilded/components/content";
-import { MediaRenderer, UserBasicInfoDisplay } from "../guilded/components/display";
-import { Button, GuildedSelect, SearchBarV2, SimpleToggle } from "../guilded/input";
+import { GuildedImage, UserBasicInfoDisplay } from "../guilded/components/display";
+import { Button, GuildedSelect, SearchBarV2, SimpleToggle } from "../guilded/components/input";
 import { OverflowButton } from "../guilded/menu";
 import {
     Carousel as CarouselList,
@@ -34,7 +38,7 @@ import { ModalV2, ModalV2Props } from "../guilded/components/modals";
 import { EditorPlugin, NodeType } from "../guilded/slate";
 import { UserModel } from "../guilded/models";
 import { OverlayProvider, TypeMixin } from "../guilded/decorators";
-import { ScreenHeader } from "../guilded/components/page";
+import { BlogPage, ScreenHeader } from "../guilded/components/page";
 //#endregion
 
 //#region OverlayProvider, decorators & type mixins
@@ -232,6 +236,8 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof Button }
     : N extends "guilded/components/SvgIcon"
     ? { default: typeof SvgIcon }
+    : N extends "guilded/components/TabEmptyState"
+    ? { default: typeof TabEmptyState }
     : N extends "guilded/components/NullState"
     ? { default: typeof NullState }
     : N extends "guilded/components/HorizontalTabs"
@@ -242,8 +248,8 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof React.Component }
     : N extends "guilded/components/SimpleToggle"
     ? { default: typeof SimpleToggle }
-    : N extends "guilded/components/MediaRenderer"
-    ? { default: typeof MediaRenderer }
+    : N extends "guilded/components/Image"
+    ? { default: typeof GuildedImage }
     : N extends "guilded/components/CodeContainer"
     ? { default: typeof CodeContainer }
     : N extends "guilded/components/SearchBarV2"
@@ -262,6 +268,10 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof IconAndLabel }
     : N extends "guilded/components/UserBasicInfoDisplay"
     ? { default: typeof UserBasicInfoDisplay }
+    : N extends "guilded/components/CheckboxV2"
+    ? { default: typeof CheckboxV2 }
+    : N extends "guilded/components/CheckmarkIcon"
+    ? { default: typeof CheckmarkIcon }
     : N extends "guilded/components/ProfilePicture"
     ? { default: typeof React.Component }
     : N extends "guilded/components/CarouselList"
@@ -274,6 +284,8 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof BadgeV2 }
     : N extends "guilded/components/StretchFadeBackground"
     ? { default: typeof React.Component }
+    : N extends "guilded/components/CalloutBadgeWithText"
+    ? { default: typeof CalloutBadgeWithText }
     : N extends "guilded/components/WordDividerLine"
     ? { default: typeof WordDividerLine }
     : N extends "guilded/components/ScreenHeader"
@@ -296,6 +308,8 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: typeof ModalV2 }
     : N extends "guilded/components/MarkRenderer"
     ? { default: typeof React.Component }
+    : N extends "guilded/components/BlogPage"
+    ? { default: typeof BlogPage }
     : N extends "guilded/components/draggable"
     ? any
     : unknown;

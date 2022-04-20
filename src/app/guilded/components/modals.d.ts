@@ -1,6 +1,7 @@
 import React from "react";
-import { ComponentText, Direction } from "../common";
-import { ButtonType } from "../input";
+import { AnyComponent, ComponentText, Direction } from "../common";
+import { CalloutBadgeProps } from "./content";
+import { ButtonType } from "./input";
 
 //#region Modal
 export declare interface ModalV2Props {
@@ -96,4 +97,18 @@ export declare class ModalV2 extends React.Component<ModalV2Props> {
     get isConfirmOnly(): boolean;
     get isCancelOnly(): boolean;
 }
+//#endregion
+
+//#region Settings
+export type SettingsTab = {
+    id: string;
+    label: string;
+
+    Component: AnyComponent;
+
+    hasNestedOptionsPageMenu?: boolean;
+    props?: any;
+
+    calloutBadgeProps?: CalloutBadgeProps;
+};
 //#endregion

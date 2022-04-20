@@ -1,12 +1,12 @@
 @require "./util.styl"
 
-.ReGuilded
++prefix-classes("ReGuilded")
     // Util
-    &ErrorBoundary-error
+    .ErrorBoundary-error
         // Align code block to the left, because we set text alignment to center in the ErrorBoundary's error display
         text-align: left
     // Settings
-    &Enhancement
+    .Enhancement
         // All
         &s-container
             // Looks awful when enhancement touches the very bottom
@@ -20,7 +20,20 @@
             gap: 20px
             grid-template-columns: 1fr 1fr 1fr
             // Enhancement height
-            grid-auto-rows: 260px
+            grid-auto-rows: 210px
+
+        &-footer
+            // Don't center it
+            align-items: start
+
+        &-icon
+            size: 80px
+            margin-right: 15px
+        &-subtitle
+            margin: 5px 0
+        &-text
+            word-break: break-all
+            hyphens: auto
 
         // Single enhancement
         &-container
@@ -41,6 +54,8 @@
             pointer-events: none
         &-header
             padding: 20px 25px 5px 25px
+            display: flex
+            flex-direction: row
         &-footer
             padding: 15px 25px 10px 25px
         &-version
@@ -58,21 +73,86 @@
 
         // Enhancement page
         &Page
-            &-wrapper
+            &-container,
+            &-content
                 max-width: 100%
-            &-warning
+            &-content
+                padding: 20px 32px
+            &-banner
                 margin-bottom: 16px
-        &Images-image
-            // Otherwise carousel won't work
-            position: relative
+            &-subtitle
+                margin-bottom: 15px
+            &-columns
+                display: grid
+                grid-template-columns: 1fr 250px
+                gap: 0 20px
 
-            min-width: 250px
-            height: 250px
+            &-tab-grid
+                display: grid
+                grid-template-columns: 1fr 1fr 1fr 1fr
+                gap: 20px
 
-            &:not(:first-child)
-                margin-left: 10px
-    &Settings-container
-        &-padded
+            &-header
+                position: relative
+                width: 100%
+                height: 240px
+                margin-bottom: 20px
+            &-banner
+                position: absolute
+                top: 0
+                left: 0
+                right: 0
+                height: 150px
+            &-banner-image
+                size: 100%
+            &-icon
+                size: 150px
+            &-header-content
+                z-index: 2
+                size: 100%
+
+                display: flex
+                flex-direction: column
+                align-items: center
+                justify-content: end
+            &-header-name
+                text-align: center
+                margin-top: 10px
+        &Images
+            &-container
+                margin-bottom: 15px
+            &-heading
+                margin-bottom: 8px
+            &-media
+                // Otherwise carousel won't work
+                position: relative
+
+                min-width: 400px
+                max-width: 900px
+
+                &:not(:first-child)
+                    margin-left: 10px
+        &Info
+            &-section-header
+                margin-bottom: 4px
+            &-point:not(:first-child)
+                margin-top: 10px
+            &-section:not(:first-child)
+                margin-top: 16px
+
+    .ThemeExtension
+        &-toggle
+            margin-bottom: 10px
+
+    .Settings
+        &-container
             padding-horizontal: 32px
-        &-top-padded
-            padding-top: 20px
+        &-divider
+            margin: 14px 0
+        &-info-item:not(:first-child)
+            margin-top: 10px
+        &Wrapper-container
+            &-no-padding
+                padding: 0
+            &-cover
+                width: 100%

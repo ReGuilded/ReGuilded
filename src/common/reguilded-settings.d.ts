@@ -10,7 +10,7 @@ export type ReGuildedSettings = {
     loadImages: boolean;
     keepSplash: boolean;
     addons: ReGuildedAddonSettings;
-    themes: ReGuildedEnhancementSettings;
+    themes: ReGuildedThemeSettings;
 };
 export type ReGuildedSettingsUpdate = {
     autoUpdate?: boolean;
@@ -30,9 +30,19 @@ export type ReGuildedWhitelist = {
     script: Array<string>;
     style: Array<string>;
 };
-export interface ReGuildedEnhancementSettings {
+export type ReGuildedState = {
+    lastViewedChangelogVersion?: string;
+};
+export declare interface ReGuildedConfigCommon<T> {
+    getConfig(): T;
+    updateConfig(props: Partial<T>): Promise<void>;
+}
+export declare interface ReGuildedEnhancementSettings {
     enabled: string[];
 }
-export interface ReGuildedAddonSettings extends ReGuildedEnhancementSettings {
+export declare interface ReGuildedAddonSettings extends ReGuildedEnhancementSettings {
     permissions: { [addonId: string]: number };
+}
+export declare interface ReGuildedThemeSettings extends ReGuildedEnhancementSettings {
+    enabledExtensions: { [addonId: string]: string[] };
 }

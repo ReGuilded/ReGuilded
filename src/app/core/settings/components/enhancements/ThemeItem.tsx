@@ -1,68 +1,48 @@
-import { FieldAnySpecs } from "../../../../guilded/form";
+import { EnhancementGridItemProps } from "./EnhancementGrid";
+import { MenuSectionSpecs } from "../../../../guilded/menu";
 import { Theme } from "../../../../../common/enhancements";
+import { FieldAnySpecs } from "../../../../guilded/form";
 import EnhancementItem from "./EnhancementItem";
 import validations from "../../validation";
 
-export default class ThemeItem extends EnhancementItem<Theme, { settings: object, settingsProps: string[] }> {
+const React = window.ReGuilded.getApiProperty("react");
+
+export default class ThemeItem extends React.Component<EnhancementGridItemProps<Theme>> {
+    private _overflowMainSection?: MenuSectionSpecs;
+
     constructor(props, context) {
         super(props, context);
 
-        const { id, settings, settingsProps, dirname } = props;
-
-        this.state = {
-            dirname,
-            settings,
-            settingsProps,
-            enabled: window.ReGuilded.themes.enabled.includes(id)
-        };
+        const { enhancement: { settings } } = this.props;
 
         const { switchTab } = this.props;
 
         // Add "Settings" button if settings are present
         if (settings)
-            this.overflowMenuSpecs.sections.push({
+            this._overflowMainSection = {
                 name: "Theme",
-                type: "rows",
+                header: "Theme",
                 actions: [
                     {
                         label: "Settings",
                         icon: "icon-settings",
-                        onClick: () => switchTab("specific", { enhancement: this.props, defaultTabIndex: 1 })
+                        onClick: () => switchTab("specific", {
+                            enhancement: this.props.enhancement,
+                            defaultTabIndex: 1,
+                            className: "ReGuildedSettingsWrapper-container ReGuildedSettingsWrapper-container-no-padding ReGuildedSettingsWrapper-container-cover"
+                        })
                     }
                 ]
-            });
-    }
-    get formSpecs() {
-        const { settings, settingsProps } = this.state;
-
-        return {
-            sections: [
-                {
-                    fieldSpecs: ThemeItem.generateSettingsFields(settings, settingsProps)
-                }
-            ]
-        }
-    }
-    protected override async onToggle(enabled: boolean): Promise<void> {
-        await window.ReGuilded.themes[enabled ? "savedLoad" : "savedUnload"](this.props)
-            .then(() => this.setState({ enabled }));
-    }
-    static generateSettingsFields(settings: object, settingsProps: string[]): FieldAnySpecs[] {
-        return settingsProps.map(id => {
-            const { type, value, name } = settings[id];
-
-            return {
-                type: "Text",
-                fieldName: id,
-                header: name,
-                label: type ? `Value (${type})` : "Value",
-                defaultValue: value,
-
-                inputType: type === "number" ? type : undefined,
-                validationFunction: validations[type],
-
-                grow: 1
             };
-        });
+    }
+    render() {
+        const {
+            props,
+            _overflowMainSection
+        } = this;
+
+        return (
+            <EnhancementItem {...props} overflowMenuSection={_overflowMainSection} />
+        )
     }
 }

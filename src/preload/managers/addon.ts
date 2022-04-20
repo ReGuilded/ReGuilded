@@ -1,15 +1,10 @@
-import { promises as fsPromises, statSync, readFileSync } from "fs";
+import { Addon, AddonExports } from "../../common/enhancements";
 import { join, resolve as pathResolve, extname } from "path";
-import EnhancementManager from "./enhancement-manager";
-import { Addon } from "../common/enhancements";
+import { promises as fsPromises, statSync } from "fs";
+import EnhancementManager from "./enhancement";
 import { webFrame } from "electron";
 
 type ExecutableModule<T> = (__filename: string, __dirname: string, require: (file: string) => any) => T;
-type AddonExports = {
-    load: Function;
-    unload?: Function;
-    init?: Function;
-};
 
 export default class AddonManager extends EnhancementManager<Addon> {
     addonsToIsolatedWorlds: {
@@ -33,7 +28,7 @@ export default class AddonManager extends EnhancementManager<Addon> {
                 addon.files = addon.files[0];
             }
 
-            if (typeof addon.requiredPermissions !== "number") {
+            if (typeof addon.requiredPermissions != "number") {
                 console.error("Expected addon by ID '%s' to have property 'requiredFiles' as a number.");
                 addon.requiredPermissions = 0;
             }
@@ -49,7 +44,7 @@ export default class AddonManager extends EnhancementManager<Addon> {
                     importable
                 ).then(exported => {
                     // Make sure it's appropriate
-                    if (typeof exported !== "object" || typeof exported.load !== "function") {
+                    if (typeof exported != "object" || typeof exported.load != "function") {
                         throw new Error(
                             "Addon's main file's exports must be an object containing at least load function and optionally init and unload."
                         );
@@ -97,7 +92,7 @@ export default class AddonManager extends EnhancementManager<Addon> {
             // Require dir/index.js like require does
             return stats.isDirectory()
                 ? await this._requireWholePath(worldId, join(path, "index.js"), importable)
-                : ext === ".json"
+                : ext == ".json"
                 ? JSON.parse(await fsPromises.readFile(path, { encoding: "utf8" }))
                 : await this._executeFile(worldId, path, importable);
         } catch (_) {

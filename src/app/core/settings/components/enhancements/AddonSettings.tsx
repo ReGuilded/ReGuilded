@@ -6,7 +6,7 @@ export default class AddonSettings extends EnhancementSettings {
     protected type = "addon";
     ItemTemplate = AddonItem;
     constructor(props, context) {
-        super(props, context);
+        super({ ...props, className: "ReGuildedSettingsWrapper-container-padded" }, context);
 
         this.enhancementHandler = window.ReGuilded.addons;
     }

@@ -1,14 +1,18 @@
 ﻿import { ProvidedOverlay } from "../../../guilded/decorators";
 import reGuildedInfo from "../../../../common/reguilded.json";
 import ErrorBoundary from "./ErrorBoundary";
+import { InlineCode } from "../util";
 
 
-const { default: Form } = window.ReGuilded.getApiProperty("guilded/components/Form"),
-    React = window.ReGuilded.getApiProperty("react"),
-    { default: savableSettings } = window.ReGuilded.getApiProperty("guilded/settings/savableSettings"),
+const React = window.ReGuilded.getApiProperty("react"),
     { coroutine } = window.ReGuilded.getApiProperty("guilded/util/functions"),
+    { default: Form } = window.ReGuilded.getApiProperty("guilded/components/Form"),
+    { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
+    { default: IconAndLabel } = window.ReGuilded.getApiProperty("guilded/components/IconAndLabel"),
+    { default: savableSettings } = window.ReGuilded.getApiProperty("guilded/settings/savableSettings"),
+    { default: WordDividerLine } = window.ReGuilded.getApiProperty("guilded/components/WordDividerLine"),
     { default: overlayProvider } = window.ReGuilded.getApiProperty("guilded/overlays/overlayProvider"),
-    { default: defaultContextProvider } = window.ReGuilded.getApiProperty("guilded/context/defaultContextProvider")
+    { default: defaultContextProvider } = window.ReGuilded.getApiProperty("guilded/context/defaultContextProvider");
 
 type GeneralSettingsValues = {
     loadImages: boolean,
@@ -41,7 +45,7 @@ export default class GeneralSettings extends React.Component {
             // (E.g., radios always returning { optionName: "xyz" } instead of "xyz")
             const configValues = { loadAuthors, loadImages, badge: badge, keepSplash, autoUpdate };
 
-            yield window.ReGuilded.settingsHandler.updateSettings(configValues)
+            yield window.ReGuilded.settingsHandler.update(configValues)
                 .then(() => {
                     if (changedValues.badge) {
                         window.ReGuilded.unloadUserBadges();
@@ -80,7 +84,7 @@ export default class GeneralSettings extends React.Component {
 
                                 })
                                 .catch(e => {
-                                    if (typeof e === "string")
+                                    if (typeof e == "string")
                                         statusContext.displayError({ message: e, error: e });
                                     else statusContext.displayError({ message: e.message, error: e });
                                 })
@@ -90,120 +94,143 @@ export default class GeneralSettings extends React.Component {
             });
     }
     render() {
-        const { settings } = window.ReGuilded.settingsHandler;
+        const { config } = window.ReGuilded.settingsHandler;
 
         // TODO: Make badge radio functional with onChange
         return (
             <ErrorBoundary>
-                <Form onChange={this._handleOptionsChange} formSpecs={{
-                    header: "ReGuilded General Settings",
-                    sectionStyle: "border",
-                    sections: [
-                        {
-                            rowMarginSize: "lg",
-                            fieldSpecs: [
+                <div className="ReGuildedSettings-container">
+                    {/*
+                      * FIXME: 4 fail points: Form, WordDividerLine, GuildedText and IconAndLabel. One of them may be changed and this might fail, forcing the user to reinject
+                      * TODO: R-CTRL + R-SHIFT + R + U adds non-Guilded styled update prompt with custom keybinds allowed
+                      */}
+                    <GuildedText block type="heading3" className="SettingsHeaderWithButton-header ReGuildedSettings-header">ReGuilded General Settings</GuildedText>
+                    <div className="ReGuildedSettings-section ReGuildedSettings-info">
+                        {/* TODO: Injection of ReGuilded icon */}
+                        <IconAndLabel className="ReGuildedSettings-info-item" iconName="icon-star" label={[
+                            "ReGuilded version: ",
+                            <InlineCode>{ window.ReGuilded.version }</InlineCode>
+                        ]} />
+                        <IconAndLabel className="ReGuildedSettings-info-item" iconName="brand-logomark" label={[
+                            "Guilded version: ",
+                            <InlineCode>{ window.GuildedNative?.appVersion }</InlineCode>
+                        ]} />
+                        <IconAndLabel className="ReGuildedSettings-info-item" iconName="icon-desktop" label={[
+                            "Electron version: ",
+                            <InlineCode>{ window.GuildedNative?.electronVersion }</InlineCode>
+                        ]} />
+                    </div>
+                    <WordDividerLine word="Settings" className="ReGuildedSettings-divider" />
+                    <div className="ReGuildedSettings-section">
+                        <Form onChange={this._handleOptionsChange} formSpecs={{
+                            sectionStyle: "no-border-unpadded",
+                            sections: [
                                 {
-                                    type: "Switch",
-                                    fieldName: "autoUpdate",
+                                    rowMarginSize: "lg",
+                                    fieldSpecs: [
+                                        {
+                                            type: "Switch",
+                                            fieldName: "autoUpdate",
 
-                                    label: "Auto-Update",
-                                    description: "Every time Guilded is launched or gets refreshed, ReGuilded checks for its own updates and installs them if they exists.",
+                                            label: "Auto-Update",
+                                            description: "Every time Guilded is launched or gets refreshed, ReGuilded checks for its own updates and installs them if they exists.",
 
-                                    defaultValue: settings.autoUpdate
+                                            defaultValue: config.autoUpdate
+                                        },
+                                        {
+                                            type: "Radios",
+                                            fieldName: "badge",
+                                            isOptional: false,
+
+                                            label: "Badge handling",
+                                            description: "This determines how to handle ReGuilded maintainer and other badges.",
+                                            isDescriptionAboveField: true,
+
+                                            layout: "vertical",
+                                            isPanel: true,
+                                            isCheckbox: true,
+                                            options: [
+                                                {
+                                                    optionName: 2,
+                                                    layout: "horizontal",
+                                                    label: "Show as a badge",
+                                                    shortLabel: "Badge",
+                                                    description: "Shows ReGuilded badges as global badges like partner badge."
+                                                },
+                                                {
+                                                    optionName: 1,
+                                                    layout: "horizontal",
+                                                    label: "Show as a flair",
+                                                    shortLabel: "Flair",
+                                                    description: "Shows ReGuilded badges as global flairs like stonks flair."
+                                                },
+                                                {
+                                                    optionName: 0,
+                                                    layout: "horizontal",
+                                                    label: "Don't show",
+                                                    shortLabel: "Hide",
+                                                    description: "This hides all ReGuilded badges."
+                                                },
+                                            ],
+                                            defaultValue: { optionName: config.badge }
+                                        }
+                                    ]
                                 },
                                 {
-                                    type: "Radios",
-                                    fieldName: "badge",
-                                    isOptional: false,
-
-                                    label: "Badge handling",
-                                    description: "This determines how to handle ReGuilded maintainer and other badges.",
-                                    isDescriptionAboveField: true,
-
-                                    layout: "vertical",
-                                    isPanel: true,
-                                    isCheckbox: true,
-                                    options: [
+                                    header: "Advanced",
+                                    isCollapsible: true,
+                                    rowMarginSize: "md",
+                                    sectionStyle: "indented-padded",
+                                    fieldSpecs: [
                                         {
-                                            optionName: 2,
-                                            layout: "horizontal",
-                                            label: "Show as a badge",
-                                            shortLabel: "Badge",
-                                            description: "Shows ReGuilded badges as global badges like partner badge."
+                                            type: "Switch",
+                                            fieldName: "loadAuthors",
+
+                                            label: "Load Enhancement Authors",
+                                            description: "Loads addon and theme authors.",
+
+                                            defaultValue: config.loadAuthors
                                         },
                                         {
-                                            optionName: 1,
-                                            layout: "horizontal",
-                                            label: "Show as a flair",
-                                            shortLabel: "Flair",
-                                            description: "Shows ReGuilded badges as global flairs like stonks flair."
-                                        },
-                                        {
-                                            optionName: 0,
-                                            layout: "horizontal",
-                                            label: "Don't show",
-                                            shortLabel: "Hide",
-                                            description: "This hides all ReGuilded badges."
-                                        },
-                                    ],
-                                    defaultValue: { optionName: settings.badge }
-                                }
-                            ]
-                        },
-                        {
-                            fieldSpecs: [
-                                {
-                                    type: "Button",
-                                    buttonText: "Check for updates",
-                                    description: `Currently installed version: ${reGuildedInfo.version}`,
-                                    onClick: this.Update
-                                }
-                            ]
-                        },
-                        {
-                            header: "Advanced",
-                            isCollapsible: true,
-                            rowMarginSize: "md",
-                            sectionStyle: "indented-padded",
-                            fieldSpecs: [
-                                {
-                                    type: "Switch",
-                                    fieldName: "loadAuthors",
+                                            type: "Switch",
+                                            fieldName: "loadImages",
 
-                                    label: "Load Enhancement Authors",
-                                    description: "Loads addon and theme authors.",
+                                            label: "Load Enhancement Images",
+                                            description: "Loads addon and theme previews and banner.",
 
-                                    defaultValue: settings.loadAuthors
+                                            defaultValue: config.loadImages
+                                        }
+                                    ]
                                 },
                                 {
-                                    type: "Switch",
-                                    fieldName: "loadImages",
+                                    header: "Developer Options",
+                                    isCollapsible: true,
+                                    rowMarginSize: "md",
+                                    sectionStyle: "indented-padded",
+                                    fieldSpecs: [
+                                        {
+                                            type: "Switch",
+                                            fieldName: "keepSplash",
+                                            label: "Keep Loading Screen",
+                                            description: "Keeps Splash/Loading Screen Open",
 
-                                    label: "Load Enhancement Images",
-                                    description: "Loads addon and theme previews and banner.",
-
-                                    defaultValue: settings.loadImages
-                                }
-                            ]
-                        },
-                        {
-                            header: "Developer Options",
-                            isCollapsible: true,
-                            rowMarginSize: "md",
-                            sectionStyle: "indented-padded",
-                            fieldSpecs: [
+                                            defaultValue: config.keepSplash
+                                        }
+                                    ]
+                                },
                                 {
-                                    type: "Switch",
-                                    fieldName: "keepSplash",
-                                    label: "Keep Loading Screen",
-                                    description: "Keeps Splash/Loading Screen Open",
-
-                                    defaultValue: settings.keepSplash
-                                }
+                                    fieldSpecs: [
+                                        {
+                                            type: "Button",
+                                            buttonText: "Check for updates",
+                                            onClick: this.Update
+                                        }
+                                    ]
+                                },
                             ]
-                        }
-                    ]
-                }}/>
+                        }}/>
+                    </div>
+                </div>
             </ErrorBoundary>
         );
     }

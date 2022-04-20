@@ -1,11 +1,13 @@
-import { ReGuildedAddonSettings } from "../../../common/reguilded-settings";
+import { ReGuildedAddonSettings, ReGuildedSettings } from "../../../common/reguilded-settings";
 import { RGAddonConfig } from "../../types/reguilded";
 import { Addon } from "../../../common/enhancements";
 import WebpackManager from "../../addons/webpack";
 import AddonApi from "../../addons/addonApi";
 import EnhancementHandler from "./enhancement";
-import SettingsHandler from "./settings";
 import ReGuilded from "../ReGuilded";
+import { handleErrorsOf } from "../../util";
+import ConfigHandler from "./config";
+import { AddonPermission } from "../../addons/addonPermission";
 
 /**
  * Manager that manages ReGuilded's addons
@@ -26,7 +28,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
     constructor(
         parent: ReGuilded,
         settings: ReGuildedAddonSettings,
-        settingsHandler: SettingsHandler,
+        settingsHandler: ConfigHandler<ReGuildedSettings>,
         config: RGAddonConfig
     ) {
         super(parent, settings, settingsHandler, config);
@@ -48,7 +50,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
         if (loaded) {
             if (~this.enabled.indexOf(currentOrPreviousId)) {
                 // FIXME: We already kind of do that in EnhancementHandler, but with index
-                const previousMetadata = this.all.find(addon => addon.id === currentOrPreviousId);
+                const previousMetadata = this.all.find(addon => addon.id == currentOrPreviousId);
                 this.unload(previousMetadata);
             }
 
@@ -66,14 +68,14 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
      * @returns Function exists
      */
     private static _functionExists(addon: Addon, name: string): boolean {
-        if (typeof addon.exports === "undefined") return false;
-        else if (typeof addon.exports[name] === "function") return true;
+        if (typeof addon.exports == "undefined") return false;
+        else if (typeof addon.exports[name] == "function") return true;
         // It doesn't exist, but it's also valid
-        else if (typeof addon.exports[name] === "undefined") {
+        else if (typeof addon.exports[name] == "undefined") {
             const { default: def } = addon.exports;
             const defType = typeof def;
 
-            if ((defType === "function" || defType === "object") && typeof def[name] === "function") {
+            if ((defType == "function" || defType == "object") && typeof def[name] == "function") {
                 addon.exports[name] = def[name];
                 return true;
             } else return false;
@@ -97,7 +99,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
             // Check if it's first time loading
             console.debug("Load initialized", JSON.stringify(metadata.id));
             if (!~this.initialized.indexOf(metadata.id)) {
-                this.addonApis[metadata.id] = new AddonApi(this.webpack, this, metadata.id);
+                this.addonApis[metadata.id] = new AddonApi(this.webpack, this, metadata);
 
                 await metadata
                     // Allow requiring stuff from its very own API
@@ -109,10 +111,20 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
 
                         console.debug("Loading first time");
                         this.initialized.push(metadata.id);
-                        metadata.exports.load();
+
+                        if (AddonHandler._functionExists(metadata, "load")) {
+                            metadata.exports.load();
+                            // If such is present
+                            delete metadata._error;
+                        } else throw new Error("An addon must export load function");
                     })
-                    .catch(e => console.error(`Error while getting exports of addon by ID '${metadata.id}':`, e));
-            } else metadata.exports.load();
+                    .catch(
+                        e => (
+                            (metadata._error = e),
+                            console.error(`Error while getting exports of addon by ID '${metadata.id}':`, e)
+                        )
+                    );
+            } else handleErrorsOf<any>(metadata.exports.load, e => (metadata._error = e));
         } catch (e) {
             console.error(`Failed to load addon by ID '${metadata.id}':\n`, e);
         }
@@ -125,7 +137,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
     unload(metadata: Addon) {
         try {
             console.debug(`Unloading addon by ID '${metadata.id}''`);
-            AddonHandler._functionExists(metadata, "unload") && metadata.exports.unload(this, this.webpack);
+            AddonHandler._functionExists(metadata, "unload") && metadata.exports.unload();
         } catch (e) {
             console.error(`Failed to unload an addon by ID '${metadata.id}':\n`, e);
         }
@@ -162,14 +174,24 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
      * @param permissions The permission to set for the addon
      */
     async setPermissions(addonId: string, permissions: AddonPermission) {
-        this.settings.permissions[addonId] = permissions;
-        await this.settingsHandler.updateSettings({ addons: this.settings });
+        const addon = this.all.find(addon => addon.id == addonId);
+
+        if (addon) {
+            this.settings.permissions[addonId] = permissions;
+
+            // Since the addon might look like it's broken
+            if (~this.enabled.indexOf(addonId)) {
+                this.unload(addon);
+
+                // Large chance it has top-level "await require"
+                const initIndex = this.initialized.indexOf(addonId);
+                this.initialized.splice(initIndex, 1);
+
+                this.load(addon);
+            }
+
+            // We updated the settings (permissions), time to sync it with settings handler and manager
+            await this.settingsHandler.update({ addons: this.settings });
+        }
     }
-}
-export enum AddonPermission {
-    Elements = 1,
-    _RESERVED = 2,
-    ExtraInfo = 4,
-    UseApi = 8,
-    UseExternalApi = 16
 }

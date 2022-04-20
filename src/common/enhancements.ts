@@ -1,19 +1,45 @@
-export declare interface Enhancement<T extends string | string[]> {
+export declare interface Enhancement<T, S extends {}> {
     id: string;
     name: string;
     files: T;
     dirname: string;
 
+    subtitle?: string;
+    readme?: string;
+    repoUrl?: string;
+
+    icon?: string;
+    banner?: string;
+    images?: string[];
+
     author?: string;
     contributors?: string[];
     version?: string;
+
+    // Private
     _versionMatches?: string[];
-    repoUrl?: string;
-    banner?: string;
-    images?: string[];
-    readme?: string;
+    _repoInfo?: {
+        platform: string;
+        path: string;
+    };
+    _state?: S;
 }
-export declare interface Theme extends Enhancement<string[]> {
+
+export type ThemeCssVariableType = string | number | undefined | null;
+export type ThemeSettings = {
+    [id: string]: {
+        name?: string;
+        type?: "url" | "size" | "color" | "number" | "percent" | undefined | null;
+        value?: ThemeCssVariableType;
+        options?: Array<{
+            name: string;
+            value: ThemeCssVariableType;
+        }>;
+        _optionValue?: ThemeCssVariableType;
+    };
+};
+
+export declare interface Theme extends Enhancement<string[], { settings: { [name: string]: ThemeCssVariableType } }> {
     /**
      * The list of CSS content of this theme.
      */
@@ -21,27 +47,31 @@ export declare interface Theme extends Enhancement<string[]> {
     /**
      * The settings of the theme.
      */
-    settings: {
-        [id: string]: {
-            name?: string;
-            type?: "url" | "size" | "color" | "number" | "percent" | undefined | null;
-            value?: string | number | boolean | undefined | null;
-        };
-    };
+    settings?: ThemeSettings;
     /**
      * The list of `settings` properties.
      */
-    settingsProps: string[];
+    _settingsProps?: string[];
+
+    extensions?: Array<{
+        id: string;
+        name?: string;
+        description?: string;
+        file: string;
+    }>;
 }
-type AddonExports = {
-    load: Function;
-    init?: Function;
-    unload?: Function;
+export type AddonExports = {
+    load: () => any;
+    init?: () => any;
+    unload?: () => any;
     [otherExport: string]: any;
 };
-export declare interface Addon extends Enhancement<string> {
+export declare interface Addon extends Enhancement<string, {}> {
     requiredPermissions: number;
     execute: (importable: (path: string) => [boolean, any?]) => Promise<AddonExports>;
     exports?: AddonExports;
+
+    _error?: Error | string;
+    _missingPerms?: number;
 }
-export type AnyEnhancement = Enhancement<string | string[]>;
+export type AnyEnhancement = Enhancement<any, any>;

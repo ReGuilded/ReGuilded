@@ -1,9 +1,9 @@
-import { ReGuildedEnhancementSettings } from "../../../common/reguilded-settings.js";
+import { ReGuildedEnhancementSettings, ReGuildedSettings } from "../../../common/reguilded-settings.js";
 import { RGThemeConfig } from "../../types/reguilded.js";
 import { Theme } from "../../../common/enhancements.js";
 import EnhancementHandler from "./enhancement.js";
-import SettingsHandler from "./settings.js";
 import ReGuilded from "../ReGuilded.js";
+import ConfigHandler from "./config.js";
 
 /**
  * Manager that manages ReGuilded's themes
@@ -24,7 +24,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
     constructor(
         parent: ReGuilded,
         settings: ReGuildedEnhancementSettings,
-        settingsHandler: SettingsHandler,
+        settingsHandler: ConfigHandler<ReGuildedSettings>,
         config: RGThemeConfig
     ) {
         super(parent, settings, settingsHandler, config);
@@ -49,8 +49,10 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
         // Since we already have it loaded, we need to update it and unload
         if (loaded && ~this.enabled.indexOf(currentOrPreviousId)) this.unloadWithId(currentOrPreviousId);
 
-        const propFiles = typeof metadata.files === "string" ? [metadata.files] : metadata.files;
+        const propFiles = typeof metadata.files == "string" ? [metadata.files] : metadata.files;
         metadata.files = propFiles;
+
+        if (metadata.settings) metadata._settingsProps = Object.keys(metadata.settings);
 
         // Since we turned string into single-item array,
         // we don't need to check for both types
@@ -95,53 +97,74 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
      * @param metadata Theme metadata
      * @param group The datagroup element of the theme
      */
-    checkAndDoSettings(metadata: Theme, group: Element) {
-        if (!metadata.settings) return;
+    async checkAndDoSettings(metadata: Theme, group: Element) {
+        return await Promise.all([
+            // Settings
+            new Promise<void>((resolve, reject) => {
+                if (!metadata.settings) return resolve();
 
-        // Using keys instead of values to validate id as well
-        for (let propId of metadata.settingsProps) {
-            // Validate ID
-            if (!propId.match(EnhancementHandler.idRegex))
-                return console.warn("Incorrect syntax for property", propId, ". Theme ID:", metadata.id);
+                // Using keys instead of values to validate id as well
+                for (let propId of metadata._settingsProps) {
+                    // Validate ID
+                    if (!propId.match(EnhancementHandler.idRegex))
+                        return reject(`Incorrect syntax of the name of the property '${propId}'`);
 
-            const prop = metadata.settings[propId];
-            if (typeof prop !== "object")
-                return console.warn(
-                    "Expected theme settings property",
-                    propId,
-                    "to be of type 'object'. Theme ID:",
-                    metadata.id
-                );
+                    const prop = metadata.settings[propId];
 
-            if (!prop.name) prop.name = propId;
+                    if (typeof prop != "object") return reject(`Expected property '${propId}' to be of type 'object'`);
 
-            // Validate property's type (not JS type)
-            if (!~ThemeHandler.allowedSettingsTypes.indexOf(prop.type)) {
-                console.warn("Unknown settings property type", prop.type, "in theme", metadata.id);
-                prop.type = undefined;
-            }
-            // Check value's type
-            const valueType = typeof prop.value;
-            if (!~ThemeHandler.allowedSettingsValues.indexOf(valueType)) {
-                console.warn("Unknown settings property value type", valueType, "in theme", metadata.id);
-                prop.value = prop.value.toString();
-            }
-        }
-        group.appendChild(
-            Object.assign(document.createElement("style"), {
-                id: "ReGuildedStyleTheme-settings",
-                // #app { --a: b; --c: d }
-                innerHTML: `#app{${metadata.settingsProps
-                    .map(id => {
-                        const prop = metadata.settings[id];
-                        // If it's of type url, wrap it in url(...)
-                        // --id:value
-                        // --id:url(value)
-                        return `--${id}:${prop.type === "url" ? `url(${prop.value})` : prop.value}`;
+                    if (!prop.name) prop.name = propId;
+
+                    // Validate property's type (not JS type)
+                    if (!~ThemeHandler.allowedSettingsTypes.indexOf(prop.type))
+                        return reject(`Unknown settings property type ${prop.type}`);
+
+                    // Check value's type
+                    const valueType = typeof prop.value;
+
+                    if (!~ThemeHandler.allowedSettingsValues.indexOf(valueType))
+                        return reject(`Unknown settings property value type ${valueType}`);
+
+                    if (Array.isArray(prop.options)) {
+                        const selectedOption = prop.options[prop.value as number];
+
+                        if (!selectedOption)
+                            return reject(`Could not index settings[x].options item based on given settings[x].value`);
+
+                        prop._optionValue = selectedOption.value;
+                    } else if (prop.options != undefined) return reject(`Expected settings[x].options to be an array`);
+                }
+
+                // If warnings instead of rejections get reimplemented, make sure to not use
+                // _settingsProps or use copy of it with removed invalid properties
+                group.appendChild(
+                    Object.assign(document.createElement("style"), {
+                        id: "ReGuildedStyleTheme-settings",
+                        // #app { --a: b; --c: d }
+                        innerHTML: `#app{${metadata._settingsProps
+                            .map(id => {
+                                const prop = metadata.settings[id];
+                                const propValue = prop._optionValue || prop.value;
+                                // If it's of type url, wrap it in url(...)
+                                // --id:value
+                                // --id:url(value)
+                                return `--${id}:${prop.type == "url" ? `url(${propValue})` : propValue}`;
+                            })
+                            .join(";")}}`
                     })
-                    .join(";")}}`
+                );
+                resolve();
+            }).catch(error => console.error("Failed to do settings of the theme by ID '%s':", metadata.id, error)),
+            // Extensions
+            new Promise<void>((resolve, reject) => {
+                if (!metadata.extensions) return resolve();
+
+                for (const extension of metadata.extensions) {
+                    // TODO: Extensions client-sided, extension sub-tab in theme pages
+                    resolve();
+                }
             })
-        );
+        ]);
     }
     /**
      * Assigns properties to theme settings.
