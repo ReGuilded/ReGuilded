@@ -92,7 +92,6 @@ export default class SettingsInjector {
             const allAddonSettings = AddonApi.registries.userSettings.allItems;
 
             // To not add empty category
-            // FIXME: Repeating code
             if (allAddonSettings.length)
                 props.settingsOptions.sections.push({
                     id: "reguilded-us-addons",

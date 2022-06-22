@@ -1,4 +1,8 @@
-import { ReGuildedEnhancementSettings, ReGuildedSettings } from "../../../common/reguilded-settings.js";
+import {
+    ReGuildedEnhancementSettings,
+    ReGuildedSettings,
+    ReGuildedThemeSettings
+} from "../../../common/reguilded-settings.js";
 import { RGThemeConfig } from "../../types/reguilded.js";
 import { Theme } from "../../../common/enhancements.js";
 import EnhancementHandler from "./enhancement.js";
@@ -8,7 +12,7 @@ import ConfigHandler from "./config.js";
 /**
  * Manager that manages ReGuilded's themes
  */
-export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfig> {
+export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfig, ReGuildedThemeSettings> {
     static allowedSettingsTypes = [undefined, null, "url", "size", "color", "number", "percent"];
     static allowedSettingsValues = ["string", "boolean", "number", "undefined"];
     megaGroup?: Element;
@@ -23,7 +27,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
      */
     constructor(
         parent: ReGuilded,
-        settings: ReGuildedEnhancementSettings,
+        settings: ReGuildedThemeSettings,
         settingsHandler: ConfigHandler<ReGuildedSettings>,
         config: RGThemeConfig
     ) {
@@ -156,16 +160,63 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
                 resolve();
             }).catch(error => console.error("Failed to do settings of the theme by ID '%s':", metadata.id, error)),
             // Extensions
-            new Promise<void>((resolve, reject) => {
-                if (!metadata.extensions) return resolve();
-
-                for (const extension of metadata.extensions) {
-                    // TODO: Extensions client-sided, extension sub-tab in theme pages
-                    resolve();
-                }
-            })
+            this.#doExtensions(metadata, group)
         ]);
     }
+
+    async loadExtension(theme: Theme, extensionId: string) {
+        const { enabledExtensions } = this.settings;
+        // Update settings
+        if (!enabledExtensions[theme.id]) enabledExtensions[theme.id] = [extensionId];
+        else enabledExtensions[theme.id].push(extensionId);
+
+        await this.settingsHandler.save();
+
+        // Redo extension load
+        const extensionsGroup = document.getElementById(`ReGuildedStyleTheme-extensions-${theme.id}`);
+
+        extensionsGroup?.remove();
+
+        await this.#doExtensions(theme, document.getElementById(`ReGuildedStyleTheme-theme-${theme.id}`));
+    }
+
+    async unloadExtension(theme: Theme, extensionId: string) {
+        const { enabledExtensions } = this.settings;
+
+        // Update settings
+        if (enabledExtensions[theme.id] && enabledExtensions[theme.id].includes(extensionId)) {
+            // Remove all the matching IDs
+            enabledExtensions[theme.id] = enabledExtensions[theme.id].filter(otherId => otherId != extensionId);
+
+            await this.settingsHandler.save();
+
+            document.getElementById(`ReGuildedStyleTheme-extension-${theme.id}-${extensionId}`)?.remove();
+        }
+    }
+
+    async #doExtensions(metadata: Theme, group: Element) {
+        const enabledExtensions = this.settings.enabledExtensions[metadata.id];
+
+        if (!metadata.extensions || enabledExtensions?.length) return;
+
+        const extensionGroup = Object.assign(document.createElement("datagroup"), {
+            id: `ReGuildedStyleTheme-extensions-${metadata.id}`
+        });
+
+        // Add extension CSS
+        for (const extension of metadata.extensions.filter(x => enabledExtensions.includes(x.id)))
+            extensionGroup.appendChild(
+                Object.assign(document.createElement("style"), {
+                    classList: `ReGuildedStyle-extension`,
+                    id: `ReGuildedStyleTheme-extension-${metadata.id}-${extension.id}`,
+                    innerHTML: extension.css
+                })
+            );
+
+        // Add all extensions
+        group.appendChild(extensionGroup);
+    }
+
     /**
      * Assigns properties to theme settings.
      * @param metadata Theme metadata
@@ -186,7 +237,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
         console.debug(`Unloading theme by ID '${themeId}'`);
 
         const themeElement = document.getElementById(`ReGuildedStyleTheme-theme-${themeId}`);
-        themeElement && themeElement.remove();
+        themeElement?.remove();
     }
 
     /**

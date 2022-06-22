@@ -53,13 +53,17 @@ export declare interface Theme extends Enhancement<string[], { settings: { [name
      */
     _settingsProps?: string[];
 
-    extensions?: Array<{
-        id: string;
-        name?: string;
-        description?: string;
-        file: string;
-    }>;
+    extensions?: Array<ThemeExtension>;
 }
+
+export declare interface ThemeExtension {
+    id: string;
+    name?: string;
+    description?: string;
+    file: string;
+    css: string;
+}
+
 export type AddonExports = {
     load: () => any;
     init?: () => any;

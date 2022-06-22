@@ -44,5 +44,5 @@ export declare interface ReGuildedAddonSettings extends ReGuildedEnhancementSett
     permissions: { [addonId: string]: number };
 }
 export declare interface ReGuildedThemeSettings extends ReGuildedEnhancementSettings {
-    enabledExtensions: { [addonId: string]: string[] };
+    enabledExtensions: { [themeId: string]: string[] };
 }

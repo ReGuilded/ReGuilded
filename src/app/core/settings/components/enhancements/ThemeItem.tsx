@@ -1,9 +1,7 @@
 import { EnhancementGridItemProps } from "./EnhancementGrid";
 import { MenuSectionSpecs } from "../../../../guilded/menu";
 import { Theme } from "../../../../../common/enhancements";
-import { FieldAnySpecs } from "../../../../guilded/form";
 import EnhancementItem from "./EnhancementItem";
-import validations from "../../validation";
 
 const React = window.ReGuilded.getApiProperty("react");
 

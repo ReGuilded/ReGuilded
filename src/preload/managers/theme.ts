@@ -55,7 +55,7 @@ export default class ThemeManager extends EnhancementManager<Theme> {
                             return reject(new TypeError(`Expected metadata.extensions[i].file to be a string`));
 
                         await fetchCss(themesDirname, extension.file)
-                            .then(content => void (extension.file = content))
+                            .then(content => void (extension.css = content))
                             .then(resolve);
                     }
                 } else reject(new TypeError(`Expected to have metadata.extensions as an array or undefined`));

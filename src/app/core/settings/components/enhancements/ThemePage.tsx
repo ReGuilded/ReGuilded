@@ -13,6 +13,7 @@ const React = window.ReGuilded.getApiProperty("react"),
     { default: defaultContextProvider } = window.ReGuilded.getApiProperty("guilded/context/defaultContextProvider"),
     { coroutine } = window.ReGuilded.getApiProperty("guilded/util/functions"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
+    { default: CardWrapper } = window.ReGuilded.getApiProperty("guilded/components/CardWrapper"),
     { default: SimpleToggle } = window.ReGuilded.getApiProperty("guilded/components/SimpleToggle"),
     { default: Form } = window.ReGuilded.getApiProperty("guilded/components/Form");
 //#endregion
@@ -86,10 +87,10 @@ export default class ThemePage extends React.Component<Props> {
             enhancement.extensions &&
             <div className="ReGuildedEnhancementPage-tab ReGuildedEnhancementPage-tab-grid">
                 { enhancement.extensions.map(extension =>
-                    <div className="TeamOverviewContentItemCard-container ReGuildedThemeExtension-container">
+                    <CardWrapper>
                         <SimpleToggle label={extension.name} className="ReGuildedThemeExtension-toggle" />
                         <GuildedText block type="subtext">{extension.description || "No description provided."}</GuildedText>
-                    </div>
+                    </CardWrapper>
                 ) }
             </div>,
 
