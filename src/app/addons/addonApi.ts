@@ -73,7 +73,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/editor/languageCodes": webpack => webpack.withProperty("availableLanguageCodes"),
 
     // Settings
-    "guilded/settings/savableSettings": webpack => webpack.withCode("handleSaveChanges"),
+    "guilded/settings/savableSettings": webpack => webpack.withCode("saveChanges"),
     "guilded/settings/tabs": webpack => webpack.withProperty("Notifications"),
 
     // App stuff

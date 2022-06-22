@@ -172,7 +172,7 @@ export default class WebpackManager {
             if (typeof type != "function" || typeof type.prototype == "undefined") return false;
 
             // It does not need to check other properties, because it will always be false
-            for (let name of names) if (!(name in type)) return false;
+            for (let name of names) if (!(name in type.prototype)) return false;
 
             return true;
         });
