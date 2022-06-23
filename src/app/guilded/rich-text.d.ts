@@ -54,11 +54,7 @@ declare interface LeafContainer extends TextObject<"text"> {
 }
 export type InlineNode = Node<"inline", string, object, LeafContainer>;
 export type BlockNode = Node<"block", string, object | undefined, InlineNode | LeafContainer>;
-export type MessageDocument = BaseNode<
-    "document",
-    { shareUrls?: string[]; githubDeliveryId?: string } | undefined,
-    BlockNode
->;
+export type MessageDocument = BaseNode<"document", { shareUrls?: string[]; githubDeliveryId?: string } | undefined, BlockNode>;
 export declare interface MessageContent extends TextObject<"value"> {
     document: MessageDocument;
 }

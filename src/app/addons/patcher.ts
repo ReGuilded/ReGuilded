@@ -25,20 +25,16 @@ export default new (class Patcher {
     instead: (caller: string, module: any, functionName: string, callback: PatcherCallback) => () => void;
 
     constructor() {
-        this.after = (caller: string, module: any, functionName: string, callback: PatcherCallback) =>
-            this.doPatch(caller, module, functionName, callback, "after");
-        this.before = (caller: string, module: any, functionName: string, callback: PatcherCallback) =>
-            this.doPatch(caller, module, functionName, callback, "before");
-        this.instead = (caller: string, module: any, functionName: string, callback: PatcherCallback) =>
-            this.doPatch(caller, module, functionName, callback, "instead");
+        this.after = (caller: string, module: any, functionName: string, callback: PatcherCallback) => this.doPatch(caller, module, functionName, callback, "after");
+        this.before = (caller: string, module: any, functionName: string, callback: PatcherCallback) => this.doPatch(caller, module, functionName, callback, "before");
+        this.instead = (caller: string, module: any, functionName: string, callback: PatcherCallback) => this.doPatch(caller, module, functionName, callback, "instead");
     }
 
     getPatchesByCaller(caller: string): PatchChild[] {
         if (!caller) return [];
 
         const patches: PatchChild[] = [];
-        for (const patch of this._patches)
-            for (const childPatch of patch.children) if (childPatch.caller === caller) patches.push(childPatch);
+        for (const patch of this._patches) for (const childPatch of patch.children) if (childPatch.caller === caller) patches.push(childPatch);
 
         return patches;
     }
@@ -64,14 +60,13 @@ export default new (class Patcher {
                 }
             };
 
-            for (const beforePatch of patch.children.filter(e => e.type === "before"))
-                call(beforePatch, arguments, "before");
+            for (const beforePatch of patch.children.filter((e) => e.type === "before")) call(beforePatch, arguments, "before");
 
-            const insteadPatches: PatchChild[] = patch.children.filter(e => e.type === "instead");
+            const insteadPatches: PatchChild[] = patch.children.filter((e) => e.type === "instead");
             if (!insteadPatches.length) returnValue = patch.originalFunction.apply(this, arguments);
             else for (const insteadPatch of insteadPatches) call(insteadPatch, arguments, "instead");
 
-            for (const afterPatch of patch.children.filter(e => e.type === "after")) call(afterPatch, arguments, "after");
+            for (const afterPatch of patch.children.filter((e) => e.type === "after")) call(afterPatch, arguments, "after");
 
             return returnValue;
         };
@@ -103,9 +98,7 @@ export default new (class Patcher {
         type: "after" | "before" | "instead" = "after",
         options: { force: boolean } = { force: false }
     ): () => void {
-        const patch: PatchData =
-            this._patches.find(e => e.module === module && e.functionName === functionName) ??
-            this.pushPatcher(caller, module, functionName);
+        const patch: PatchData = this._patches.find((e) => e.module === module && e.functionName === functionName) ?? this.pushPatcher(caller, module, functionName);
 
         const child = {
             caller,
@@ -114,12 +107,12 @@ export default new (class Patcher {
             callback,
             unpatch: () => {
                 patch.children.splice(
-                    patch.children.findIndex(childPatch => childPatch.id === child.id && childPatch.type === child.type),
+                    patch.children.findIndex((childPatch) => childPatch.id === child.id && childPatch.type === child.type),
                     1
                 );
 
                 if (patch.children.length <= 0) {
-                    const index = this._patches.findIndex(p => p.module === module && p.functionName === functionName);
+                    const index = this._patches.findIndex((p) => p.module === module && p.functionName === functionName);
                     this._patches[index].unpatch();
                     this._patches.splice(index, 1);
                 }

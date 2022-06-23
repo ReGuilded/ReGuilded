@@ -21,7 +21,9 @@ const React = window.ReGuilded.getApiProperty("react"),
     { default: ScreenHeader } = window.ReGuilded.getApiProperty("guilded/components/ScreenHeader"),
     { default: overlayProvider } = window.ReGuilded.getApiProperty("guilded/overlays/overlayProvider"),
     { default: MarkdownRenderer } = window.ReGuilded.getApiProperty("guilded/components/MarkdownRenderer"),
-    { default: { WebhookEmbed } } = window.ReGuilded.getApiProperty("guilded/editor/grammars"),
+    {
+        default: { WebhookEmbed }
+    } = window.ReGuilded.getApiProperty("guilded/editor/grammars"),
     { default: restMethods } = window.ReGuilded.getApiProperty("guilded/http/rest"),
     { default: UserBasicInfoDisplay } = window.ReGuilded.getApiProperty("guilded/components/UserBasicInfoDisplay"),
     { default: Image } = window.ReGuilded.getApiProperty("guilded/components/Image"),
@@ -31,27 +33,27 @@ const React = window.ReGuilded.getApiProperty("react"),
 //#endregion
 
 type Props<T extends AnyEnhancement> = {
-    type: string,
-    iconName: string,
-    enhancementHandler: EnhancementHandler<T, RGEnhancementConfig<T>>,
-    enhancement: T,
+    type: string;
+    iconName: string;
+    enhancementHandler: EnhancementHandler<T, RGEnhancementConfig<T>>;
+    enhancement: T;
 
-    onSaveChanges: (formOutput: FormOutput) => PromiseLike<unknown> | Iterable<PromiseLike<unknown>> | unknown,
-    switchTab: Function,
+    onSaveChanges: (formOutput: FormOutput) => PromiseLike<unknown> | Iterable<PromiseLike<unknown>> | unknown;
+    switchTab: Function;
 
-    tabOptions: TabOption[],
+    tabOptions: TabOption[];
 
     // Tabs
-    defaultTabIndex?: number,
-    children?: ReactNode | ReactNode[],
-    pageInfoBanner?: ReactNode
+    defaultTabIndex?: number;
+    children?: ReactNode | ReactNode[];
+    pageInfoBanner?: ReactNode;
 };
 
 /**
  * The page of an enhancement in the settings. Appears when clicking on an enhancement in its settings.
  */
 @overlayProvider(["DeleteConfirmationOverlay"])
-export default abstract class EnhancementPage<T extends AnyEnhancement> extends React.Component<Props<T>, { enabled: boolean, overviewBannerProps?: BannerWithButton }> {
+export default abstract class EnhancementPage<T extends AnyEnhancement> extends React.Component<Props<T>, { enabled: boolean; overviewBannerProps?: BannerWithButton }> {
     // Class functions with proper `this` to not rebind every time
     private _onToggleBinded: (enabled: boolean) => Promise<void>;
     private _onDeleteBinded: () => Promise<void>;
@@ -61,7 +63,7 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
 
     private hasToggled: boolean = false;
 
-    private static defaultTabs: TabOption[] = [ { name: "Overview" } ];
+    private static defaultTabs: TabOption[] = [{ name: "Overview" }];
 
     constructor(props: Props<T>, context?: any) {
         super(props, context);
@@ -79,15 +81,14 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
      * @param enabled The new enhancement state
      */
     private async _onToggle(): Promise<void> {
-        await this.props.enhancementHandler[this.state.enabled ? "savedUnload" : "savedLoad"](this.props.enhancement)
-            .then(() => this.setState({ enabled: !this.state.enabled }));
+        await this.props.enhancementHandler[this.state.enabled ? "savedUnload" : "savedLoad"](this.props.enhancement).then(() => this.setState({ enabled: !this.state.enabled }));
     }
     /**
      * Confirms whether to delete the enhancement and deletes it.
      */
     private async _onDelete(): Promise<void> {
         await this.DeleteConfirmationOverlay.Open({ name: this.props.type })
-            .then(async ({ confirmed }) => confirmed && await this.props.enhancementHandler.delete(this.props.enhancement))
+            .then(async ({ confirmed }) => confirmed && (await this.props.enhancementHandler.delete(this.props.enhancement)))
             // There is no reason to keep someone at the enhancement page when the enhancement is deleted
             .then(() => this.props.switchTab("list", { enhancement: {} }));
     }
@@ -99,40 +100,42 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
         const { _onDeleteBinded } = this;
 
         return (
-            <Form formSpecs={{
-                sectionStyle: "border-unpadded",
-                sections: [
-                    {
-                        header: "Actions",
-                        fieldSpecs: [
-                            {
-                                type: "Button",
-                                fieldName: "directory",
-                                buttonText: "Open directory",
+            <Form
+                formSpecs={{
+                    sectionStyle: "border-unpadded",
+                    sections: [
+                        {
+                            header: "Actions",
+                            fieldSpecs: [
+                                {
+                                    type: "Button",
+                                    fieldName: "directory",
+                                    buttonText: "Open directory",
 
-                                buttonType: "bleached",
-                                style: "hollow",
-                                grow: 0,
-                                rowCollapseId: "button-list",
+                                    buttonType: "bleached",
+                                    style: "hollow",
+                                    grow: 0,
+                                    rowCollapseId: "button-list",
 
-                                onClick: () => window.ReGuildedConfig.openItem(this.props.enhancement.dirname)
-                            },
-                            {
-                                type: "Button",
-                                fieldName: "delete",
-                                buttonText: "Delete",
+                                    onClick: () => window.ReGuildedConfig.openItem(this.props.enhancement.dirname)
+                                },
+                                {
+                                    type: "Button",
+                                    fieldName: "delete",
+                                    buttonText: "Delete",
 
-                                buttonType: "delete",
-                                style: "hollow",
-                                grow: 0,
-                                rowCollapseId: "button-list",
+                                    buttonType: "delete",
+                                    style: "hollow",
+                                    grow: 0,
+                                    rowCollapseId: "button-list",
 
-                                onClick: _onDeleteBinded
-                            }
-                        ]
-                    }
-                ]
-            }}/>
+                                    onClick: _onDeleteBinded
+                                }
+                            ]
+                        }
+                    ]
+                }}
+            />
         );
     }
     render() {
@@ -150,22 +153,20 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
                 defaultTabIndex,
                 tabOptions
             },
-            state: {
-                enabled
-            },
+            state: { enabled },
             _onToggleBinded
         } = this;
 
         return (
             <ErrorBoundary>
                 <div className="ReGuildedEnhancementPage-wrapper">
-                    <ScreenHeader className="ReGuildedEnhancementPage-screen-header"
+                    <ScreenHeader
+                        className="ReGuildedEnhancementPage-screen-header"
                         iconName={iconName}
                         isBackLinkVisible
                         onBackClick={() => switchTab("list", { enhancement: {} })}
-                        name={
-                            <SimpleToggle label={enhancement.name} defaultValue={enabled} onChange={_onToggleBinded} />
-                        }/>
+                        name={<SimpleToggle label={enhancement.name} defaultValue={enabled} onChange={_onToggleBinded} />}
+                    />
 
                     <div className="ReGuildedEnhancementPage-container">
                         <div className="ReGuildedEnhancementPage-header">
@@ -175,27 +176,42 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
                             </div>
                             {/* Header content */}
                             <div className="ReGuildedEnhancementPage-header-content">
-                                { enhancement.icon && <Image src={enhancement.icon} className="ReGuildedEnhancementPage-icon" /> }
-                                <GuildedText block type="heading3" className="ReGuildedEnhancementPage-header-name">{ enhancement.name }</GuildedText>
-                                <GuildedText block type="subheading" className="ReGuildedEnhancementPage-subtitle">{ enhancement.subtitle || "No subtitle provided." }</GuildedText>
+                                {enhancement.icon && <Image src={enhancement.icon} className="ReGuildedEnhancementPage-icon" />}
+                                <GuildedText block type="heading3" className="ReGuildedEnhancementPage-header-name">
+                                    {enhancement.name}
+                                </GuildedText>
+                                <GuildedText block type="subheading" className="ReGuildedEnhancementPage-subtitle">
+                                    {enhancement.subtitle || "No subtitle provided."}
+                                </GuildedText>
                             </div>
                         </div>
                         {/* Content */}
                         <div className="ReGuildedEnhancementPage-content">
-                            { pageInfoBanner }
+                            {pageInfoBanner}
                             <ErrorBoundary>
-                                <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: EnhancementPage.defaultTabs.concat(tabOptions) }} defaultSelectedTabIndex={defaultTabIndex}>
+                                <HorizontalTabs
+                                    type="compact"
+                                    renderAllChildren={false}
+                                    tabSpecs={{
+                                        TabOptions: EnhancementPage.defaultTabs.concat(tabOptions)
+                                    }}
+                                    defaultSelectedTabIndex={defaultTabIndex}
+                                >
                                     <div className="ReGuildedEnhancementPage-tab">
                                         {/* Preview images carousel */}
-                                        { enhancement.images && window.ReGuilded.settingsHandler.config.loadImages &&
+                                        {enhancement.images && window.ReGuilded.settingsHandler.config.loadImages && (
                                             <PreviewCarousel enhancementId={enhancement.id} enhancementHandler={this.props.enhancementHandler} />
-                                        }
+                                        )}
                                         <div className="ReGuildedEnhancementPage-columns">
                                             {/* Readme */}
                                             <div className="ReGuildedEnhancementPage-column">
-                                                { enhancement.readme
-                                                    ? <MarkdownRenderer plainText={enhancement.readme} grammar={WebhookEmbed} />
-                                                    : <GuildedText block type="subtext">No description has been provided.</GuildedText> }
+                                                {enhancement.readme ? (
+                                                    <MarkdownRenderer plainText={enhancement.readme} grammar={WebhookEmbed} />
+                                                ) : (
+                                                    <GuildedText block type="subtext">
+                                                        No description has been provided.
+                                                    </GuildedText>
+                                                )}
                                             </div>
                                             {/* Side info */}
                                             <div className="ReGuildedEnhancementPage-column">
@@ -203,16 +219,16 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
                                             </div>
                                         </div>
                                         {/* Buttons */}
-                                        { this.renderActionForm() }
+                                        {this.renderActionForm()}
                                     </div>
-                                    { children }
+                                    {children}
                                 </HorizontalTabs>
                             </ErrorBoundary>
                         </div>
                     </div>
                 </div>
             </ErrorBoundary>
-        )
+        );
     }
 }
 
@@ -232,14 +248,14 @@ export class EnhancementInfo extends React.Component<EnhancementInfoProps, { aut
     }
     async componentDidMount() {
         // TODO: Once multiple users can be fetched, add contributors
-        if (this.props.expanded)
-            await EnhancementInfo.fetchAuthor(this, this.props.enhancement);
+        if (this.props.expanded) await EnhancementInfo.fetchAuthor(this, this.props.enhancement);
     }
     static async fetchAuthor<T extends { author?: UserInfo }>(self: React.Component<any, T>, enhancement: AnyEnhancement) {
         const { author } = enhancement;
 
         if (author && window.ReGuilded.settingsHandler.config.loadAuthors)
-            await restMethods.getUserById(author)
+            await restMethods
+                .getUserById(author)
                 .then(({ user }) => self.setState({ author: user }))
                 .catch(() => {});
     }
@@ -251,28 +267,48 @@ export class EnhancementInfo extends React.Component<EnhancementInfoProps, { aut
                 {/* Information */}
                 <div className="ReGuildedEnhancementInfo-section">
                     {/* In minimal mode header and identifier are unnecessary */}
-                    { expanded && [
-                        <GuildedText block type="heading4" className="ReGuildedEnhancementInfo-section-header">Information</GuildedText>,
-                        <IconAndLabel iconName="icon-hashtag-new" label={[
-                            "Identifier: ",
-                            <InlineCode>{ enhancement.id }</InlineCode>
-                        ]} labelClassName={infoLabelClassName} className="ReGuildedEnhancementInfo-point" />
-                    ] }
-                    <IconAndLabel iconName="icon-star" label={enhancement.version ? `Version ${enhancement.version}` : "Latest release"} className="ReGuildedEnhancementInfo-point" labelClassName={infoLabelClassName} />
-                    { enhancement.repoUrl &&
-                        <IconAndLabel iconName="icon-github" label={[
-                            enhancement._repoInfo.path,
-                            <GuildedText type="subtext"> ({ enhancement._repoInfo.platform })</GuildedText>
-                        ]} labelClassName={infoLabelClassName} className="ReGuildedEnhancementInfo-point" /> }
-                    { children }
+                    {expanded && [
+                        <GuildedText block type="heading4" className="ReGuildedEnhancementInfo-section-header">
+                            Information
+                        </GuildedText>,
+                        <IconAndLabel
+                            iconName="icon-hashtag-new"
+                            label={["Identifier: ", <InlineCode>{enhancement.id}</InlineCode>]}
+                            labelClassName={infoLabelClassName}
+                            className="ReGuildedEnhancementInfo-point"
+                        />
+                    ]}
+                    <IconAndLabel
+                        iconName="icon-star"
+                        label={enhancement.version ? `Version ${enhancement.version}` : "Latest release"}
+                        className="ReGuildedEnhancementInfo-point"
+                        labelClassName={infoLabelClassName}
+                    />
+                    {enhancement.repoUrl && (
+                        <IconAndLabel
+                            iconName="icon-github"
+                            label={[enhancement._repoInfo.path, <GuildedText type="subtext"> ({enhancement._repoInfo.platform})</GuildedText>]}
+                            labelClassName={infoLabelClassName}
+                            className="ReGuildedEnhancementInfo-point"
+                        />
+                    )}
+                    {children}
                 </div>
                 {/* Author(s) */}
-                { expanded && <div className="ReGuildedEnhancementInfo-section">
-                    <GuildedText block type="heading4" className="ReGuildedEnhancementInfo-section-header">Author</GuildedText>
-                    { this.state.author
-                        ? <UserBasicInfoDisplay size="xl" className="ReGuildedEnhancementInfo-point" showSecondaryInfo user={new UserModel(this.state.author)} />
-                        : <GuildedText block type="subtext">{ enhancement.author ? "By user " + enhancement.author : "No author provided" }</GuildedText> }
-                </div> }
+                {expanded && (
+                    <div className="ReGuildedEnhancementInfo-section">
+                        <GuildedText block type="heading4" className="ReGuildedEnhancementInfo-section-header">
+                            Author
+                        </GuildedText>
+                        {this.state.author ? (
+                            <UserBasicInfoDisplay size="xl" className="ReGuildedEnhancementInfo-point" showSecondaryInfo user={new UserModel(this.state.author)} />
+                        ) : (
+                            <GuildedText block type="subtext">
+                                {enhancement.author ? "By user " + enhancement.author : "No author provided"}
+                            </GuildedText>
+                        )}
+                    </div>
+                )}
             </div>
         );
     }

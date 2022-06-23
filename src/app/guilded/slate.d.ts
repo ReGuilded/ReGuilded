@@ -22,7 +22,11 @@ export type PluginSchema = {
     /**
      * Nodes matching schema.
      */
-    nodes?: Array<{ match?: Partial<AnyMessageObject>[]; min?: number; max?: number }>;
+    nodes?: Array<{
+        match?: Partial<AnyMessageObject>[];
+        min?: number;
+        max?: number;
+    }>;
     /**
      * Marks matching schema.
      */

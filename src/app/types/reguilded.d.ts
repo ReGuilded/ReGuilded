@@ -36,7 +36,12 @@ export interface RGEnhancementConfig<T extends AnyEnhancement> {
     setDeletionCallback(callback: (enhancement: T) => void): void;
 }
 export interface RGThemeConfig extends RGEnhancementConfig<Theme> {
-    setThemeSettings(themeId: string, settings: { [settingsProp: string]: string | number | boolean | undefined }): void;
+    setThemeSettings(
+        themeId: string,
+        settings: {
+            [settingsProp: string]: string | number | boolean | undefined;
+        }
+    ): void;
 }
 export interface RGAddonConfig extends RGEnhancementConfig<Addon> {}
 

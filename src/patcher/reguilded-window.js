@@ -13,13 +13,7 @@ export default class ReGuildedWindow extends electron.BrowserWindow {
         let oldPreload;
 
         // To determine whether it's loading screen
-        if (
-            options.webPreferences &&
-            "resizable" in options &&
-            !options.resizable &&
-            "maximizable" in options &&
-            !options.maximizable
-        ) {
+        if (options.webPreferences && "resizable" in options && !options.resizable && "maximizable" in options && !options.maximizable) {
             oldPreload = options.webPreferences.preload;
             options.webPreferences.preload = preloads.splash;
         } else if (options.webPreferences?.preload) {
@@ -46,7 +40,7 @@ export default class ReGuildedWindow extends electron.BrowserWindow {
                 })();
             `
                 )
-                .catch(err => console.error(err));
+                .catch((err) => console.error(err));
         });
 
         this.webContents.guildedPreload = oldPreload;

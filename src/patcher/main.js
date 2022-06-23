@@ -18,10 +18,7 @@ import { _load } from "module";
 
 // Ensures application isn't ran as root on linux
 if (platform == "linux" && getuid() == 0) {
-    console.warn(
-        "\x1b[1m\x1b[33m%s\x1b[0m",
-        "Seems this application was ran as root, it has been closed by ReGuilded to prevent issues, run as a regular user instead!"
-    );
+    console.warn("\x1b[1m\x1b[33m%s\x1b[0m", "Seems this application was ran as root, it has been closed by ReGuilded to prevent issues, run as a regular user instead!");
     exit(1);
 }
 
@@ -36,7 +33,7 @@ const guildedPath = join(dirname(require.main.filename), "..", "_guilded", "app.
 const guildedPackage = JSON.parse(readFileSync(join(guildedPath, "package.json"), { encoding: "utf8" }));
 require.main.filename = join(guildedPath, "main.js");
 
-ipcMain.on("reguilded-preload", event => {
+ipcMain.on("reguilded-preload", (event) => {
     event.returnValue = event.sender.guildedPreload;
 });
 ipcMain.handle("reguilded-enhancement-dialog", async (_, type) => {
@@ -47,12 +44,10 @@ ipcMain.handle("reguilded-enhancement-dialog", async (_, type) => {
             properties: ["openDirectory", "multiSelections"]
         })
         .then(({ filePaths, canceled }) => ({ filePaths, canceled }))
-        .catch(e => console.error("Patcher dialog error", e));
+        .catch((e) => console.error("Patcher dialog error", e));
 });
 ipcMain.handle("reguilded-no-splash-close", () => {
-    require.cache[
-        join(dirname(require.main.filename), "electron", "electronAppLoader.js")
-    ].exports.default.loaderWindow.close = () => {};
+    require.cache[join(dirname(require.main.filename), "electron", "electronAppLoader.js")].exports.default.loaderWindow.close = () => {};
 });
 
 app.whenReady().then(() => {
@@ -113,8 +108,8 @@ app.whenReady().then(() => {
         style: []
     };
     const customWhitelistPath = join(settingsPath, "custom-csp-whitelist.json");
-    new Promise(resolve => {
-        access(customWhitelistPath, err => {
+    new Promise((resolve) => {
+        access(customWhitelistPath, (err) => {
             if (!err) {
                 customCspWhitelist = require(customWhitelistPath);
             }
@@ -125,7 +120,7 @@ app.whenReady().then(() => {
         .then(() => {
             const patchCSP = (customCspWhitelistParam = customCspWhitelist) => {
                 _webRequest.onHeadersReceived(filter, (details, callback) => {
-                    const patchedCallback = headers => {
+                    const patchedCallback = (headers) => {
                         callback({ responseHeaders: headers });
                     };
                     const csp = {
@@ -146,16 +141,9 @@ app.whenReady().then(() => {
 
                                 // If directive (-elem or otherwise) is still not found, just append to default-src, failing that make it from scratch
                                 if (entry != "all") {
-                                    if (modifiedPolicyStr.includes(directive))
-                                        modifiedPolicyStr = modifiedPolicyStr.replace(
-                                            directive,
-                                            `${directive} ${directiveWhiteListStr}`
-                                        );
+                                    if (modifiedPolicyStr.includes(directive)) modifiedPolicyStr = modifiedPolicyStr.replace(directive, `${directive} ${directiveWhiteListStr}`);
                                     else if (modifiedPolicyStr.includes("default-src"))
-                                        modifiedPolicyStr = modifiedPolicyStr.replace(
-                                            "default-src",
-                                            `default-src ${directiveWhiteListStr}`
-                                        );
+                                        modifiedPolicyStr = modifiedPolicyStr.replace("default-src", `default-src ${directiveWhiteListStr}`);
                                     else modifiedPolicyStr.concat(` default-src ${directiveWhiteListStr}`);
                                 }
                             }
@@ -171,18 +159,13 @@ app.whenReady().then(() => {
 
                     if (!csp.permissive && !csp.enforcing) return callback({});
 
-                    if (csp.permissive)
-                        csp.patch(csp.permissive, false).then(patchedHeaders => patchedCallback(patchedHeaders));
+                    if (csp.permissive) csp.patch(csp.permissive, false).then((patchedHeaders) => patchedCallback(patchedHeaders));
 
-                    if (csp.enforcing)
-                        csp.patch(csp.enforcing, true).then(patchedHeaders => patchedCallback(patchedHeaders));
+                    if (csp.enforcing) csp.patch(csp.enforcing, true).then((patchedHeaders) => patchedCallback(patchedHeaders));
                 });
                 // Apply Custom Whitelist
                 for (const directive in customCspWhitelistParam) {
-                    if (directive != "all")
-                        cspWhitelist[directive] = cspWhitelist[directive]
-                            .concat(customCspWhitelist[directive])
-                            .concat(customCspWhitelist["all"]);
+                    if (directive != "all") cspWhitelist[directive] = cspWhitelist[directive].concat(customCspWhitelist[directive]).concat(customCspWhitelist["all"]);
                 }
             };
 
@@ -197,7 +180,7 @@ app.whenReady().then(() => {
                 console.error(err);
             }
         })
-        .catch(err => console.error(err));
+        .catch((err) => console.error(err));
 });
 
 // Create Electron clone with modified BrowserWindow to inject ReGuilded preload

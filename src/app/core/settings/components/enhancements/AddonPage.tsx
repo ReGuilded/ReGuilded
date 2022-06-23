@@ -18,9 +18,9 @@ const React = window.ReGuilded.getApiProperty("react"),
 //#endregion
 
 type Props = PagedSettingsChildProps & {
-    enhancement: Addon,
-    className?: string,
-    defaultTabIndex?: number
+    enhancement: Addon;
+    className?: string;
+    defaultTabIndex?: number;
 };
 
 /**
@@ -42,8 +42,13 @@ export default class AddonPage extends React.Component<Props> {
         this.SaveChanges = coroutine(this.onSaveChanges);
     }
     // See EnhancementPage onSaveChanges for documentation
-    protected *onSaveChanges({ values: { permissions }, isValid }: FormOutput<{ permissions: Array<{ optionName: number, value: boolean }> }>) {
-        const givenPermissions = permissions.map(x => x.value && x.optionName).reduce((a, b) => a | b);
+    protected *onSaveChanges({
+        values: { permissions },
+        isValid
+    }: FormOutput<{
+        permissions: Array<{ optionName: number; value: boolean }>;
+    }>) {
+        const givenPermissions = permissions.map((x) => x.value && x.optionName).reduce((a, b) => a | b);
 
         window.ReGuilded.addons.setPermissions(this.props.enhancement.id, givenPermissions);
     }
@@ -59,14 +64,14 @@ export default class AddonPage extends React.Component<Props> {
                     switchTab={this.props.switchTab}
                     onSaveChanges={this.SaveChanges}
                     // Tabs
-                    tabOptions={[ { name: "Permissions" } ]}
+                    tabOptions={[{ name: "Permissions" }]}
                     defaultTabIndex={this.props.defaultTabIndex}
-                    pageInfoBanner={this.renderErrorBannerIfNeeded()}>
-
-                    { this.renderTabs() }
+                    pageInfoBanner={this.renderErrorBannerIfNeeded()}
+                >
+                    {this.renderTabs()}
                 </EnhancementPage>
             </ErrorBoundary>
-        )
+        );
     }
     /**
      * Renders error banner if error has occurred while loading the addon.
@@ -76,18 +81,19 @@ export default class AddonPage extends React.Component<Props> {
         const { _error, _missingPerms, repoUrl } = this.props.enhancement;
 
         return (
-            typeof _error != "undefined" &&
+            typeof _error != "undefined" && (
                 // Error banner
-                <BannerWithButton theme="error"
+                <BannerWithButton
+                    theme="error"
                     title="An error occurred"
                     className="ReGuildedEnhancementPage-banner"
-                    text={_missingPerms
-                        // Permission error
-                        ? <div className="ReGuildedEnhancementPage-banner-content">
-                            The addon has required a module that required the given permissions:
-                            <div className="ReGuildedEnhancementPage-missing-perms">
-                                { AddonPermissionValues.filter(permission => _missingPerms & permission)
-                                    .map(permission => {
+                    text={
+                        _missingPerms ? (
+                            // Permission error
+                            <div className="ReGuildedEnhancementPage-banner-content">
+                                The addon has required a module that required the given permissions:
+                                <div className="ReGuildedEnhancementPage-missing-perms">
+                                    {AddonPermissionValues.filter((permission) => _missingPerms & permission).map((permission) => {
                                         const presentPermissions = window.ReGuilded.addons.getPermissionsOf(this.props.enhancement.id),
                                             permissionInfo = AddonPermissionInfos[permission];
 
@@ -99,29 +105,35 @@ export default class AddonPage extends React.Component<Props> {
                                                 isCircular
                                                 // Disallow it from checking
                                                 disabled
-
                                                 label={permissionInfo.name}
                                                 description={permissionInfo.description}
-
-                                                defaultValue={presentPermissions & permission} />
+                                                defaultValue={presentPermissions & permission}
+                                            />
                                         );
-                                    }) }
+                                    })}
+                                </div>
                             </div>
-                        </div>
-                        // Regular error
-                        : [
-                            "The addon has threw an error while getting its exports or loading it:",
-                            <CodeContainer language="javascript" readOnly={true} canCopyContents={true} code={_error.toString()} />
-                        ]
+                        ) : (
+                            // Regular error
+                            [
+                                "The addon has threw an error while getting its exports or loading it:",
+                                <CodeContainer language="javascript" readOnly={true} canCopyContents={true} code={_error.toString()} />
+                            ]
+                        )
                     }
-                    buttonProps={repoUrl && !_missingPerms && {
-                        buttonText: "Report",
-                        buttonType: "bleached",
-                        style: "hollow",
-                        // Only GitHub and GitLab are allowed and it's valid for both
-                        // TODO: Gitea and BitBucket support
-                        href: `${repoUrl}/issues/new`
-                    }}/>
+                    buttonProps={
+                        repoUrl &&
+                        !_missingPerms && {
+                            buttonText: "Report",
+                            buttonType: "bleached",
+                            style: "hollow",
+                            // Only GitHub and GitLab are allowed and it's valid for both
+                            // TODO: Gitea and BitBucket support
+                            href: `${repoUrl}/issues/new`
+                        }
+                    }
+                />
+            )
         );
     }
     /**
@@ -134,45 +146,52 @@ export default class AddonPage extends React.Component<Props> {
 
         return (
             <div className="ReGuildedEnhancementPage-tab">
-                { requiredPermissions
-                    ? <>
-                        <BannerWithButton theme="warning" iconName="icon-filter" className="ReGuildedEnhancementPage-banner" text="Basic information that can't be used maliciously will be given by default. Please DO NOT give a permission to an addon if you do not know how it will be used."/>
-                        <Form onChange={this._handleOptionsChange} formSpecs={{
-                            sections: [
-                                {
-                                    fieldSpecs: [
-                                        {
-                                            type: "Checkboxes",
-                                            fieldName: "permissions",
+                {requiredPermissions ? (
+                    <>
+                        <BannerWithButton
+                            theme="warning"
+                            iconName="icon-filter"
+                            className="ReGuildedEnhancementPage-banner"
+                            text="Basic information that can't be used maliciously will be given by default. Please DO NOT give a permission to an addon if you do not know how it will be used."
+                        />
+                        <Form
+                            onChange={this._handleOptionsChange}
+                            formSpecs={{
+                                sections: [
+                                    {
+                                        fieldSpecs: [
+                                            {
+                                                type: "Checkboxes",
+                                                fieldName: "permissions",
 
-                                            options: AddonPermissionValues
-                                                .filter(permission => requiredPermissions & permission)
-                                                // Checkbox
-                                                .map(permission => ({
-                                                    optionName: permission,
-                                                    label: AddonPermissionInfos[permission].name,
-                                                    description: AddonPermissionInfos[permission].description
-                                                })),
+                                                options: AddonPermissionValues.filter((permission) => requiredPermissions & permission)
+                                                    // Checkbox
+                                                    .map((permission) => ({
+                                                        optionName: permission,
+                                                        label: AddonPermissionInfos[permission].name,
+                                                        description: AddonPermissionInfos[permission].description
+                                                    })),
 
-                                            defaultValue: AddonPermissionValues
-                                                .map(permission => ({
+                                                defaultValue: AddonPermissionValues.map((permission) => ({
                                                     optionName: permission,
                                                     value: presentPermissions & permission
                                                 }))
-                                        },
-                                        {
-                                            type: "Button",
+                                            },
+                                            {
+                                                type: "Button",
 
-                                            buttonText: "Save",
-                                            onClick: this._handleSaveChangesClick
-                                        }
-                                    ]
-                                }
-                            ]
-                        }}/>
+                                                buttonText: "Save",
+                                                onClick: this._handleSaveChangesClick
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }}
+                        />
                     </>
-                    : <NullState type="nothing-here" title="No permission to set" subtitle="This addon does not require any permissions." />
-                }
+                ) : (
+                    <NullState type="nothing-here" title="No permission to set" subtitle="This addon does not require any permissions." />
+                )}
             </div>
         );
     }

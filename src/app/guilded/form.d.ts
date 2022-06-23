@@ -31,15 +31,7 @@ declare interface FormSectionSpecs {
     // FieldSpec depends on type, so that sucks
     fieldSpecs: FieldAnySpecs[];
 }
-type SectionStyle =
-    | "padded"
-    | "unpadded"
-    | "indented-padded"
-    | "no-border-unpadded"
-    | "border"
-    | "border-unpadded"
-    | "border-lg"
-    | "background-inset";
+type SectionStyle = "padded" | "unpadded" | "indented-padded" | "no-border-unpadded" | "border" | "border-unpadded" | "border-lg" | "background-inset";
 type RowStyle = "border-unpadded" | "border-padding-s" | "border-padding-md" | "constrained-width";
 type HeaderStyle = "collapsible";
 
@@ -357,9 +349,7 @@ declare interface FieldDropdownSpecs extends FieldRequiredSpecs<"Dropdown">, Fie
  *
  * Present in custom forms (normal version) and everywhere else (panel checkboxes).
  */
-declare interface FieldRadioSpecs
-    extends FieldSpecs<"Radios", { optionName: string | number | boolean }>,
-        FieldHasOptions<OptionRadioSpecs> {
+declare interface FieldRadioSpecs extends FieldSpecs<"Radios", { optionName: string | number | boolean }>, FieldHasOptions<OptionRadioSpecs> {
     labelFlavor?: "subtle";
     labelMarginSize?: Size;
     numColumns?: number;
@@ -384,9 +374,7 @@ declare interface FieldRadioSpecs
  * Present only in custom forms.
  * Everywhere else, Switch is used instead.
  */
-declare interface FieldCheckboxesSpecs
-    extends FieldSpecs<"Checkboxes", Array<{ optionName: string; value: boolean }>>,
-        FieldHasOptions<OptionSpecs> {
+declare interface FieldCheckboxesSpecs extends FieldSpecs<"Checkboxes", Array<{ optionName: string; value: boolean }>>, FieldHasOptions<OptionSpecs> {
     numColumns?: number;
 }
 /**
@@ -426,9 +414,7 @@ declare interface FieldButtonSpecs extends FieldSpecs<"Button", undefined>, Butt
  *
  * Present in event creation.
  */
-declare interface FieldDateAndTimeRangeSpecs
-    extends FieldSpecs<"DateAndTimeRange", { startMoment: Moment; endMoment: Moment }>,
-        FieldBasics {
+declare interface FieldDateAndTimeRangeSpecs extends FieldSpecs<"DateAndTimeRange", { startMoment: Moment; endMoment: Moment }>, FieldBasics {
     allowPastValues?: boolean;
 }
 /**
@@ -437,9 +423,7 @@ declare interface FieldDateAndTimeRangeSpecs
  * Present in event creation.
  * This is a wrapper around another form using number and dropdown fields.
  */
-declare interface FieldEventRepeatSpecs
-    extends FieldSpecs<"EventRepeat", { repeatType: "once"; isValid: boolean }>,
-        FieldBasics {
+declare interface FieldEventRepeatSpecs extends FieldSpecs<"EventRepeat", { repeatType: "once"; isValid: boolean }>, FieldBasics {
     defaultStartDate?: boolean;
 }
 /**

@@ -11,7 +11,9 @@ export enum AddonPermission {
 /**
  * The table of addon permissions to their names.
  */
-export const AddonPermissionInfos: { [permission in AddonPermission]: { name: string; description: string } } = {
+export const AddonPermissionInfos: {
+    [permission in AddonPermission]: { name: string; description: string };
+} = {
     [AddonPermission.Elements]: {
         name: "Use DOM & React",
         description:
@@ -41,9 +43,4 @@ export const AddonPermissionInfos: { [permission in AddonPermission]: { name: st
  * The list of all available addon permissions.
  */
 // Since the enum is basically { xyz: 0, 0: "xyz" }
-export const AddonPermissionValues = [
-    AddonPermission.Elements,
-    AddonPermission.ExtraInfo,
-    AddonPermission.UseApi,
-    AddonPermission.UseExternalApi
-];
+export const AddonPermissionValues = [AddonPermission.Elements, AddonPermission.ExtraInfo, AddonPermission.UseApi, AddonPermission.UseExternalApi];

@@ -19,132 +19,132 @@ import { AddonPermission } from "./addonPermission";
 
 const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     // React
-    react: webpack => webpack.withProperty("createElement"),
-    "react-dom": webpack => webpack.withProperty("createPortal"),
-    "react-element": webpack => webpack.withCode("react.element"),
+    react: (webpack) => webpack.withProperty("createElement"),
+    "react-dom": (webpack) => webpack.withProperty("createPortal"),
+    "react-element": (webpack) => webpack.withCode("react.element"),
 
     // HTTP and WS
-    "guilded/http/rest": webpack => webpack.withProperty("getMe"),
+    "guilded/http/rest": (webpack) => webpack.withProperty("getMe"),
 
     // Teams / Servers
-    "guilded/teams/games": webpack => webpack.withProperty("SearchableGames"),
-    "guilded/teams/TeamModel": webpack => webpack.withClassProperty("_teamInfo"),
+    "guilded/teams/games": (webpack) => webpack.withProperty("SearchableGames"),
+    "guilded/teams/TeamModel": (webpack) => webpack.withClassProperty("_teamInfo"),
 
     // Users / Members
-    "guilded/users": webpack => webpack.withProperty("UserModel"),
-    "guilded/users/badges": webpack => webpack.withProperty("Webhook"),
-    "guilded/users/members": webpack => webpack.withProperty("MemberModel"),
-    "guilded/users/flairs/displayInfo": webpack => webpack.allWithProperty("guilded_gold_v1")[0],
-    "guilded/users/flairs/tooltipInfo": webpack => webpack.allWithProperty("guilded_gold_v1")[1],
-    "guilded/profile/PostModel": webpack => webpack.withClassProperty("_profilePostInfo"),
-    "guilded/profile/socialLinks": webpack => webpack.withProperty("SOCIAL_LINK_CONSTS_BY_TYPE"),
+    "guilded/users": (webpack) => webpack.withProperty("UserModel"),
+    "guilded/users/badges": (webpack) => webpack.withProperty("Webhook"),
+    "guilded/users/members": (webpack) => webpack.withProperty("MemberModel"),
+    "guilded/users/flairs/displayInfo": (webpack) => webpack.allWithProperty("guilded_gold_v1")[0],
+    "guilded/users/flairs/tooltipInfo": (webpack) => webpack.allWithProperty("guilded_gold_v1")[1],
+    "guilded/profile/PostModel": (webpack) => webpack.withClassProperty("_profilePostInfo"),
+    "guilded/profile/socialLinks": (webpack) => webpack.withProperty("SOCIAL_LINK_CONSTS_BY_TYPE"),
 
     // Roles
-    "guilded/roles/membership": webpack => webpack.withProperty("CaptainRoleName"),
+    "guilded/roles/membership": (webpack) => webpack.withProperty("CaptainRoleName"),
 
     // Groups
-    "guilded/groups": webpack => webpack.withProperty("GroupModel"),
+    "guilded/groups": (webpack) => webpack.withProperty("GroupModel"),
 
     // Channels
-    "guilded/channels": webpack => webpack.withProperty("ChannelModel"),
-    "guilded/channels/types": webpack => webpack.withProperty("Overview"),
-    "guilded/channels/management": webpack => webpack.withProperty("GetChannels"),
-    "guilded/channels/settings": webpack => webpack.withProperty("channelSettingsInfo"),
-    "guilded/channels/content/AnnouncementModel": webpack => webpack.withClassProperty("_announcementInfo"),
-    "guilded/channels/content/DocumentModel": webpack => webpack.withClassProperty("docInfo"),
-    "guilded/channels/content/EventModel": webpack => webpack.withClassProperty("_eventInfo"),
-    "guilded/channels/content/ListItemModel": webpack => webpack.withClassProperty("listItemInfo"),
-    "guilded/channels/content/MessageModel": webpack => webpack.withClassProperty("chatMessageInfo"),
-    "guilded/channels/content/eventInfo": webpack => webpack.withProperty("EVENT_COLOR_LABEL_OPTIONS"),
+    "guilded/channels": (webpack) => webpack.withProperty("ChannelModel"),
+    "guilded/channels/types": (webpack) => webpack.withProperty("Overview"),
+    "guilded/channels/management": (webpack) => webpack.withProperty("GetChannels"),
+    "guilded/channels/settings": (webpack) => webpack.withProperty("channelSettingsInfo"),
+    "guilded/channels/content/AnnouncementModel": (webpack) => webpack.withClassProperty("_announcementInfo"),
+    "guilded/channels/content/DocumentModel": (webpack) => webpack.withClassProperty("docInfo"),
+    "guilded/channels/content/EventModel": (webpack) => webpack.withClassProperty("_eventInfo"),
+    "guilded/channels/content/ListItemModel": (webpack) => webpack.withClassProperty("listItemInfo"),
+    "guilded/channels/content/MessageModel": (webpack) => webpack.withClassProperty("chatMessageInfo"),
+    "guilded/channels/content/eventInfo": (webpack) => webpack.withProperty("EVENT_COLOR_LABEL_OPTIONS"),
 
     // URLs
-    "guilded/urls/domain": webpack => webpack.withProperty("WebClient"),
-    "guilded/urls/externalSites": webpack => webpack.withProperty("ExternalSiteTypes"),
-    "guilded/urls/externalSiteInfos": webpack => webpack.withProperty("reddit"),
-    "guilded/urls/articles": webpack => webpack.withProperty("aboutURL"),
-    "guilded/urls/socialMedia": webpack => webpack.withProperty("SocialMediaTypes"),
+    "guilded/urls/domain": (webpack) => webpack.withProperty("WebClient"),
+    "guilded/urls/externalSites": (webpack) => webpack.withProperty("ExternalSiteTypes"),
+    "guilded/urls/externalSiteInfos": (webpack) => webpack.withProperty("reddit"),
+    "guilded/urls/articles": (webpack) => webpack.withProperty("aboutURL"),
+    "guilded/urls/socialMedia": (webpack) => webpack.withProperty("SocialMediaTypes"),
 
     // Editor and Rich text
-    prism: webpack => webpack.withProperty("highlightElement"),
-    "prism/info": webpack => webpack.withProperty("prismComponents"),
-    "guilded/editor/nodes": webpack => webpack.allWithProperty("editorTypes"),
-    "guilded/editor/nodeInfos": webpack => webpack.withProperty("InsertPlugins"),
-    "guilded/editor/grammars": webpack => webpack.withProperty("WebhookEmbed"),
-    "guilded/editor/languageCodes": webpack => webpack.withProperty("availableLanguageCodes"),
+    prism: (webpack) => webpack.withProperty("highlightElement"),
+    "prism/info": (webpack) => webpack.withProperty("prismComponents"),
+    "guilded/editor/nodes": (webpack) => webpack.allWithProperty("editorTypes"),
+    "guilded/editor/nodeInfos": (webpack) => webpack.withProperty("InsertPlugins"),
+    "guilded/editor/grammars": (webpack) => webpack.withProperty("WebhookEmbed"),
+    "guilded/editor/languageCodes": (webpack) => webpack.withProperty("availableLanguageCodes"),
 
     // Settings
-    "guilded/settings/savableSettings": webpack => webpack.withCode("saveChanges"),
-    "guilded/settings/tabs": webpack => webpack.withProperty("Notifications"),
+    "guilded/settings/savableSettings": (webpack) => webpack.withCode("saveChanges"),
+    "guilded/settings/tabs": (webpack) => webpack.withProperty("Notifications"),
 
     // App stuff
-    "guilded/app/sounds": webpack => webpack.withProperty("IncomingCall"),
+    "guilded/app/sounds": (webpack) => webpack.withProperty("IncomingCall"),
 
     // Overlays
-    "guilded/overlays/portal": webpack => webpack.withProperty("Portals"),
-    "guilded/overlays/OverlayStack": webpack => webpack.withProperty("addPortal"),
-    "guilded/overlays/overlayProvider": webpack => webpack.withCode("OverlayProvider"),
-    transientMenuPortal: _ => getReactInstance(document.querySelector(".TransientMenuPortalContext-portal-container")),
+    "guilded/overlays/portal": (webpack) => webpack.withProperty("Portals"),
+    "guilded/overlays/OverlayStack": (webpack) => webpack.withProperty("addPortal"),
+    "guilded/overlays/overlayProvider": (webpack) => webpack.withCode("OverlayProvider"),
+    transientMenuPortal: (_) => getReactInstance(document.querySelector(".TransientMenuPortalContext-portal-container")),
 
     // Context
-    "guilded/context/layerContext": webpack => webpack.allWithProperty("object")[1],
-    "guilded/context/teamContextProvider": webpack => webpack.withCode("EnforceTeamData"),
-    "guilded/context/defaultContextProvider": webpack => webpack.withCode("defaultContext"),
-    "guilded/context/chatContext": webpack => webpack.withProperty("chatContext"),
+    "guilded/context/layerContext": (webpack) => webpack.allWithProperty("object")[1],
+    "guilded/context/teamContextProvider": (webpack) => webpack.withCode("EnforceTeamData"),
+    "guilded/context/defaultContextProvider": (webpack) => webpack.withCode("defaultContext"),
+    "guilded/context/chatContext": (webpack) => webpack.withProperty("chatContext"),
 
     // Util
-    "guilded/util/functions": webpack => webpack.withProperty("coroutine"),
+    "guilded/util/functions": (webpack) => webpack.withProperty("coroutine"),
 
     // Components
-    "guilded/components/cssLoader": webpack => webpack.withCode("CSSLoader"),
-    "guilded/components/cssDictionary": webpack => webpack.withProperty("GuildedText"),
-    "guilded/components/Form": webpack => webpack.withClassProperty("formValues"),
-    "guilded/components/formFieldTypes": webpack => webpack.withProperty("Dropdown"),
-    "guilded/components/formValidations": webpack => webpack.withProperty("ValidateUserUrl"),
-    "guilded/components/MarkdownRenderer": webpack => webpack.withClassProperty("plainText"),
-    "guilded/components/CalloutBadge": webpack => webpack.withClassProperty("style"),
-    "guilded/components/GuildedText": webpack => webpack.withComponentCode("GuildedText"),
-    "guilded/components/RouteLink": webpack => webpack.withClassProperty("href"),
-    "guilded/components/Button": webpack => webpack.withClassProperty("useHoverContext"),
-    "guilded/components/SvgIcon": webpack => webpack.withClassProperty("iconComponentProps"),
+    "guilded/components/cssLoader": (webpack) => webpack.withCode("CSSLoader"),
+    "guilded/components/cssDictionary": (webpack) => webpack.withProperty("GuildedText"),
+    "guilded/components/Form": (webpack) => webpack.withClassProperty("formValues"),
+    "guilded/components/formFieldTypes": (webpack) => webpack.withProperty("Dropdown"),
+    "guilded/components/formValidations": (webpack) => webpack.withProperty("ValidateUserUrl"),
+    "guilded/components/MarkdownRenderer": (webpack) => webpack.withClassProperty("plainText"),
+    "guilded/components/CalloutBadge": (webpack) => webpack.withClassProperty("style"),
+    "guilded/components/GuildedText": (webpack) => webpack.withComponentCode("GuildedText"),
+    "guilded/components/RouteLink": (webpack) => webpack.withClassProperty("href"),
+    "guilded/components/Button": (webpack) => webpack.withClassProperty("useHoverContext"),
+    "guilded/components/SvgIcon": (webpack) => webpack.withClassProperty("iconComponentProps"),
     // Both have imageSrc properties
-    "guilded/components/TabEmptyState": webpack => webpack.withCode("TabEmptyState"),
-    "guilded/components/NullState": webpack => webpack.withClassProperty("imageSrc"),
+    "guilded/components/TabEmptyState": (webpack) => webpack.withCode("TabEmptyState"),
+    "guilded/components/NullState": (webpack) => webpack.withClassProperty("imageSrc"),
 
-    "guilded/components/HorizontalTabs": webpack => webpack.withClassProperty("tabOptions"),
-    "guilded/components/HorizontalTab": webpack => webpack.withClassProperty("tabOption"),
-    "guilded/components/ToggleFieldWrapper": webpack => webpack.withComponentCode("ToggleFieldWrapper-container"),
-    "guilded/components/SimpleToggle": webpack => webpack.withClassProperty("input"),
-    "guilded/components/Image": webpack => webpack.withClassProperty("progressiveImageHasLoaded"),
-    "guilded/components/CodeContainer": webpack => webpack.withClassProperty("tokenCodeLines"),
-    "guilded/components/SearchBarV2": webpack => webpack.withClassProperty("_inputRef"),
-    "guilded/components/CardWrapper": webpack => webpack.withClassProperty("isActionable"),
-    "guilded/components/GuildedSelect": webpack => webpack.withClassProperty("selectedValue"),
-    "guilded/components/ItemManager": webpack => webpack.withComponentCode("ItemManager"),
-    "guilded/components/OverflowButton": webpack => webpack.withClassProperty("isOpen"),
-    "guilded/components/BannerWithButton": webpack => webpack.withClassProperty("hasText"),
-    "guilded/components/IconAndLabel": webpack => webpack.withComponentCode("IconAndLabel"),
-    "guilded/components/UserBasicInfoDisplay": webpack => webpack.withClassProperty("userPresenceContext"),
-    "guilded/components/CheckboxV2": webpack => webpack.withClassProperty("isChecked"),
-    "guilded/components/CheckmarkIcon": webpack => webpack.withCode("CheckmarkIcon"),
-    "guilded/components/ProfilePicture": webpack => webpack.withClassProperty("borderType"),
-    "guilded/components/CarouselList": webpack => webpack.withClassProperty("overflowRight"),
-    "guilded/components/LoadingAnimationMicro": webpack => webpack.withClassProperty("containerStyle"),
-    "guilded/components/LoadingPage": webpack => webpack.withComponentCode("LoadingPage"),
-    "guilded/components/BadgeV2": webpack => webpack.withComponentCode("BadgeV2"),
-    "guilded/components/CalloutBadgeWithText": webpack => webpack.withComponentCode("CalloutBadgeWithText"),
-    "guilded/components/ScreenHeader": webpack => webpack.withClassProperty("hasLabels"),
-    "guilded/components/WordDividerLine": webpack => webpack.withComponentCode("WordDividerLine"),
-    "guilded/components/StretchFadeBackground": webpack => webpack.withComponentCode("StretchFadeBackground"),
-    "guilded/components/TeamNavSectionItem": webpack => webpack.withComponentCode("TeamNavSectionItem"),
-    "guilded/components/TeamNavSectionsList": webpack => webpack.withClassProperty("isSomeActionSelected"),
-    "guilded/components/ThreeColumns": webpack => webpack.withComponentCode("ThreeColumns"),
-    "guilded/components/DragViewer": webpack => webpack.withClassProperty("enableDrag"),
-    "guilded/components/ActionMenu": webpack => webpack.withClassProperty("actionMenuHeight"),
-    "guilded/components/ActionMenuSection": webpack => webpack.withCode("ActionMenu-section"),
-    "guilded/components/ActionMenuItem": webpack => webpack.withClassProperty("useRowWrapper"),
-    "guilded/components/ModalV2": webpack => webpack.withClassProperty("hasConfirm"),
-    "guilded/components/MarkRenderer": webpack => webpack.withClassProperty("mark"),
-    "guilded/components/draggable": webpack => webpack.withProperty("DraggableTypes")
+    "guilded/components/HorizontalTabs": (webpack) => webpack.withClassProperty("tabOptions"),
+    "guilded/components/HorizontalTab": (webpack) => webpack.withClassProperty("tabOption"),
+    "guilded/components/ToggleFieldWrapper": (webpack) => webpack.withComponentCode("ToggleFieldWrapper-container"),
+    "guilded/components/SimpleToggle": (webpack) => webpack.withClassProperty("input"),
+    "guilded/components/Image": (webpack) => webpack.withClassProperty("progressiveImageHasLoaded"),
+    "guilded/components/CodeContainer": (webpack) => webpack.withClassProperty("tokenCodeLines"),
+    "guilded/components/SearchBarV2": (webpack) => webpack.withClassProperty("_inputRef"),
+    "guilded/components/CardWrapper": (webpack) => webpack.withClassProperty("isActionable"),
+    "guilded/components/GuildedSelect": (webpack) => webpack.withClassProperty("selectedValue"),
+    "guilded/components/ItemManager": (webpack) => webpack.withComponentCode("ItemManager"),
+    "guilded/components/OverflowButton": (webpack) => webpack.withClassProperty("isOpen"),
+    "guilded/components/BannerWithButton": (webpack) => webpack.withClassProperty("hasText"),
+    "guilded/components/IconAndLabel": (webpack) => webpack.withComponentCode("IconAndLabel"),
+    "guilded/components/UserBasicInfoDisplay": (webpack) => webpack.withClassProperty("userPresenceContext"),
+    "guilded/components/CheckboxV2": (webpack) => webpack.withClassProperty("isChecked"),
+    "guilded/components/CheckmarkIcon": (webpack) => webpack.withCode("CheckmarkIcon"),
+    "guilded/components/ProfilePicture": (webpack) => webpack.withClassProperty("borderType"),
+    "guilded/components/CarouselList": (webpack) => webpack.withClassProperty("overflowRight"),
+    "guilded/components/LoadingAnimationMicro": (webpack) => webpack.withClassProperty("containerStyle"),
+    "guilded/components/LoadingPage": (webpack) => webpack.withComponentCode("LoadingPage"),
+    "guilded/components/BadgeV2": (webpack) => webpack.withComponentCode("BadgeV2"),
+    "guilded/components/CalloutBadgeWithText": (webpack) => webpack.withComponentCode("CalloutBadgeWithText"),
+    "guilded/components/ScreenHeader": (webpack) => webpack.withClassProperty("hasLabels"),
+    "guilded/components/WordDividerLine": (webpack) => webpack.withComponentCode("WordDividerLine"),
+    "guilded/components/StretchFadeBackground": (webpack) => webpack.withComponentCode("StretchFadeBackground"),
+    "guilded/components/TeamNavSectionItem": (webpack) => webpack.withComponentCode("TeamNavSectionItem"),
+    "guilded/components/TeamNavSectionsList": (webpack) => webpack.withClassProperty("isSomeActionSelected"),
+    "guilded/components/ThreeColumns": (webpack) => webpack.withComponentCode("ThreeColumns"),
+    "guilded/components/DragViewer": (webpack) => webpack.withClassProperty("enableDrag"),
+    "guilded/components/ActionMenu": (webpack) => webpack.withClassProperty("actionMenuHeight"),
+    "guilded/components/ActionMenuSection": (webpack) => webpack.withCode("ActionMenu-section"),
+    "guilded/components/ActionMenuItem": (webpack) => webpack.withClassProperty("useRowWrapper"),
+    "guilded/components/ModalV2": (webpack) => webpack.withClassProperty("hasConfirm"),
+    "guilded/components/MarkRenderer": (webpack) => webpack.withClassProperty("mark"),
+    "guilded/components/draggable": (webpack) => webpack.withProperty("DraggableTypes")
 };
 
 export default class AddonApi {
@@ -203,8 +203,7 @@ export default class AddonApi {
         this.#reguildedSlateUtil = {
             defaultInsertPlugins: { media: 0, form: 1 },
             addInsertPlugin: (plugin: EditorPlugin) => this["guilded/editor/nodeInfos"].InsertPlugins.push(plugin),
-            removeInsertPlugin: (pluginIndex: number) =>
-                this["guilded/editor/nodeInfos"].InsertPlugins.splice(pluginIndex, 1),
+            removeInsertPlugin: (pluginIndex: number) => this["guilded/editor/nodeInfos"].InsertPlugins.splice(pluginIndex, 1),
             addSlateSection: (section: MenuSectionSpecs) => {
                 const inserts = document.getElementsByClassName("SlateInsertToolbar-container");
 
@@ -225,24 +224,22 @@ export default class AddonApi {
 
                         // Remove by name
                         sections.splice(
-                            sections.findIndex(section => section.name == sectionName),
+                            sections.findIndex((section) => section.name == sectionName),
                             1
                         );
                     }
                 }
             },
-            getPluginByType: (type: string) => this["guilded/editor/nodeInfos"].default.find(plugin => plugin.type == type)
+            getPluginByType: (type: string) => this["guilded/editor/nodeInfos"].default.find((plugin) => plugin.type == type)
         };
 
         this.#reguildedModalUtil = {
             // App/user
-            addUserSettingsTab: (label: string, Component: AnyComponent) =>
-                this.#addSetting(AddonApi.registries.userSettings, label, Component),
+            addUserSettingsTab: (label: string, Component: AnyComponent) => this.#addSetting(AddonApi.registries.userSettings, label, Component),
             removeUserSettingsTab: (index: number) => this.#removeSetting(AddonApi.registries.userSettings, index),
 
             // Team/server/guild
-            addServerSettingsTab: (label: string, Component: AnyComponent) =>
-                this.#addSetting(AddonApi.registries.serverSettings, label, Component),
+            addServerSettingsTab: (label: string, Component: AnyComponent) => this.#addSetting(AddonApi.registries.serverSettings, label, Component),
             removeServerSettingsTab: (index: number) => this.#removeSetting(AddonApi.registries.serverSettings, index)
         };
     }
@@ -818,10 +815,7 @@ export default class AddonApi {
      * If some part of the content does not need to be displayed, it can be specified.
      */
     get ["guilded/components/UserBasicInfoDisplay"](): AddonApiExports<"guilded/components/UserBasicInfoDisplay"> {
-        return this.#getCachedWithAllPermissions(
-            AddonPermission.Elements | AddonPermission.ExtraInfo,
-            "guilded/components/UserBasicInfoDisplay"
-        );
+        return this.#getCachedWithAllPermissions(AddonPermission.Elements | AddonPermission.ExtraInfo, "guilded/components/UserBasicInfoDisplay");
     }
     /**
      * Displays a checkbox field with a label and a description.
@@ -952,10 +946,7 @@ export default class AddonApi {
      * Displays a list of blogs of the specified team.
      */
     get ["guilded/components/BlogPage"](): AddonApiExports<"guilded/components/BlogPage"> {
-        return this.#getCachedWithAllPermissions(
-            AddonPermission.Elements | AddonPermission.ExtraInfo,
-            "guilded/components/BlogPage"
-        );
+        return this.#getCachedWithAllPermissions(AddonPermission.Elements | AddonPermission.ExtraInfo, "guilded/components/BlogPage");
     }
     /**
      * Removes the item with the given name from the cached list to be racached later.
@@ -973,7 +964,6 @@ export default class AddonApi {
         return ~AddonApi._cachedList.indexOf(name)
             ? AddonApi._cached[name]
             : // Honestly, the only convenient thing about JS
-              (AddonApi._cachedList.push(name),
-              (AddonApi._cached[name] = cacheFns[name](webpackManager)) ?? AddonApi._moduleNotFound);
+              (AddonApi._cachedList.push(name), (AddonApi._cached[name] = cacheFns[name](webpackManager)) ?? AddonApi._moduleNotFound);
     }
 }

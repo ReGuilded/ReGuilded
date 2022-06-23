@@ -26,7 +26,8 @@ You can use the Easy Installer located on our [Wesbite](https://reguilded.dev/do
 ## Will you get banned for using ReGuilded?
 
 ReGuilded is not associated with Guilded in any capacity. We have sought permission, and Guilded has confirmed that it will take no action using ReGuilded. However, abusing the mod
-using plugins or any other means to violate [Guilded TOU](https://support.guilded.gg/hc/en-us/articles/360039728313-Terms-of-Use) could result in receiving a punishment from Guilded.
+using plugins or any other means to violate [Guilded TOU](https://support.guilded.gg/hc/en-us/articles/360039728313-Terms-of-Use) could result in receiving a punishment from
+Guilded.
 
 **Be sure to also read [our license](https://github.com/ReGuilded/ReGuilded/blob/main/LICENSE).**
 

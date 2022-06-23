@@ -81,9 +81,7 @@ export declare class Button extends React.Component<ButtonProps> {
 //#endregion
 
 //#region GuildedSelect
-export declare class GuildedSelect extends React.Component<
-    FieldDropdownProps & { onChange?: (option: OptionSpecs) => void }
-> {
+export declare class GuildedSelect extends React.Component<FieldDropdownProps & { onChange?: (option: OptionSpecs) => void }> {
     get selectedValue(): OptionSpecs | any;
     get selectOptions(): OptionSpecs[];
 }

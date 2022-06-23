@@ -11,7 +11,9 @@ export default class ThemeItem extends React.Component<EnhancementGridItemProps<
     constructor(props, context) {
         super(props, context);
 
-        const { enhancement: { settings } } = this.props;
+        const {
+            enhancement: { settings }
+        } = this.props;
 
         const { switchTab } = this.props;
 
@@ -24,23 +26,19 @@ export default class ThemeItem extends React.Component<EnhancementGridItemProps<
                     {
                         label: "Settings",
                         icon: "icon-settings",
-                        onClick: () => switchTab("specific", {
-                            enhancement: this.props.enhancement,
-                            defaultTabIndex: 1,
-                            className: "ReGuildedSettingsWrapper-container ReGuildedSettingsWrapper-container-no-padding ReGuildedSettingsWrapper-container-cover"
-                        })
+                        onClick: () =>
+                            switchTab("specific", {
+                                enhancement: this.props.enhancement,
+                                defaultTabIndex: 1,
+                                className: "ReGuildedSettingsWrapper-container ReGuildedSettingsWrapper-container-no-padding ReGuildedSettingsWrapper-container-cover"
+                            })
                     }
                 ]
             };
     }
     render() {
-        const {
-            props,
-            _overflowMainSection
-        } = this;
+        const { props, _overflowMainSection } = this;
 
-        return (
-            <EnhancementItem {...props} overflowMenuSection={_overflowMainSection} />
-        )
+        return <EnhancementItem {...props} overflowMenuSection={_overflowMainSection} />;
     }
 }

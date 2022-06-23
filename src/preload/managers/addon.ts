@@ -18,13 +18,10 @@ export default class AddonManager extends EnhancementManager<Addon> {
     }
     protected override onFileChange(addon: Addon) {
         // TODO: Unload & load addon
-        return new Promise<void>(async resolve => {
+        return new Promise<void>(async (resolve) => {
             // Because we can't have multiple entry points
             if (Array.isArray(addon.files)) {
-                console.warn(
-                    "Expected addon by ID '%s' to have property 'files' as a string, not array. Using first array item.",
-                    addon.id
-                );
+                console.warn("Expected addon by ID '%s' to have property 'files' as a string, not array. Using first array item.", addon.id);
                 addon.files = addon.files[0];
             }
 
@@ -42,12 +39,10 @@ export default class AddonManager extends EnhancementManager<Addon> {
                     0, // TODO: Use actual worlds with better Addon API
                     pathResolve(addon.dirname, addon.files),
                     importable
-                ).then(exported => {
+                ).then((exported) => {
                     // Make sure it's appropriate
                     if (typeof exported != "object" || typeof exported.load != "function") {
-                        throw new Error(
-                            "Addon's main file's exports must be an object containing at least load function and optionally init and unload."
-                        );
+                        throw new Error("Addon's main file's exports must be an object containing at least load function and optionally init and unload.");
                     } else return exported;
                 });
             resolve();
@@ -60,18 +55,11 @@ export default class AddonManager extends EnhancementManager<Addon> {
      * @param path The path module requires
      * @returns File's exports
      */
-    private static async _require(
-        worldId: number,
-        dirname: string,
-        importable: (path: string) => [boolean, any?],
-        path: string
-    ): Promise<any> {
+    private static async _require(worldId: number, dirname: string, importable: (path: string) => [boolean, any?], path: string): Promise<any> {
         const [importableExists, importableContents] = importable(path);
         // No idea how to do require properly while it being synchronous.
         // For recursive purposes
-        return importableExists
-            ? importableContents
-            : await AddonManager._requireWholePath(worldId, pathResolve(dirname, path), importable);
+        return importableExists ? importableContents : await AddonManager._requireWholePath(worldId, pathResolve(dirname, path), importable);
     }
     /**
      * Requires the file in the given absolute path.
@@ -79,11 +67,7 @@ export default class AddonManager extends EnhancementManager<Addon> {
      * @param path The absolute path to require
      * @returns File's exports
      */
-    private static async _requireWholePath(
-        worldId: number,
-        path: string,
-        importable: (path: string) => [boolean, any?]
-    ): Promise<any> {
+    private static async _requireWholePath(worldId: number, path: string, importable: (path: string) => [boolean, any?]): Promise<any> {
         const ext = extname(path).toLowerCase();
 
         try {
@@ -109,18 +93,14 @@ export default class AddonManager extends EnhancementManager<Addon> {
      * @param filename The file to execute
      * @returns File's exports
      */
-    private static async _executeFile<T>(
-        worldId: number,
-        filename: string,
-        importable: (path: string) => [boolean, any?]
-    ): Promise<T> {
+    private static async _executeFile<T>(worldId: number, filename: string, importable: (path: string) => [boolean, any?]): Promise<T> {
         const dirname = join(filename, ".."),
             require = this._require.bind(this, worldId, dirname, importable);
 
         return await fsPromises
             .readFile(filename, "utf8")
             .then(
-                async fileData =>
+                async (fileData) =>
                     /*   // It is more convenient passing `require` this way rather than executing it immediately
                      *   ((__filename, __dirname, require) => {
                      *       const module = { exports: {}, filename: __filename };

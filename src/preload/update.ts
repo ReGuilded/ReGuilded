@@ -6,10 +6,10 @@ import { join } from "path";
 export default async function handleUpdate(updateInfo: VersionJson) {
     process.noAsar = true;
 
-    const downloadUrl = updateInfo.assets.find(x => x.name === "reguilded.asar").browser_download_url;
+    const downloadUrl = updateInfo.assets.find((x) => x.name === "reguilded.asar").browser_download_url;
     const downloadPath = join(__dirname);
 
-    return new Promise<boolean>(resolve => {
+    return new Promise<boolean>((resolve) => {
         try {
             stream(downloadUrl)
                 .pipe(createWriteStream(downloadPath))
@@ -41,14 +41,14 @@ export type VersionJson = {
  * @param forceUpdate Whether to force the update or not.
  */
 export async function checkForUpdate(forceUpdate: boolean = false): Promise<[boolean, VersionJson]> {
-    return new Promise<VersionJson>(resolve => {
-        fetch("https://api.github.com/repos/ReGuilded/ReGuilded/releases/latest").then(response => {
+    return new Promise<VersionJson>((resolve) => {
+        fetch("https://api.github.com/repos/ReGuilded/ReGuilded/releases/latest").then((response) => {
             if (!response.ok) {
                 resolve({
                     noRelease: true
                 });
             } else {
-                response.json().then(json => {
+                response.json().then((json) => {
                     resolve({
                         version: json.tag_name,
                         assets: json.assets
@@ -56,9 +56,8 @@ export async function checkForUpdate(forceUpdate: boolean = false): Promise<[boo
                 });
             }
         });
-    }).then(json => [
-        (window.updateExists =
-            !json.noRelease && json.assets.length != 0 && (forceUpdate || json.version != reGuildedInfo.version)),
+    }).then((json) => [
+        (window.updateExists = !json.noRelease && json.assets.length != 0 && (forceUpdate || json.version != reGuildedInfo.version)),
         (window.latestVersionInfo = json)
     ]);
 }

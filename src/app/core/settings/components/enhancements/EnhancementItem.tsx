@@ -21,15 +21,15 @@ const React = window.ReGuilded.getApiProperty("react"),
 //#endregion
 
 type Props<T extends AnyEnhancement> = {
-    enhancement: T,
-    enhancementHandler: EnhancementHandler<T, RGEnhancementConfig<T>>,
-    switchTab: SwitchTab,
+    enhancement: T;
+    enhancementHandler: EnhancementHandler<T, RGEnhancementConfig<T>>;
+    switchTab: SwitchTab;
 
-    overflowMenuSection?: MenuSectionSpecs
+    overflowMenuSection?: MenuSectionSpecs;
 };
 type State = {
-    enabled: boolean,
-    author?: UserInfo
+    enabled: boolean;
+    author?: UserInfo;
 };
 
 export default class EnhancementItem<E extends AnyEnhancement> extends React.Component<Props<E>, State> {
@@ -52,16 +52,14 @@ export default class EnhancementItem<E extends AnyEnhancement> extends React.Com
         this.overflowMenuSpecs = generateOverflowMenu(this.props.enhancement, enhancementHandler);
 
         // Addon and Theme item custom section
-        if (overflowMenuSection)
-            this.overflowMenuSpecs.sections.unshift(overflowMenuSection);
+        if (overflowMenuSection) this.overflowMenuSpecs.sections.unshift(overflowMenuSection);
     }
     /**
      * Changes the state of the enhancement to either enabled or disabled.
      * @param enabled The new state of the enhancement
      */
     private async _onToggle(enhancementHandler: EnhancementHandler<E, RGEnhancementConfig<E>>, enabled: boolean) {
-        await enhancementHandler[enabled ? "savedLoad" : "savedUnload"](this.props.enhancement)
-            .then(() => this.setState({ enabled }));
+        await enhancementHandler[enabled ? "savedLoad" : "savedUnload"](this.props.enhancement).then(() => this.setState({ enabled }));
     }
     async componentWillMount() {
         await EnhancementInfo.fetchAuthor(this, this.props.enhancement);
@@ -70,55 +68,63 @@ export default class EnhancementItem<E extends AnyEnhancement> extends React.Com
         const {
             overflowMenuSpecs,
             props: {
-                enhancement: {
-                    name,
-                    subtitle,
-                    banner,
-                    icon
-                },
+                enhancement: { name, subtitle, banner, icon },
                 switchTab,
                 children
             },
-            state: {
-                enabled
-            },
+            state: { enabled },
             _onToggleBinded
         } = this;
 
         return (
-            <CardWrapper isStandalone className={"ReGuildedEnhancement-container ReGuildedEnhancement-container-" + (enabled ? "enabled" : "disabled") } onClick={() => switchTab("specific", { enhancement: this.props.enhancement })}>
+            <CardWrapper
+                isStandalone
+                className={"ReGuildedEnhancement-container ReGuildedEnhancement-container-" + (enabled ? "enabled" : "disabled")}
+                onClick={() =>
+                    switchTab("specific", {
+                        enhancement: this.props.enhancement
+                    })
+                }
+            >
                 <div className="ReGuildedEnhancement-top">
                     {/* Banner */}
-                    <StretchFadeBackground type={banner ? "full-blur" : "default"} className="ReGuildedEnhancement-banner" position="centered" src={banner || "/asset/Default/ProfileBannerSmall.png"} />
+                    <StretchFadeBackground
+                        type={banner ? "full-blur" : "default"}
+                        className="ReGuildedEnhancement-banner"
+                        position="centered"
+                        src={banner || "/asset/Default/ProfileBannerSmall.png"}
+                    />
                     {/* Header */}
                     <div className="ReGuildedEnhancement-header">
-                        { icon && <Image src={icon} className="ReGuildedEnhancement-icon" /> }
+                        {icon && <Image src={icon} className="ReGuildedEnhancement-icon" />}
                         {/* Header info */}
-                        <div className="PlayerCardGameInfo-name-alias" onClick={e => e.stopPropagation()}>
+                        <div className="PlayerCardGameInfo-name-alias" onClick={(e) => e.stopPropagation()}>
                             {/* Name + Toggle */}
-                            <SimpleToggle
-                                label={<span className="ReGuildedEnhancement-text">{ name }</span>}
-                                defaultValue={enabled}
-                                onChange={_onToggleBinded}/>
-                            <GuildedText block className="ReGuildedEnhancement-subtitle ReGuildedEnhancement-text" type="subtext">{ subtitle || "No subtitle provided." }</GuildedText>
+                            <SimpleToggle label={<span className="ReGuildedEnhancement-text">{name}</span>} defaultValue={enabled} onChange={_onToggleBinded} />
+                            <GuildedText block className="ReGuildedEnhancement-subtitle ReGuildedEnhancement-text" type="subtext">
+                                {subtitle || "No subtitle provided."}
+                            </GuildedText>
                             <div className="ReGuildedEnhancement-author">
-                                { this.state.author
-                                    ? <UserBasicInfoDisplay size="sm" user={new UserModel(this.state.author)} />
-                                    : <GuildedText block className="ReGuildedEnhancement-no-author" type="subtext">{ this.props.enhancement.author ? "By user " + this.props.enhancement.author : "Unknown author" }</GuildedText>
-                                }
+                                {this.state.author ? (
+                                    <UserBasicInfoDisplay size="sm" user={new UserModel(this.state.author)} />
+                                ) : (
+                                    <GuildedText block className="ReGuildedEnhancement-no-author" type="subtext">
+                                        {this.props.enhancement.author ? "By user " + this.props.enhancement.author : "Unknown author"}
+                                    </GuildedText>
+                                )}
                             </div>
                         </div>
                     </div>
                     {/* Settings */}
                     <ErrorBoundary>
-                        <OverflowButton className="ReGuildedEnhancement-overflow" type="light" menuSpecs={overflowMenuSpecs}/>
+                        <OverflowButton className="ReGuildedEnhancement-overflow" type="light" menuSpecs={overflowMenuSpecs} />
                     </ErrorBoundary>
                 </div>
                 <div className="ReGuildedEnhancement-footer">
                     {/* Description */}
                     <div className="ReGuildedEnhancement-info">
                         <EnhancementInfo infoLabelClassName="GuildedText-container-type-gray" enhancement={this.props.enhancement}>
-                            { children }
+                            {children}
                         </EnhancementInfo>
                     </div>
                 </div>

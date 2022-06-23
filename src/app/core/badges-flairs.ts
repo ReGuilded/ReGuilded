@@ -33,11 +33,7 @@ export function createFlairFromBadge(badge: UserBadge): UserFlair {
         amount: 1
     };
 }
-function generateBadgeGetter<T>(
-    defaultGetter: () => T[] | void,
-    membersTable: { [name: string]: string[] },
-    badgeTable: { [name: string]: T }
-) {
+function generateBadgeGetter<T>(defaultGetter: () => T[] | void, membersTable: { [name: string]: string[] }, badgeTable: { [name: string]: T }) {
     return function get() {
         const global: T[] | undefined = defaultGetter.call(this);
 
@@ -52,11 +48,7 @@ function generateBadgeGetter<T>(
         return reGuildedBadges.length ? (global || []).concat(reGuildedBadges) : global;
     };
 }
-function injectBadgeGetter<T>(
-    prototype: { get [prototypePropertyName](): T[] | void },
-    prototypePropertyName: string,
-    getter: () => T[] | void
-) {
+function injectBadgeGetter<T>(prototype: { get [prototypePropertyName](): T[] | void }, prototypePropertyName: string, getter: () => T[] | void) {
     // Replace
     Object.defineProperty(prototype, prototypePropertyName, {
         get: getter
@@ -71,8 +63,7 @@ const oldGetters = {};
  * @param members The identifiers of the members who will receive the badge
  */
 export function injectBadge<T>(prototype: Object, prototypePropertyName: string, badgeTable: { [name: string]: T }) {
-    const defaultGetter =
-        oldGetters[prototypePropertyName] || Object.getOwnPropertyDescriptor(prototype, prototypePropertyName).get;
+    const defaultGetter = oldGetters[prototypePropertyName] || Object.getOwnPropertyDescriptor(prototype, prototypePropertyName).get;
     oldGetters[prototypePropertyName] = defaultGetter;
 
     const newGetter = generateBadgeGetter(defaultGetter, members, badgeTable);

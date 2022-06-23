@@ -2,13 +2,13 @@ import { Theme, ThemeExtension } from "../../../../../common/enhancements";
 import { handleToggle } from "./EnhancementItem";
 
 const React = window.ReGuilded.getApiProperty("react"),
-      { default: SimpleToggle } = window.ReGuilded.getApiProperty("guilded/components/SimpleToggle"),
-      { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
-      { default: CardWrapper } = window.ReGuilded.getApiProperty("guilded/components/CardWrapper");
+    { default: SimpleToggle } = window.ReGuilded.getApiProperty("guilded/components/SimpleToggle"),
+    { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
+    { default: CardWrapper } = window.ReGuilded.getApiProperty("guilded/components/CardWrapper");
 
 type Props = {
-    extension: ThemeExtension,
-    theme: Theme
+    extension: ThemeExtension;
+    theme: Theme;
 };
 
 const themeManager = window.ReGuilded.themes;
@@ -20,7 +20,8 @@ export default class ThemeExtensionItem extends React.Component<Props> {
     constructor(props: Props) {
         super(props);
 
-        const themeId = props.theme.id, { id } = this.props.extension;
+        const themeId = props.theme.id,
+            { id } = this.props.extension;
 
         const isEnabled = themeManager.settings.enabledExtensions[themeId] && themeManager.settings.enabledExtensions[themeId].includes(id);
 
@@ -32,12 +33,15 @@ export default class ThemeExtensionItem extends React.Component<Props> {
     }
 
     render() {
-        const { name, description } = this.props.extension, { _onToggleBinded } = this;
+        const { name, description } = this.props.extension,
+            { _onToggleBinded } = this;
 
         return (
             <CardWrapper className="ReGuildedThemeExtension-container">
                 <SimpleToggle label={name} className="ReGuildedThemeExtension-toggle" onChange={_onToggleBinded} />
-                <GuildedText block type="subtext">{ description }</GuildedText>
+                <GuildedText block type="subtext">
+                    {description}
+                </GuildedText>
             </CardWrapper>
         );
     }

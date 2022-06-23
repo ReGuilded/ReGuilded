@@ -2,19 +2,19 @@ const React = window.ReGuilded.getApiProperty("react");
 
 type Props = {
     tabs: {
-        [tabName: string]: typeof React.Component
-    },
-    defaultTab: string,
-    tabProps?: object
+        [tabName: string]: typeof React.Component;
+    };
+    defaultTab: string;
+    tabProps?: object;
 };
 type State = {
-    currentTab: string,
-    tabProps: object
+    currentTab: string;
+    tabProps: object;
 };
 export type SwitchTab = (tabName: string, tabProps: object) => void;
 export type PagedSettingsChildProps = {
-    switchTab: SwitchTab,
-    [tabProp: string]: any
+    switchTab: SwitchTab;
+    [tabProp: string]: any;
 };
 
 /**
@@ -42,11 +42,13 @@ export default class PagedSettings extends React.Component<Props, State> {
         this.setState(() => ({ currentTab: tabName, tabProps }));
     }
     render() {
-        const { props: { tabs }, state: { currentTab, tabProps }, switchTab } = this;
+        const {
+            props: { tabs },
+            state: { currentTab, tabProps },
+            switchTab
+        } = this;
         const CurrentTab = tabs[currentTab];
 
-        return (
-            <CurrentTab {...tabProps} switchTab={switchTab} />
-        );
+        return <CurrentTab {...tabProps} switchTab={switchTab} />;
     }
 }

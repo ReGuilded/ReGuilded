@@ -45,65 +45,54 @@ export default class ReGuilded {
      * @param webpackRequire A function that gets Guilded modules.
      */
     async init(webpackRequire: WebpackRequire) {
-        return new Promise<void[]>(
-            async (resolve, reject) => {
-                this.webpack = new WebpackHandler(webpackRequire);
+        return new Promise<void[]>(async (resolve, reject) => {
+            this.webpack = new WebpackHandler(webpackRequire);
 
-                // For add-on and theme CSS
-                this.styling = Object.assign(document.createElement("datagroup"), {
-                    id: "ReGuildedStyle-container"
-                });
-                this.styling.append(
-                    Object.assign(document.createElement("style"), {
-                        id: "ReGuildedStyle-datagroup",
-                        innerHTML: reGuildedMainCss
-                    }),
-                    Object.assign(document.createElement("style"), {
-                        id: "ReGuildedStyle-reguilded",
-                        innerHTML: reGuildedCss
-                    })
-                );
-                document.body.appendChild(this.styling);
+            // For add-on and theme CSS
+            this.styling = Object.assign(document.createElement("datagroup"), {
+                id: "ReGuildedStyle-container"
+            });
+            this.styling.append(
+                Object.assign(document.createElement("style"), {
+                    id: "ReGuildedStyle-datagroup",
+                    innerHTML: reGuildedMainCss
+                }),
+                Object.assign(document.createElement("style"), {
+                    id: "ReGuildedStyle-reguilded",
+                    innerHTML: reGuildedCss
+                })
+            );
+            document.body.appendChild(this.styling);
 
-                // I don't even have any idea why they are being disabled
-                try {
-                    window.__SENTRY__.hub.getClient().close(0);
-                    window.__SENTRY__.logger.disable();
-                } catch(e) {
-                    console.warn("Failed to disable sentries:", e);
-                }
-
-                this.addons.webpack = this.webpack;
-
-                await Promise.all([
-                    this.addons.init(),
-                    this.themes.init()
-                ])
-                    .then(resolve)
-                    .catch(reject);
+            // I don't even have any idea why they are being disabled
+            try {
+                window.__SENTRY__.hub.getClient().close(0);
+                window.__SENTRY__.logger.disable();
+            } catch (e) {
+                console.warn("Failed to disable sentries:", e);
             }
-        )
-            .catch(e => console.error("ReGuilded failed to initialize:", e))
-            .then(async () =>
-                // Tasks that aren't critical
-                await Promise.all([
-                    import("./settings/settings").then(async ({ default: SettingsInjector }) =>
-                        await (window.settingsInjector = new SettingsInjector()).init()
-                    ),
 
-                    // Global badges
-                    new Promise<void>(resolve => (this.loadUserBadges(), resolve())),
+            this.addons.webpack = this.webpack;
 
-                    // Only do it if user has enabled auto-update
-                    this.settingsHandler.config.autoUpdate &&
-                        window.ReGuildedConfig.doUpdateIfPossible()
-                            .then((isUpdated) => isUpdated && location.reload()),
+            await Promise.all([this.addons.init(), this.themes.init()]).then(resolve).catch(reject);
+        })
+            .catch((e) => console.error("ReGuilded failed to initialize:", e))
+            .then(
+                async () =>
+                    // Tasks that aren't critical
+                    await Promise.all([
+                        import("./settings/settings").then(async ({ default: SettingsInjector }) => await (window.settingsInjector = new SettingsInjector()).init()),
 
-                    window.ReGuildedConfig.isFirstLaunch && this.handleFirstLaunch(),
-                ]).then(() => console.log("ReGuilded done initializing"))
+                        // Global badges
+                        new Promise<void>((resolve) => (this.loadUserBadges(), resolve())),
+
+                        // Only do it if user has enabled auto-update
+                        this.settingsHandler.config.autoUpdate && window.ReGuildedConfig.doUpdateIfPossible().then((isUpdated) => isUpdated && location.reload()),
+
+                        window.ReGuildedConfig.isFirstLaunch && this.handleFirstLaunch()
+                    ]).then(() => console.log("ReGuilded done initializing"))
             );
     }
-
 
     // REVIEW: This should be called & ran when the user requests Guilded to fully exit.
     /**
@@ -131,7 +120,9 @@ export default class ReGuilded {
         // Always flair
         const contribFlair = definedFlairs.contrib || createFlairFromBadge(badgeTypes.contrib);
 
-        const flairTable: { [name: string]: UserFlair } = { contrib: contribFlair };
+        const flairTable: { [name: string]: UserFlair } = {
+            contrib: contribFlair
+        };
 
         if (injectDevBadgeIntoFlairs) flairTable.dev = devBadge as UserFlair;
         else injectBadge(UserModel.prototype, "badges", { dev: devBadge });
@@ -159,44 +150,43 @@ export default class ReGuilded {
 
         const menuPortalContext = transientMenuPortal.__reactInternalMemoizedUnmaskedChildContext;
 
-        const formSpecs: FormSpecs =
-            {
-                description: [
-                    "ReGuilded has successfully installed! You can now open ",
-                    // TODO: Link to settings "Themes"
-                    "theme settings",
-                    " or ",
-                    // TODO: Link to settings "Addons"
-                    "addon settings",
-                    " to install any themes or addons you would like. If you would like to receive ReGuilded updates out of the box, be sure to check the checkbox below:"
-                ],
-                sections: [
-                    {
-                        fieldSpecs: [
-                            {
-                                type: "Checkboxes",
-                                fieldName: "settings",
+        const formSpecs: FormSpecs = {
+            description: [
+                "ReGuilded has successfully installed! You can now open ",
+                // TODO: Link to settings "Themes"
+                "theme settings",
+                " or ",
+                // TODO: Link to settings "Addons"
+                "addon settings",
+                " to install any themes or addons you would like. If you would like to receive ReGuilded updates out of the box, be sure to check the checkbox below:"
+            ],
+            sections: [
+                {
+                    fieldSpecs: [
+                        {
+                            type: "Checkboxes",
+                            fieldName: "settings",
 
-                                isOptional: true,
+                            isOptional: true,
 
-                                options: [
-                                    {
-                                        optionName: "autoUpdate",
-                                        label: "Auto-Update ReGuilded",
-                                        description: "Any time Guilded gets refreshed or launches, ReGuilded will check for its own updates and install them if they exist."
-                                    }
-                                ],
-                                defaultValue: [
-                                    {
-                                        optionName: "autoUpdate",
-                                        value: false
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            };
+                            options: [
+                                {
+                                    optionName: "autoUpdate",
+                                    label: "Auto-Update ReGuilded",
+                                    description: "Any time Guilded gets refreshed or launches, ReGuilded will check for its own updates and install them if they exist."
+                                }
+                            ],
+                            defaultValue: [
+                                {
+                                    optionName: "autoUpdate",
+                                    value: false
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
 
         const { values, isChanged } = await menuPortalContext.SimpleFormOverlay.Open(menuPortalContext, {
             header: "Successfully Installed",
@@ -208,9 +198,9 @@ export default class ReGuilded {
         // Only apply settings if any of the settings were modified
         if (isChanged) {
             // Use mapping if more options appear
-            const [ { optionName, value } ] = values.settings;
+            const [{ optionName, value }] = values.settings;
             this.settingsHandler.update({ [optionName]: value });
         }
     }
-};
-const definedFlairs: { dev?: UserFlair, contrib?: UserFlair } = {};
+}
+const definedFlairs: { dev?: UserFlair; contrib?: UserFlair } = {};

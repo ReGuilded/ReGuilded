@@ -16,14 +16,12 @@ export default function getConfiguration(settingsPath: string) {
             .then(async () => {
                 window.isFirstLaunch = false;
                 return await Promise.all([
-                    fsPromises.readFile(join(settingsPath, "settings.json"), "utf8").then(json => JSON.parse(json)),
-                    fsPromises
-                        .readFile(join(settingsPath, "custom-csp-whitelist.json"), "utf8")
-                        .then(json => JSON.parse(json)),
+                    fsPromises.readFile(join(settingsPath, "settings.json"), "utf8").then((json) => JSON.parse(json)),
+                    fsPromises.readFile(join(settingsPath, "custom-csp-whitelist.json"), "utf8").then((json) => JSON.parse(json)),
                     // Forgiving state file
                     fsPromises
                         .readFile(join(settingsPath, "state.json"), "utf8")
-                        .then(json => JSON.parse(json))
+                        .then((json) => JSON.parse(json))
                         // Forgive if no state.json is present;
                         // user may have deleted it on purpose or it was never created
                         .catch((error: NodeJS.ErrnoException) => {
@@ -34,7 +32,7 @@ export default function getConfiguration(settingsPath: string) {
             })
             .then(resolve)
             // Settings doesn't exist, create them and give default settings
-            .catch(e => {
+            .catch((e) => {
                 // Reject if file exists, but it's other error
                 if (!e || !e.code || e.code != "ENOENT") return reject(e);
 

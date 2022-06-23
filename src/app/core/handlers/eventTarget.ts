@@ -4,7 +4,9 @@ export abstract class AbstractEventTarget implements EventTarget {
      *
      * @default {}
      */
-    #eventHandlers: { [eventName: string]: Array<(e: Event) => void | PromiseLike<void>> } = {};
+    #eventHandlers: {
+        [eventName: string]: Array<(e: Event) => void | PromiseLike<void>>;
+    } = {};
 
     /**
      * Adds a callback to an event.
@@ -34,7 +36,7 @@ export abstract class AbstractEventTarget implements EventTarget {
         const { type } = event;
 
         if (this.#eventHandlers[type]) {
-            this.#eventHandlers[type].forEach(async callback => await callback(event));
+            this.#eventHandlers[type].forEach(async (callback) => await callback(event));
             return true;
         } else return false;
     }

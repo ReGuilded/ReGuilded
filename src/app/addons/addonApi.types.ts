@@ -25,15 +25,7 @@ import {
 import { GuildedImage, UserBasicInfoDisplay } from "../guilded/components/display";
 import { Button, GuildedSelect, SearchBarV2, SimpleToggle } from "../guilded/components/input";
 import { OverflowButton } from "../guilded/menu";
-import {
-    Carousel as CarouselList,
-    DragViewer,
-    HorizontalTab,
-    HorizontalTabs,
-    TeamNavSectionItem,
-    TeamNavSectionsList,
-    ThreeColumns
-} from "../guilded/components/sections";
+import { Carousel as CarouselList, DragViewer, HorizontalTab, HorizontalTabs, TeamNavSectionItem, TeamNavSectionsList, ThreeColumns } from "../guilded/components/sections";
 import { ModalV2, ModalV2Props } from "../guilded/components/modals";
 import { EditorPlugin, NodeType } from "../guilded/slate";
 import { UserModel } from "../guilded/models";
@@ -73,7 +65,10 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     : N extends "guilded/users"
     ? { UserModel: typeof UserModel }
     : N extends "guilded/users/members"
-    ? { MemberModel: typeof Object; getMemberModel: (memberInfo: { teamId: string; memberId: string }) => Object }
+    ? {
+          MemberModel: typeof Object;
+          getMemberModel: (memberInfo: { teamId: string; memberId: string }) => Object;
+      }
     : N extends "guilded/profile/PostModel"
     ? any
     : N extends "guilded/profile/SocialLinks"
@@ -117,7 +112,13 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     : N extends "guilded/urls/socialMedia"
     ? {
           SocialMediaTypes: { [socialMediaName: string]: string };
-          default: { [socialMediaName: string]: { label: string; icon: string; href?: string } };
+          default: {
+              [socialMediaName: string]: {
+                  label: string;
+                  icon: string;
+                  href?: string;
+              };
+          };
       }
     : // Editors and Markdown
     N extends "prism"
@@ -128,7 +129,9 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? any
     : N extends "guilded/editor/nodeInfos"
     ? {
-          EditorPluginsByEditorType: { [pluginType in NodeType]: EditorPlugin[] };
+          EditorPluginsByEditorType: {
+              [pluginType in NodeType]: EditorPlugin[];
+          };
           InsertPlugins: EditorPlugin[];
           default: EditorPlugin[];
       }
@@ -141,7 +144,12 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? any
     : // Settings
     N extends "guilded/settings/savableSettings"
-    ? { default: TypeMixin<{ SaveChanges: (...args: any[]) => any; _handleOptionsChange: () => void }> }
+    ? {
+          default: TypeMixin<{
+              SaveChanges: (...args: any[]) => any;
+              _handleOptionsChange: () => void;
+          }>;
+      }
     : N extends "guilded/settings/tabs"
     ? {
           [tabName: string]: {
@@ -168,7 +176,9 @@ export type AddonApiExports<N extends string> = N extends "transientMenuPortal"
     ? { default: Decorator }
     : // Util
     N extends "guilded/util/functions"
-    ? Function & { coroutine: <R, T extends (...args: any[]) => R>(fn: T) => (...args: any[]) => Promise<R> }
+    ? Function & {
+          coroutine: <R, T extends (...args: any[]) => R>(fn: T) => (...args: any[]) => Promise<R>;
+      }
     : // Components
     N extends "guilded/components/cssLoader"
     ? {

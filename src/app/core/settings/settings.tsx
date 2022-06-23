@@ -18,7 +18,7 @@ export default class SettingsInjector {
             // Then run this awful nightmare, since forceUpdate doesn't work
             .then(this.forceUpdateOverlay)
             // If an oopsies happens, notify us
-            .catch(e => console.error("Settings injector: Failed to patch the settings renderer!", e));
+            .catch((e) => console.error("Settings injector: Failed to patch the settings renderer!", e));
     }
 
     // This gets the sub-category buttons, then clicks the second and back to the first
@@ -33,12 +33,11 @@ export default class SettingsInjector {
     // Inject our settings entries
     renderSettings({ props }) {
         // If our category already exists, nothing to do here
-        if (props.settingsOptions.sections.some(sect => sect.id == "reguilded")) return;
+        if (props.settingsOptions.sections.some((sect) => sect.id == "reguilded")) return;
 
         // If the app settings categories isn't in the sections, return
         // This is to prevent from rendering on server settings and other settings
-        if (props.settingsOptions.sections.some(sect => sect.name == "App settings")) {
-
+        if (props.settingsOptions.sections.some((sect) => sect.name == "App settings")) {
             // Push the sections to the props before they get rendered
             props.settingsOptions.sections.push({
                 id: "reguilded",

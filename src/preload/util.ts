@@ -24,7 +24,7 @@ export async function getSmallImageUrl(dirname: string, path: string) {
 
     return await fsPromises
         .stat(filePath)
-        .then(stats => {
+        .then((stats) => {
             if (stats.size > maxSmallImageSize) throw new Error("File cannot be over 150kb in size");
         })
         .then(() => nativeImage.createFromPath(filePath).toDataURL());

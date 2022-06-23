@@ -13,11 +13,7 @@ type InitFunction = (
  * @param exports The exports of this module
  * @returns `System` object for the module
  */
-export default function createSystem(
-    importable: { [prop: string]: () => Promise<any> },
-    imported: { [prop: string]: any },
-    exports: { [prop: string]: any }
-) {
+export default function createSystem(importable: { [prop: string]: () => Promise<any> }, imported: { [prop: string]: any }, exports: { [prop: string]: any }) {
     /**
      * Stuff that get passed into registered module function.
      */

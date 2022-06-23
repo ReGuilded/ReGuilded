@@ -30,7 +30,7 @@ function injectWebpackJsonp() {
 
     setPush({
         get: () => webpackPush.bind(window.webpackJsonp),
-        set: value => setPush({ get: () => value })
+        set: (value) => setPush({ get: () => value })
     });
 }
 
@@ -43,14 +43,14 @@ else document.addEventListener("readystatechange", setUpWebpackInjection);
     // Global badge holders
     await fetch("https://raw.githubusercontent.com/ReGuilded/ReGuilded-Website/main/ReGuilded/wwwroot/contributorIds.json")
         .then(
-            response => response.json(),
-            e => console.warn("Failed to fetch ReGuilded badges:", e)
+            (response) => response.json(),
+            (e) => console.warn("Failed to fetch ReGuilded badges:", e)
         )
         .then(
-            json => {
+            (json) => {
                 members.dev = json.dev;
                 members.contrib = json.contrib;
             },
-            e => console.warn("Failed to fetch ReGuilded badges:", e)
+            (e) => console.warn("Failed to fetch ReGuilded badges:", e)
         );
 })();

@@ -5,16 +5,16 @@
     "main": "",
     "type": "commonjs",
     "scripts": {
+        "prettify": "prettier --write .",
+        "lint": "eslint .",
+        "clean": "npm run prettify && npm run lint",
         "injectbare": "node out/injector.main.js inject",
         "uninjectbare": "node out/injector.main.js uninject",
-        "build": "npm install && rollup -c rollup.config.js && node out/injector.main.js prepareAndPackResources",
+        "build": "npm install && npm run clean && rollup -c rollup.config.js && node out/injector.main.js prepareAndPackResources",
         "watch": "rollup -c rollup.config.js -w",
         "inject": "npm run build && npm run injectbare",
-        "uninject": "npm run clean && npm run build && npm run uninjectbare",
-        "reinject": "npm run clean && npm run build && npm run uninjectbare && npm run injectbare",
-        "clean": "npm run prettify && npm run lint",
-        "lint": "eslint .",
-        "prettify": "prettier --write ."
+        "uninject": "npm run build && npm run uninjectbare",
+        "reinject": "npm run build && npm run uninjectbare && npm run injectbare"
     },
     "repository": {
         "type": "git",

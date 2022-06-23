@@ -25,12 +25,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
      * @param settingsHandler The enhancement settings handler
      * @param config The preload configuration for addons
      */
-    constructor(
-        parent: ReGuilded,
-        settings: ReGuildedAddonSettings,
-        settingsHandler: ConfigHandler<ReGuildedSettings>,
-        config: RGAddonConfig
-    ) {
+    constructor(parent: ReGuilded, settings: ReGuildedAddonSettings, settingsHandler: ConfigHandler<ReGuildedSettings>, config: RGAddonConfig) {
         super(parent, settings, settingsHandler, config);
 
         this.addonApis = {};
@@ -50,7 +45,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
         if (loaded) {
             if (~this.enabled.indexOf(currentOrPreviousId)) {
                 // FIXME: We already kind of do that in EnhancementHandler, but with index
-                const previousMetadata = this.all.find(addon => addon.id == currentOrPreviousId);
+                const previousMetadata = this.all.find((addon) => addon.id == currentOrPreviousId);
                 this.unload(previousMetadata);
             }
 
@@ -104,7 +99,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
                 await metadata
                     // Allow requiring stuff from its very own API
                     .execute((path: string) => [path in this.addonApis[metadata.id], this.addonApis[metadata.id][path]])
-                    .then(exports => {
+                    .then((exports) => {
                         metadata.exports = exports;
                         // One-time `init` function
                         AddonHandler._functionExists(metadata, "init") && metadata.exports.init();
@@ -118,13 +113,8 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
                             delete metadata._error;
                         } else throw new Error("An addon must export load function");
                     })
-                    .catch(
-                        e => (
-                            (metadata._error = e),
-                            console.error(`Error while getting exports of addon by ID '${metadata.id}':`, e)
-                        )
-                    );
-            } else handleErrorsOf<any>(metadata.exports.load, e => (metadata._error = e));
+                    .catch((e) => ((metadata._error = e), console.error(`Error while getting exports of addon by ID '${metadata.id}':`, e)));
+            } else handleErrorsOf<any>(metadata.exports.load, (e) => (metadata._error = e));
         } catch (e) {
             console.error(`Failed to load addon by ID '${metadata.id}':\n`, e);
         }
@@ -174,7 +164,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
      * @param permissions The permission to set for the addon
      */
     async setPermissions(addonId: string, permissions: AddonPermission) {
-        const addon = this.all.find(addon => addon.id == addonId);
+        const addon = this.all.find((addon) => addon.id == addonId);
 
         if (addon) {
             this.settings.permissions[addonId] = permissions;

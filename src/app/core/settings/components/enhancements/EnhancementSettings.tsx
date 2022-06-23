@@ -17,7 +17,7 @@ type AnyEnhancementHandler = EnhancementHandler<AnyEnhancement, RGEnhancementCon
 
 @savableSettings
 @defaultContextProvider
-export default class EnhancementSettings extends React.Component<PagedSettingsChildProps, { dirname: string, all: object[] }> {
+export default class EnhancementSettings extends React.Component<PagedSettingsChildProps, { dirname: string; all: object[] }> {
     protected name: string;
     protected type: string;
     protected ItemTemplate: any; // TODO: Change this to typeof EnhancementItem child
@@ -27,13 +27,27 @@ export default class EnhancementSettings extends React.Component<PagedSettingsCh
         super(props, context);
     }
     render() {
-        const { name, type, ItemTemplate, enhancementHandler: { config }, props: { switchTab } } = this;
+        const {
+            name,
+            type,
+            ItemTemplate,
+            enhancementHandler: { config },
+            props: { switchTab }
+        } = this;
 
         return (
             <ErrorBoundary>
                 <div className="ReGuildedSettings-container">
-                    <GuildedText block type="heading3" className="SettingsHeaderWithButton-header ReGuildedSettings-header">{ name }</GuildedText>
-                    <HorizontalTabs type="compact" renderAllChildren={false} tabSpecs={{ TabOptions: [{ name: "Installed" }, { name: "Browse" }, { name: "Import" }] }}>
+                    <GuildedText block type="heading3" className="SettingsHeaderWithButton-header ReGuildedSettings-header">
+                        {name}
+                    </GuildedText>
+                    <HorizontalTabs
+                        type="compact"
+                        renderAllChildren={false}
+                        tabSpecs={{
+                            TabOptions: [{ name: "Installed" }, { name: "Browse" }, { name: "Import" }]
+                        }}
+                    >
                         {/* Installed */}
                         <ErrorBoundary>
                             <div className="ReGuildedEnhancements-wrapper ReGuildedEnhancements-tab-installed">
@@ -47,7 +61,14 @@ export default class EnhancementSettings extends React.Component<PagedSettingsCh
                         {/* Import */}
                         <div className="ReGuildedEnhancements-wrapper ReGuildedEnhancements-tab-import">
                             {/* onClick={config.openImportDialog} results in "An object cannot be cloned"... */}
-                            <NullState type="empty-search" title={"Import " + type} subtitle={"Import any " + type + " by selecting a folder with metadata.json file. Zips and archives are not supported at this time."} buttonText="Import" onClick={async () => await config.openImportPrompt()} alignment="center" />
+                            <NullState
+                                type="empty-search"
+                                title={"Import " + type}
+                                subtitle={"Import any " + type + " by selecting a folder with metadata.json file. Zips and archives are not supported at this time."}
+                                buttonText="Import"
+                                onClick={async () => await config.openImportPrompt()}
+                                alignment="center"
+                            />
                         </div>
                     </HorizontalTabs>
                 </div>

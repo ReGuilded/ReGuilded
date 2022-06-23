@@ -37,7 +37,7 @@ export class Registry<T extends { id: string }> {
      * @param itemId The identifier of the entry to remove
      */
     public remove(itemId: string) {
-        const index = this.all.findIndex(item => item.id == itemId);
+        const index = this.all.findIndex((item) => item.id == itemId);
 
         if (~index) {
             this.all.splice(index, 1);

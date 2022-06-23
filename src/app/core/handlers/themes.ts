@@ -1,8 +1,4 @@
-import {
-    ReGuildedEnhancementSettings,
-    ReGuildedSettings,
-    ReGuildedThemeSettings
-} from "../../../common/reguilded-settings.js";
+import { ReGuildedEnhancementSettings, ReGuildedSettings, ReGuildedThemeSettings } from "../../../common/reguilded-settings.js";
 import { RGThemeConfig } from "../../types/reguilded.js";
 import { Theme } from "../../../common/enhancements.js";
 import EnhancementHandler from "./enhancement.js";
@@ -25,12 +21,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
      * @param settingsHandler The enhancement settings handler
      * @param config The preload config for themes
      */
-    constructor(
-        parent: ReGuilded,
-        settings: ReGuildedThemeSettings,
-        settingsHandler: ConfigHandler<ReGuildedSettings>,
-        config: RGThemeConfig
-    ) {
+    constructor(parent: ReGuilded, settings: ReGuildedThemeSettings, settingsHandler: ConfigHandler<ReGuildedSettings>, config: RGThemeConfig) {
         super(parent, settings, settingsHandler, config);
     }
     /**
@@ -60,10 +51,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
 
         // Since we turned string into single-item array,
         // we don't need to check for both types
-        if (!Array.isArray(propFiles))
-            return console.error(
-                new TypeError(`Expected property 'files' to be either a string or an array. In path: ${metadata.dirname}`)
-            );
+        if (!Array.isArray(propFiles)) return console.error(new TypeError(`Expected property 'files' to be either a string or an array. In path: ${metadata.dirname}`));
 
         await super._watchCallbackBase(metadata, currentOrPreviousId);
     }
@@ -110,8 +98,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
                 // Using keys instead of values to validate id as well
                 for (let propId of metadata._settingsProps) {
                     // Validate ID
-                    if (!propId.match(EnhancementHandler.idRegex))
-                        return reject(`Incorrect syntax of the name of the property '${propId}'`);
+                    if (!propId.match(EnhancementHandler.idRegex)) return reject(`Incorrect syntax of the name of the property '${propId}'`);
 
                     const prop = metadata.settings[propId];
 
@@ -120,20 +107,17 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
                     if (!prop.name) prop.name = propId;
 
                     // Validate property's type (not JS type)
-                    if (!~ThemeHandler.allowedSettingsTypes.indexOf(prop.type))
-                        return reject(`Unknown settings property type ${prop.type}`);
+                    if (!~ThemeHandler.allowedSettingsTypes.indexOf(prop.type)) return reject(`Unknown settings property type ${prop.type}`);
 
                     // Check value's type
                     const valueType = typeof prop.value;
 
-                    if (!~ThemeHandler.allowedSettingsValues.indexOf(valueType))
-                        return reject(`Unknown settings property value type ${valueType}`);
+                    if (!~ThemeHandler.allowedSettingsValues.indexOf(valueType)) return reject(`Unknown settings property value type ${valueType}`);
 
                     if (Array.isArray(prop.options)) {
                         const selectedOption = prop.options[prop.value as number];
 
-                        if (!selectedOption)
-                            return reject(`Could not index settings[x].options item based on given settings[x].value`);
+                        if (!selectedOption) return reject(`Could not index settings[x].options item based on given settings[x].value`);
 
                         prop._optionValue = selectedOption.value;
                     } else if (prop.options != undefined) return reject(`Expected settings[x].options to be an array`);
@@ -146,7 +130,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
                         id: "ReGuildedStyleTheme-settings",
                         // #app { --a: b; --c: d }
                         innerHTML: `#app{${metadata._settingsProps
-                            .map(id => {
+                            .map((id) => {
                                 const prop = metadata.settings[id];
                                 const propValue = prop._optionValue || prop.value;
                                 // If it's of type url, wrap it in url(...)
@@ -158,7 +142,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
                     })
                 );
                 resolve();
-            }).catch(error => console.error("Failed to do settings of the theme by ID '%s':", metadata.id, error)),
+            }).catch((error) => console.error("Failed to do settings of the theme by ID '%s':", metadata.id, error)),
             // Extensions
             this.#doExtensions(metadata, group)
         ]);
@@ -186,7 +170,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
         // Update settings
         if (enabledExtensions[theme.id] && enabledExtensions[theme.id].includes(extensionId)) {
             // Remove all the matching IDs
-            enabledExtensions[theme.id] = enabledExtensions[theme.id].filter(otherId => otherId != extensionId);
+            enabledExtensions[theme.id] = enabledExtensions[theme.id].filter((otherId) => otherId != extensionId);
 
             await this.settingsHandler.save();
 
@@ -204,7 +188,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
         });
 
         // Add extension CSS
-        for (const extension of metadata.extensions.filter(x => enabledExtensions.includes(x.id)))
+        for (const extension of metadata.extensions.filter((x) => enabledExtensions.includes(x.id)))
             extensionGroup.appendChild(
                 Object.assign(document.createElement("style"), {
                     classList: `ReGuildedStyle-extension`,

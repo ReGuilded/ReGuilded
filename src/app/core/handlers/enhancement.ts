@@ -19,10 +19,8 @@ export default abstract class EnhancementHandler<
      * A Regex pattern for determining whether given enhancement's ID is correct.
      */
     static idRegex: RegExp = /^[A-Za-z0-9\-_.]+$/g;
-    static versionRegex =
-        /^(0|[1-9]\d*)(?:[.](0|[1-9]\d*))+(?:\-([Aa]lpha|[Bb]eta|[Gg]amma|[Rr]c)(?:[.]([1-9]\d*))?(?:[+][A-Za-z0-9-]*(?:[.][A-Za-z0-9-])*))?$/;
-    static repoRegex =
-        /^((?:https:\/\/)?(?:www\.)?(?<platform>github|gitlab)\.com\/(?<path>[A-Za-z0-9-]+\/[A-Za-z0-9-.]+))\/?$/;
+    static versionRegex = /^(0|[1-9]\d*)(?:[.](0|[1-9]\d*))+(?:\-([Aa]lpha|[Bb]eta|[Gg]amma|[Rr]c)(?:[.]([1-9]\d*))?(?:[+][A-Za-z0-9-]*(?:[.][A-Za-z0-9-])*))?$/;
+    static repoRegex = /^((?:https:\/\/)?(?:www\.)?(?<platform>github|gitlab)\.com\/(?<path>[A-Za-z0-9-]+\/[A-Za-z0-9-.]+))\/?$/;
 
     all: T[];
     config: C;
@@ -66,7 +64,7 @@ export default abstract class EnhancementHandler<
 
         // Load the ones that were too early and were added before watch callback was set
         await Promise.all(
-            this.config.getAll().map(enhancement => {
+            this.config.getAll().map((enhancement) => {
                 try {
                     this.checkEnhancement(enhancement);
 
@@ -76,7 +74,7 @@ export default abstract class EnhancementHandler<
                     return Promise.reject(e);
                 }
             })
-        ).catch(e => console.error("Error loading an enhancement:", e));
+        ).catch((e) => console.error("Error loading an enhancement:", e));
     }
     /**
      * Loads the given enhancement.
@@ -98,7 +96,7 @@ export default abstract class EnhancementHandler<
             .then(() => this.config.delete(enhancement.id))
             .then(
                 () => console.debug(`Deleted enhancement by ID '${enhancement.id}'`),
-                e => console.error(`Failed to delete enhancement by ID '${enhancement.id}':\n`, e)
+                (e) => console.error(`Failed to delete enhancement by ID '${enhancement.id}':\n`, e)
             );
     }
 
@@ -107,7 +105,7 @@ export default abstract class EnhancementHandler<
      */
     loadAll(): void {
         for (let enhancementId of this.enabled) {
-            const enhancement = this.all.find(x => x.id == enhancementId);
+            const enhancement = this.all.find((x) => x.id == enhancementId);
 
             if (enhancement) this.load(enhancement);
         }
@@ -136,7 +134,7 @@ export default abstract class EnhancementHandler<
      */
     async savedUnload(enhancement: T): Promise<void> {
         this.unload(enhancement);
-        this.settings.enabled = this.settings.enabled.filter(extId => extId != enhancement.id);
+        this.settings.enabled = this.settings.enabled.filter((extId) => extId != enhancement.id);
         await this.settingsHandler.save();
     }
 
@@ -149,7 +147,7 @@ export default abstract class EnhancementHandler<
         if (~this.enabled.indexOf(metadata.id)) this.unload(metadata);
 
         this.all.splice(
-            this.all.findIndex(other => other.id == metadata.id),
+            this.all.findIndex((other) => other.id == metadata.id),
             1
         );
 
@@ -160,7 +158,7 @@ export default abstract class EnhancementHandler<
         this.checkEnhancement(metadata);
 
         // Update its metadata
-        const inAll = this.all.findIndex(other => other.id == currentOrPreviousId);
+        const inAll = this.all.findIndex((other) => other.id == currentOrPreviousId);
         if (~inAll) this.all.splice(inAll, 1);
 
         this.all.push(metadata);
@@ -180,31 +178,21 @@ export default abstract class EnhancementHandler<
         const { id, version, repoUrl, subtitle } = enhancement;
 
         // ID
-        if (!(typeof id == "string" && id.match(EnhancementHandler.idRegex)))
-            throw new Error(`Incorrect syntax of the property 'id'`);
+        if (!(typeof id == "string" && id.match(EnhancementHandler.idRegex))) throw new Error(`Incorrect syntax of the property 'id'`);
         // Version
         if (version && !(typeof version == "string" && this.versionFormatIsFine(enhancement, version))) {
-            console.warn(
-                `The property 'version' must be a number array with optionally last string or have "rolling" as a value — Enhancement by ID '%s'`,
-                enhancement.id
-            );
+            console.warn(`The property 'version' must be a number array with optionally last string or have "rolling" as a value — Enhancement by ID '%s'`, enhancement.id);
             enhancement.version = enhancement._versionMatches = null;
         }
         // Repo URL
         if (repoUrl && !(typeof repoUrl == "string" && this.repoFormatIsFine(enhancement, repoUrl))) {
-            console.warn(
-                `The property 'version' must be a string that contains URL to the repository of the enhancement — Enhancement by ID '%s'`,
-                enhancement.id
-            );
+            console.warn(`The property 'version' must be a string that contains URL to the repository of the enhancement — Enhancement by ID '%s'`, enhancement.id);
             enhancement.repoUrl = null;
         }
         // Short description; README can be weirdly cut
         if (subtitle) {
             if (typeof subtitle != "string")
-                console.warn(
-                    `The property 'shortDescription' must be a one-line string with maximum of 200 characters — Enhancement by ID '%s'`,
-                    enhancement.id
-                );
+                console.warn(`The property 'shortDescription' must be a one-line string with maximum of 200 characters — Enhancement by ID '%s'`, enhancement.id);
             // One line only and 200 characters max
             else {
                 const firstLine = subtitle.split("\n", 1)[0];
@@ -235,7 +223,10 @@ export default abstract class EnhancementHandler<
 
         return (
             repoMatch &&
-            ((enhancement._repoInfo = repoMatch.groups as { platform: string; path: string }),
+            ((enhancement._repoInfo = repoMatch.groups as {
+                platform: string;
+                path: string;
+            }),
             // Trim `/`
             (enhancement.repoUrl = repoMatch[1]))
         );
@@ -248,10 +239,8 @@ export default abstract class EnhancementHandler<
      * @param path Path to the JSON where property is.
      */
     static checkProperty(name: string, value: any, types: [string | Function], path: string) {
-        if (types.includes(typeof value) && types.some(x => x instanceof Function && value instanceof x))
-            throw new TypeError(
-                `Expected '${name}' to be [${types.join(", ")}], found ${typeof value} instead in ${path}`
-            );
+        if (types.includes(typeof value) && types.some((x) => x instanceof Function && value instanceof x))
+            throw new TypeError(`Expected '${name}' to be [${types.join(", ")}], found ${typeof value} instead in ${path}`);
     }
 }
 export class EnhancementEvent<T extends AnyEnhancement> extends Event {

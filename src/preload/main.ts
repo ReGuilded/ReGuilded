@@ -16,11 +16,7 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
     themeManager = new ThemeManager(join(settingsPath, "themes"));
 
 (async () => {
-    const reGuildedConfigAndSettings = async ([settings, cspWhitelist, state]: [
-        ReGuildedSettings,
-        ReGuildedWhitelist,
-        ReGuildedState
-    ]) => {
+    const reGuildedConfigAndSettings = async ([settings, cspWhitelist, state]: [ReGuildedSettings, ReGuildedWhitelist, ReGuildedState]) => {
         const settingsManager = new SettingsManager(settingsPath, [settings, cspWhitelist]);
         const stateManager = new ConfigManager(settingsPath, "state.json", state || {});
 
@@ -31,38 +27,32 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
                 return customCSPWhitelist;
             },
             add: (sites: string[], sources = ["all"]) => {
-                if (!Array.isArray(sites) || (sources && !Array.isArray(sources)))
-                    return console.error(new Error("Sites and/or sources must be an array!"));
+                if (!Array.isArray(sites) || (sources && !Array.isArray(sources))) return console.error(new Error("Sites and/or sources must be an array!"));
 
                 if (!sites) return console.error(new Error("At least one site must be specified!"));
 
                 sources.forEach((source: string) => {
-                    sites.forEach(site => {
+                    sites.forEach((site) => {
                         customCSPWhitelist[source].push(site);
                     });
                 });
                 saveChanges();
             },
             remove: (sites: string[], sources: string[]) => {
-                if (!Array.isArray(sites) || (sources && !Array.isArray(sources)))
-                    return console.error(new Error("Sites and/or sources must be an array!"));
+                if (!Array.isArray(sites) || (sources && !Array.isArray(sources))) return console.error(new Error("Sites and/or sources must be an array!"));
 
                 if (!sites) return console.error(new Error("At least one site must be specified!"));
 
                 if (sources) {
                     sources.forEach((source: string) => {
-                        sites.forEach(site => {
-                            customCSPWhitelist[source] = customCSPWhitelist[source].filter(
-                                (entry: string) => entry !== site
-                            );
+                        sites.forEach((site) => {
+                            customCSPWhitelist[source] = customCSPWhitelist[source].filter((entry: string) => entry !== site);
                         });
                     });
                 } else {
                     for (const source in customCSPWhitelist) {
-                        sites.forEach(site => {
-                            customCSPWhitelist[source] = customCSPWhitelist[source].filter(
-                                (entry: string) => entry !== site
-                            );
+                        sites.forEach((site) => {
+                            customCSPWhitelist[source] = customCSPWhitelist[source].filter((entry: string) => entry !== site);
                         });
                     }
                 }
@@ -101,9 +91,7 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
              */
             async doUpdateIfPossible(): Promise<boolean> {
                 // If its info was already fetched, don't refetch it
-                return await (window.updateExists != undefined
-                    ? doUpdate([window.updateExists, window.latestVersionInfo])
-                    : checkForUpdate().then(doUpdate));
+                return await (window.updateExists != undefined ? doUpdate([window.updateExists, window.latestVersionInfo]) : checkForUpdate().then(doUpdate));
             },
             // Anything else does not need to be exposed
             openItem(path: string): void {
@@ -134,10 +122,10 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
 
                             await fsPromises
                                 .readFile(join(__dirname, "reguilded.settings.js"), "utf8")
-                                .then(file => webFrame.executeJavaScript(`(System => {${file}})`))
-                                .then(fn => fn(settingsSys))
+                                .then((file) => webFrame.executeJavaScript(`(System => {${file}})`))
+                                .then((fn) => fn(settingsSys))
                                 .then(() => resolve(settingsExports))
-                                .catch(rejection => reject(rejection));
+                                .catch((rejection) => reject(rejection));
                         })
                 },
                 {},
@@ -146,9 +134,9 @@ const addonManager = new AddonManager(join(settingsPath, "addons")),
 
             await fsPromises
                 .readFile(join(__dirname, "reguilded.main.js"), "utf8")
-                .then(file => webFrame.executeJavaScript(`(System => {${file}})`))
-                .then(fn => fn(mainSys))
-                .catch(rejection => {
+                .then((file) => webFrame.executeJavaScript(`(System => {${file}})`))
+                .then((fn) => fn(mainSys))
+                .catch((rejection) => {
                     throw rejection;
                 });
         })

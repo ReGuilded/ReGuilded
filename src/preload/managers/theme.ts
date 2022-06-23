@@ -26,7 +26,7 @@ export default class ThemeManager extends EnhancementManager<Theme> {
         for (let prop in props) metadata.settings[prop].value = props[prop];
 
         // Write file and let the watcher update the theme
-        writeFile(join(metadata.dirname, "settings.json"), JSON.stringify(metadata.settings), e => {
+        writeFile(join(metadata.dirname, "settings.json"), JSON.stringify(metadata.settings), (e) => {
             if (e) console.error(e);
         });
     }
@@ -37,9 +37,9 @@ export default class ThemeManager extends EnhancementManager<Theme> {
 
         await Promise.all([
             // CSS files
-            Promise.all(files.map(file => fetchCss(themesDirname, file)))
-                .then(styleSheets => (metadata.css = styleSheets))
-                .catch(e => console.error("Failed to get CSS file:", e)),
+            Promise.all(files.map((file) => fetchCss(themesDirname, file)))
+                .then((styleSheets) => (metadata.css = styleSheets))
+                .catch((e) => console.error("Failed to get CSS file:", e)),
             // Extension CSS files
             new Promise<void>(async (resolve, reject) => {
                 const { extensions } = metadata;
@@ -49,35 +49,31 @@ export default class ThemeManager extends EnhancementManager<Theme> {
                 else if (Array.isArray(extensions)) {
                     for (const extension of metadata.extensions) {
                         // Ensure types
-                        if (typeof extension != "object")
-                            return reject(new TypeError(`Expected all items in metadata.extensions array to be objects`));
-                        else if (typeof extension.file != "string")
-                            return reject(new TypeError(`Expected metadata.extensions[i].file to be a string`));
+                        if (typeof extension != "object") return reject(new TypeError(`Expected all items in metadata.extensions array to be objects`));
+                        else if (typeof extension.file != "string") return reject(new TypeError(`Expected metadata.extensions[i].file to be a string`));
 
                         await fetchCss(themesDirname, extension.file)
-                            .then(content => void (extension.css = content))
+                            .then((content) => void (extension.css = content))
                             .then(resolve);
                     }
                 } else reject(new TypeError(`Expected to have metadata.extensions as an array or undefined`));
-            }).catch(e => {
+            }).catch((e) => {
                 console.error("Error while fetching extensions of theme by ID '%s':\n", metadata.id, e);
                 metadata.extensions = null;
             }),
             // Settings file
             fsPromises
                 .readFile(join(themesDirname, "settings.json"), "utf8")
-                .then(d => {
+                .then((d) => {
                     let settings = JSON.parse(d);
 
                     // Validate settings
-                    if (typeof settings != "object")
-                        throw new TypeError(`Expected to have object at the root of settings.json`);
+                    if (typeof settings != "object") throw new TypeError(`Expected to have object at the root of settings.json`);
 
                     metadata.settings = settings;
                 })
-                .catch(e => {
-                    if (e.code != "ENOENT")
-                        console.error("Error while fetching settings of theme by ID '%s':\n", metadata.id, e);
+                .catch((e) => {
+                    if (e.code != "ENOENT") console.error("Error while fetching settings of theme by ID '%s':\n", metadata.id, e);
                 })
         ]);
     }

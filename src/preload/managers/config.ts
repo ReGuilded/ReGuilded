@@ -45,7 +45,7 @@ export default class ConfigManager<T extends {}> implements BaseManager<ReGuilde
             // To save it to JSON and hand out the given properties
             this.save().then(
                 () => resolve(this.config),
-                e => reject(e)
+                (e) => reject(e)
             );
         });
     }

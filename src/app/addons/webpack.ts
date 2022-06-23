@@ -54,7 +54,7 @@ export default class WebpackManager {
      * @returns Webpack Module Exports
      */
     allWithFilter(fn: (mod: WebpackExports) => boolean): (any | void)[] {
-        return this._webpackExportList.filter(fn).map(x => x.exports);
+        return this._webpackExportList.filter(fn).map((x) => x.exports);
     }
     /**
      * Matches and returns the module that was found using filter.
@@ -70,7 +70,7 @@ export default class WebpackManager {
      * @returns Found function
      */
     withCode(code: string): Function | { default: Function } | void {
-        return this.withFilter(x => {
+        return this.withFilter((x) => {
             const { default: fn } = this.asEsModule(x.exports);
 
             // Checks if it is a function and has part of the code
@@ -83,16 +83,11 @@ export default class WebpackManager {
      * @returns Found component
      */
     withComponentCode(code: string): Function | { default: Function } | void {
-        return this.withFilter(x => {
+        return this.withFilter((x) => {
             const { default: fn } = this.asEsModule(x.exports);
 
             // Checks if it is a function and has part of the code
-            return (
-                typeof fn === "function" &&
-                fn.prototype &&
-                "render" in fn.prototype &&
-                fn.prototype.render.toString().includes(code)
-            );
+            return typeof fn === "function" && fn.prototype && "render" in fn.prototype && fn.prototype.render.toString().includes(code);
         });
     }
     /**
@@ -101,7 +96,7 @@ export default class WebpackManager {
      * @returns Webpack Module Exports
      */
     allWithProperty(name: string): (object | Function | typeof Object | { default: object | Function | typeof Object })[] {
-        return this.allWithFilter(x => {
+        return this.allWithFilter((x) => {
             const { default: obj, ...rest } = this.asEsModule(x.exports);
 
             // Returns whether it contains that property
@@ -114,7 +109,7 @@ export default class WebpackManager {
      * @returns Webpack Module Exports
      */
     withProperty(name: string): object | Function | typeof Object | { default: object | Function | typeof Object } | void {
-        return this.withFilter(x => {
+        return this.withFilter((x) => {
             const { default: obj, ...rest } = this.asEsModule(x.exports);
 
             // Returns whether it contains that property
@@ -127,7 +122,7 @@ export default class WebpackManager {
      * @returns Webpack Module Exports
      */
     withDeepProperty(...path: (string | number)[]): object | Function | void {
-        return this.withFilter(x => {
+        return this.withFilter((x) => {
             // Current object to look at
             let current = x.exports;
 
@@ -149,7 +144,7 @@ export default class WebpackManager {
      * @returns Webpack Module Exports
      */
     withClassProperty(name: string): typeof Object | { default: typeof Object } {
-        return this.withFilter(x => {
+        return this.withFilter((x) => {
             const { default: type } = this.asEsModule(x?.exports);
 
             return (
@@ -166,7 +161,7 @@ export default class WebpackManager {
      * @returns Webpack Module Exports
      */
     withClassProperties(names: string[]): typeof Object | { default: typeof Object } {
-        return this.withFilter(x => {
+        return this.withFilter((x) => {
             const { default: type } = this.asEsModule(x?.exports);
 
             if (typeof type != "function" || typeof type.prototype == "undefined") return false;
@@ -183,7 +178,7 @@ export default class WebpackManager {
      * @returns WebpackJsonp module
      */
     getPushedModule(id: number) {
-        return window.webpackJsonp.find(x => x[0][0] == id);
+        return window.webpackJsonp.find((x) => x[0][0] == id);
     }
     /**
      * Pushes a new module to webpackJsonp

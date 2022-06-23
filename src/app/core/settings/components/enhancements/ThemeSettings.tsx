@@ -6,7 +6,13 @@ export default class ThemeSettings extends EnhancementSettings {
     protected type = "theme";
     protected ItemTemplate = ThemeItem;
     constructor(props, context) {
-        super({ ...props, className: "ReGuildedSettingsWrapper-container-padded" }, context);
+        super(
+            {
+                ...props,
+                className: "ReGuildedSettingsWrapper-container-padded"
+            },
+            context
+        );
 
         this.enhancementHandler = window.ReGuilded.themes;
     }

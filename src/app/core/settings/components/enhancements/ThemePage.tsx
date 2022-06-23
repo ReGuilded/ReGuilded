@@ -19,9 +19,9 @@ const React = window.ReGuilded.getApiProperty("react"),
 //#endregion
 
 type Props = PagedSettingsChildProps & {
-    enhancement: Theme,
-    defaultTabIndex?: number
-}
+    enhancement: Theme;
+    defaultTabIndex?: number;
+};
 
 /**
  * The page of a theme in the settings.
@@ -69,12 +69,12 @@ export default class ThemePage extends React.Component<Props> {
                     onSaveChanges={this.SaveChanges}
                     // Tabs
                     tabOptions={this.tabs}
-                    defaultTabIndex={this.props.defaultTabIndex}>
-
-                    { this.renderTabs() }
+                    defaultTabIndex={this.props.defaultTabIndex}
+                >
+                    {this.renderTabs()}
                 </EnhancementPage>
             </ErrorBoundary>
-        )
+        );
     }
     /**
      * Renders theme's page sub-tabs.
@@ -84,80 +84,91 @@ export default class ThemePage extends React.Component<Props> {
         const { enhancement } = this.props;
 
         return [
-            enhancement.extensions &&
-            <div className="ReGuildedEnhancementPage-tab ReGuildedEnhancementPage-tab-grid">
-                { enhancement.extensions.map(extension =>
-                    <CardWrapper>
-                        <SimpleToggle label={extension.name} className="ReGuildedThemeExtension-toggle" />
-                        <GuildedText block type="subtext">{extension.description || "No description provided."}</GuildedText>
-                    </CardWrapper>
-                ) }
-            </div>,
+            enhancement.extensions && (
+                <div className="ReGuildedEnhancementPage-tab ReGuildedEnhancementPage-tab-grid">
+                    {enhancement.extensions.map((extension) => (
+                        <CardWrapper>
+                            <SimpleToggle label={extension.name} className="ReGuildedThemeExtension-toggle" />
+                            <GuildedText block type="subtext">
+                                {extension.description || "No description provided."}
+                            </GuildedText>
+                        </CardWrapper>
+                    ))}
+                </div>
+            ),
 
-            enhancement.settings &&
-            <div className="ReGuildedEnhancementPage-tab">
-                <Form onChange={this._handleOptionsChange} formSpecs={{
-                    header: "Settings",
-                    sectionStyle: "border-unpadded",
-                    sections: [
-                        {
-                            fieldSpecs: ThemePage.generateSettingsFields(enhancement.settings, enhancement._settingsProps)
-                        },
-                        {
-                            fieldSpecs: [
+            enhancement.settings && (
+                <div className="ReGuildedEnhancementPage-tab">
+                    <Form
+                        onChange={this._handleOptionsChange}
+                        formSpecs={{
+                            header: "Settings",
+                            sectionStyle: "border-unpadded",
+                            sections: [
                                 {
-                                    type: "Button",
+                                    fieldSpecs: ThemePage.generateSettingsFields(enhancement.settings, enhancement._settingsProps)
+                                },
+                                {
+                                    fieldSpecs: [
+                                        {
+                                            type: "Button",
 
-                                    buttonText: "Save",
+                                            buttonText: "Save",
 
-                                    onClick: this._handleSaveChangesClick
+                                            onClick: this._handleSaveChangesClick
+                                        }
+                                    ]
                                 }
                             ]
-                        }
-                    ]
-                }}/>
-            </div>
+                        }}
+                    />
+                </div>
+            )
         ];
     }
     static generateSettingsFields(settings: ThemeSettings, settingsProps: string[]): FieldAnySpecs[] {
-        return settingsProps.map<FieldRadioSpecs | FieldTextSpecs>(prop => {
+        return settingsProps.map<FieldRadioSpecs | FieldTextSpecs>((prop) => {
             const { type, name, value, options } = settings[prop];
 
             return options
                 ? {
-                    type: "Radios",
-                    fieldName: prop,
+                      type: "Radios",
+                      fieldName: prop,
 
-                    label: name,
-                    defaultValue: { optionName: value as number },
+                      label: name,
+                      defaultValue: { optionName: value as number },
 
-                    options: options.map((option, index) => ({
-                        optionName: index,
-                        label: option.name
-                    }))
-                }
+                      options: options.map((option, index) => ({
+                          optionName: index,
+                          label: option.name
+                      }))
+                  }
                 : {
-                    type: "Text",
-                    fieldName: prop,
+                      type: "Text",
+                      fieldName: prop,
 
-                    header: name,
-                    label: type ? `Value (${type})` : "Value",
-                    defaultValue: value as string,
+                      header: name,
+                      label: type ? `Value (${type})` : "Value",
+                      defaultValue: value as string,
 
-                    inputType: type == "number" ? type : undefined,
-                    validationFunction: validation[type],
+                      inputType: type == "number" ? type : undefined,
+                      validationFunction: validation[type],
 
-                    grow: 1
-                }
+                      grow: 1
+                  };
         });
     }
-    static fixFormValues(values: { [fieldName: string]: string | number | undefined | null | OptionRadioSpecs }, settings: ThemeSettings, settingsProps: string[]): { [name: string]: ThemeCssVariableType } {
+    static fixFormValues(
+        values: {
+            [fieldName: string]: string | number | undefined | null | OptionRadioSpecs;
+        },
+        settings: ThemeSettings,
+        settingsProps: string[]
+    ): { [name: string]: ThemeCssVariableType } {
         const valuesCopy = Object.assign({}, values);
 
-        for (let prop of settingsProps)
-            // Since .options forces to use radio
-            if (settings[prop].options)
-                valuesCopy[prop] = (values[prop] as OptionRadioSpecs).optionName as ThemeCssVariableType;
+        // Since .options forces to use radio
+        for (let prop of settingsProps) if (settings[prop].options) valuesCopy[prop] = (values[prop] as OptionRadioSpecs).optionName as ThemeCssVariableType;
 
         return valuesCopy as { [name: string]: ThemeCssVariableType };
     }
