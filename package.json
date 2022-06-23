@@ -10,8 +10,11 @@
         "build": "npm install && rollup -c rollup.config.js && node out/injector.main.js prepareAndPackResources",
         "watch": "rollup -c rollup.config.js -w",
         "inject": "npm run build && npm run injectbare",
-        "uninject": "npm run build && npm run uninjectbare",
-        "reinject": "npm run build && npm run uninjectbare && npm run injectbare"
+        "uninject": "npm run clean && npm run build && npm run uninjectbare",
+        "reinject": "npm run clean && npm run build && npm run uninjectbare && npm run injectbare",
+        "clean": "npm run prettify && npm run lint",
+        "lint": "eslint .",
+        "prettify": "prettier --write ."
     },
     "repository": {
         "type": "git",
