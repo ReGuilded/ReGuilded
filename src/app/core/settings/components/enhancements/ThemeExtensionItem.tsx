@@ -14,7 +14,7 @@ type Props = {
 const themeManager = window.ReGuilded.themes;
 
 export default class ThemeExtensionItem extends React.Component<Props> {
-    private hasToggled: boolean = false;
+    private hasToggled = false;
     private _onToggleBinded: (enabled: boolean) => Promise<void>;
 
     constructor(props: Props) {

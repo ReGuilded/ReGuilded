@@ -5,7 +5,7 @@ import { FormOutput, FormSpecs } from "./form";
 /**
  * Defines a type mixin that adds additional properties.
  */
-export type TypeMixin<P extends {}> = <T>(constructor: T) => T;
+export type TypeMixin<P> = <T>(constructor: T) => T;
 
 // export type TypeMixin<P extends {}> = <I, A extends Array<any>, T extends new (args: A) => I>(
 //     constructor: T

@@ -1,6 +1,6 @@
 import { types as badgeTypes, injectBadge, uninjectBadge, createFlairFromBadge } from "./badges-flairs";
 import { ReGuildedSettings, ReGuildedState } from "../../common/reguilded-settings";
-import { AddonApiExports } from "../addons/addonApi.types";
+import { AddonApiExports } from "../addons/addonApi.exports";
 import { WebpackRequire } from "../types/webpack";
 import WebpackHandler from "../addons/webpack";
 import { UserFlair } from "../guilded/models";
@@ -45,7 +45,7 @@ export default class ReGuilded {
      * @param webpackRequire A function that gets Guilded modules.
      */
     async init(webpackRequire: WebpackRequire) {
-        return new Promise<void[]>(async (resolve, reject) => {
+        return new Promise<void[]>((resolve) => {
             this.webpack = new WebpackHandler(webpackRequire);
 
             // For add-on and theme CSS
@@ -74,7 +74,7 @@ export default class ReGuilded {
 
             this.addons.webpack = this.webpack;
 
-            await Promise.all([this.addons.init(), this.themes.init()]).then(resolve).catch(reject);
+            resolve(Promise.all([this.addons.init(), this.themes.init()]));
         })
             .catch((e) => console.error("ReGuilded failed to initialize:", e))
             .then(

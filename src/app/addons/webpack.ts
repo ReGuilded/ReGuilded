@@ -1,3 +1,4 @@
+import { UnknownFunction } from "../types/util";
 import { WebpackBundle, WebpackRequire, WebpackModule, WebpackExports } from "../types/webpack";
 
 /**
@@ -10,7 +11,7 @@ export default class WebpackManager {
     };
     _webpackModules: WebpackModule[];
     _chunkBreadcrumb: RegExp;
-    asEsModule: (module: { default: any } | any) => { default: any };
+    asEsModule: (module: { default: unknown } | unknown) => { default: unknown };
     _webpackExportList: WebpackExports[];
     /**
      * The manager that deals with Webpack-related things, especially modules.
@@ -26,11 +27,11 @@ export default class WebpackManager {
         this._webpackExportList = Object.values(this._webpackExports);
         // Patch WebpackJsonp's push to update export list
         window.webpackJsonp.push = (mod: WebpackBundle) => {
-            let n = window.webpackJsonp._push(mod);
+            const n = window.webpackJsonp._push(mod);
 
             // Wait for its exports to be a thing(that could still lead to undefined exports)
             setImmediate(() => {
-                for (let func of Object.keys(mod[1])) {
+                for (const func of Object.keys(mod[1])) {
                     const exports = this._webpackExports[func];
 
                     if (exports) this._webpackExportList.push(exports);
@@ -45,7 +46,7 @@ export default class WebpackManager {
      * @param id Gets module by the identifier
      * @returns Webpack Module Exports
      */
-    withId(id: number): any | void {
+    withId(id: number): unknown | void {
         return this.asEsModule(this._webpackRequire(id));
     }
     /**
@@ -53,7 +54,7 @@ export default class WebpackManager {
      * @param fn Function to filter modules.
      * @returns Webpack Module Exports
      */
-    allWithFilter(fn: (mod: WebpackExports) => boolean): (any | void)[] {
+    allWithFilter(fn: (mod: WebpackExports) => boolean): (unknown | void)[] {
         return this._webpackExportList.filter(fn).map((x) => x.exports);
     }
     /**
@@ -61,7 +62,7 @@ export default class WebpackManager {
      * @param fn Function to filter out modules.
      * @returns Webpack Module Exports
      */
-    withFilter(fn: (mod: WebpackExports) => boolean): any | void {
+    withFilter(fn: (mod: WebpackExports) => boolean): unknown | void {
         return this._webpackExportList.find(fn)?.exports;
     }
     /**
@@ -69,66 +70,66 @@ export default class WebpackManager {
      * @param code The part of code that function should contain.
      * @returns Found function
      */
-    withCode(code: string): Function | { default: Function } | void {
+    withCode(code: string): UnknownFunction | { default: UnknownFunction } | void {
         return this.withFilter((x) => {
             const { default: fn } = this.asEsModule(x.exports);
 
             // Checks if it is a function and has part of the code
             return typeof fn == "function" && fn.toString().includes(code);
-        });
+        }) as UnknownFunction | { default: UnknownFunction } | void;
     }
     /**
      * Matches and returns the module with the component that contains the given part of code.
      * @param code The part of code that component should contain.
      * @returns Found component
      */
-    withComponentCode(code: string): Function | { default: Function } | void {
+    withComponentCode(code: string): UnknownFunction | { default: UnknownFunction } | void {
         return this.withFilter((x) => {
             const { default: fn } = this.asEsModule(x.exports);
 
             // Checks if it is a function and has part of the code
             return typeof fn === "function" && fn.prototype && "render" in fn.prototype && fn.prototype.render.toString().includes(code);
-        });
+        }) as UnknownFunction | { default: UnknownFunction } | void;
     }
     /**
      * Matches and returns the module that contains a property with the given name.
      * @param name The name of the property
      * @returns Webpack Module Exports
      */
-    allWithProperty(name: string): (object | Function | typeof Object | { default: object | Function | typeof Object })[] {
+    allWithProperty(name: string): (object | UnknownFunction | typeof Object | { default: object | UnknownFunction | typeof Object })[] {
         return this.allWithFilter((x) => {
             const { default: obj, ...rest } = this.asEsModule(x.exports);
 
             // Returns whether it contains that property
             return obj && (obj[name] || rest[name]);
-        });
+        }) as (object | UnknownFunction | typeof Object | { default: object | UnknownFunction | typeof Object })[];
     }
     /**
      * Matches and returns the module that contains a property with the given name.
      * @param name The name of the property
      * @returns Webpack Module Exports
      */
-    withProperty(name: string): object | Function | typeof Object | { default: object | Function | typeof Object } | void {
+    withProperty(name: string): object | UnknownFunction | typeof Object | { default: object | UnknownFunction | typeof Object } | void {
         return this.withFilter((x) => {
             const { default: obj, ...rest } = this.asEsModule(x.exports);
 
             // Returns whether it contains that property
             return (obj && obj[name]) || rest[name];
-        });
+        }) as object | UnknownFunction | typeof Object | { default: object | UnknownFunction | typeof Object } | void;
     }
     /**
      * Matches and returns module with property found in the given path.
      * @param path The path of the property
      * @returns Webpack Module Exports
      */
-    withDeepProperty(...path: (string | number)[]): object | Function | void {
+    withDeepProperty(...path: (string | number)[]): object | UnknownFunction | void {
         return this.withFilter((x) => {
             // Current object to look at
             let current = x.exports;
 
             if (!current) return false;
 
-            for (let name of path) {
+            for (const name of path) {
                 if (!current[name]) return false;
 
                 // Go deeper
@@ -136,7 +137,7 @@ export default class WebpackManager {
             }
             // Property in the path exists
             return true;
-        });
+        }) as object | UnknownFunction | void;
     }
     /**
      * Matches and returns the module containing a class with the given prototype property.
@@ -153,7 +154,7 @@ export default class WebpackManager {
                 type.prototype != null &&
                 name in type.prototype
             );
-        });
+        }) as typeof Object | { default: typeof Object };
     }
     /**
      * Matches and returns the module containing a class with all of the given prototype properties.
@@ -167,10 +168,10 @@ export default class WebpackManager {
             if (typeof type != "function" || typeof type.prototype == "undefined") return false;
 
             // It does not need to check other properties, because it will always be false
-            for (let name of names) if (!(name in type.prototype)) return false;
+            for (const name of names) if (!(name in type.prototype)) return false;
 
             return true;
-        });
+        }) as typeof Object | { default: typeof Object };
     }
     /**
      * Gets a module from WebpackJsonp.

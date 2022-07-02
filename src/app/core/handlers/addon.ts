@@ -114,7 +114,7 @@ export default class AddonHandler extends EnhancementHandler<Addon, RGAddonConfi
                         } else throw new Error("An addon must export load function");
                     })
                     .catch((e) => ((metadata._error = e), console.error(`Error while getting exports of addon by ID '${metadata.id}':`, e)));
-            } else handleErrorsOf<any>(metadata.exports.load, (e) => (metadata._error = e));
+            } else handleErrorsOf<string | Error>(metadata.exports.load, (e) => (metadata._error = e));
         } catch (e) {
             console.error(`Failed to load addon by ID '${metadata.id}':\n`, e);
         }

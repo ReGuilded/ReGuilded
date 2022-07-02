@@ -38,7 +38,7 @@ const versionSorter = (a: AnyEnhancement, b: AnyEnhancement) => {
 
     if (onlyOneExists) return onlyOneExists;
     else {
-        for (let i in aVersion) {
+        for (const i in aVersion) {
             const numSorting = (bVersion[i] as unknown as number) - (aVersion[i] as unknown as number);
 
             if (numSorting) return numSorting;
@@ -64,7 +64,7 @@ export class EnhancementGrid<
         type: string;
         enhancementHandler: EnhancementHandler<T, C, S>;
         ItemTemplate: typeof React.Component;
-        switchTab: Function;
+        switchTab: SwitchTab;
     },
     { searchInput?: string; filteredItems?: T[]; sort: number }
 > {
@@ -72,7 +72,7 @@ export class EnhancementGrid<
     private _searchNullSubtitle: string;
     private _nothingSubtitle: string;
     private _onSearchBinded: (input: string) => Promise<void>;
-    constructor(props, context?: any) {
+    constructor(props, context?: unknown) {
         super(props, context);
 
         this.state = { sort: 0 };

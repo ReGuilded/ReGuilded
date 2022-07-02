@@ -4,7 +4,7 @@
  * @param errorHandler The function to handle errors with
  * @returns The return value of the function
  */
-export function handleErrorsOf<T>(fn: () => Promise<T> | T, errorHandler: (error: Error | any) => void): T | Promise<T> {
+export function handleErrorsOf<T>(fn: () => Promise<T> | T, errorHandler: (error: Error | unknown) => void): T | Promise<T> {
     try {
         const value = fn;
 

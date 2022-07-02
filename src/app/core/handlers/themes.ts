@@ -1,4 +1,4 @@
-import { ReGuildedEnhancementSettings, ReGuildedSettings, ReGuildedThemeSettings } from "../../../common/reguilded-settings.js";
+import { ReGuildedSettings, ReGuildedThemeSettings } from "../../../common/reguilded-settings.js";
 import { RGThemeConfig } from "../../types/reguilded.js";
 import { Theme } from "../../../common/enhancements.js";
 import EnhancementHandler from "./enhancement.js";
@@ -73,7 +73,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
 
         this.checkAndDoSettings(metadata, group);
 
-        for (let css of metadata.css)
+        for (const css of metadata.css)
             group.appendChild(
                 Object.assign(document.createElement("style"), {
                     classList: "ReGuildedStyleTheme-css",
@@ -96,7 +96,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
                 if (!metadata.settings) return resolve();
 
                 // Using keys instead of values to validate id as well
-                for (let propId of metadata._settingsProps) {
+                for (const propId of metadata._settingsProps) {
                     // Validate ID
                     if (!propId.match(EnhancementHandler.idRegex)) return reject(`Incorrect syntax of the name of the property '${propId}'`);
 
@@ -179,8 +179,10 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
     }
 
     async #doExtensions(metadata: Theme, group: Element) {
+        console.log("Settings enabled exts", this.settings.enabledExtensions);
         const enabledExtensions = this.settings.enabledExtensions[metadata.id];
 
+        console.log("Metadata", metadata.extensions);
         if (!metadata.extensions || enabledExtensions?.length) return;
 
         const extensionGroup = Object.assign(document.createElement("datagroup"), {

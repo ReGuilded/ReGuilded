@@ -4,6 +4,7 @@ import { RGEnhancementConfig } from "../../types/reguilded";
 import ReGuilded from "../ReGuilded";
 import { AbstractEventTarget } from "./eventTarget";
 import ConfigHandler from "./config";
+import { UnknownFunction } from "../../types/util";
 
 export type AnyEnhancementHandler = EnhancementHandler<AnyEnhancement, RGEnhancementConfig<AnyEnhancement>>;
 
@@ -18,8 +19,8 @@ export default abstract class EnhancementHandler<
     /**
      * A Regex pattern for determining whether given enhancement's ID is correct.
      */
-    static idRegex: RegExp = /^[A-Za-z0-9\-_.]+$/g;
-    static versionRegex = /^(0|[1-9]\d*)(?:[.](0|[1-9]\d*))+(?:\-([Aa]lpha|[Bb]eta|[Gg]amma|[Rr]c)(?:[.]([1-9]\d*))?(?:[+][A-Za-z0-9-]*(?:[.][A-Za-z0-9-])*))?$/;
+    static idRegex = /^[A-Za-z0-9\-_.]+$/g;
+    static versionRegex = /^(0|[1-9]\d*)(?:[.](0|[1-9]\d*))+(?:-([Aa]lpha|[Bb]eta|[Gg]amma|[Rr]c)(?:[.]([1-9]\d*))?(?:[+][A-Za-z0-9-]*(?:[.][A-Za-z0-9-])*))?$/;
     static repoRegex = /^((?:https:\/\/)?(?:www\.)?(?<platform>github|gitlab)\.com\/(?<path>[A-Za-z0-9-]+\/[A-Za-z0-9-.]+))\/?$/;
 
     all: T[];
@@ -104,7 +105,7 @@ export default abstract class EnhancementHandler<
      * Loads all ReGuilded enhancements onto Guilded.
      */
     loadAll(): void {
-        for (let enhancementId of this.enabled) {
+        for (const enhancementId of this.enabled) {
             const enhancement = this.all.find((x) => x.id == enhancementId);
 
             if (enhancement) this.load(enhancement);
@@ -124,7 +125,7 @@ export default abstract class EnhancementHandler<
      */
     unloadAll(): void {
         // Unload all existing enhancements
-        for (let enhancement of this.all) {
+        for (const enhancement of this.all) {
             if (~this.enabled.indexOf(enhancement.id)) this.unload(enhancement);
         }
     }
@@ -238,7 +239,7 @@ export default abstract class EnhancementHandler<
      * @param types Expected types of the property.
      * @param path Path to the JSON where property is.
      */
-    static checkProperty(name: string, value: any, types: [string | Function], path: string) {
+    static checkProperty(name: string, value: unknown, types: [string | UnknownFunction], path: string) {
         if (types.includes(typeof value) && types.some((x) => x instanceof Function && value instanceof x))
             throw new TypeError(`Expected '${name}' to be [${types.join(", ")}], found ${typeof value} instead in ${path}`);
     }

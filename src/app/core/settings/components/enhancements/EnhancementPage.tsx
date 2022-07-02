@@ -9,10 +9,10 @@ import { ReactNode } from "react";
 import { FormOutput } from "../../../../guilded/form";
 import { BannerWithButton } from "../../../../guilded/components/content";
 import { TabOption } from "../../../../guilded/components/sections";
-import { MenuSpecs } from "../../../../guilded/menu";
 import { handleToggle } from "./EnhancementItem";
 import { InlineCode } from "../../util";
 import { UserInfo } from "../../../../guilded/models";
+import { SwitchTab } from "../PagedSettings";
 
 const React = window.ReGuilded.getApiProperty("react"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
@@ -39,7 +39,7 @@ type Props<T extends AnyEnhancement> = {
     enhancement: T;
 
     onSaveChanges: (formOutput: FormOutput) => PromiseLike<unknown> | Iterable<PromiseLike<unknown>> | unknown;
-    switchTab: Function;
+    switchTab: SwitchTab;
 
     tabOptions: TabOption[];
 
@@ -61,11 +61,11 @@ export default abstract class EnhancementPage<T extends AnyEnhancement> extends 
     // From decorators
     protected DeleteConfirmationOverlay: ProvidedOverlay<"DeleteConfirmationOverlay">;
 
-    private hasToggled: boolean = false;
+    private hasToggled = false;
 
     private static defaultTabs: TabOption[] = [{ name: "Overview" }];
 
-    constructor(props: Props<T>, context?: any) {
+    constructor(props: Props<T>, context?: unknown) {
         super(props, context);
 
         const enabled = this.props.enhancementHandler.enabled.includes(this.props.enhancement.id);
@@ -241,7 +241,7 @@ type EnhancementInfoProps = {
  * Displays information about the enhancement.
  */
 export class EnhancementInfo extends React.Component<EnhancementInfoProps, { author?: UserInfo }> {
-    constructor(props: EnhancementInfoProps, context?: any) {
+    constructor(props: EnhancementInfoProps, context?: unknown) {
         super(props, context);
 
         this.state = {};
@@ -250,14 +250,14 @@ export class EnhancementInfo extends React.Component<EnhancementInfoProps, { aut
         // TODO: Once multiple users can be fetched, add contributors
         if (this.props.expanded) await EnhancementInfo.fetchAuthor(this, this.props.enhancement);
     }
-    static async fetchAuthor<T extends { author?: UserInfo }>(self: React.Component<any, T>, enhancement: AnyEnhancement) {
+    static async fetchAuthor<P, T extends { author?: UserInfo }>(self: React.Component<P, T>, enhancement: AnyEnhancement) {
         const { author } = enhancement;
 
         if (author && window.ReGuilded.settingsHandler.config.loadAuthors)
             await restMethods
                 .getUserById(author)
                 .then(({ user }) => self.setState({ author: user }))
-                .catch(() => {});
+                .catch(() => undefined);
     }
     render() {
         const { expanded, enhancement, children, infoLabelClassName } = this.props;

@@ -1,4 +1,4 @@
-export declare interface Enhancement<T, S extends {}> {
+export declare interface Enhancement<T, S> {
     id: string;
     name: string;
     files: T;
@@ -65,17 +65,17 @@ export declare interface ThemeExtension {
 }
 
 export type AddonExports = {
-    load: () => any;
-    init?: () => any;
-    unload?: () => any;
-    [otherExport: string]: any;
+    load: () => unknown;
+    init?: () => unknown;
+    unload?: () => unknown;
+    [otherExport: string]: unknown;
 };
-export declare interface Addon extends Enhancement<string, {}> {
+export declare interface Addon extends Enhancement<string, unknown> {
     requiredPermissions: number;
-    execute: (importable: (path: string) => [boolean, any?]) => Promise<AddonExports>;
+    execute: (importable: (path: string) => [boolean, unknown?]) => Promise<AddonExports>;
     exports?: AddonExports;
 
     _error?: Error | string;
     _missingPerms?: number;
 }
-export type AnyEnhancement = Enhancement<any, any>;
+export type AnyEnhancement = Enhancement<unknown, unknown>;

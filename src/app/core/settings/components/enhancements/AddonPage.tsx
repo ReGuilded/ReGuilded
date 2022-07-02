@@ -29,14 +29,14 @@ type Props = PagedSettingsChildProps & {
 @savableSettings
 @defaultContextProvider
 export default class AddonPage extends React.Component<Props> {
-    protected SaveChanges: (...args: any[]) => any;
+    protected SaveChanges: (...args: unknown[]) => unknown;
     protected Save: () => Promise<void>;
-    protected _handleOptionsChange: (...args: any[]) => void;
+    protected _handleOptionsChange: (...args: unknown[]) => void;
     protected _handleSaveChangesClick: () => Promise<void>;
 
     _SaveBinded: () => Promise<void>;
 
-    constructor(props: Props, context?: any) {
+    constructor(props: Props, context?: unknown) {
         super(props, context);
 
         this.SaveChanges = coroutine(this.onSaveChanges);
@@ -48,9 +48,11 @@ export default class AddonPage extends React.Component<Props> {
     }: FormOutput<{
         permissions: Array<{ optionName: number; value: boolean }>;
     }>) {
+        if (!isValid) return;
+
         const givenPermissions = permissions.map((x) => x.value && x.optionName).reduce((a, b) => a | b);
 
-        window.ReGuilded.addons.setPermissions(this.props.enhancement.id, givenPermissions);
+        yield window.ReGuilded.addons.setPermissions(this.props.enhancement.id, givenPermissions);
     }
     render() {
         return (
@@ -190,7 +192,7 @@ export default class AddonPage extends React.Component<Props> {
                         />
                     </>
                 ) : (
-                    <NullState type="nothing-here" title="No permission to set" subtitle="This addon does not require any permissions." />
+                    <NullState type="nothing-here" title="No permission to set" subtitle="This addon does not require unknown permissions." />
                 )}
             </div>
         );

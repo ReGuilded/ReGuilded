@@ -1,23 +1,23 @@
 import { getReactInstance, patchElementRenderer, waitForElement } from "./lib";
 import AddonHandler from "../core/handlers/addon";
-import { AddonApiExports } from "./addonApi.types";
+import { AddonApiExports } from "./addonApi.exports";
 import { MenuSectionSpecs } from "../guilded/menu";
 import { EditorPlugin } from "../guilded/slate";
 import WebpackManager from "./webpack";
 import { createRegistry, Registry } from "./registry";
-import React from "react";
 import { AnyComponent } from "../guilded/common";
 import { CalloutBadgeProps } from "../guilded/components/content";
 import { SettingsTab } from "../guilded/components/modals";
 import { Addon } from "../../common/enhancements";
 import { AddonPermission } from "./addonPermission";
+import { AddonInfo, ModalUtil, SlateUtil } from "./addonApi.types";
 
 // Provides API for addons to interact with Guilded.
 // TODO: Better documentation and probably TS declaration files.
 
 // I wanted to do a Proxy, but I don't want it to be slower.
 
-const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
+const cacheFns: { [method: string]: (webpack: WebpackManager) => unknown } = {
     // React
     react: (webpack) => webpack.withProperty("createElement"),
     "react-dom": (webpack) => webpack.withProperty("createPortal"),
@@ -83,7 +83,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/overlays/portal": (webpack) => webpack.withProperty("Portals"),
     "guilded/overlays/OverlayStack": (webpack) => webpack.withProperty("addPortal"),
     "guilded/overlays/overlayProvider": (webpack) => webpack.withCode("OverlayProvider"),
-    transientMenuPortal: (_) => getReactInstance(document.querySelector(".TransientMenuPortalContext-portal-container")),
+    transientMenuPortal: () => getReactInstance(document.querySelector(".TransientMenuPortalContext-portal-container")),
 
     // Context
     "guilded/context/layerContext": (webpack) => webpack.allWithProperty("object")[1],
@@ -149,7 +149,7 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
 
 export default class AddonApi {
     // Values cached from getters
-    static _cached: { [prop: string]: any } = {};
+    static _cached: { [prop: string]: unknown } = {};
     // Don't fetch the module 100 times if the module is undefined
     static _cachedList: string[] = [];
     // Make it break less
@@ -176,11 +176,10 @@ export default class AddonApi {
      *
      * This makes sure that addon does not reference the identifier of another addon's settings to destroy it.
      */
-    #addonLastItemIndex: number = 0;
+    #addonLastItemIndex = 0;
 
-    #reguildedSlateUtil: {};
-    #reguildedModalUtil: {};
-    #reguildedAddonInfo: {};
+    #reguildedSlateUtil: SlateUtil;
+    #reguildedModalUtil: ModalUtil;
     #addonBadgeProps: CalloutBadgeProps;
 
     // If addon needs it
@@ -203,7 +202,7 @@ export default class AddonApi {
         this.#reguildedSlateUtil = {
             defaultInsertPlugins: { media: 0, form: 1 },
             addInsertPlugin: (plugin: EditorPlugin) => this["guilded/editor/nodeInfos"].InsertPlugins.push(plugin),
-            removeInsertPlugin: (pluginIndex: number) => this["guilded/editor/nodeInfos"].InsertPlugins.splice(pluginIndex, 1),
+            removeInsertPlugin: (pluginIndex: number) => this["guilded/editor/nodeInfos"].InsertPlugins.splice(pluginIndex, 1)[0],
             addSlateSection: (section: MenuSectionSpecs) => {
                 const inserts = document.getElementsByClassName("SlateInsertToolbar-container");
 
@@ -261,10 +260,10 @@ export default class AddonApi {
     /**
      * Caches the value if it's not already cached and returns it.
      * @param name The name of cachable value
-     * @returns The cached value
+     * @returns {AddonApiExports<T>} The cached value
      */
-    #getCached(name: string): any {
-        return AddonApi.getApiCachedProperty(name, this.#webpackManager);
+    #getCached<T extends string>(name: T): AddonApiExports<T> {
+        return AddonApi.getApiCachedProperty<T>(name, this.#webpackManager);
     }
     /**
      * Caches the value if it's not already cached and returns it. Requires specified permissions.
@@ -272,8 +271,8 @@ export default class AddonApi {
      * @param name The name of cachable value
      * @returns The cached value
      */
-    #getCachedWithPermission(permissions: AddonPermission, name: string) {
-        if (this.#hasPermission(permissions)) return this.#getCached(name);
+    #getCachedWithPermission<T extends string>(permissions: AddonPermission, name: T) {
+        if (this.#hasPermission(permissions)) return this.#getCached<T>(name);
         else {
             this.#addon._missingPerms = permissions;
             throw new ReferenceError(`Insufficient permissions for the addon by ID '${this.#addonId}'`);
@@ -285,8 +284,8 @@ export default class AddonApi {
      * @param name The name of cachable value
      * @returns The cached value
      */
-    #getCachedWithAllPermissions(permissions: AddonPermission, name: string) {
-        if (this.#hasAllPermissions(permissions)) return this.#getCached(name);
+    #getCachedWithAllPermissions<T extends string>(permissions: AddonPermission, name: T) {
+        if (this.#hasAllPermissions(permissions)) return this.#getCached<T>(name);
         else {
             this.#addon._missingPerms = permissions;
             throw new ReferenceError(`Insufficient permissions for the addon by ID '${this.#addonId}'`);
@@ -308,7 +307,7 @@ export default class AddonApi {
     /**
      * Returns the information about the addon.
      */
-    get ["reguilded/me"]() {
+    get ["reguilded/me"](): AddonInfo {
         return {
             version: this.#addon.version,
             dirname: this.#addon.dirname,
@@ -738,7 +737,7 @@ export default class AddonApi {
      * Displays a tab for HorizontalTabs component.
      */
     get ["guilded/components/HorizontalTab"](): AddonApiExports<"guilded/components/HorizontalTab"> {
-        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/HorizontalTabs");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/HorizontalTab");
     }
     /**
      * Displays a toggle with labels, styles and more.
@@ -869,19 +868,19 @@ export default class AddonApi {
      * Displays a text and a badge to the left of the badge. The badge is CalloutBadge and the text is GuildedText.
      */
     get ["guilded/components/CalloutBadgeWithText"](): AddonApiExports<"guilded/components/CalloutBadgeWithText"> {
-        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/component/WordDividerLine");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/CalloutBadgeWithText");
     }
     /**
      * Displays a line that separates content with a line and a text in the middle.
      */
     get ["guilded/components/WordDividerLine"](): AddonApiExports<"guilded/components/WordDividerLine"> {
-        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/component/WordDividerLine");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/WordDividerLine");
     }
     /**
      * Displays a header of a page at the top of the screen.
      */
     get ["guilded/components/ScreenHeader"](): AddonApiExports<"guilded/components/ScreenHeader"> {
-        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/component/ScreenHeader");
+        return this.#getCachedWithPermission(AddonPermission.Elements, "guilded/components/ScreenHeader");
     }
     /**
      * Displays a section in channel sidebar.
@@ -953,7 +952,7 @@ export default class AddonApi {
      * @param name The name of the cached value
      * @returns The cached value
      */
-    static uncache(name: string): any | void {
+    static uncache(name: string): string | void {
         const i = AddonApi._cachedList.indexOf(name);
 
         if (~i) return AddonApi._cachedList.splice(i, 1)[0];
@@ -961,9 +960,11 @@ export default class AddonApi {
     static getApiCachedProperty<T extends string>(name: T, webpackManager: WebpackManager): AddonApiExports<T> {
         // If cached object exists, get it. Else, add it to cached array,
         // cache it and return cached value.
-        return ~AddonApi._cachedList.indexOf(name)
-            ? AddonApi._cached[name]
-            : // Honestly, the only convenient thing about JS
-              (AddonApi._cachedList.push(name), (AddonApi._cached[name] = cacheFns[name](webpackManager)) ?? AddonApi._moduleNotFound);
+        return (
+            ~AddonApi._cachedList.indexOf(name)
+                ? AddonApi._cached[name]
+                : // Honestly, the only convenient thing about JS
+                  (AddonApi._cachedList.push(name), (AddonApi._cached[name] = cacheFns[name](webpackManager)) ?? AddonApi._moduleNotFound)
+        ) as AddonApiExports<T>;
     }
 }

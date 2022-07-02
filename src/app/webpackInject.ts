@@ -7,7 +7,7 @@ import { WebpackBundle, WebpackJsonp, WebpackRequire } from "../app/types/webpac
  * @returns Webpack Module
  */
 function webpackModule(index: number, svgModule: WebpackBundle): WebpackBundle {
-    function fakeFunction(functionId: string, module: { exports: {} }, exports: {}, webpackRequire: WebpackRequire) {
+    function fakeFunction(functionId: string, module: { exports: unknown }, exports: unknown, webpackRequire: WebpackRequire) {
         // Replace itself with old module
         window.webpackJsonp.splice(index, 1);
         window.webpackJsonp._push(svgModule);
@@ -28,7 +28,7 @@ function webpackModule(index: number, svgModule: WebpackBundle): WebpackBundle {
 
     const fakeFns = {};
 
-    for (let fnId in svgFunctions) fakeFns[fnId] = fakeFunction.bind(this, fnId);
+    for (const fnId in svgFunctions) fakeFns[fnId] = fakeFunction.bind(this, fnId);
 
     return [[svgId], fakeFns];
 }

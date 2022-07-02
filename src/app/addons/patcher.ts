@@ -1,33 +1,35 @@
-﻿export type PatchChild = {
+﻿import { UnknownFunction } from "../types/util";
+
+export type PatchChild = {
     caller: string;
     type: "after" | "before" | "instead";
     id: number;
-    callback: (thisObject: any, methodArguments: IArguments, returnValue: any) => any;
+    callback: (thisObject: unknown, methodArguments: unknown[], returnValue: unknown) => unknown;
     unpatch: () => void;
 };
 
 export type PatchData = {
     caller: string;
-    module: any;
+    module: unknown;
     functionName: string;
-    originalFunction: Function;
+    originalFunction: UnknownFunction;
     unpatch: () => void;
     count: number;
     children: PatchChild[];
 };
 
-type PatcherCallback = (thisObject: any, methodArguments: IArguments, returnValue: any) => any;
+type PatcherCallback = (thisObject: unknown, methodArguments: unknown[], returnValue: unknown) => unknown;
 
 export default new (class Patcher {
     _patches: PatchData[] = [];
-    after: (caller: string, module: any, functionName: string, callback: PatcherCallback) => () => void;
-    before: (caller: string, module: any, functionName: string, callback: PatcherCallback) => () => void;
-    instead: (caller: string, module: any, functionName: string, callback: PatcherCallback) => () => void;
+    after: (caller: string, module: unknown, functionName: string, callback: PatcherCallback) => () => void;
+    before: (caller: string, module: unknown, functionName: string, callback: PatcherCallback) => () => void;
+    instead: (caller: string, module: unknown, functionName: string, callback: PatcherCallback) => () => void;
 
     constructor() {
-        this.after = (caller: string, module: any, functionName: string, callback: PatcherCallback) => this.doPatch(caller, module, functionName, callback, "after");
-        this.before = (caller: string, module: any, functionName: string, callback: PatcherCallback) => this.doPatch(caller, module, functionName, callback, "before");
-        this.instead = (caller: string, module: any, functionName: string, callback: PatcherCallback) => this.doPatch(caller, module, functionName, callback, "instead");
+        this.after = (caller: string, module: unknown, functionName: string, callback: PatcherCallback) => this.doPatch(caller, module, functionName, callback, "after");
+        this.before = (caller: string, module: unknown, functionName: string, callback: PatcherCallback) => this.doPatch(caller, module, functionName, callback, "before");
+        this.instead = (caller: string, module: unknown, functionName: string, callback: PatcherCallback) => this.doPatch(caller, module, functionName, callback, "instead");
     }
 
     getPatchesByCaller(caller: string): PatchChild[] {
@@ -46,33 +48,35 @@ export default new (class Patcher {
         for (const patch of patches) patch.unpatch();
     }
 
-    makeOverride(patch: PatchData): Function {
-        return function () {
-            if (!patch?.children?.length) return patch.originalFunction.apply(this, arguments);
+    makeOverride(patch: PatchData, ...args: unknown[]): UnknownFunction {
+        const allArgs = [patch, ...args];
 
-            let returnValue: any;
-            const call = (childPatch: PatchChild, args: IArguments, type: string) => {
+        return function () {
+            if (!patch?.children?.length) return patch.originalFunction.apply(this, allArgs);
+
+            let returnValue: unknown;
+            const call = (childPatch: PatchChild, args: unknown[], type: string) => {
                 try {
-                    const tempReturn: any = childPatch.callback(this, args, patch.originalFunction.bind(this));
+                    const tempReturn: unknown = childPatch.callback(this, args, patch.originalFunction.bind(this));
                     if (tempReturn !== undefined) returnValue = tempReturn;
                 } catch (err) {
                     console.error("Patch:" + patch.functionName, "Type:" + type, err);
                 }
             };
 
-            for (const beforePatch of patch.children.filter((e) => e.type === "before")) call(beforePatch, arguments, "before");
+            for (const beforePatch of patch.children.filter((e) => e.type === "before")) call(beforePatch, allArgs, "before");
 
             const insteadPatches: PatchChild[] = patch.children.filter((e) => e.type === "instead");
-            if (!insteadPatches.length) returnValue = patch.originalFunction.apply(this, arguments);
-            else for (const insteadPatch of insteadPatches) call(insteadPatch, arguments, "instead");
+            if (!insteadPatches.length) returnValue = patch.originalFunction.apply(this, allArgs);
+            else for (const insteadPatch of insteadPatches) call(insteadPatch, allArgs, "instead");
 
-            for (const afterPatch of patch.children.filter((e) => e.type === "after")) call(afterPatch, arguments, "after");
+            for (const afterPatch of patch.children.filter((e) => e.type === "after")) call(afterPatch, allArgs, "after");
 
             return returnValue;
         };
     }
 
-    pushPatcher(caller: string, module: any, functionName: string) {
+    pushPatcher(caller: string, module: unknown, functionName: string) {
         const patch: PatchData = {
             caller,
             module,
@@ -92,9 +96,9 @@ export default new (class Patcher {
 
     doPatch(
         caller: string,
-        module: any,
+        module: unknown,
         functionName: string,
-        callback: (thisObject: any, methodArguments: IArguments, returnValue: any) => any,
+        callback: (thisObject: unknown, methodArguments: unknown[], returnValue: unknown) => unknown,
         type: "after" | "before" | "instead" = "after",
         options: { force: boolean } = { force: false }
     ): () => void {

@@ -14,7 +14,7 @@ type State = {
 export type SwitchTab = (tabName: string, tabProps: object) => void;
 export type PagedSettingsChildProps = {
     switchTab: SwitchTab;
-    [tabProp: string]: any;
+    [tabProp: string]: unknown;
 };
 
 /**
@@ -22,7 +22,7 @@ export type PagedSettingsChildProps = {
  */
 export default class PagedSettings extends React.Component<Props, State> {
     private switchTab: SwitchTab;
-    constructor(props: Props, context?: any) {
+    constructor(props: Props, context?: unknown) {
         super(props, context);
 
         // For tab switching

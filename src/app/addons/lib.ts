@@ -1,5 +1,4 @@
-﻿// @ts-ignore
-import patcher from "./patcher";
+﻿import patcher from "./patcher";
 
 // Tools
 /**
@@ -25,31 +24,29 @@ export function waitForElement(selector: string): Promise<Element | Node> {
         });
     });
 }
-export function patchElementRenderer(
+export async function patchElementRenderer(
     selector: string,
     id: string,
     patchType: "before" | "after" | "instead",
-    callback: (thisObject: any, methodArguments: IArguments, returnValue: any) => any
+    callback: (thisObject: unknown, methodArguments: unknown[], returnValue: unknown) => unknown
 ): Promise<[Node, React.Component]> {
-    return new Promise(async (resolve) => {
-        const node = await waitForElement(selector);
+    const node = await waitForElement(selector);
 
-        const instance: React.Component | void = getReactInstance(node);
-        if (instance) {
-            for (const component of [instance.constructor.prototype, instance]) {
-                patcher[patchType](id, component, "render", callback);
-            }
-            instance.forceUpdate();
-
-            resolve([node, instance]);
+    const instance: React.Component | void = getReactInstance(node);
+    if (instance) {
+        for (const component of [instance.constructor.prototype, instance]) {
+            patcher[patchType](id, component, "render", callback);
         }
-    });
+        instance.forceUpdate();
+
+        return [node, instance];
+    }
 }
 /**
  * Gets the React instance that owns the given element.
  * @param element The element to get owner instance of.
  */
-export function getReactInstance(element: Element | Node): React.Component<any, any> | void {
+export function getReactInstance(element: Element | Node): React.Component<unknown, unknown> | void {
     if (!element) return null;
 
     let reactInstance = element[Object.keys(element).find((key) => ~key.indexOf("__reactInternalInstance"))];

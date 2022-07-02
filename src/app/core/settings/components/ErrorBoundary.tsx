@@ -2,7 +2,7 @@ const React = window.ReGuilded.getApiProperty("react"),
     { default: NullState } = window.ReGuilded.getApiProperty("guilded/components/NullState"),
     { default: CodeContainer } = window.ReGuilded.getApiProperty("guilded/components/CodeContainer");
 
-export default class ErrorBoundary extends React.Component<{}, { hasErrored: boolean; error: Error | null }> {
+export default class ErrorBoundary extends React.Component<unknown, { hasErrored: boolean; error: Error | null }> {
     constructor(props, context) {
         super(props, context);
 

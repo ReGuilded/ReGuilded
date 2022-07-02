@@ -1,5 +1,4 @@
 ﻿//#region Imports
-import { ReactElement } from "react";
 import { AnyEnhancement } from "../../../../../common/enhancements";
 import { MenuSectionSpecs, MenuSpecs } from "../../../../guilded/menu";
 import { UserInfo } from "../../../../guilded/models";
@@ -34,10 +33,10 @@ type State = {
 
 export default class EnhancementItem<E extends AnyEnhancement> extends React.Component<Props<E>, State> {
     protected overflowMenuSpecs: MenuSpecs;
-    private hasToggled: boolean = false;
+    private hasToggled = false;
     private _onToggleBinded: (enabled: boolean) => Promise<void>;
 
-    constructor(props: Props<E>, context?: any) {
+    constructor(props: Props<E>, context?: unknown) {
         super(props, context);
 
         const { enhancementHandler, overflowMenuSection } = this.props;

@@ -20,10 +20,10 @@ type AnyEnhancementHandler = EnhancementHandler<AnyEnhancement, RGEnhancementCon
 export default class EnhancementSettings extends React.Component<PagedSettingsChildProps, { dirname: string; all: object[] }> {
     protected name: string;
     protected type: string;
-    protected ItemTemplate: any; // TODO: Change this to typeof EnhancementItem child
+    protected ItemTemplate: typeof React.Component; // TODO: Change this to typeof EnhancementItem child
     protected enhancementHandler: AnyEnhancementHandler;
 
-    constructor(props: PagedSettingsChildProps, context?: any) {
+    constructor(props: PagedSettingsChildProps, context?: unknown) {
         super(props, context);
     }
     render() {
@@ -64,7 +64,7 @@ export default class EnhancementSettings extends React.Component<PagedSettingsCh
                             <NullState
                                 type="empty-search"
                                 title={"Import " + type}
-                                subtitle={"Import any " + type + " by selecting a folder with metadata.json file. Zips and archives are not supported at this time."}
+                                subtitle={"Import unknown " + type + " by selecting a folder with metadata.json file. Zips and archives are not supported at this time."}
                                 buttonText="Import"
                                 onClick={async () => await config.openImportPrompt()}
                                 alignment="center"

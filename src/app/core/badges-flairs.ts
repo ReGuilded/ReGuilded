@@ -39,7 +39,7 @@ function generateBadgeGetter<T>(defaultGetter: () => T[] | void, membersTable: {
 
         const reGuildedBadges: T[] = [];
 
-        for (let badgeName in badgeTable) {
+        for (const badgeName in badgeTable) {
             const badge = badgeTable[badgeName];
 
             if (~membersTable[badgeName].indexOf(this.userInfo.id)) reGuildedBadges.push(badge);
@@ -48,13 +48,13 @@ function generateBadgeGetter<T>(defaultGetter: () => T[] | void, membersTable: {
         return reGuildedBadges.length ? (global || []).concat(reGuildedBadges) : global;
     };
 }
-function injectBadgeGetter<T>(prototype: { get [prototypePropertyName](): T[] | void }, prototypePropertyName: string, getter: () => T[] | void) {
+function injectBadgeGetter<C extends string, T>(prototype: { get [prototypePropertyName](): T[] | void }, prototypePropertyName: C, getter: () => T[] | void) {
     // Replace
     Object.defineProperty(prototype, prototypePropertyName, {
         get: getter
     });
 }
-const oldGetters = {};
+const oldGetters: Record<string, () => unknown[] | void> = {};
 /**
  * Injects a badge or a flair to the UserModel prototype.
  * @param prototype The UserModel prototype
@@ -62,7 +62,7 @@ const oldGetters = {};
  * @param badge The badge to push in the new getter
  * @param members The identifiers of the members who will receive the badge
  */
-export function injectBadge<T>(prototype: Object, prototypePropertyName: string, badgeTable: { [name: string]: T }) {
+export function injectBadge<C extends string, T>(prototype: { get [prototypePropertyName](): T[] | void }, prototypePropertyName: C, badgeTable: { [name: string]: T }) {
     const defaultGetter = oldGetters[prototypePropertyName] || Object.getOwnPropertyDescriptor(prototype, prototypePropertyName).get;
     oldGetters[prototypePropertyName] = defaultGetter;
 

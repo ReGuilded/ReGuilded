@@ -31,12 +31,12 @@ type Props = PagedSettingsChildProps & {
 export default class ThemePage extends React.Component<Props> {
     protected tabs: TabOption[] = [];
 
-    protected SaveChanges: (...args: any[]) => any;
+    protected SaveChanges: (...args: unknown[]) => unknown;
     protected Save: () => Promise<void>;
-    protected _handleOptionsChange: (...args: any[]) => void;
+    protected _handleOptionsChange: (...args: unknown[]) => void;
     protected _handleSaveChangesClick: () => Promise<void>;
 
-    constructor(props: Props, context?: any) {
+    constructor(props: Props, context?: unknown) {
         super(props, context);
 
         this.props.enhancement.extensions && this.tabs.push({ name: "Extensions" });
@@ -53,7 +53,7 @@ export default class ThemePage extends React.Component<Props> {
             const fixedValues = ThemePage.fixFormValues(values, this.props.enhancement.settings, this.props.enhancement._settingsProps);
 
             // Change this if colour fields will be used
-            window.ReGuilded.themes.assignProperties(this.props.enhancement, fixedValues);
+            yield window.ReGuilded.themes.assignProperties(this.props.enhancement, fixedValues);
         }
     }
     render() {
@@ -168,7 +168,7 @@ export default class ThemePage extends React.Component<Props> {
         const valuesCopy = Object.assign({}, values);
 
         // Since .options forces to use radio
-        for (let prop of settingsProps) if (settings[prop].options) valuesCopy[prop] = (values[prop] as OptionRadioSpecs).optionName as ThemeCssVariableType;
+        for (const prop of settingsProps) if (settings[prop].options) valuesCopy[prop] = (values[prop] as OptionRadioSpecs).optionName as ThemeCssVariableType;
 
         return valuesCopy as { [name: string]: ThemeCssVariableType };
     }

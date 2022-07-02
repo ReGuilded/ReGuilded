@@ -14,7 +14,7 @@ type Props<T extends AnyEnhancement> = {
 };
 
 export default class PreviewCarousel<T extends AnyEnhancement> extends React.Component<Props<T>, { images?: string[] }> {
-    constructor(props: Props<T>, context?: any) {
+    constructor(props: Props<T>, context?: unknown) {
         super(props, context);
 
         this.state = {};

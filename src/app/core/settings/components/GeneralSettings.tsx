@@ -1,5 +1,4 @@
 ﻿import { ProvidedOverlay } from "../../../guilded/decorators";
-import reGuildedInfo from "../../../../common/reguilded.json";
 import ErrorBoundary from "./ErrorBoundary";
 import { InlineCode } from "../util";
 
@@ -25,7 +24,7 @@ type GeneralSettingsValues = {
 @defaultContextProvider
 @overlayProvider(["SimpleConfirmationOverlay"])
 export default class GeneralSettings extends React.Component {
-    private SaveChanges: (...args: object[]) => any;
+    private SaveChanges: (...args: object[]) => unknown;
     private Update: () => Promise<void>;
     // Defined by SavableSettings & OverlayProvider
     protected _handleOptionsChange: () => void;
