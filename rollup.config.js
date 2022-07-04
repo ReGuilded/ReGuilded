@@ -114,7 +114,7 @@ const config = [
             commonjs(),
             resolve({
                 browser: false,
-                resolveOnly: resolvableModules,
+                resolveOnly: module => module.match(resolvableModules) && !module.includes(".node"),
                 ignoreDynamicRequires: true
             }),
             configuredPlugins.json,
