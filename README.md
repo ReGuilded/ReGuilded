@@ -33,6 +33,18 @@ ReGuilded is not associated with Guilded in any capacity. We have sought permiss
 
 Pull requests and Issues are welcome. You may want to coordinate with us on our [Guilded Server](https://guilded.gg/ReGuilded) in advance.
 
+You can get the project's dependencies by running `npm i` in the repositories root folder.
+
+Steps for testing:
+1. Run `npm run inject` - This will run `npm run build` and `npm run injectbare` which will automatically put the asar into the right folder.
+2. There are two ways to update this asar after injecting:
+   1. Running `npm run inject` - Which will build, then uninject and inject.
+   2. Or copy the `reguilded.asar` located in the `out` directory to one of the following directories.
+      1. Linux: `/user/local/share/ReGuilded`
+      2. Mac: `/Applications/ReGuilded`
+      3. Windows: `%PROGRAMFILES%/ReGuilded`
+3. After updating the asar file you can press CTRL/CMD + R while focused on Guilded and your changes you made will be loaded.
+
 ## Project Status
 
 As mentioned at the top of this document, ReGuilded is currently under active development and is not fully stable yet. Please leave suggestions and ideas in the Community Tab or on our [Guilded Server](https://guilded.gg/ReGuilded). Contributions are welcome.
