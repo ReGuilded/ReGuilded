@@ -1,20 +1,40 @@
 {
-    "name": "reguilded",
-    "version": "1.0.0-alpha",
-    "description": "ReGuilded is a client injector/client mod that allows you to extend the functionality of Guilded's client by providing theme and addon support.",
-    "main": "",
-    "type": "commonjs",
-    "scripts": {},
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/ReGuilded/ReGuilded.git"
-    },
-    "author": "ReGuilded",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/ReGuilded/ReGuilded/issues"
-    },
-    "homepage": "https://github.com/ReGuilded/ReGuilded#readme",
-    "dependencies": {},
-    "devDependencies": {}
+  "name": "reguilded",
+  "version": "1.0.0-alpha",
+  "description": "ReGuilded is a client injector/client mod that allows you to extend the functionality of Guilded's client by providing theme and addon support.",
+  "main": "",
+  "type": "commonjs",
+  "scripts": {
+    "prettify": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
+    "lint": "eslint .",
+    "clean": "npm run prettify && npm run lint",
+    "build": "npm install && npm run clean && rollup -c rollup.config.js && node out/app/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ReGuilded/ReGuilded.git"
+  },
+  "author": "ReGuilded",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ReGuilded/ReGuilded/issues"
+  },
+  "homepage": "https://github.com/ReGuilded/ReGuilded#readme",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^22.0.2",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^14.1.0",
+    "@rollup/plugin-typescript": "^8.5.0",
+    "@typescript-eslint/eslint-plugin": "^5.38.0",
+    "@typescript-eslint/parser": "^5.38.0",
+    "eslint": "^8.23.1",
+    "prettier": "^2.7.1",
+    "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-styles": "^4.0.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "typescript": "^4.8.3"
+  },
+  "dependencies": {
+    "eslint-config-prettier": "^8.5.0"
+  }
 }
