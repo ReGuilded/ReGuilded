@@ -8,7 +8,9 @@
     "prettify": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "lint": "eslint .",
     "clean": "npm run prettify && npm run lint",
-    "build": "npm install && npm run clean && rollup -c rollup.config.js && node out/app/index.js"
+    "build": "npm install && npm run clean && rollup -c rollup.config.js",
+    "inject": "npm run build && node ./out/injector.main.js",
+    "injectbare": "node ./out/injector.main.js"
   },
   "repository": {
     "type": "git",

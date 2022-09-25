@@ -46,21 +46,22 @@ const configuredPlugins = {
 
 /** @type {import("rollup").RollupOptions[]} */
 const config = [
+  // ReGuilded Guilded Injection
   {
-    input: "./src/index.ts",
+    input: "./src/inject/index.ts",
     output: {
-      file: join(modPath, "index.js"),
+      file: "./out/injector.main.js",
       format: "cjs",
-      name: "index",
-      globals: globalModules
+      name: "injector"
     },
     plugins: [
       commonjs(),
       resolve({
-        browser: true,
-        resolveOnly: resolvableModules,
+        browser: false,
         ignoreDynamicRequires: true
       }),
+      configuredPlugins.json,
+      configuredPlugins.ts,
       configuredPlugins.terser
     ]
   }
