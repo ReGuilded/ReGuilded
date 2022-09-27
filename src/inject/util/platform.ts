@@ -2,63 +2,34 @@ import { join } from "path";
 
 const platforms = {
   linux: {
-    close: "killall guilded",
-    appName: "guilded",
+    guildedAppName: "guilded",
     reguildedDir: "/usr/local/share/ReGuilded",
-    resourcesDir: "/opt/Guilded/resources",
-    get appDir() {
-      return join(this.resourcesDir, "app");
-    },
-    get open() {
-      return "/opt/Guilded/guilded& disown";
-    }
+    guildedDir: "/opt/Guilded"
   },
   darwin: {
-    close: "killall Guilded",
-    appName: "Guilded",
+    guildedAppName: "Guilded",
     reguildedDir: "/Applications/ReGuilded",
-    resourcesDir: "/Applications/Guilded.app/Contents/Resources",
-    get appDir() {
-      return join(this.resourcesDir, "app");
-    },
-    get open() {
-      return "/Applications/Guilded.app";
-    }
+    guildedDir: "/Applications/Guilded.app"
   },
   win32: {
-    close: "taskkill /f /IM Guilded.exe >nul",
-    appName: "Guilded.exe",
+    guildedAppName: "Guilded",
     get reguildedDir() {
       return join(process.env.ProgramW6432, "ReGuilded");
     },
-    get resourcesDir() {
-      return join(process.env.LOCALAPPDATA, "Programs/Guilded/resources");
-    },
-    get appDir() {
-      return join(this.resourcesDir, "app");
-    },
-    get open() {
-      return join(process.env.LOCALAPPDATA, "Programs/Guilded/Guilded.exe") + " >nul";
+    get guildedDir() {
+      return join(process.env.LOCALAPPDATA, "Programs/Guilded");
     }
   }
 };
 
 const current:
   | {
-      close: string;
-      appName: string;
+      guildedAppName: string;
       reguildedDir: string;
-      resourcesDir: string;
-      appDir: string;
-      open: string;
+      guildedDir: string;
     }
   | undefined = platforms[process.platform];
 
-if (!current) {
-  const newIssueLink = `https://github.com/ReGuilded/ReGuilded/issues/new?labels=Unsupported+Platform&body=Title+says+it+all.&title=Unsupported+Platform:+${process.platform}`;
-  throw new Error(
-    `Unsupported platform, ${process.platform}. Please submit a new issue:\n${newIssueLink}`
-  );
-}
+if (!current) throw new Error(`Unsupported platform, ${process.platform}.`);
 
 export default current;

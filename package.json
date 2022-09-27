@@ -30,6 +30,7 @@
     "@typescript-eslint/eslint-plugin": "^5.38.0",
     "@typescript-eslint/parser": "^5.38.0",
     "eslint": "^8.23.1",
+    "minimist": "^1.2.6",
     "prettier": "^2.7.1",
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-styles": "^4.0.0",
