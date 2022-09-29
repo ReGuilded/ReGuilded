@@ -9,8 +9,13 @@
     "lint": "eslint .",
     "clean": "npm run prettify && npm run lint",
     "build": "npm install && npm run clean && rollup -c rollup.config.js",
-    "inject": "npm run build && node ./out/injector.main.js",
-    "injectbare": "node ./out/injector.main.js"
+    "injector": "npm run build && node ./out/injector.main.js",
+    "inject": "npm run injector -- --task \"inject\"",
+    "uninject": "npm run injector -- --task \"uninject\"",
+    "update": "npm run injector -- --task \"update\"",
+    "injectbare": "node ./out/injector.main.js --task \"inject\"",
+    "uninjectbare": "node ./out/injector.main.js --task \"uninject\"",
+    "updatebare": "node ./out/injector.main.js --task \"update\""
   },
   "repository": {
     "type": "git",

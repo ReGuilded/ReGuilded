@@ -48,7 +48,7 @@ const configuredPlugins = {
 const config = [
   // ReGuilded Guilded Injection
   {
-    input: "./src/inject/index.ts",
+    input: "./src/injector/index.ts",
     output: {
       file: "./out/injector.main.js",
       format: "cjs",
