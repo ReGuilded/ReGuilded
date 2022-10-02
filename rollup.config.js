@@ -46,6 +46,26 @@ const configuredPlugins = {
 
 /** @type {import("rollup").RollupOptions[]} */
 const config = [
+  // ReGuilded Electron Injection
+  {
+    input: "./src/patcher/index.js",
+    output: {
+      file: join(modPath, "electron.patcher.js"),
+      format: "cjs",
+      name: "patcher",
+      globals: globalModules
+    },
+    plugins: [
+      commonjs(),
+      configuredPlugins.terser,
+      resolve({
+        browser: true,
+        resolveOnly: resolvableModules,
+        ignoreDynamicRequires: true
+      })
+    ]
+  },
+
   // ReGuilded Guilded Injection
   {
     input: "./src/injector/index.ts",
