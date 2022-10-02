@@ -1,3 +1,4 @@
+// Modules
 import { closeGuildedCommand, getResourcesDir, openGuildedCommand } from "./util/utilFunctions";
 import platform from "./util/platform";
 import minimist from "minimist";

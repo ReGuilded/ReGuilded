@@ -1,5 +1,6 @@
 import { join } from "path";
 
+// Default Guilded Directories (per Platform)
 const platforms = {
   linux: {
     guildedAppName: "guilded",
