@@ -7,9 +7,9 @@ const preload = ipcRenderer.sendSync("reguilded-preload");
 new Promise<boolean>((resolve) => {
   const settingsPath = join(process.env.APPDATA || process.env.HOME, ".reguilded");
 
-  if (!existsSync(settingsPath)) resolve(true);
+  if (!existsSync(settingsPath)) resolve(false);
   // TODO: READ SETTINGS FILE
-  else resolve(true);
+  else resolve(false);
 })
   .then((keepSplash) => {
     if (keepSplash) ipcRenderer.invoke("reguilded-no-splash-close");
