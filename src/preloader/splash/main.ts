@@ -8,7 +8,7 @@ new Promise<boolean>((resolve) => {
   const settingsPath = join(process.env.APPDATA || process.env.HOME, ".reguilded");
 
   if (!existsSync(settingsPath)) resolve(true);
-  // READ SETTINGS FILE
+  // TODO: READ SETTINGS FILE
   else resolve(true);
 })
   .then((keepSplash) => {
