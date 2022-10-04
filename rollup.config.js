@@ -27,7 +27,7 @@ const resolvableModules = [/^(?!electron$).*$/];
 const watchCopyLocation = process.env.WATCH_PATH,
   isWatching = Boolean(process.env.ROLLUP_WATCH);
 
-const modPath = watchCopyLocation ? watchCopyLocation : "./out/app";
+const modPath = watchCopyLocation ? watchCopyLocation : "./out/reguilded";
 
 // To not configure it every time
 const configuredPlugins = {
@@ -48,31 +48,92 @@ const configuredPlugins = {
 const config = [
   // ReGuilded Electron Injection
   {
-    input: "./src/patcher/index.js",
+    input: "./src/patcher/main.js",
     output: {
-      file: join(modPath, "electron.patcher.js"),
-      format: "cjs",
+      file: join(modPath, "electron", "patcher.js"),
+      globals: globalModules,
       name: "patcher",
-      globals: globalModules
+      format: "cjs"
     },
     plugins: [
       commonjs(),
-      configuredPlugins.terser,
       resolve({
         browser: true,
         resolveOnly: resolvableModules,
         ignoreDynamicRequires: true
-      })
+      }),
+      configuredPlugins.terser
+    ]
+  },
+
+  // Electron App Preloader
+  {
+    input: "./src/preload/main.ts",
+    output: {
+      file: join(modPath, "electron", "preload.js"),
+      globals: globalModules,
+      name: "preload",
+      format: "cjs"
+    },
+    plugins: [
+      commonjs(),
+      resolve({
+        browser: false,
+        resolveOnly: resolvableModules,
+        ignoreDynamicRequires: true
+      }),
+      configuredPlugins.terser,
+      configuredPlugins.json,
+      configuredPlugins.ts
+    ]
+  },
+
+  // Electron Splash Preloader
+  {
+    input: "./src/splash/main.ts",
+    output: {
+      file: join(modPath, "electron/splash", "preload.js"),
+      globals: globalModules,
+      name: "preloadSplash",
+      format: "cjs"
+    },
+    plugins: [
+      commonjs(),
+      resolve({
+        browser: true,
+        resolveOnly: resolvableModules
+      }),
+      configuredPlugins.terser,
+      configuredPlugins.json,
+      configuredPlugins.ts
+    ]
+  },
+  {
+    input: "./src/splash/util/reguildedVersionLoader.ts",
+    output: {
+      file: join(modPath, "electron/splash", "rgVersionLoader.js"),
+      format: "cjs",
+      name: "splash",
+      globals: globalModules
+    },
+    plugins: [
+      commonjs(),
+      resolve({
+        browser: true,
+        resolveOnly: resolvableModules
+      }),
+      configuredPlugins.json,
+      configuredPlugins.terser
     ]
   },
 
   // ReGuilded Guilded Injection
   {
-    input: "./src/injector/index.ts",
+    input: "./src/injector/main.ts",
     output: {
-      file: "./out/injector.main.js",
-      format: "cjs",
-      name: "injector"
+      file: "./out/injector.js",
+      name: "injector",
+      format: "cjs"
     },
     plugins: [
       commonjs(),
@@ -80,9 +141,9 @@ const config = [
         browser: false,
         ignoreDynamicRequires: true
       }),
+      configuredPlugins.terser,
       configuredPlugins.json,
-      configuredPlugins.ts,
-      configuredPlugins.terser
+      configuredPlugins.ts
     ]
   }
 ];

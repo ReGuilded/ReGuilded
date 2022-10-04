@@ -9,13 +9,13 @@
     "lint": "eslint .",
     "clean": "npm run prettify && npm run lint",
     "build": "npm install && npm run clean && rollup -c rollup.config.js",
-    "injector": "npm run build && node ./out/injector.main.js",
+    "injector": "npm run build && node ./out/injector.js",
     "inject": "npm run injector -- --task \"inject\"",
     "uninject": "npm run injector -- --task \"uninject\"",
     "update": "npm run injector -- --task \"update\"",
-    "injectbare": "node ./out/injector.main.js --task \"inject\"",
-    "uninjectbare": "node ./out/injector.main.js --task \"uninject\"",
-    "updatebare": "node ./out/injector.main.js --task \"update\""
+    "injectbare": "node ./out/injector.js --task \"inject\"",
+    "uninjectbare": "node ./out/injector.js --task \"uninject\"",
+    "updatebare": "node ./out/injector.js --task \"update\""
   },
   "repository": {
     "type": "git",
@@ -32,9 +32,9 @@
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^14.1.0",
     "@rollup/plugin-typescript": "^8.5.0",
-    "@types/electron": "^1.6.10",
     "@typescript-eslint/eslint-plugin": "^5.38.0",
     "@typescript-eslint/parser": "^5.38.0",
+    "electron": "20.1.2",
     "eslint": "^8.23.1",
     "eslint-config-prettier": "^8.5.0",
     "minimist": "^1.2.6",
