@@ -3,8 +3,8 @@ import * as electron from "electron";
 import { join } from "path";
 
 const preloads = {
-  main: join(__dirname, "./electron.preload.js"),
-  splash: join(__dirname, "./electron.preloadSplash.js")
+  main: join(__dirname, "preload.js"),
+  splash: join(__dirname, "splash", "preload.js")
 };
 
 export default class ReGuildedWindow extends electron.BrowserWindow {
