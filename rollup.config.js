@@ -68,7 +68,7 @@ const config = [
 
   // Electron App Preloader
   {
-    input: "./src/preload/main.ts",
+    input: "./src/preloader/main/main.ts",
     output: {
       file: join(modPath, "electron", "preload.js"),
       globals: globalModules,
@@ -90,7 +90,7 @@ const config = [
 
   // Electron Splash Preloader
   {
-    input: "./src/splash/main.ts",
+    input: "./src/preloader/splash/main.ts",
     output: {
       file: join(modPath, "electron/splash", "preload.js"),
       globals: globalModules,
@@ -109,7 +109,7 @@ const config = [
     ]
   },
   {
-    input: "./src/splash/util/reguildedVersionLoader.ts",
+    input: "./src/preloader/splash/util/reguildedVersionLoader.ts",
     output: {
       file: join(modPath, "electron/splash", "rgVersionLoader.js"),
       format: "cjs",
