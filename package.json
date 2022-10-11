@@ -8,7 +8,8 @@
     "prettify": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "lint": "eslint .",
     "clean": "npm run prettify && npm run lint",
-    "build": "npm install && npm run clean && rollup -c rollup.config.js",
+    "build": "npm install && npm run clean && rollup -c config/rollup.config.js",
+    "buildAndPack": "npm run build && asar pack ./out/reguilded ./out/reguilded.asar",
     "injector": "npm run build && node ./out/injector.js",
     "inject": "npm run injector -- --task \"inject\"",
     "uninject": "npm run injector -- --task \"uninject\"",
@@ -43,5 +44,43 @@
     "rollup-plugin-styles": "^4.0.0",
     "rollup-plugin-terser": "^7.0.2",
     "typescript": "^4.8.3"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "parserOptions": {
+      "ecmaVersion": "latest",
+      "ecmaFeatures": {
+        "jsx": true
+      }
+    },
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/recommended",
+      "prettier"
+    ]
+  },
+  "eslintIgnore": [
+    "package-lock.json",
+    "out",
+    "node_modules",
+    ".idea"
+  ],
+  "prettier": {
+    "printWidth": 120,
+    "tabWidth": 2,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": false,
+    "trailingComma": "none",
+    "bracketSpacing": true,
+    "arrowParens": "always",
+    "proseWrap": "always"
   }
 }

@@ -40,7 +40,21 @@ const configuredPlugins = {
     compact: true
   }),
   ts: ts({
-    tsconfig: "tsconfig.json"
+    compilerOptions: {
+      module: "ES2020",
+      esModuleInterop: true,
+      target: "ES2019",
+      moduleResolution: "node",
+
+      jsx: "react",
+      jsxFragmentFactory: "React.Fragment",
+      jsxFactory: "React.createElement",
+
+      removeComments: true,
+      experimentalDecorators: true,
+      resolveJsonModule: true,
+      allowSyntheticDefaultImports: true
+    }
   })
 };
 
