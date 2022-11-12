@@ -32,6 +32,7 @@ if (!argv.task && !["inject", "uninject", "update"].includes(argv.task.toLowerCa
   throw new Error("`task` argument is missing. It can either be `inject, uninject, or update`");
 if (argv.gilDir && !argv.gilAppName) throw new Error("gAppName must be set when using a custom Guilded Directory Location");
 
+argv.task = argv.task.toLowerCase();
 
 /**
  * Generate a utilInfo object, that will contain directories and commands.
