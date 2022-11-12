@@ -9,8 +9,8 @@ import { join } from "path";
  * Command Line Arguments:
  *  * `--task` -- "inject/uninject/update"
  *  * `--rgDir` -- Custom ReGuilded Location
- *  * `--gDir` -- Custom Guilded Location
- *  * `--gAppName` -- Custom Guilded App Name
+ *  * `--gilDir` -- Custom Guilded Location
+ *  * `--gilAppName` -- Custom Guilded App Name
  *
  * Guilded App Name Example:
  *  * Windows -- "Guilded"
@@ -24,14 +24,14 @@ const argv: {
   _: string[];
   task?: string;
   rgDir?: string;
-  gDir?: string;
-  gAppName?: string;
+  gilDir?: string;
+  gilAppName?: string;
 } = minimist(process.argv.slice(2));
 
 if (!argv.task && !["inject", "uninject", "update"].includes(argv.task.toLowerCase()))
   throw new Error("`task` argument is missing. It can either be `inject, uninject, or update`");
-if (argv.gDir && !argv.gAppName)
-  throw new Error("gAppName must be set when using a custom Guilded Directory Location");
+if (argv.gilDir && !argv.gilAppName) throw new Error("gAppName must be set when using a custom Guilded Directory Location");
+
 
 /**
  * Generate a utilInfo object, that will contain directories and commands.
@@ -46,9 +46,9 @@ const utilInfo: {
   guildedDir: string;
   appDir: string;
 } = {
-  guildedAppName: argv.gAppName || platform.guildedAppName,
+  guildedAppName: argv.gilAppName || platform.guildedAppName,
   reguildedDir: argv.rgDir || platform.reguildedDir,
-  guildedDir: argv.gDir || platform.guildedDir,
+  guildedDir: argv.gilDir || platform.guildedDir,
 
   resourcesDir: undefined,
   closeCommand: undefined,
