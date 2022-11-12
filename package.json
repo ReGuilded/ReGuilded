@@ -73,7 +73,7 @@
     ".idea"
   ],
   "prettier": {
-    "printWidth": 120,
+    "printWidth": 125,
     "tabWidth": 2,
     "useTabs": false,
     "semi": true,
