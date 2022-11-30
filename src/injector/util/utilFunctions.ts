@@ -6,7 +6,7 @@ import { join } from "path";
  * @param guildedDir Guilded's Directory
  * @returns Promise<string>
  */
-export async function openGuildedCommand(appName: string, guildedDir: string): Promise<string> {
+export async function openGuildedCommand(appName: string, guildedDir: string): Promise<string | undefined> {
   switch (process.platform) {
     case "linux":
       return `${join(guildedDir, appName)}& disown`;
@@ -22,7 +22,7 @@ export async function openGuildedCommand(appName: string, guildedDir: string): P
  * @param appName Guilded's Application Name
  * @returns Promise<string>
  */
-export async function closeGuildedCommand(appName: string): Promise<string> {
+export async function closeGuildedCommand(appName: string): Promise<string | undefined> {
   switch (process.platform) {
     case "linux":
     case "darwin":
@@ -37,7 +37,7 @@ export async function closeGuildedCommand(appName: string): Promise<string> {
  * @param guildedDir Guilded's Directory
  * @returns Promise<string>
  */
-export async function getResourcesDir(guildedDir: string): Promise<string> {
+export async function getResourcesDir(guildedDir: string): Promise<string | undefined> {
   switch (process.platform) {
     case "linux":
     case "win32":
