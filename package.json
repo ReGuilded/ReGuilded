@@ -1,58 +1,87 @@
 {
-    "name": "reguilded",
-    "version": "0.0.4-alpha.5",
-    "description": "ReGuilded is a client injector/client mod that allows you to extend the functionality of Guilded's client by providing theme and addon support.",
-    "main": "",
-    "type": "commonjs",
-    "scripts": {
-        "injectbare": "node out/injector.main.js inject",
-        "uninjectbare": "node out/injector.main.js uninject",
-        "build": "npm install && rollup -c rollup.config.js && node out/injector.main.js prepareAndPackResources",
-        "watch": "rollup -c rollup.config.js -w",
-        "inject": "npm run build && npm run injectbare",
-        "uninject": "npm run build && npm run uninjectbare",
-        "reinject": "npm run build && npm run uninjectbare && npm run injectbare"
+  "name": "reguilded",
+  "version": "1.0.0-alpha",
+  "description": "ReGuilded is a client injector/client mod that allows you to extend the functionality of Guilded's client by providing theme and addon support.",
+  "main": "",
+  "type": "commonjs",
+  "scripts": {
+    "prettify": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
+    "lint": "eslint .",
+    "clean": "npm run prettify && npm run lint",
+    "build": "npm install && npm run clean && rollup -c config/rollup.config.js",
+    "buildAndPack": "npm run build && asar pack ./out/reguilded ./out/reguilded.asar",
+    "injector": "npm run build && node ./out/injector.js",
+    "inject": "npm run injector -- --task \"inject\"",
+    "uninject": "npm run injector -- --task \"uninject\"",
+    "update": "npm run injector -- --task \"update\"",
+    "injectbare": "node ./out/injector.js --task \"inject\"",
+    "uninjectbare": "node ./out/injector.js --task \"uninject\"",
+    "updatebare": "node ./out/injector.js --task \"update\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ReGuilded/ReGuilded.git"
+  },
+  "author": "ReGuilded",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ReGuilded/ReGuilded/issues"
+  },
+  "homepage": "https://github.com/ReGuilded/ReGuilded#readme",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^22.0.2",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^14.1.0",
+    "@rollup/plugin-typescript": "^8.5.0",
+    "@types/minimist": "^1.2.2",
+    "@typescript-eslint/eslint-plugin": "^5.38.0",
+    "@typescript-eslint/parser": "^5.38.0",
+    "electron": "20.1.2",
+    "eslint": "^8.23.1",
+    "eslint-config-prettier": "^8.5.0",
+    "minimist": "^1.2.6",
+    "prettier": "^2.7.1",
+    "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-styles": "^4.0.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "typescript": "^4.8.3"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
     },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/ReGuilded/ReGuilded.git"
+    "parserOptions": {
+      "ecmaVersion": "latest",
+      "ecmaFeatures": {
+        "jsx": true
+      }
     },
-    "author": "ReGuilded",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/ReGuilded/ReGuilded/issues"
-    },
-    "homepage": "https://github.com/ReGuilded/ReGuilded#readme",
-    "dependencies": {
-        "chmodr": "^1.2.0",
-        "chokidar": "^3.5.2",
-        "fs-extra": "^8.1.0",
-        "minimist": "^1.2.5",
-        "yauzl": "^2.10.0"
-    },
-    "devDependencies": {
-        "@rollup/plugin-commonjs": "^22.0.0-4",
-        "@rollup/plugin-json": "^4.1.0",
-        "@rollup/plugin-node-resolve": "^13.0.6",
-        "@rollup/plugin-typescript": "^8.3.0",
-        "@types/chmodr": "^1.0.0",
-        "@types/electron": "^1.6.10",
-        "@types/fs-extra": "^9.0.13",
-        "@types/got": "^9.6.12",
-        "@types/minimist": "^1.2.2",
-        "@types/prismjs": "^1.16.7",
-        "@types/react": "^17.0.38",
-        "@types/react-dom": "^17.0.11",
-        "@types/yauzl": "^2.9.2",
-        "asar": "^3.1.0",
-        "rollup": "^2.60.1",
-        "rollup-plugin-postcss": "^4.0.2",
-        "rollup-plugin-styles": "^4.0.0",
-        "rollup-plugin-terser": "^7.0.2",
-        "slate": "^0.72.3",
-        "stylus": "^0.56.0",
-        "sudo-prompt": "^9.2.1",
-        "typescript": "^4.5.2",
-        "moment": "^2.29.1"
-    }
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/recommended",
+      "prettier"
+    ]
+  },
+  "eslintIgnore": [
+    "package-lock.json",
+    "out",
+    "node_modules",
+    ".idea"
+  ],
+  "prettier": {
+    "printWidth": 125,
+    "tabWidth": 2,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": false,
+    "trailingComma": "none",
+    "bracketSpacing": true,
+    "arrowParens": "always",
+    "proseWrap": "always"
+  }
 }
