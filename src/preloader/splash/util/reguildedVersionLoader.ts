@@ -20,7 +20,9 @@ reGuildedSplashFooter.setAttribute("style", cssText);
 
 const elementExists = setInterval(function () {
   if (document.getElementById("splashTextBlock") != null) {
-    document.getElementById("splashTextBlock").append(reGuildedSplashFooter);
+    document.getElementById("splashTextBlock")?.append(reGuildedSplashFooter);
     clearInterval(elementExists);
   }
 }, 250);
+
+export {};
