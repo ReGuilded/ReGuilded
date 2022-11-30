@@ -32,16 +32,18 @@ const settingsPath = join(process.env.APPDATA || process.env.HOME, ".reguilded")
 const electronPath = require.resolve("electron");
 
 // Guilded's app.asar & package.json
-const guildedPath = join(dirname(require.main.filename), "..", "_guilded", "app.asar");
-const guildedPackage = JSON.parse(
-  readFileSync(join(guildedPath, "package.json"), { encoding: "utf8" })
-);
+const guildedPath = join(dirname(require.main.filename), "../..", "_guilded", "app.asar");
+const guildedPackage = JSON.parse(readFileSync(join(guildedPath, "package.json"), { encoding: "utf8" }));
 require.main.filename = join(guildedPath, "main.js");
 
 // IPC Events & Handlers
 // ReGuilded Preload.
 electron.ipcMain.on("reguilded-preload", (event) => {
   event.returnValue = event.sender.guildedPreload;
+});
+
+electron.ipcMain.on("get-guilded-app-path", (e) => {
+  e.returnValue = guildedPath;
 });
 
 // Choose Enhancement Dialog for importing.
@@ -63,10 +65,6 @@ electron.ipcMain.handle("reguilded-no-splash-close", () => {
   ].exports.default.loaderWindow.close = () => {
     // Empty Function
   };
-});
-
-electron.app.whenReady().then(() => {
-  // Empty for now.
 });
 
 const overriddenElectron = Object.assign(Object.assign({}, electron));
