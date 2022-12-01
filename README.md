@@ -55,4 +55,4 @@ Our Patcher code is influence by [Powercord's Patcher Code](https://github.com/p
 
 ## License
 
-ReGuilded is licensed under the [BSD 3-Clause](https://github.com/ReGuilded/ReGuilded/blob/main/LICENSE) license.
+ReGuilded is licensed under the [MPL 2.0](https://github.com/ReGuilded/ReGuilded/blob/main/LICENSE) license.
