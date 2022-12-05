@@ -19,7 +19,7 @@ import { _load } from "module";
 if (platform === "linux" && getuid() === 0) {
   console.warn(
     "\x1b[1m\x1b[33m%s\x1b[0m",
-    "Seems this application was ran as root, it has been closed by ReGuilded to prevent issues, run as a regular user instead!"
+    "This application should not be run as root. It has been closed by ReGuilded to prevent issues. Please run it as a regular user instead!"
   );
 
   exit(1);

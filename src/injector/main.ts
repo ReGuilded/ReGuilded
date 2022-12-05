@@ -8,6 +8,7 @@ import { join } from "path";
 /**
  * Command Line Arguments:
  *  * `--task` -- "inject/uninject/update"
+ *  * `--rgDir` -- ReGuilded Directory
  *  * `--gilDir` -- Custom Guilded Location
  *  * `--gilAppName` -- Custom Guilded App Name
  *
@@ -15,13 +16,13 @@ import { join } from "path";
  *  * Windows -- "Guilded"
  *  * Darwin/Linux -- "guilded"
  *
- * Command Example:
- *
- *  `npm run injector -- --task "inject" --gDir "path/to/custom/guilded/location" --gAppName "CustomGuildedName"`
+ * Command Example(s):
+ *  `npm run injector -- --task "inject" -rgDir "path/to/custom/reguilded/location" --gilDir "path/to/custom/guilded/location" --gilAppName "CustomGuildedName"`
  */
 const argv: {
   _: string[];
   task?: string;
+  rgDir?: string;
   gilDir?: string;
   gilAppName?: string;
 } = minimist(process.argv.slice(2));
@@ -44,9 +45,11 @@ const utilInfo: {
   openCommand: string | undefined;
   appDir: string | undefined;
   guildedAppName: string;
+  reguildedDir: string;
   guildedDir: string;
 } = {
   guildedAppName: argv.gilAppName || platform.guildedAppName,
+  reguildedDir: argv.rgDir || platform.reguildedDir,
   guildedDir: argv.gilDir || platform.guildedDir,
 
   resourcesDir: undefined,
@@ -66,6 +69,8 @@ const utilInfo: {
   if (!utilInfo.openCommand || !utilInfo.closeCommand || !utilInfo.resourcesDir)
     throw new Error(`Unsupported platform, ${process.platform}`);
   utilInfo.appDir = join(utilInfo.resourcesDir, "app");
+
+  console.log(utilInfo);
 
   try {
     await access(utilInfo.appDir, constants.F_OK);
