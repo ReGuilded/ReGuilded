@@ -17,7 +17,7 @@ import { join } from "path";
  *  * Darwin/Linux -- "guilded"
  *
  * Command Example(s):
- *  `npm run injector -- --task "inject" -rgDir "path/to/custom/reguilded/location" --gilDir "path/to/custom/guilded/location" --gilAppName "CustomGuildedName"`
+ *  `npm run inject -- --rgDir "path/to/custom/reguilded/location" --gilDir "path/to/custom/guilded/location" --gilAppName "CustomGuildedName"`
  */
 const argv: {
   _: string[];
