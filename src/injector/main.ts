@@ -29,7 +29,8 @@ const argv: {
 
 if (!argv.task || !["inject", "uninject", "update"].includes(argv.task.toLowerCase()))
   throw new Error("`task` argument is missing or incorrect. It can either be `inject, uninject, or update`");
-if (argv.gilDir && !argv.gilAppName) throw new Error("gAppName must be set when using a custom Guilded Directory Location");
+if (argv.gilDir && !argv.gilAppName)
+  throw new Error("gilAppName must be set when using a custom Guilded Directory Location");
 
 argv.task = argv.task.toLowerCase();
 
