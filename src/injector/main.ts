@@ -1,6 +1,7 @@
 // Modules
 import { closeGuildedCommand, getResourcesDir, openGuildedCommand } from "./util/utilFunctions";
 import { access, mkdir, rmdir, constants } from "fs/promises";
+import { exec as sudoExec } from "sudo-prompt";
 import platform from "./util/platform";
 import minimist from "minimist";
 import { join } from "path";
@@ -66,6 +67,11 @@ function elevate(): void {
   console.error(`Task ${argv.task}, requires elevated privileges, please complete the prompt that has opened.`);
 
   argv.debug && console.log(`COMMAND:\n ${process.argv.map((x) => JSON.stringify(x)).join(" ")}`);
+  sudoExec(process.argv.map((x) => JSON.stringify(x)).join(" "), { name: "ReGuilded" }, (err, stdout, stderr) => {
+    if (err) console.error(`There was an error while attempting to run task ${argv.task}:\n${err}\n${stderr}`);
+
+    console.log(stdout);
+  });
 }
 
 /**
