@@ -11,6 +11,7 @@ import { join } from "path";
  *  * `--rgDir` -- ReGuilded Directory
  *  * `--gilDir` -- Custom Guilded Location
  *  * `--gilAppName` -- Custom Guilded App Name
+ *  * `--debug` -- Extra debugging info
  *
  * Guilded App Name Example:
  *  * Windows -- "Guilded"
@@ -25,7 +26,9 @@ const argv: {
   rgDir?: string;
   gilDir?: string;
   gilAppName?: string;
+  debug?: boolean;
 } = minimist(process.argv.slice(2));
+argv.debug && console.log("Arguments:", argv);
 
 if (!argv.task || !["inject", "uninject", "update"].includes(argv.task.toLowerCase()))
   throw new Error("`task` argument is missing or incorrect. It can either be `inject, uninject, or update`");
@@ -61,6 +64,8 @@ const utilInfo: {
 
 function elevate(): void {
   console.error(`Task ${argv.task}, requires elevated privileges, please complete the prompt that has opened.`);
+
+  argv.debug && console.log(`COMMAND:\n ${process.argv.map((x) => JSON.stringify(x)).join(" ")}`);
 }
 
 /**
@@ -75,7 +80,7 @@ function elevate(): void {
     throw new Error(`Unsupported platform, ${process.platform}`);
   utilInfo.appDir = join(utilInfo.resourcesDir, "app");
 
-  console.log(utilInfo);
+  argv.debug && console.log("Util-Info:", utilInfo);
 
   try {
     await access(utilInfo.appDir, constants.F_OK);
@@ -91,7 +96,7 @@ function elevate(): void {
     await mkdir(testDir);
     await rmdir(testDir, { recursive: false });
   } catch (err) {
-    console.log("REGUILDED-DIR", err);
+    argv.debug && console.log("REGUILDED-DIR", err);
     return elevate();
   }
 
@@ -100,7 +105,7 @@ function elevate(): void {
     await mkdir(testDir);
     await rmdir(testDir, { recursive: false });
   } catch (err) {
-    console.log("RESOURCES-DIR", err);
+    argv.debug && console.log("RESOURCES-DIR", err);
     return elevate();
   }
 
