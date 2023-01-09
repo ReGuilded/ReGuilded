@@ -66,7 +66,7 @@ const utilInfo: {
 function elevate(): void {
   console.error(`Task ${argv.task}, requires elevated privileges, please complete the prompt that has opened.`);
 
-  argv.debug && console.log(`COMMAND:\n ${process.argv.map((x) => JSON.stringify(x)).join(" ")}`);
+  argv.debug && console.log(`Elevation-Command: ${process.argv.map((x) => JSON.stringify(x)).join(" ")}`);
   sudoExec(process.argv.map((x) => JSON.stringify(x)).join(" "), { name: "ReGuilded" }, (err, stdout, stderr) => {
     if (err) console.error(`There was an error while attempting to run task ${argv.task}:\n${err}\n${stderr}`);
 
@@ -102,7 +102,7 @@ function elevate(): void {
     await mkdir(testDir);
     await rmdir(testDir, { recursive: false });
   } catch (err) {
-    argv.debug && console.log("REGUILDED-DIR", err);
+    argv.debug && console.log("ReGuilded-Dir", err);
     return elevate();
   }
 
@@ -111,7 +111,7 @@ function elevate(): void {
     await mkdir(testDir);
     await rmdir(testDir, { recursive: false });
   } catch (err) {
-    argv.debug && console.log("RESOURCES-DIR", err);
+    argv.debug && console.log("Resources-Dir", err);
     return elevate();
   }
 
