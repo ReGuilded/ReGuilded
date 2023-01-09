@@ -1,6 +1,6 @@
 // Modules
 import { closeGuildedCommand, getResourcesDir, openGuildedCommand } from "./util/utilFunctions";
-import { access, constants } from "fs/promises";
+import { access, mkdir, rmdir, constants } from "fs/promises";
 import platform from "./util/platform";
 import minimist from "minimist";
 import { join } from "path";
@@ -59,6 +59,10 @@ const utilInfo: {
   appDir: undefined
 };
 
+function elevate(): void {
+  console.error(`Task ${argv.task}, requires elevated privileges, please complete the prompt that has opened.`);
+}
+
 /**
  * Async function so we can await the util functions. (Since they're kind-of important.)
  */
@@ -81,4 +85,24 @@ const utilInfo: {
   } catch (err) {
     if (argv.task === "uninject") return console.error(`Called Uninject, but ReGuilded is not injected`);
   }
+
+  try {
+    const testDir = join(utilInfo.reguildedDir, "../_rgTestDir");
+    await mkdir(testDir);
+    await rmdir(testDir, { recursive: false });
+  } catch (err) {
+    console.log("REGUILDED-DIR", err);
+    return elevate();
+  }
+
+  try {
+    const testDir = join(utilInfo.resourcesDir, "_rgTestDir");
+    await mkdir(testDir);
+    await rmdir(testDir, { recursive: false });
+  } catch (err) {
+    console.log("RESOURCES-DIR", err);
+    return elevate();
+  }
+
+  console.log("LAUNCH!");
 })();
