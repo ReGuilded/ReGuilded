@@ -19,7 +19,8 @@ import { join } from "path";
  *  * Darwin/Linux -- "guilded"
  *
  * Command Example(s):
- *  `npm run inject -- --rgDir "path/to/custom/reguilded/location" --gilDir "path/to/custom/guilded/location" --gilAppName "CustomGuildedName"`
+ *  * `npm run inject` -- Runs inject task with default locations.
+ *  * `npm run inject -- --rgDir "path/to/custom/reguilded/location" --gilDir "path/to/custom/guilded/location" --gilAppName "CustomGuildedName"`
  */
 const argv: {
   _: string[];
@@ -63,6 +64,10 @@ const utilInfo: {
   appDir: undefined
 };
 
+/**
+ * Function to elevate the process using the `sudo-prompt` module.
+ * We rerun the end command that the User ran, so all arguments are used.
+ */
 function elevate(): void {
   console.error(`Task ${argv.task}, requires elevated privileges, please complete the prompt that has opened.`);
 
@@ -88,6 +93,11 @@ function elevate(): void {
 
   argv.debug && console.log("Util-Info:", utilInfo);
 
+  /**
+   * Checking if ReGuilded is injected yet or not. This goes of if the `resources/app` directory exists.
+   * If there is no error and the task is `inject`, then the `resources/app` directory does exist.
+   * If there is an error and the task is `uninject`, then the `resources/app` directory does not exist.
+   */
   try {
     await access(utilInfo.appDir, constants.F_OK);
 
@@ -97,6 +107,11 @@ function elevate(): void {
     if (argv.task === "uninject") return console.error(`Called Uninject, but ReGuilded is not injected`);
   }
 
+  /**
+   * Attempt to create a test directory in the parent directory of where the ReGuilded directory will be made.
+   * If it's made successfully, we'll delete the directory right after.
+   * If not, we'll return immediately and prompt for elevated privileges.
+   */
   try {
     const testDir = join(utilInfo.reguildedDir, "../_rgTestDir");
     await mkdir(testDir);
@@ -106,6 +121,11 @@ function elevate(): void {
     return elevate();
   }
 
+  /**
+   * Attempt to create a test directory in the Resources Directory of Guilded.
+   * If it's made successfully, we'll delete the directory right after.
+   * If not, we'll return immediately and prompt for elevated privileges.
+   */
   try {
     const testDir = join(utilInfo.resourcesDir, "_rgTestDir");
     await mkdir(testDir);
