@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import { terser } from "rollup-plugin-terser";
@@ -60,7 +62,41 @@ const configuredPlugins = {
 
 /** @type {import("rollup").RollupOptions[]} */
 const config = [
-  // ReGuilded Electron Injection
+  // ReGuilded Guilded Injector
+  {
+    input: "./src/injector/main.ts",
+    output: {
+      file: "./out/injector.js",
+      name: "injector",
+      format: "cjs"
+    },
+    plugins: [
+      commonjs(),
+      resolve({
+        browser: false,
+        ignoreDynamicRequires: true
+      }),
+      {
+        name: "packageJson",
+        generateBundle() {
+          this.emitFile({
+            type: `asset`,
+            fileName: "package.json",
+            source: JSON.stringify({
+              name: "reguilded",
+              main: "./electron/patcher.js",
+              version: `v${require("../package.json").version}`
+            })
+          });
+        }
+      },
+      configuredPlugins.terser,
+      configuredPlugins.json,
+      configuredPlugins.ts
+    ]
+  },
+
+  // ReGuilded Electron Patcher
   {
     input: "./src/patcher/main.js",
     output: {
@@ -138,26 +174,6 @@ const config = [
       }),
       configuredPlugins.json,
       configuredPlugins.terser
-    ]
-  },
-
-  // ReGuilded Guilded Injection
-  {
-    input: "./src/injector/main.ts",
-    output: {
-      file: "./out/injector.js",
-      name: "injector",
-      format: "cjs"
-    },
-    plugins: [
-      commonjs(),
-      resolve({
-        browser: false,
-        ignoreDynamicRequires: true
-      }),
-      configuredPlugins.terser,
-      configuredPlugins.json,
-      configuredPlugins.ts
     ]
   }
 ];

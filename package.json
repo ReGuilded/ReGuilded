@@ -10,7 +10,7 @@
     "clean": "npm run prettify && npm run lint",
     "build": "npm install && npm run clean && rollup -c config/rollup.config.js",
     "buildAndPack": "npm run build && asar pack ./out/reguilded ./out/reguilded.asar",
-    "injector": "npm run build && node ./out/injector.js",
+    "injector": "npm run buildAndPack && node ./out/injector.js",
     "inject": "npm run injector -- --task \"inject\"",
     "uninject": "npm run injector -- --task \"uninject\"",
     "update": "npm run injector -- --task \"update\"",
