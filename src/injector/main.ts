@@ -3,8 +3,15 @@ import { closeGuildedCommand, getResourcesDir, openGuildedCommand } from "./util
 import { access, mkdir, rmdir, constants } from "fs/promises";
 import { exec as sudoExec } from "sudo-prompt";
 import platform from "./util/platform";
-import minimist from "minimist";
+import { exec } from "child_process";
 import { join } from "path";
+
+/**
+ * Ignored because Webstorm won't detect `esModuleInterop` in our TSConfig in rollup.config.js
+ */
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import minimist from "minimist";
 
 /**
  * Command Line Arguments:
@@ -41,11 +48,7 @@ argv.task = argv.task.toLowerCase();
 
 if (!platform) throw new Error(`Unsupported platform, ${process.platform}`);
 
-/**
- * Generate a utilInfo object, that will contain directories and commands.
- * We generate this from either provided arguments or default platform (./util/platform.ts)
- */
-const utilInfo: {
+type UtilInfo = {
   resourcesDir: string | undefined;
   closeCommand: string | undefined;
   openCommand: string | undefined;
@@ -53,7 +56,13 @@ const utilInfo: {
   guildedAppName: string;
   reguildedDir: string;
   guildedDir: string;
-} = {
+};
+
+/**
+ * Generate a utilInfo object, that will contain directories and commands.
+ * We generate this from either provided arguments or default platform (./util/platform.ts)
+ */
+const utilInfo: UtilInfo = {
   guildedAppName: argv.gilAppName || platform.guildedAppName,
   reguildedDir: argv.rgDir || platform.reguildedDir,
   guildedDir: argv.gilDir || platform.guildedDir,
@@ -76,6 +85,34 @@ function elevate(): void {
     if (err) console.error(`There was an error while attempting to run task ${argv.task}:\n${err}\n${stderr}`);
 
     console.log(stdout);
+  });
+}
+
+/**
+ * Function used to check if Guilded is still running.
+ * We use this because Guilded can take a moment to fully close on some platforms.
+ *
+ * Source from StackOverflow:
+ * https://stackoverflow.com/a/47996795/14981012
+ */
+function isGuildedRunning() {
+  return new Promise(function (resolve) {
+    const cmd = (() => {
+      switch (process.platform) {
+        case "win32":
+          return `tasklist`;
+        case "darwin":
+          return `ps -ax | grep ${utilInfo.guildedAppName}`;
+        case "linux":
+          return `ps -A`;
+        default:
+          resolve(false);
+      }
+    })();
+
+    exec(cmd, function (err, stdout) {
+      resolve(stdout.toLowerCase().indexOf(utilInfo.guildedAppName.toLowerCase()) > -1);
+    });
   });
 }
 
@@ -135,5 +172,36 @@ function elevate(): void {
     return elevate();
   }
 
-  console.log("LAUNCH!");
+  /**
+   * Promise to Close Guilded if we have to.
+   * This should only be done if we're injecting or uninjecting as this will interact with Guilded's ASAR.
+   * Doing so while Guilded is running would result in an error, relating to the ASAR currently being in used.
+   */
+  new Promise<void>((resolve) => {
+    if (["inject", "uninject"].includes(argv.task)) {
+      // Relays to the user that Guilded needs to be closed, and closes Guilded.
+      console.log(`Task ${argv.task} requires Guilded to be closed. Closing Guilded now...`);
+      exec(utilInfo.closeCommand);
+
+      // Creates an interval that is runs a check every 500ms (.5s) if Guilded is running.
+      // If it is, we do nothing, therefore the check runs again.
+      // If Guilded is closed, we resolve the promise, beginning the user's desired task.
+      const closeCheckInterval = setInterval(() => {
+        argv.debug && console.log("Checking if Guilded is Closed...");
+
+        isGuildedRunning().then((isGuildedRunning) => {
+          if (!isGuildedRunning) {
+            clearInterval(closeCheckInterval);
+
+            argv.debug && console.log("Guilded is Closed.");
+
+            resolve();
+          }
+        });
+      }, 500);
+    } else resolve();
+  }).then(() => {
+    argv.debug && console.log("Continuing Task...");
+    // TODO: Run User's Desired Task.
+  });
 })();
