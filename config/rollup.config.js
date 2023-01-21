@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
+//Modules
+import { join } from "path";
 
+// Rollup Plugins
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import { terser } from "rollup-plugin-terser";
@@ -7,7 +10,6 @@ import postcss from "rollup-plugin-postcss";
 import ts from "@rollup/plugin-typescript";
 import styles from "rollup-plugin-styles";
 import json from "@rollup/plugin-json";
-import { join } from "path";
 
 // Electron made me do this
 const globalModules = {

@@ -6,6 +6,9 @@ import platform from "./util/platform";
 import { exec } from "child_process";
 import { join } from "path";
 
+// Types
+import type { UtilInfo } from "../typings";
+
 /**
  * Ignored because Webstorm won't detect `esModuleInterop` in our TSConfig in rollup.config.js
  */
@@ -47,16 +50,6 @@ if (argv.gilDir && !argv.gilAppName)
 argv.task = argv.task.toLowerCase();
 
 if (!platform) throw new Error(`Unsupported platform, ${process.platform}`);
-
-type UtilInfo = {
-  resourcesDir: string | undefined;
-  closeCommand: string | undefined;
-  openCommand: string | undefined;
-  appDir: string | undefined;
-  guildedAppName: string;
-  reguildedDir: string;
-  guildedDir: string;
-};
 
 /**
  * Generate a utilInfo object, that will contain directories and commands.
