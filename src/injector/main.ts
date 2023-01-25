@@ -5,6 +5,7 @@ import { exec as sudoExec } from "sudo-prompt";
 import platform from "./util/platform";
 import { exec } from "child_process";
 import { join } from "path";
+import tasks from "./tasks";
 
 // Types
 import type { UtilInfo } from "../typings";
@@ -144,6 +145,7 @@ function isGuildedRunning() {
    */
   try {
     const testDir = join(utilInfo.reguildedDir, "../_rgTestDir");
+
     await mkdir(testDir);
     await rmdir(testDir, { recursive: false });
   } catch (err) {
@@ -158,6 +160,7 @@ function isGuildedRunning() {
    */
   try {
     const testDir = join(utilInfo.resourcesDir, "_rgTestDir");
+
     await mkdir(testDir);
     await rmdir(testDir, { recursive: false });
   } catch (err) {
@@ -193,8 +196,22 @@ function isGuildedRunning() {
         });
       }, 500);
     } else resolve();
-  }).then(() => {
+  }).then(async () => {
     argv.debug && console.log("Continuing Task...");
-    // TODO: Run User's Desired Task.
+
+    try {
+      await tasks[argv.task](utilInfo);
+    } catch (err) {
+      console.error(err);
+    }
+
+    exec(utilInfo.openCommand, (err, stdout, stderr) => {
+      if (err || stderr) console.error(err || stderr);
+
+      // FIX: Process not exiting.
+      process.exit();
+    });
+
+    console.log(`Task ${argv.task} executed successfully!`);
   });
 })();
