@@ -2,8 +2,8 @@
 import { closeGuildedCommand, getResourcesDir, openGuildedCommand } from "./util/utilFunctions";
 import { access, mkdir, rmdir, constants } from "fs/promises";
 import { exec as sudoExec } from "sudo-prompt";
+import { exec, spawn } from "child_process";
 import platform from "./util/platform";
-import { exec } from "child_process";
 import { join } from "path";
 import tasks from "./tasks";
 
@@ -16,6 +16,9 @@ import type { UtilInfo } from "../typings";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import minimist from "minimist";
+
+// Tasks that need Guilded to be closed when executing.
+const specialTasks = ["inject", "uninject"];
 
 /**
  * Command Line Arguments:
@@ -174,7 +177,7 @@ function isGuildedRunning() {
    * Doing so while Guilded is running would result in an error, relating to the ASAR currently being in used.
    */
   new Promise<void>((resolve) => {
-    if (["inject", "uninject"].includes(argv.task)) {
+    if (specialTasks.includes(argv.task)) {
       // Relays to the user that Guilded needs to be closed, and closes Guilded.
       console.log(`Task ${argv.task} requires Guilded to be closed. Closing Guilded now...`);
       exec(utilInfo.closeCommand);
@@ -205,13 +208,26 @@ function isGuildedRunning() {
       console.error(err);
     }
 
-    exec(utilInfo.openCommand, (err, stdout, stderr) => {
-      if (err || stderr) console.error(err || stderr);
+    console.log(`Task ${argv.task} executed Successfully.`);
 
-      // FIX: Process not exiting.
-      process.exit();
-    });
+    // Only attempt to reopen Guilded if it was closed.
+    if (specialTasks.includes(argv.task)) {
+      exec(utilInfo.openCommand);
 
-    console.log(`Task ${argv.task} executed successfully!`);
+      // Same process as closeCheckInterval but waits until Guilded is detected as opened.
+      const openCheckInterval = setInterval(() => {
+        argv.debug && console.log("Checking if Guilded is Opened...");
+
+        isGuildedRunning().then((isGuildedRunning) => {
+          if (isGuildedRunning) {
+            clearInterval(openCheckInterval);
+
+            argv.debug && console.log("Guilded is Opened.");
+
+            process.exit();
+          }
+        });
+      }, 500);
+    } else process.exit();
   });
 })();
