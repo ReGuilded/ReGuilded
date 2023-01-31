@@ -27,6 +27,7 @@ export default async function inject(utilInfo: UtilInfo) {
           resolve();
         });
       }),
+
       /**
        * Create a resources/app directory, create index.js & package.json,
        * This redirects to ReGuilded's ASAR.
@@ -52,13 +53,15 @@ export default async function inject(utilInfo: UtilInfo) {
           resolve();
         });
       }),
+
       /**
        * Move ReGuilded's ASAR to the user's desired location.
        */
       new Promise<void>((resolve, reject) => {
         access(utilInfo.reguildedDir, constants.F_OK, async (err) => {
           try {
-            err && (await mkdirPromise(utilInfo.reguildedDir));
+            if (err) await mkdirPromise(utilInfo.reguildedDir);
+
             await copyFile(
               join(__dirname, "reguilded.asar"),
               join(utilInfo.reguildedDir, "reguilded.asar"),
