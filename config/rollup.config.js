@@ -68,7 +68,7 @@ const config = [
   {
     input: "./src/injector/main.ts",
     output: {
-      file: "./out/injector.js",
+      file: join(modPath, "..", "injector.js"),
       name: "injector",
       format: "cjs"
     },
@@ -78,20 +78,6 @@ const config = [
         browser: false,
         ignoreDynamicRequires: true
       }),
-      {
-        name: "packageJson",
-        generateBundle() {
-          this.emitFile({
-            type: `asset`,
-            fileName: "package.json",
-            source: JSON.stringify({
-              name: "reguilded",
-              main: "./electron/patcher.js",
-              version: `v${require("../package.json").version}`
-            })
-          });
-        }
-      },
       configuredPlugins.terser,
       configuredPlugins.json,
       configuredPlugins.ts
@@ -175,6 +161,37 @@ const config = [
         resolveOnly: resolvableModules
       }),
       configuredPlugins.json,
+      configuredPlugins.terser
+    ]
+  },
+
+  // ReGuilded Main
+  {
+    input: "./src/mod/main.ts",
+    output: {
+      file: join(modPath, "main.js"),
+      name: "reguilded",
+      format: "cjs"
+    },
+    plugins: [
+      commonjs(),
+      resolve({ browser: true }),
+      {
+        name: "packageJson",
+        generateBundle() {
+          this.emitFile({
+            type: `asset`,
+            fileName: "package.json",
+            source: JSON.stringify({
+              name: "reguilded",
+              main: "./electron/patcher.js",
+              version: `v${require("../package.json").version}`
+            })
+          });
+        }
+      },
+      configuredPlugins.json,
+      configuredPlugins.ts,
       configuredPlugins.terser
     ]
   }
