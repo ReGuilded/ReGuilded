@@ -8,7 +8,7 @@
     "prettify": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
     "lint": "eslint .",
     "clean": "npm run prettify && npm run lint",
-    "build": "npm install && npm run clean && rollup -c config/rollup.config.js",
+    "build": "npm run clean && rollup -c config/rollup.config.js",
     "buildAndPack": "npm run build && asar pack ./out/reguilded ./out/reguilded.asar",
     "injector": "npm run buildAndPack && node ./out/injector.js",
     "inject": "npm run injector -- --task \"inject\"",
