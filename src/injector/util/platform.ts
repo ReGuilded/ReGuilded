@@ -32,7 +32,7 @@ const platforms = new Map<string, Platform>([
         /**
          * Rare occurrence of ignoring a TS error...
          *
-         * This code is only used when the user is on Win32, process.env.LOCALAPPDATA will not be undefined in that case.
+         * This code is only used when the user is on Win32, process.env.ProgramW6432 will not be undefined in that case.
          */
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
