@@ -1,14 +1,14 @@
+// Types
+import type { UtilInfo } from "../typings";
+
 // Modules
 import { closeGuildedCommand, getResourcesDir, openGuildedCommand } from "./util/utilFunctions";
 import { access, mkdir, rmdir, constants } from "fs/promises";
 import { exec as sudoExec } from "sudo-prompt";
-import { exec, spawn } from "child_process";
 import platform from "./util/platform";
+import { exec } from "child_process";
 import { join } from "path";
 import tasks from "./tasks";
-
-// Types
-import type { UtilInfo } from "../typings";
 
 /**
  * Ignored because Webstorm won't detect `esModuleInterop` in our TSConfig in rollup.config.js
