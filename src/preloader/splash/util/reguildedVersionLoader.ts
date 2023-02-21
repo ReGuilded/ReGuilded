@@ -5,7 +5,7 @@
 // TODO: Add reGuildedInfo
 
 const reGuildedSplashFooter = document.createElement("div");
-reGuildedSplashFooter.innerText = "v1.0.0 - ReGuilded";
+reGuildedSplashFooter.innerText = `ReGuilded - v1.0.0-alpha`;
 reGuildedSplashFooter.id = "reguildedSplashFooter";
 
 const cssText =
