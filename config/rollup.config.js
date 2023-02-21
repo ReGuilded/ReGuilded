@@ -100,6 +100,7 @@ const config = [
         resolveOnly: resolvableModules,
         ignoreDynamicRequires: true
       }),
+      configuredPlugins.json,
       configuredPlugins.terser
     ]
   },

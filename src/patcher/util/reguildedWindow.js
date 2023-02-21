@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 // Modules
 import * as electron from "electron";
 import { join } from "path";
@@ -29,6 +30,10 @@ export default class ReGuildedWindow extends electron.BrowserWindow {
     }
 
     super(options);
+
+    this.webContents.userAgent =
+      this.webContents.userAgent +
+      ` ReGuilded/${require(join(__dirname, "../package.json")).version.slice(1)} (debugging-purposes)`;
 
     // Implements devtools warning
     this.webContents.on("devtools-opened", () => {
