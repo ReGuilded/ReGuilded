@@ -25,9 +25,6 @@ if (platform === "linux" && getuid() === 0) {
   exit(1);
 }
 
-// Returns Settings path
-const settingsPath = join(process.env.APPDATA || process.env.HOME, ".reguilded");
-
 // Electron Path
 const electronPath = require.resolve("electron");
 
