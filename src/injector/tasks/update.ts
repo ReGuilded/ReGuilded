@@ -1,5 +1,5 @@
 // Types
-import type { UtilInfo } from "../../typings";
+import type { UtilInfo } from "../../common/typings";
 
 // Modules
 import { access, constants, copyFile, mkdir } from "fs/promises";

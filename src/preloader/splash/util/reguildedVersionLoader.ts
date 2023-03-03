@@ -2,11 +2,11 @@
  * This script's entire purpose is just meant to be JavaScript that is ran in the Splash Loader. It just displays what version of ReGuilded you're running at the bottom of the window.
  * "vX.Y.Z - ReGuilded"
  */
-// TODO: Add reGuildedInfo
+// TODO: Load version from window.ReGuilded.version
 
-const reGuildedSplashFooter = document.createElement("div");
-reGuildedSplashFooter.innerText = `ReGuilded - v1.0.0-alpha`;
-reGuildedSplashFooter.id = "reguildedSplashFooter";
+const reguildedSplashFooter = document.createElement("div");
+reguildedSplashFooter.innerText = `ReGuilded - ${window["reguildedVersion"]}`;
+reguildedSplashFooter.id = "reguildedSplashFooter";
 
 const cssText =
   " color: #a3a3ac;" +
@@ -16,11 +16,11 @@ const cssText =
   " font-family: GothamNarrowSSm;" +
   " font-size: 18px;" +
   " text-align: center";
-reGuildedSplashFooter.setAttribute("style", cssText);
+reguildedSplashFooter.setAttribute("style", cssText);
 
 const elementExists = setInterval(function () {
   if (document.getElementById("splashTextBlock") != null) {
-    document.getElementById("splashTextBlock")?.append(reGuildedSplashFooter);
+    document.getElementById("splashTextBlock")?.append(reguildedSplashFooter);
     clearInterval(elementExists);
   }
 }, 250);

@@ -1,5 +1,5 @@
 // Types
-import type { UtilInfo } from "../../typings";
+import type { UtilInfo } from "../../common/typings";
 
 // Modules
 import { rename, rm } from "fs/promises";

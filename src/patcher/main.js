@@ -10,9 +10,9 @@
 // import { cspWhitelist, defaultCustomCspWhitelist } from "./util/cspWhitelist";
 import ReGuildedWindow from "./util/reguildedWindow";
 import { platform, getuid, exit } from "process";
-import { readFileSync, access } from "fs";
 import { join, dirname } from "path";
 import * as electron from "electron";
+import { readFileSync } from "fs";
 import { _load } from "module";
 
 // Ensures Application isn't ran as root on Linux

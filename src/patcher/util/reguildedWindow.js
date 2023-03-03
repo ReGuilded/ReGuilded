@@ -31,6 +31,7 @@ export default class ReGuildedWindow extends electron.BrowserWindow {
 
     super(options);
 
+    // Implements UserAgent used for Debugging Purposes
     this.webContents.userAgent =
       this.webContents.userAgent +
       ` ReGuilded/${require(join(__dirname, "../package.json")).version.slice(1)} (debugging-purposes)`;
