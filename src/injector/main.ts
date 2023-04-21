@@ -147,7 +147,15 @@ function isGuildedRunning() {
    * If not, we'll return immediately and prompt for elevated privileges.
    */
   try {
-    const testDir = join(utilInfo.reguildedDir, "../_rgTestDir");
+    let testDir;
+
+    try {
+      await access(utilInfo.reguildedDir);
+
+      testDir = join(utilInfo.reguildedDir, "_rgTestDir");
+    } catch (err) {
+      testDir = join(utilInfo.reguildedDir, "../_rgTestDir");
+    }
 
     await mkdir(testDir);
     await rmdir(testDir, { recursive: false });
