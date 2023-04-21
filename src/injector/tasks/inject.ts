@@ -2,8 +2,9 @@
 import type { UtilInfo } from "../../common/typings";
 
 // Modules
-import { mkdir, constants, copyFile, rename, writeFile, access } from "fs/promises";
+import { mkdir, constants, copyFile, rename, writeFile, access, chmod } from "fs/promises";
 import { join } from "path";
+import { exec } from "child_process";
 
 /**
  * Creates a `_guilded` directory in Guilded's Resource directory.
@@ -70,6 +71,9 @@ async function accessAndCopyRG(utilInfo: UtilInfo) {
       join(utilInfo.reguildedDir, "reguilded.asar"),
       constants.COPYFILE_FICLONE
     );
+
+    ["linux", "darwin"].includes(process.platform) && exec(`chmod -R 777 ${utilInfo.reguildedDir}`);
+    process.platform === "win32" && exec(`icacls "${utilInfo.reguildedDir}" /grant "Authenticated Users":(OI)(CI)F`);
   } catch (e) {
     await mkdir(utilInfo.reguildedDir);
     return accessAndCopyRG(utilInfo);
