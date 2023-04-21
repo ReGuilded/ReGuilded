@@ -28,7 +28,7 @@ export async function closeGuildedCommand(appName: string): Promise<string | und
     case "darwin":
       return `killall ${appName}`;
     case "win32":
-      return `taskkill /f /IM ${appName}.exe >nul`;
+      return `taskkill /IM ${appName}.exe /F /T >nul`;
   }
 }
 
