@@ -188,6 +188,8 @@ function isGuildedRunning() {
     if (specialTasks.includes(argv.task)) {
       // Relays to the user that Guilded needs to be closed, and closes Guilded.
       console.log(`Task ${argv.task} requires Guilded to be closed. Closing Guilded now...`);
+      console.warn("If Guilded remains open, then there has been a permission issue closing Guilded");
+      console.warn("Please completely close Guilded, to continue the process.");
       exec(utilInfo.closeCommand);
 
       // Creates an interval that is runs a check every 500ms (.5s) if Guilded is running.
