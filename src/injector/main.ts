@@ -150,17 +150,6 @@ function isGuildedRunning() {
    * If not, we'll return immediately and prompt for elevated privileges.
    */
   try {
-    console.log("Writing test file");
-    const testfile = await readFile(
-      "/home/idkgoodname/Desktop/Development/Projects/ReGuilded/ReGuilded/out/test.txt",
-      "utf-8"
-    );
-    await writeFile(
-      "/home/idkgoodname/Desktop/Development/Projects/ReGuilded/ReGuilded/out/test.txt",
-      testfile + "\nIteration",
-      "utf-8"
-    );
-
     let testDir;
 
     try {
@@ -185,8 +174,6 @@ function isGuildedRunning() {
    */
   try {
     const testDir = join(utilInfo.resourcesDir, "_rgTestDir");
-
-    console.log([utilInfo, utilInfo.resourcesDir, join(utilInfo.resourcesDir, "_rgTestDir")]);
 
     await mkdir(testDir);
     await rmdir(testDir, { recursive: false });
