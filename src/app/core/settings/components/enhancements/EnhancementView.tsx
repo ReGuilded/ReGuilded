@@ -47,6 +47,7 @@ export default abstract class EnhancementView<T extends AnyEnhancement> extends 
         this.state = {
             enabled: ~window.ReGuilded.themes.enabled.indexOf(this.props.enhancement.id)
         };
+
         this._onToggleBinded = this._onToggle.bind(this);
         this._onDeleteBinded = this._onDelete.bind(this);
         this.SaveChanges = coroutine(this.onSaveChanges);
@@ -81,54 +82,56 @@ export default abstract class EnhancementView<T extends AnyEnhancement> extends 
      */
     private renderActionForm(): ReactElement {
         const [buttonType, buttonText] = this.state.enabled ? ["delete", "Disable"] : ["success", "Enable"],
-              { _onToggleBinded, _onDeleteBinded } = this;
+            { _onToggleBinded, _onDeleteBinded } = this;
 
         return (
-            <Form formSpecs={{
-                sectionStyle: "border-unpadded",
-                sections: [
-                    {
-                        header: "Actions",
-                        fieldSpecs: [
-                            {
-                                type: "Button",
-                                fieldName: "stateChange",
-                                buttonText,
+            <ErrorBoundary>
+                <Form formSpecs={{
+                    sectionStyle: "border-unpadded",
+                    sections: [
+                        {
+                            header: "Actions",
+                            fieldSpecs: [
+                                {
+                                    type: "Button",
+                                    fieldName: "stateChange",
+                                    buttonText,
 
-                                buttonType,
-                                grow: 0,
-                                rowCollapseId: "button-list",
+                                    buttonType,
+                                    grow: 0,
+                                    rowCollapseId: "button-list",
 
-                                onClick: _onToggleBinded
-                            },
-                            {
-                                type: "Button",
-                                fieldName: "directory",
-                                buttonText: "Open directory",
+                                    onClick: _onToggleBinded
+                                },
+                                {
+                                    type: "Button",
+                                    fieldName: "directory",
+                                    buttonText: "Open directory",
 
-                                buttonType: "bleached",
-                                style: "hollow",
-                                grow: 0,
-                                rowCollapseId: "button-list",
+                                    buttonType: "bleached",
+                                    style: "hollow",
+                                    grow: 0,
+                                    rowCollapseId: "button-list",
 
-                                onClick: () => window.ReGuildedConfig.openItem(this.props.enhancement.dirname)
-                            },
-                            {
-                                type: "Button",
-                                fieldName: "delete",
-                                buttonText: "Delete",
+                                    onClick: () => window.ReGuildedConfig.openItem(this.props.enhancement.dirname)
+                                },
+                                {
+                                    type: "Button",
+                                    fieldName: "delete",
+                                    buttonText: "Delete",
 
-                                buttonType: "delete",
-                                style: "hollow",
-                                grow: 0,
-                                rowCollapseId: "button-list",
+                                    buttonType: "delete",
+                                    style: "hollow",
+                                    grow: 0,
+                                    rowCollapseId: "button-list",
 
-                                onClick: _onDeleteBinded
-                            }
-                        ]
-                    }
-                ]
-            }}/>
+                                    onClick: _onDeleteBinded
+                                }
+                            ]
+                        }
+                    ]
+                }}/>
+            </ErrorBoundary>
         );
     }
     render() {

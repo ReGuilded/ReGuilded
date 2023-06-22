@@ -103,7 +103,8 @@ const cacheFns: { [method: string]: (webpack: WebpackManager) => any } = {
     "guilded/components/HorizontalTabs": webpack => webpack.withClassProperty("tabOptions"),
     "guilded/components/HorizontalTab": webpack => webpack.withClassProperty("tabOption"),
     "guilded/components/ToggleFieldWrapper": webpack => webpack.withComponentCode("ToggleFieldWrapper-container"),
-    "guilded/components/SimpleToggle": webpack => webpack.withClassProperty("input"),
+    // "guilded/components/SimpleToggle": webpack => webpack.withClassProperty("input"),
+    "guilded/components/SwitchInput": webpack => webpack.withOnlyMobxProperties(["value"]),
     "guilded/components/MediaRenderer": webpack => webpack.withClassProperty("progressiveImageHasLoaded"),
     "guilded/components/CodeContainer": webpack => webpack.withClassProperty("tokenCodeLines"),
     "guilded/components/SearchBarV2": webpack => webpack.withClassProperty("_inputRef"),
@@ -631,11 +632,17 @@ export default class AddonApi {
         return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/ToggleFieldWrapper");
     }
     /**
-     * Displays a toggle with an optional label.
+     * Displays a toggle.
      */
-    get ["guilded/components/SimpleToggle"](): AddonApiExports<"guilded/components/SimpleToggle"> {
-        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/SimpleToggle");
+    get ["guilded/components/SwitchInput"](): AddonApiExports<"guilded/components/SwitchInput"> {
+        return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/SwitchInput");
     }
+    // /**
+    //  * Displays a toggle with an optional label.
+    //  */
+    // get ["guilded/components/SimpleToggle"](): AddonApiExports<"guilded/components/SimpleToggle"> {
+    //     return this.#getCachedWithPermissions(AddonPermission.Elements, "guilded/components/SimpleToggle");
+    // }
     /**
      * Displays a message image.
      */

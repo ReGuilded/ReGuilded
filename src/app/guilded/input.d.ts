@@ -67,10 +67,34 @@ export declare class SearchBarV2 extends React.Component<{
 }
 //#endregion
 
+// //#region SimpleToggle
+// export declare class SimpleToggle extends React.Component<{
+//     label: string;
+//     onChange?: (enabled: boolean | number) => void;
+//     defaultValue?: boolean;
+// }> {}
+// //#endregion
+
+//#region ToggleFieldWrapper
+export declare class ToggleFieldWrapper extends React.Component<{
+    fieldSpec: {
+        label: string;
+        fieldName: string;
+        layout?: "space-between";
+        onChange?: (enabled: boolean | number) => void;
+        defaultValue?: boolean;
+        onChangeFireImmediately?: boolean;
+    }
+}> {}
+//#endregion
+
 //#region SimpleToggle
-export declare class SimpleToggle extends React.Component<{
+export declare class SwitchInput extends React.Component<{
     label: string;
+    fieldName: string;
+    layout?: "space-between";
     onChange?: (enabled: boolean | number) => void;
     defaultValue?: boolean;
+    onChangeFireImmediately?: boolean;
 }> {}
 //#endregion

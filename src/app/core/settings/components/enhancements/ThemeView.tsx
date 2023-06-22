@@ -1,4 +1,5 @@
 import { Theme } from "../../../../../common/enhancements";
+import ErrorBoundary from "../ErrorBoundary";
 import EnhancementView from "./EnhancementView";
 import ThemeItem from "./ThemeItem";
 
@@ -14,7 +15,8 @@ export default class ThemeView extends EnhancementView<Theme> {
         super(props, context);
 
         props.enhancement.settings && this.tabs.push({ name: "Settings" });
-        this._SaveBinded = this._handleSaveChangesClick.bind(this);
+
+        this._SaveBinded = this.Save?.bind(this);
     }
 
     protected override *onSaveChanges({ values, isValid }) {
@@ -26,27 +28,29 @@ export default class ThemeView extends EnhancementView<Theme> {
         return (
             theme.settings &&
             <div className="ReGuildedEnhancementPage-tab">
-                {/* TODO: Settings saving */}
-                <Form onChange={this._handleOptionsChange} formSpecs={{
-                    header: "Settings",
-                    sectionStyle: "border-unpadded",
-                    sections: [
-                        {
-                            fieldSpecs: ThemeItem.generateSettingsFields(theme.settings, theme.settingsProps)
-                        },
-                        {
-                            fieldSpecs: [
-                                {
-                                    type: "Button",
+                <ErrorBoundary>
+                    {/* TODO: Settings saving */}
+                    <Form onChange={this._handleOptionsChange} formSpecs={{
+                        header: "Settings",
+                        sectionStyle: "border-unpadded",
+                        sections: [
+                            {
+                                fieldSpecs: ThemeItem.generateSettingsFields(theme.settings, theme.settingsProps)
+                            },
+                            {
+                                fieldSpecs: [
+                                    {
+                                        type: "Button",
 
-                                    buttonText: "Save",
+                                        buttonText: "Save",
 
-                                    onClick: this._SaveBinded
-                                }
-                            ]
-                        }
-                    ]
-                }}/>
+                                        onClick: this._SaveBinded
+                                    }
+                                ]
+                            }
+                        ]
+                    }}/>
+                </ErrorBoundary>
             </div>
         );
     }

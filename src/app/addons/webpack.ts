@@ -179,6 +179,25 @@ export default class WebpackManager {
         });
     }
     /**
+     * Matches and returns the module containing a class that contains only the given properties in its mobx decorated property list.
+     * @param names The names of the properties that the __mobxDecorators property should only have
+     * @returns Webpack Module Exports
+     */
+    withOnlyMobxProperties(propertyNames: string[]): typeof Object | { default: typeof Object } {
+        return this.withFilter(x => {
+            const { default: type } = this.asEsModule(x?.exports);
+
+            if (typeof type !== "function" || typeof type.prototype?.__mobxDecorators === "undefined") return false;
+
+            const classProperties = Object.keys(type.prototype.__mobxDecorators);
+
+            // propertyNames.some can also be done, but it's not worth it unless there will be conflicting stuff in the future
+            // Not only does property count need to match, but there is no way that `classProperties` will have duplicate properties,
+            // because JS doesn't allow that.
+            return propertyNames.length === classProperties.length && !classProperties.some(y => !propertyNames.includes(y));
+        });
+    }
+    /**
      * Gets a module from WebpackJsonp.
      * @param id The identifier of the pushed module
      * @returns WebpackJsonp module

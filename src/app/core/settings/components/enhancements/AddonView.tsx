@@ -18,7 +18,7 @@ export default class AddonView extends EnhancementView<Addon> {
 
         this.tabs.push({ name: "Permissions" });
 
-        this._SaveBinded = this._handleSaveChangesClick.bind(this);
+        this._SaveBinded = this.Save?.bind(this);
     }
     protected override *onSaveChanges({ values: { permissions }, isValid }: FormOutput<{ permissions: Array<{ optionName: number, value: boolean }> }>) {
         if (isValid) {

@@ -16,7 +16,7 @@ export default abstract class EnhancementHandler<
     /**
      * A Regex pattern for determining whether given enhancement's ID is correct.
      */
-    static idRegex: RegExp = /^[A-Za-z0-9]+$/g;
+    static idRegex: RegExp = /^[A-Za-z0-9\-_]+$/g;
     static versionRegex = /^([0-9]+)(?:[.]([0-9]+))+(?:\-([Aa]lpha|[Bb]eta|[Gg]amma))?$/;
 
     all: T[];

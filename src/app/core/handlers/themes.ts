@@ -101,7 +101,7 @@ export default class ThemeHandler extends EnhancementHandler<Theme, RGThemeConfi
         // Using keys instead of values to validate id as well
         for (let propId of metadata.settingsProps) {
             // Validate ID
-            if (!propId.match(EnhancementHandler.idRegex))
+            if (!EnhancementHandler.idRegex.test(propId))
                 return console.warn("Incorrect syntax for property", propId, ". Theme ID:", metadata.id);
 
             const prop = metadata.settings[propId];

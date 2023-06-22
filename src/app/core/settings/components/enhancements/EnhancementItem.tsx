@@ -7,7 +7,8 @@ import { SwitchTab } from "../TabbedSettings";
 const React = window.ReGuilded.getApiProperty("react"),
     { default: OverflowButton } = window.ReGuilded.getApiProperty("guilded/components/OverflowButton"),
     { default: CardWrapper } = window.ReGuilded.getApiProperty("guilded/components/CardWrapper"),
-    { default: SimpleToggle } = window.ReGuilded.getApiProperty("guilded/components/SimpleToggle"),
+    { default: SwitchInput } = window.ReGuilded.getApiProperty("guilded/components/SwitchInput"),
+    { default: ToggleFieldWrapper } = window.ReGuilded.getApiProperty("guilded/components/ToggleFieldWrapper"),
     { default: UserBasicInfoDisplay } = window.ReGuilded.getApiProperty("guilded/components/UserBasicInfoDisplay"),
     { default: GuildedText } = window.ReGuilded.getApiProperty("guilded/components/GuildedText"),
     { default: StretchFadeBackground } = window.ReGuilded.getApiProperty("guilded/components/StretchFadeBackground"),
@@ -63,9 +64,10 @@ export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> 
         }
     }
     render() {
-        const { overflowMenuSpecs, props: { name, readme, version, switchTab, banner }, state: { enabled } } = this;
+        const { overflowMenuSpecs, props: { id, name, readme, version, switchTab, banner }, state: { enabled } } = this;
 
         const readmeLength = readme?.length;
+        const toggleName = id + "-toggle";
 
         return (
             <CardWrapper isStandalone className={"ReGuildedEnhancement-container ReGuildedEnhancement-container-" + (enabled ? "enabled" : "disabled") } onClick={() => switchTab("specific", { enhancement: this.props })}>
@@ -78,10 +80,14 @@ export default abstract class EnhancementItem<P extends AnyEnhancement, S = {}> 
                         {/* Header info */}
                         <div className="PlayerCardGameInfo-name-alias" onClick={e => e.stopPropagation()}>
                             {/* Name + Toggle */}
-                            <SimpleToggle
-                                label={name}
-                                defaultValue={enabled}
-                                onChange={async (newState: boolean) => (this.hasToggled || (newState !== enabled && typeof newState !== "number")) && (this.hasToggled = true, await this.onToggle(newState))}/>
+                            <ToggleFieldWrapper fieldSpec={{ label: name, fieldName: toggleName, defaultValue: enabled }}>
+                                <SwitchInput
+                                    fieldName={toggleName}
+                                    label={name}
+                                    defaultValue={enabled}
+                                    onChangeFireImmediately={false}
+                                    onChange={async (newState: boolean) => (this.hasToggled || (newState !== enabled && typeof newState !== "number")) && (this.hasToggled = true, await this.onToggle(newState))}/>
+                            </ToggleFieldWrapper>
                             <GuildedText type="subtext" block={true} className="ReGuildedEnhancement-version">{ version ? `Version ${version}` : "Latest release" }</GuildedText>
                             <div className="ReGuildedEnhancement-author">
                                 { this.state.author
