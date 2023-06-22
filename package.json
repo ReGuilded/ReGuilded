@@ -84,5 +84,8 @@
     "bracketSpacing": true,
     "arrowParens": "always",
     "proseWrap": "always"
+  },
+  "dependencies": {
+    "@electron/asar": "^3.2.4"
   }
 }

@@ -3,7 +3,7 @@ import type { UtilInfo } from "../common/typings";
 
 // Modules
 import { closeGuildedCommand, getResourcesDir, openGuildedCommand } from "./util/utilFunctions";
-import { access, mkdir, rmdir, constants } from "fs/promises";
+import { access, mkdir, rmdir, constants, writeFile, readFile, stat } from "fs/promises";
 import { exec as sudoExec } from "sudo-prompt";
 import platform from "./util/platform";
 import { exec } from "child_process";
@@ -78,8 +78,11 @@ function elevate(): void {
   console.error(`Task ${argv.task}, requires elevated privileges, please complete the prompt that has opened.`);
 
   argv.debug && console.log(`Elevation-Command: ${process.argv.map((x) => JSON.stringify(x)).join(" ")}`);
+  console.log(process.argv.map((x) => JSON.stringify(x)).join(" "));
   sudoExec(process.argv.map((x) => JSON.stringify(x)).join(" "), { name: "ReGuilded" }, (err, stdout, stderr) => {
-    if (err) console.error(`There was an error while attempting to run task ${argv.task}:\n${err}\n${stderr}`);
+    if (err) return console.error(`There was an error while attempting to run task ${argv.task}:\n${err}\n${stderr}`);
+
+    console.log("Privileges elevated successfully.");
 
     console.log(stdout);
   });
@@ -147,6 +150,17 @@ function isGuildedRunning() {
    * If not, we'll return immediately and prompt for elevated privileges.
    */
   try {
+    console.log("Writing test file");
+    const testfile = await readFile(
+      "/home/idkgoodname/Desktop/Development/Projects/ReGuilded/ReGuilded/out/test.txt",
+      "utf-8"
+    );
+    await writeFile(
+      "/home/idkgoodname/Desktop/Development/Projects/ReGuilded/ReGuilded/out/test.txt",
+      testfile + "\nIteration",
+      "utf-8"
+    );
+
     let testDir;
 
     try {
@@ -171,6 +185,8 @@ function isGuildedRunning() {
    */
   try {
     const testDir = join(utilInfo.resourcesDir, "_rgTestDir");
+
+    console.log([utilInfo, utilInfo.resourcesDir, join(utilInfo.resourcesDir, "_rgTestDir")]);
 
     await mkdir(testDir);
     await rmdir(testDir, { recursive: false });

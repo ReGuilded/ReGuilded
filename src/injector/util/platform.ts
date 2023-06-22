@@ -11,9 +11,9 @@ const platforms = new Map<string, Platform>([
   [
     "linux",
     {
-      guildedAppName: "/opt/Guilded",
-      reguildedDir: "/usr/local/share/ReGuilded",
-      guildedDir: "guilded"
+      guildedAppName: "guilded",
+      guildedDir: "/opt/Guilded",
+      reguildedDir: "/usr/local/share/ReGuilded"
     }
   ],
   [
