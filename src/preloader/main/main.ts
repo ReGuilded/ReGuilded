@@ -32,10 +32,10 @@ const settingsPath = join(process.env.APPDATA || process.env.HOME, ".reguilded")
       addons: {},
       sounds: {},
       checkForUpdate(): void {
-        return;
+        return alert("WORK IN PROGRESS - NATHANIEL YOU NEED TO FINISH THIS FEATURE.");
       },
       doUpdateIfPossible(): void {
-        return;
+        return alert("WORK IN PROGRESS - NATHANIEL YOU NEED TO FINISH THIS FEATURE.");
       },
 
       openItem(path: string): void {

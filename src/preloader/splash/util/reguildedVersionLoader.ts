@@ -2,7 +2,6 @@
  * This script's entire purpose is just meant to be JavaScript that is ran in the Splash Loader. It just displays what version of ReGuilded you're running at the bottom of the window.
  * "vX.Y.Z - ReGuilded"
  */
-// TODO: Load version from window.ReGuilded.version
 
 const reguildedSplashFooter = document.createElement("div");
 reguildedSplashFooter.innerText = `ReGuilded - ${window["reguildedVersion"]}`;

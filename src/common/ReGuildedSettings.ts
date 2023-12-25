@@ -33,3 +33,8 @@ export type ReGuildedSettingsUpdate = {
   themes?: ReGuildedEnhancementSettings;
   sounds?: ReGuildedEnhancementSettings;
 };
+
+export declare interface ReGuildedConfigCommon<T> {
+  getConfig(): T;
+  updateConfig(props: Partial<T>): Promise<void>;
+}
